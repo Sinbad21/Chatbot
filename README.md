@@ -1,10 +1,14 @@
 # ChatBotPlatform
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-green.svg)](https://fastapi.tiangolo.com/)
+
 A comprehensive, enterprise-grade chatbot platform with multi-user support, JWT authentication, PostgreSQL database, and integrated RAG engine for document-based question answering.
 
-## Features
+## ✨ Features
 
-- � **Multi-User Support**: Hierarchical user roles (admin/manager/user) with access control
+- 👥 **Multi-User Support**: Hierarchical user roles (admin/manager/user) with access control
 - 🔐 **JWT Authentication**: Secure token-based authentication with refresh tokens
 - 🗄️ **PostgreSQL Database**: Robust data persistence with async SQLAlchemy
 - 📄 **Document Processing**: Upload and process PDF, TXT, MD, and DOCX files
@@ -12,9 +16,11 @@ A comprehensive, enterprise-grade chatbot platform with multi-user support, JWT 
 - 🤖 **Bot Management**: Create and manage multiple chatbots per user
 - 💬 **Real-time Chat**: Conversational AI with citation support
 - 🐳 **Docker Ready**: Complete containerization with docker-compose
-- � **API Documentation**: Automatic OpenAPI/Swagger documentation
+- 📚 **API Documentation**: Automatic OpenAPI/Swagger documentation
+- 🧪 **Comprehensive Testing**: Full test suite with pytest
+- 🔒 **Security First**: bcrypt hashing, encrypted API keys, CORS protection
 
-## Architecture
+## 🏗️ Architecture
 
 ```
 ChatBotPlatform/
@@ -28,18 +34,27 @@ ChatBotPlatform/
 │   ├── models/            # SQLAlchemy models
 │   ├── schemas/           # Pydantic schemas
 │   └── core/              # Configuration & utilities
-├── data/                  # Application data
+├── web/                   # React/TypeScript frontend
 ├── alembic/               # Database migrations
+├── tests/                 # Test suite
 └── docker-compose.yml     # Multi-service setup
 ```
 
-## Quick Start
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.9+
+- PostgreSQL (optional, SQLite for development)
+- OpenAI API key
+- Docker & Docker Compose (for containerized deployment)
 
 ### 1. Environment Setup
 
 ```bash
-# Clone or navigate to the project
-cd ChatBotPlatform
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/chatbot.git
+cd chatbot
 
 # Create virtual environment
 python -m venv venv
@@ -51,32 +66,38 @@ pip install -r requirements.txt
 
 ### 2. Environment Configuration
 
-Create a `.env` file:
+Create a `.env` file in the root directory:
 
 ```env
-# Database
+# Database Configuration
 DATABASE_URL=postgresql+asyncpg://user:password@localhost/chatbot_db
+# For development with SQLite:
+# DATABASE_URL=sqlite+aiosqlite:///./chatbot.db
 
 # JWT Security
-JWT_SECRET_KEY=your-super-secret-jwt-key-here
+JWT_SECRET_KEY=your-super-secret-jwt-key-here-change-this-in-production
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 REFRESH_TOKEN_EXPIRE_DAYS=7
 
 # OpenAI API
 OPENAI_API_KEY=your-openai-api-key-here
 
-# Application
+# Application Settings
 DEBUG=true
+CORS_ORIGINS=["http://localhost:3000", "http://localhost:8000"]
+
+# Encryption (for API key storage)
+ENCRYPTION_KEY=your-32-character-encryption-key-here
 ```
 
 ### 3. Database Setup
 
 ```bash
 # Run database migrations
-make db-upgrade
-
-# Or manually with alembic
 alembic upgrade head
+
+# Or use the Makefile
+make db-upgrade
 ```
 
 ### 4. Start the Application
@@ -89,9 +110,14 @@ python run.py
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Visit `http://127.0.0.1:8000/` for the web interface and `http://127.0.0.1:8000/docs` for API documentation.
+Visit:
+- **Web Interface**: `http://127.0.0.1:8000/`
+- **API Documentation**: `http://127.0.0.1:8000/docs`
+- **Alternative Docs**: `http://127.0.0.1:8000/redoc`
 
-## Docker Deployment
+## 🐳 Docker Deployment
+
+For production deployment:
 
 ```bash
 # Build and start all services
@@ -99,6 +125,9 @@ docker-compose up --build
 
 # Run in background
 docker-compose up -d --build
+
+# View logs
+docker-compose logs -f app
 ```
 
 Services include:
@@ -106,15 +135,24 @@ Services include:
 - **PostgreSQL**: Database on port 5432
 - **pgAdmin**: Database admin interface on port 5050
 
-## API Usage
+## 📖 API Usage Examples
 
 ### Authentication
 
 ```bash
+# Register a new user
+curl -X POST "http://localhost:8000/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "securepassword",
+    "full_name": "John Doe"
+  }'
+
 # Login
 curl -X POST "http://localhost:8000/auth/login" \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=user@example.com&password=password"
+  -d "username=user@example.com&password=securepassword"
 
 # Use access token for authenticated requests
 curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
@@ -128,106 +166,171 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 curl -X POST "http://localhost:8000/bots/" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"name": "My Assistant", "is_public": false}'
+  -d '{"name": "Research Assistant", "description": "Helps with research queries", "is_public": false}'
 
-# Upload documents
+# List user's bots
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  "http://localhost:8000/bots/"
+
+# Upload documents to a bot
 curl -X POST "http://localhost:8000/documents/upload/1" \
   -H "Authorization: Bearer YOUR_TOKEN" \
-  -F "file=@document.pdf"
+  -F "file=@research_paper.pdf"
 ```
 
 ### Chat
 
 ```bash
-# Send a message
+# Send a message to a bot
 curl -X POST "http://localhost:8000/chat/" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"message": "What is machine learning?", "bot_id": 1}'
+  -d '{
+    "message": "What are the main findings from the uploaded research paper?",
+    "bot_id": 1,
+    "conversation_id": "optional-conversation-id"
+  }'
+
+# Get chat history
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  "http://localhost:8000/chat/history/1"
 ```
 
-## Development
-
-### Running Tests
+## 🧪 Testing
 
 ```bash
+# Run all tests
 pytest
+
+# Run with coverage
+pytest --cov=app --cov-report=html
+
+# Run specific test file
+pytest tests/test_auth.py
+
+# Run tests in verbose mode
+pytest -v
 ```
+
+## 🔧 Development
 
 ### Database Migrations
 
 ```bash
-# Create new migration
-alembic revision --autogenerate -m "description"
+# Create new migration after model changes
+alembic revision --autogenerate -m "add new feature"
 
 # Apply migrations
 alembic upgrade head
 
-# Rollback
+# Rollback last migration
 alembic downgrade -1
 ```
 
 ### Code Quality
 
 ```bash
-# Format code
+# Format code with black
 black .
 
-# Lint code
+# Lint with flake8
 flake8 .
 
-# Type checking
+# Type checking with mypy
 mypy .
+
+# Run all quality checks
+make lint
 ```
 
-## Security Features
+### Frontend Development
 
-- **Password Hashing**: bcrypt for secure password storage
-- **JWT Tokens**: Short-lived access tokens with refresh mechanism
-- **Role-Based Access**: Hierarchical permissions (admin/manager/user)
-- **Input Validation**: Pydantic schemas for all API inputs
+```bash
+cd web
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Run tests
+npm test
+```
+
+## 🔒 Security Features
+
+- **Password Security**: bcrypt hashing with salt rounds
+- **JWT Tokens**: Short-lived access tokens (30min) with refresh mechanism (7 days)
+- **Role-Based Access Control**: Hierarchical permissions system
+- **Input Validation**: Comprehensive Pydantic schemas
 - **CORS Protection**: Configurable cross-origin resource sharing
+- **API Key Encryption**: Fernet symmetric encryption for stored API keys
+- **Environment Variables**: No sensitive data in code
 
-## Contributing
+## 📊 Document Processing Pipeline
+
+1. **📥 Ingest**: Extract text from PDFs, DOCX, TXT, MD files
+2. **✂️ Chunk**: Split into semantically meaningful chunks (512 tokens)
+3. **🧮 Embed**: Generate vector embeddings using OpenAI text-embedding-3-small
+4. **💾 Store**: Save embeddings in FAISS vector database for fast retrieval
+5. **🔍 Search**: Find most relevant chunks using cosine similarity
+6. **🤖 Generate**: Use OpenAI GPT-4o-mini with retrieved context for responses
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## License
+### Development Guidelines
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+- Follow PEP 8 style guidelines
+- Add tests for new features
+- Update documentation
+- Ensure all tests pass
+- Use type hints for better code maintainability
 
-## Document Processing Pipeline
+## 📝 License
 
-1. **Ingest**: Extract text from web pages or PDFs
-2. **Chunk**: Split text into semantically meaningful chunks
-3. **Embed**: Generate vector embeddings for each chunk
-4. **Store**: Save embeddings in FAISS vector database
-5. **Search**: Find relevant chunks for user queries
-6. **Generate**: Use OpenAI GPT to generate contextual responses
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Security
+## 🐛 Troubleshooting
 
-- API keys are encrypted at rest using Fernet symmetric encryption
-- Encryption keys are stored separately from encrypted data
-- No plain-text API keys in configuration files
-- Environment variables used for all sensitive data
+### Common Issues
 
-## Development
+**"Server won't start on Windows"**
+- Use Docker deployment or WSL environment
+- Check Python version compatibility (3.9+)
 
-- **Backend**: FastAPI with automatic OpenAPI documentation
-- **Vector Store**: FAISS for local, fast similarity search
-- **Embeddings**: OpenAI text-embedding-3-small
-- **LLM**: OpenAI GPT-4o-mini for response generation
-- **Frontend**: Vanilla HTML/CSS/JavaScript (no frameworks)
+**"API key decryption errors"**
+- Ensure `ENCRYPTION_KEY` is set in `.env`
+- Key must be exactly 32 characters
 
-## Troubleshooting
+**"No responses from chat"**
+- Verify documents are uploaded and processed
+- Check OpenAI API key validity
+- Ensure bot has associated documents
 
-**Server won't start on Windows**: Try using Docker or WSL for deployment.
+**"Database connection errors"**
+- For PostgreSQL: ensure database exists and credentials are correct
+- For SQLite: check file permissions
 
-**API key errors**: Ensure your encryption key is properly configured in `.env`.
+### Getting Help
 
-**No responses**: Check that documents have been ingested and embedded.
+- Check the [API Documentation](http://localhost:8000/docs) after starting the server
+- Review the test files for usage examples
+- Open an issue on GitHub for bugs or feature requests
+
+## 🙏 Acknowledgments
+
+- [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
+- [SQLAlchemy](https://www.sqlalchemy.org/) - Python SQL toolkit
+- [FAISS](https://github.com/facebookresearch/faiss) - Vector similarity search
+- [OpenAI](https://openai.com/) - AI models and embeddings
+- [React](https://reactjs.org/) - Frontend framework
