@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Manuale Operativo - Impianto di Pompaggio Alfa</title>
+  <meta name="description" content="Documento tecnico fittizio per testing del ChatBot: manuale operativo e procedure.">
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; line-height:1.5; margin:40px; color:#222; }
+    h1 { color:#0b5; }
+    h2 { color:#0a3; margin-top:1.2rem; }
+    pre { background:#f6f6f6; padding:10px; border-radius:6px; }
+    .meta { font-size:0.9rem; color:#666; margin-bottom:1rem; }
+    .section { margin-bottom:1.2rem; }
+  </style>
+</head>
+<body>
+  <h1>Manuale Operativo - Impianto di Pompaggio Alfa</h1>
+  <div class="meta">
+    Versione: 1.2 &nbsp;•&nbsp; Autore: Ing. Marco Rossi &nbsp;•&nbsp; Data: 2025-10-01
+  </div>
+
+  <div class="section">
+    <h2>1. Scopo</h2>
+    <p>Questo documento descrive le procedure operative per l'impianto di pompaggio Alfa, incluso avvio, arresto, diagnostica e manutenzione di primo livello.</p>
+  </div>
+
+  <div class="section">
+    <h2>2. Componenti principali</h2>
+    <ul>
+      <li>Pompa P1: pompa centrifuga, motore asincrono 11 kW</li>
+      <li>Pompa P2: pompa centrifuga di backup, motore asincrono 7.5 kW</li>
+      <li>Quadro elettrico Q1 con PLC Siemens S7-1500</li>
+      <li>Valvole automatiche V1, V2; sensori pressione P1, P2</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>3. Procedura di avvio</h2>
+    <ol>
+      <li>Controllare che l'alimentazione al quadro Q1 sia presente.</li>
+      <li>Aprire la valvola manuale V1 in posizione parzialmente aperta (≈30%).</li>
+      <li>Accendere il pannello HMI e verificare segnalazioni di allarme.</li>
+      <li>Premere il pulsante <strong>START</strong> sull'HMI. Se la pressione d'ingresso è > 0.5 bar e non ci sono allarmi, avvio con P1 prioritaria.</li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <h2>4. Logica di protezione</h2>
+    <p>Se la corrente motore supera 12 A per più di 7 secondi, il PLC inibisce la pompa e genera allarme <code>AL_OVERLOAD</code>. Allarme di pressione bassa <code>AL_LOW_P</code> se P1 < 0.2 bar per 15 secondi.</p>
+  </div>
+
+  <div class="section">
+    <h2>5. Manutenzione periodica</h2>
+    <p>Controlli suggeriti ogni 3 mesi: verifica giochi meccanici, cambio olio cuscinetti annuo, ispezione cavi ed eventuale ritaratura sensori.</p>
+  </div>
+
+  <div class="section">
+    <h2>6. Esempi di troubleshooting</h2>
+    <p><strong>Problema:</strong> Avvio impedito, HMI visualizza "No prime". <br>
+       <strong>Azione:</strong> Verificare valvola V1, presenza fluido nel priming chamber, e contattare manutenzione se persistente.</p>
+  </div>
+
+  <footer style="margin-top:2rem; font-size:0.85rem; color:#555;">
+    Documento fittizio creato per test di ingestione e retrieval. Non usare in produzione.
+  </footer>
+</body>
+</html>
