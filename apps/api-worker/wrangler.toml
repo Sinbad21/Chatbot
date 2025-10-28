@@ -6,6 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 # Production environment
 [env.production]
 name = "chatbot-studio-api-prod"
+compatibility_flags = ["nodejs_compat"]
 
 [env.production.vars]
 ENVIRONMENT = "production"
