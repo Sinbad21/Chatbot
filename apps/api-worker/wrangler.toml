@@ -3,19 +3,7 @@ main = "src/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-# Production environment
-[env.production]
-name = "chatbotstudio-prod"
-compatibility_flags = ["nodejs_compat"]
-
-[env.production.vars]
-ENVIRONMENT = "production"
-
 # Secrets (set with: wrangler secret put SECRET_NAME)
 # DATABASE_URL
 # JWT_SECRET
 # JWT_REFRESH_SECRET
-# SMTP_HOST
-# SMTP_PORT
-# SMTP_USER
-# SMTP_PASS
