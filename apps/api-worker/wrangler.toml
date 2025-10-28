@@ -3,7 +3,11 @@ main = "src/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-# Secrets (set with: wrangler secret put SECRET_NAME)
-# DATABASE_URL
-# JWT_SECRET
-# JWT_REFRESH_SECRET
+# Environment variables (secrets configured in Cloudflare dashboard)
+[vars]
+# These will be overridden by secrets in Cloudflare dashboard
+
+# Secrets must be set in Cloudflare dashboard under Settings → Variables and Secrets
+# - DATABASE_URL
+# - JWT_SECRET
+# - JWT_REFRESH_SECRET
