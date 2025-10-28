@@ -16,7 +16,7 @@ const app = new Hono<{ Bindings: Bindings }>();
 
 // CORS middleware
 app.use('/*', cors({
-  origin: ['https://chatbot-studio.pages.dev', 'http://localhost:3000'],
+  origin: ['https://chatbot-studio.pages.dev', 'https://chatbot-5o5.pages.dev', 'https://chatbot-studio-29k.pages.dev', 'http://localhost:3000'],
   credentials: true,
 }));
 
