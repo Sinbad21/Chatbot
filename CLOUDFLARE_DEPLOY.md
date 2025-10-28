@@ -55,9 +55,27 @@ npx wrangler deploy
 ## Environment Variables
 
 ### Frontend (Cloudflare Pages)
+
+**Important**: The web app requires the API URL to be configured. Without it, authentication will not work.
+
+#### For Local Development:
+Create `apps/web/.env.local`:
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
-NEXT_PUBLIC_API_URL=https://api.your-domain.com
+
+#### For Production (Cloudflare Pages):
+Set in Cloudflare Pages Dashboard > Settings > Environment Variables:
 ```
+NEXT_PUBLIC_API_URL=https://your-api-worker.your-subdomain.workers.dev
+```
+
+Or if using Railway/Render for API:
+```
+NEXT_PUBLIC_API_URL=https://your-app.railway.app
+```
+
+**Note**: After adding environment variables in Cloudflare Pages, trigger a new deployment for changes to take effect.
 
 ### API (Workers or Railway)
 ```

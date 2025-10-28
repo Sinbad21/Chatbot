@@ -15,9 +15,37 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const validateEmail = (email: string): boolean => {
+    // RFC 5322 compliant email regex
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    return emailRegex.test(email);
+  };
+
+  const isDisposableEmail = (email: string): boolean => {
+    const disposableDomains = [
+      'tempmail.com', 'guerrillamail.com', '10minutemail.com', 'throwaway.email',
+      'mailinator.com', 'maildrop.cc', 'temp-mail.org', 'getnada.com',
+      'trashmail.com', 'yopmail.com', 'fakeinbox.com'
+    ];
+    const domain = email.split('@')[1]?.toLowerCase();
+    return disposableDomains.some(d => domain?.includes(d));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate email format
+    if (!validateEmail(formData.email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    // Check for disposable email
+    if (isDisposableEmail(formData.email)) {
+      setError('Please use a valid business or personal email address');
+      return;
+    }
 
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
@@ -31,10 +59,27 @@ export default function RegisterPage() {
       return;
     }
 
+    // Check for password complexity
+    const hasUpperCase = /[A-Z]/.test(formData.password);
+    const hasLowerCase = /[a-z]/.test(formData.password);
+    const hasNumber = /[0-9]/.test(formData.password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(formData.password);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
+      setError('Password must contain uppercase, lowercase, number, and special character');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/auth/register`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+      if (!apiUrl) {
+        throw new Error('API configuration is missing. Please contact support or try again later.');
+      }
+
+      const response = await fetch(`${apiUrl}/api/v1/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -60,7 +105,11 @@ export default function RegisterPage() {
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
+      if (err.message.includes('fetch')) {
+        setError('Unable to connect to the server. The API service is being configured. Please try again later.');
+      } else {
+        setError(err.message || 'An error occurred during registration');
+      }
     } finally {
       setLoading(false);
     }
@@ -124,7 +173,7 @@ export default function RegisterPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900 bg-white"
               placeholder="••••••••"
             />
-            <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+            <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters with uppercase, lowercase, number, and special character</p>
           </div>
 
           <div>
