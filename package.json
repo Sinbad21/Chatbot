@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "build:web": "cd apps/web && npm run pages:build",
+    "build:web": "cd apps/web && npm run pages:build && cd ../.. && mkdir -p .vercel/output && cp -r apps/web/.vercel/output/static .vercel/output/",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf node_modules",
