@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard' },
@@ -14,6 +15,28 @@ const navigation = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [userEmail, setUserEmail] = useState('');
+
+  useEffect(() => {
+    // Get user from localStorage
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setUserEmail(user.email || 'user@example.com');
+      } catch (e) {
+        setUserEmail('user@example.com');
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    router.push('/');
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -23,8 +46,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-indigo-600">Chatbot Studio</h1>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">user@example.com</span>
-              <button className="text-sm text-gray-600 hover:text-gray-900">Logout</button>
+              <span className="text-sm text-gray-900 font-medium">{userEmail}</span>
+              <button
+                onClick={handleLogout}
+                className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
@@ -41,7 +69,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className={`block px-4 py-2 rounded-lg ${
                   pathname === item.href
                     ? 'bg-indigo-100 text-indigo-700 font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    : 'text-gray-900 hover:bg-gray-100 font-medium'
                 }`}
               >
                 {item.name}
