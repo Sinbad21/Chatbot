@@ -42,17 +42,17 @@ In your Cloudflare Pages project settings:
 
 **Build command:**
 ```bash
-npm run pages:build
+npm install --legacy-peer-deps && npm run build:web
 ```
 
 **Build output directory:**
 ```
-.vercel/output/static
+apps/web/.vercel/output/static
 ```
 
 **Root directory:**
 ```
-apps/web
+(leave empty - build from repo root)
 ```
 
 **Node version:**
@@ -61,8 +61,13 @@ apps/web
 ```
 
 **Environment variables:**
-- Framework preset: `Next.js`
-- Build command: `npm run pages:build`
+- Framework preset: `None` (or `Next.js` if available)
+- Build command: `npm install --legacy-peer-deps && npm run build:web`
+
+**Important Notes:**
+- This is a Turborepo monorepo, so the build must happen from the root
+- The `--legacy-peer-deps` flag is needed to handle workspace dependencies
+- The `build:web` script navigates to `apps/web` and runs the Next.js build
 
 ## Build Process
 
@@ -113,14 +118,24 @@ npm run build  # This runs: prisma generate && wrangler deploy
 - Push your changes to the `main` branch
 - Cloudflare Pages will automatically build and deploy
 
-**Option B: Manual deployment**
+**Option B: Manual deployment from monorepo root**
 ```bash
-cd apps/web
-npm run pages:build
-npx wrangler pages deploy .vercel/output/static
+# From repo root
+npm install --legacy-peer-deps
+npm run build:web
+npx wrangler pages deploy apps/web/.vercel/output/static --project-name=your-project-name
 ```
 
 ## Troubleshooting
+
+### Build fails with npm peer dependency conflicts
+- **Problem:** `ERESOLVE unable to resolve dependency tree` with Next.js peer dependency
+- **Cause:** Turborepo workspace structure causes npm to check peer dependencies incorrectly
+- **Fix:** Use `--legacy-peer-deps` flag in build command:
+  ```bash
+  npm install --legacy-peer-deps && npm run build:web
+  ```
+- **In Cloudflare Pages:** Update the build command to include `--legacy-peer-deps`
 
 ### Build fails with "generateStaticParams" error
 - **Cause:** You may have removed `output: 'export'` but not installed the adapter
