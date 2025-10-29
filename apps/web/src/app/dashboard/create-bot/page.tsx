@@ -44,7 +44,8 @@ export default function NewBotPage() {
       }
 
       const bot = await response.json();
-      router.push(`/dashboard/bots/${bot.id}`);
+      // Redirect to bots list (detail page temporarily disabled due to Next.js static export limitations)
+      router.push('/dashboard/bots');
     } catch (err: any) {
       setError(err.message || 'Failed to create bot');
     } finally {
