@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+export const runtime = 'edge';
+
 const navigation = [
   { name: 'Dashboard', href: '/dashboard' },
   { name: 'Bots', href: '/dashboard/bots' },
