@@ -122,12 +122,9 @@ export default function BotsPage() {
               </div>
 
               <div className="flex gap-2">
-                <Link
-                  href={`/dashboard/bots/${bot.id}`}
-                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-center font-medium"
-                >
-                  Edit
-                </Link>
+                <button className="flex-1 px-4 py-2 bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed font-medium" disabled>
+                  Edit (Coming Soon)
+                </button>
                 <button className="px-4 py-2 border border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 font-medium">
                   Settings
                 </button>
