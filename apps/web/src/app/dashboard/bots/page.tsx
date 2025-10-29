@@ -47,7 +47,7 @@ export default function BotsPage() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-900">My Bots</h1>
         <Link
-          href="/dashboard/bots/new"
+          href="/dashboard/create-bot"
           className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium"
         >
           Create New Bot
@@ -86,7 +86,7 @@ export default function BotsPage() {
             Get started by creating your first chatbot
           </p>
           <Link
-            href="/dashboard/bots/new"
+            href="/dashboard/create-bot"
             className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium"
           >
             Create Your First Bot
