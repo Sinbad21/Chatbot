@@ -99,7 +99,7 @@ app.post('/api/v1/auth/register', async (c) => {
     const accessToken = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
       c.env.JWT_SECRET,
-      { expiresIn: '15m' }
+      { expiresIn: '24h' }
     );
 
     const refreshToken = jwt.sign(
@@ -152,7 +152,7 @@ app.post('/api/v1/auth/login', async (c) => {
     const accessToken = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
       c.env.JWT_SECRET,
-      { expiresIn: '15m' }
+      { expiresIn: '24h' }
     );
 
     const refreshToken = jwt.sign(
