@@ -11,14 +11,18 @@ npm install --legacy-peer-deps
 cd apps/web
 npm install
 
-# Run OpenNext build for Cloudflare
-echo "🏗️  Building Next.js app with OpenNext..."
-npx open-next@latest build --platform cloudflare
+# Run Next.js build
+echo "🏗️  Building Next.js app..."
+npm run build
+
+# Run OpenNext Cloudflare adapter
+echo "🔧 Running OpenNext Cloudflare adapter..."
+npx opennextjs-cloudflare
 
 # Copy output to expected directory
 echo "📁 Copying output to out/ directory..."
 rm -rf out
-cp -r .open-next/cloudflare out
+cp -r .open-next out
 
 echo "✅ Build completed successfully!"
 echo "📂 Output directory: apps/web/out"

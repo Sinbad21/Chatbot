@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "cf-build": "open-next build --platform cloudflare && cp -r .open-next/cloudflare out",
+    "cf-build": "next build && npx opennextjs-cloudflare && cp -r .open-next out",
     "start": "next start",
     "lint": "next lint",
     "clean": "rm -rf .next .open-next"
@@ -28,7 +28,7 @@
     "date-fns": "^3.0.6"
   },
   "devDependencies": {
-    "@opennext/cloudflare": "^1.0.0",
+    "@opennextjs/cloudflare": "^0.2.0",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
