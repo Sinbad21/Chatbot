@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "cf-build": "next build && npx @opennextjs/cloudflare && cp -r .open-next out",
+    "cf-build": "next build && npx @opennextjs/cloudflare build && cp -r .open-next out",
     "start": "next start",
     "lint": "next lint",
     "clean": "rm -rf .next .open-next out"
