@@ -57,6 +57,17 @@ app.get('/health', (c) => {
   });
 });
 
+app.get('/debug/env', (c) => {
+  return c.json({
+    DATABASE_URL_exists: !!c.env.DATABASE_URL,
+    DATABASE_URL_length: c.env.DATABASE_URL?.length || 0,
+    DATABASE_URL_preview: c.env.DATABASE_URL?.substring(0, 20) + '...' || 'NOT_SET',
+    JWT_SECRET_exists: !!c.env.JWT_SECRET,
+    JWT_REFRESH_SECRET_exists: !!c.env.JWT_REFRESH_SECRET,
+    all_env_keys: Object.keys(c.env)
+  });
+});
+
 // ============================================
 // AUTH ROUTES
 // ============================================
