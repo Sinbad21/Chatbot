@@ -256,6 +256,68 @@ app.get('/api/v1/bots/:id', authMiddleware, async (c) => {
   }
 });
 
+app.patch('/api/v1/bots/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const id = c.req.param('id');
+    const updates = await c.req.json();
+
+    // Verify bot belongs to user
+    const existingBot = await prisma.bot.findUnique({
+      where: { id },
+    });
+
+    if (!existingBot) {
+      return c.json({ error: 'Bot not found' }, 404);
+    }
+
+    if (existingBot.userId !== user.userId) {
+      return c.json({ error: 'Unauthorized' }, 403);
+    }
+
+    // Update bot
+    const bot = await prisma.bot.update({
+      where: { id },
+      data: updates,
+    });
+
+    return c.json(bot);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.delete('/api/v1/bots/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const id = c.req.param('id');
+
+    // Verify bot belongs to user
+    const existingBot = await prisma.bot.findUnique({
+      where: { id },
+    });
+
+    if (!existingBot) {
+      return c.json({ error: 'Bot not found' }, 404);
+    }
+
+    if (existingBot.userId !== user.userId) {
+      return c.json({ error: 'Unauthorized' }, 403);
+    }
+
+    // Delete bot (cascade will handle related records)
+    await prisma.bot.delete({
+      where: { id },
+    });
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 // ============================================
 // CHAT ROUTES (PUBLIC)
 // ============================================

@@ -2,9 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@chatbot-studio/database'],
-  output: 'export', // Static HTML export for Cloudflare Pages
+  // Using @cloudflare/next-on-pages for Cloudflare Pages deployment
+  // This allows SSR, API routes, and dynamic routes [id]
   images: {
-    unoptimized: true, // Required for static export
+    unoptimized: true, // Required for Cloudflare Pages
   },
   env: {
     API_URL: process.env.API_URL || 'http://localhost:3001',
