@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
-export const runtime = 'edge';
-
 interface Bot {
   id: string;
   name: string;
