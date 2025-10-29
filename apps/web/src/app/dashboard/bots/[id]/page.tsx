@@ -4,11 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-// This tells Next.js to not pre-render any pages for this dynamic route
-export function generateStaticParams() {
-  return [];
-}
-
 export default function BotDetailPage() {
   const params = useParams();
   const router = useRouter();
