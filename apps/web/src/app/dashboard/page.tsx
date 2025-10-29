@@ -6,28 +6,28 @@ export default function DashboardPage() {
       <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-lg shadow min-w-0">
           <div className="text-sm text-gray-800 font-medium mb-2">Total Bots</div>
-          <div className="text-3xl font-bold text-indigo-600">5</div>
+          <div className="text-3xl font-bold text-indigo-600 truncate">5</div>
           <div className="text-xs text-green-600 font-medium mt-1">+2 this month</div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white p-6 rounded-lg shadow min-w-0">
           <div className="text-sm text-gray-800 font-medium mb-2">Conversations</div>
-          <div className="text-3xl font-bold text-blue-600">1,234</div>
+          <div className="text-3xl font-bold text-blue-600 truncate">1,234</div>
           <div className="text-xs text-green-600 font-medium mt-1">+15% vs last month</div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white p-6 rounded-lg shadow min-w-0">
           <div className="text-sm text-gray-800 font-medium mb-2">Leads Captured</div>
-          <div className="text-3xl font-bold text-green-600">89</div>
+          <div className="text-3xl font-bold text-green-600 truncate">89</div>
           <div className="text-xs text-green-600 font-medium mt-1">+23% vs last month</div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white p-6 rounded-lg shadow min-w-0">
           <div className="text-sm text-gray-800 font-medium mb-2">Active Users</div>
-          <div className="text-3xl font-bold text-purple-600">456</div>
+          <div className="text-3xl font-bold text-purple-600 truncate">456</div>
           <div className="text-xs text-green-600 font-medium mt-1">+8% vs last month</div>
         </div>
       </div>

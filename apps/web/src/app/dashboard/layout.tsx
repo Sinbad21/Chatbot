@@ -58,28 +58,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 flex gap-8">
-        {/* Sidebar */}
-        <aside className="w-64 flex-shrink-0">
-          <nav className="space-y-1">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`block px-4 py-2 rounded-lg ${
-                  pathname === item.href
-                    ? 'bg-indigo-100 text-indigo-700 font-medium'
-                    : 'text-gray-900 hover:bg-gray-100 font-medium'
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-        </aside>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar */}
+          <aside className="w-full lg:w-64 flex-shrink-0">
+            <nav className="flex lg:flex-col overflow-x-auto lg:overflow-visible space-x-2 lg:space-x-0 lg:space-y-1 pb-4 lg:pb-0">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`block px-4 py-2 rounded-lg whitespace-nowrap ${
+                    pathname === item.href
+                      ? 'bg-indigo-100 text-indigo-700 font-medium'
+                      : 'text-gray-900 hover:bg-gray-100 font-medium'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+          </aside>
 
-        {/* Main Content */}
-        <main className="flex-1">{children}</main>
+          {/* Main Content */}
+          <main className="flex-1 min-w-0">{children}</main>
+        </div>
       </div>
     </div>
   );
