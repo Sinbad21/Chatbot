@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "build:web": "rm -rf node_modules package-lock.json apps/web/node_modules apps/web/package-lock.json && npm install --legacy-peer-deps && cd apps/web && npm run pages:build && mkdir -p out && cp -r .vercel/output/static/* out/",
+    "build:web": "rm -rf node_modules package-lock.json apps/web/node_modules apps/web/package-lock.json && npm install --legacy-peer-deps && cd apps/web && npm run pages:build && rm -rf out && cp -r .vercel/output/static out",
     "deploy:api": "cd apps/api-worker && npx wrangler deploy",
     "test": "turbo run test",
     "lint": "turbo run lint",
