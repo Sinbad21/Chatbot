@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export const runtime = 'edge';
-
 export default function BotsPage() {
   const [bots, setBots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
