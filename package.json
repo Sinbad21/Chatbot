@@ -10,9 +10,8 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "build:web": "cd apps/web && npm install && npm run cf-build",
+    "build:web": "cd apps/web && npm install && npm run build",
     "deploy:api": "cd apps/api-worker && npx wrangler deploy",
-    "deploy:web": "cd apps/web && npx wrangler deploy",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf node_modules",
