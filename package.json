@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "build:web": "cd apps/web && npm ci --legacy-peer-deps && npm run build",
+    "build:web": "cd apps/web && npm ci --legacy-peer-deps && npm run build && rm -rf .next/cache",
     "deploy:api": "cd apps/api-worker && npm install && npm run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
