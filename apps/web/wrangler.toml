@@ -1,4 +1,4 @@
 name = "chatbot-studio"
-main = "./.open-next/_worker.js"
+main = "_worker.js"
 compatibility_date = "2024-10-01"
 compatibility_flags = ["nodejs_compat"]
