@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "cf-build": "next build && npx @opennextjs/cloudflare build && cp wrangler.toml .open-next/wrangler.toml",
+    "cf-build": "next build && npx @opennextjs/cloudflare build",
     "start": "next start",
     "lint": "next lint",
     "clean": "rm -rf .next .open-next out"
