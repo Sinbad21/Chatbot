@@ -34,7 +34,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
   const fetchIntents = async () => {
     try {
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/intents`, {
-        headers: buildAuthHeaders(),
+        headers: buildAuthHeaders(false),
       });
 
       if (!response.ok) {
@@ -102,7 +102,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
     try {
       const res = await fetch(`${apiBaseUrl}/api/v1/intents/${intentId}`, {
         method: 'DELETE',
-        headers: buildAuthHeaders(),
+        headers: buildAuthHeaders(false),
       });
 
       if (!res.ok) {
