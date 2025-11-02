@@ -12,9 +12,10 @@ interface Intent {
 
 interface IntentsTabProps {
   botId: string;
+  apiBaseUrl: string;
 }
 
-export default function IntentsTab({ botId }: IntentsTabProps) {
+export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
   const [intents, setIntents] = useState<Intent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,8 +25,6 @@ export default function IntentsTab({ botId }: IntentsTabProps) {
   const [name, setName] = useState('');
   const [patternsText, setPatternsText] = useState('');
   const [response, setResponse] = useState('');
-
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
   useEffect(() => {
     fetchIntents();
@@ -40,7 +39,7 @@ export default function IntentsTab({ botId }: IntentsTabProps) {
         return;
       }
 
-      const response = await fetch(`${apiUrl}/api/v1/bots/${botId}/intents`, {
+      const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/intents`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -82,7 +81,7 @@ export default function IntentsTab({ botId }: IntentsTabProps) {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const res = await fetch(`${apiUrl}/api/v1/bots/${botId}/intents`, {
+      const res = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/intents`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +113,7 @@ export default function IntentsTab({ botId }: IntentsTabProps) {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const res = await fetch(`${apiUrl}/api/v1/intents/${intentId}`, {
+      const res = await fetch(`${apiBaseUrl}/api/v1/intents/${intentId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

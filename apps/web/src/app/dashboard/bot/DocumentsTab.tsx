@@ -12,9 +12,10 @@ interface Document {
 
 interface DocumentsTabProps {
   botId: string;
+  apiBaseUrl: string;
 }
 
-export default function DocumentsTab({ botId }: DocumentsTabProps) {
+export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,8 +24,6 @@ export default function DocumentsTab({ botId }: DocumentsTabProps) {
   // Form state
   const [name, setName] = useState('');
   const [content, setContent] = useState('');
-
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
   useEffect(() => {
     fetchDocuments();
@@ -39,7 +38,7 @@ export default function DocumentsTab({ botId }: DocumentsTabProps) {
         return;
       }
 
-      const response = await fetch(`${apiUrl}/api/v1/bots/${botId}/documents`, {
+      const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -70,7 +69,7 @@ export default function DocumentsTab({ botId }: DocumentsTabProps) {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${apiUrl}/api/v1/bots/${botId}/documents`, {
+      const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +100,7 @@ export default function DocumentsTab({ botId }: DocumentsTabProps) {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${apiUrl}/api/v1/documents/${documentId}`, {
+      const response = await fetch(`${apiBaseUrl}/api/v1/documents/${documentId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

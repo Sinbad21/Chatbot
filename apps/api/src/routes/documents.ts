@@ -1,45 +1,50 @@
-import { Router } from 'express';
-import multer from 'multer';
-import { authenticate } from '../middleware/auth';
+import { Router, Response } from 'express';
+import { authenticate, AuthRequest } from '../middleware/auth';
 import { asyncHandler } from '../middleware/error-handler';
-import { Response } from 'express';
-import { AuthRequest } from '../middleware/auth';
 import { prisma } from '@chatbot-studio/database';
-import { processDocument } from '@chatbot-studio/document-processor';
 
-const upload = multer({ dest: '/tmp/uploads/' });
 const router = Router();
 router.use(authenticate);
 
 router.get('/', asyncHandler(async (req: AuthRequest, res: Response) => {
   const { botId } = req.query;
+
+  if (botId && typeof botId !== 'string') {
+    return res.status(400).json({ error: 'Invalid bot id' });
+  }
+
   const documents = await prisma.document.findMany({
-    where: { bot: { userId: req.user!.userId }, ...(botId && { botId: botId as string }) },
+    where: {
+      bot: { userId: req.user!.userId },
+      ...(botId ? { botId } : {}),
+    },
     orderBy: { createdAt: 'desc' },
   });
+
   res.json(documents);
 }));
 
-router.post('/', upload.single('file'), asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { botId } = req.body;
-  const file = req.file;
+router.post('/', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { botId, title, content } = req.body as { botId?: string; title?: string; content?: string };
 
-  if (!file) {
-    return res.status(400).json({ error: 'No file uploaded' });
+  if (!botId || !title || !content) {
+    return res.status(400).json({ error: 'botId, title and content are required' });
   }
 
-  // Process document
-  const processed = await processDocument(file.path, file.mimetype);
+  const bot = await prisma.bot.findFirst({
+    where: { id: botId, userId: req.user!.userId },
+    select: { id: true },
+  });
+
+  if (!bot) {
+    return res.status(404).json({ error: 'Bot not found' });
+  }
 
   const document = await prisma.document.create({
     data: {
       botId,
-      name: file.originalname,
-      type: file.mimetype,
-      size: file.size,
-      url: file.path,
-      content: processed.text,
-      status: 'COMPLETED',
+      title,
+      content,
     },
   });
 
@@ -47,6 +52,14 @@ router.post('/', upload.single('file'), asyncHandler(async (req: AuthRequest, re
 }));
 
 router.delete('/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
+  const doc = await prisma.document.findFirst({
+    where: { id: req.params.id, bot: { userId: req.user!.userId } },
+  });
+
+  if (!doc) {
+    return res.status(404).json({ error: 'Document not found' });
+  }
+
   await prisma.document.delete({ where: { id: req.params.id } });
   res.json({ message: 'Document deleted' });
 }));
