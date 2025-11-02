@@ -6,11 +6,6 @@ import { useParams, useRouter } from 'next/navigation';
 // Allow dynamic params for client-side rendering even with static export
 export const dynamicParams = true;
 
-// Generate static params - empty array means no pre-rendered pages, all client-side
-export async function generateStaticParams() {
-  return [];
-}
-
 interface Bot {
   id: string;
   name: string;
