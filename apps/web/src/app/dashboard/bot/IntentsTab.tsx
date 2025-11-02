@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { buildAuthHeaders } from '@/lib/authHeaders';
 
 interface Intent {
   id: string;
@@ -32,17 +33,8 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
 
   const fetchIntents = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        setError('No authentication token found');
-        setLoading(false);
-        return;
-      }
-
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/intents`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: buildAuthHeaders(),
       });
 
       if (!response.ok) {
@@ -80,13 +72,9 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
     setError(null);
 
     try {
-      const token = localStorage.getItem('accessToken');
       const res = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/intents`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: buildAuthHeaders(),
         body: JSON.stringify({ name, patterns, response }),
       });
 
@@ -112,12 +100,9 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
     }
 
     try {
-      const token = localStorage.getItem('accessToken');
       const res = await fetch(`${apiBaseUrl}/api/v1/intents/${intentId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: buildAuthHeaders(),
       });
 
       if (!res.ok) {
