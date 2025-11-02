@@ -416,7 +416,16 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       orderBy: { createdAt: 'desc' },
     });
 
-    return c.json(documents);
+    // Transform documents to match frontend interface
+    const transformedDocuments = documents.map(doc => ({
+      id: doc.id,
+      name: doc.title,
+      content: doc.content,
+      status: 'active',
+      createdAt: doc.createdAt,
+    }));
+
+    return c.json(transformedDocuments);
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
@@ -427,7 +436,11 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     const prisma = getDB(c.env.DATABASE_URL);
     const user = c.get('user');
     const botId = c.req.param('botId');
-    const { name, content, type = 'text', url = '' } = await c.req.json();
+    const { name, content } = await c.req.json();
+
+    if (!name || !content) {
+      return c.json({ error: 'name and content are required' }, 400);
+    }
 
     // Verify bot access
     const membership = await prisma.organizationMember.findFirst({
@@ -451,16 +464,21 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     const document = await prisma.document.create({
       data: {
         botId,
-        name,
+        title: name,
         content,
-        type,
-        url,
-        size: content.length,
-        status: 'COMPLETED',
       },
     });
 
-    return c.json(document, 201);
+    // Transform document to match frontend interface
+    const transformedDocument = {
+      id: document.id,
+      name: document.title,
+      content: document.content,
+      status: 'active',
+      createdAt: document.createdAt,
+    };
+
+    return c.json(transformedDocument, 201);
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
