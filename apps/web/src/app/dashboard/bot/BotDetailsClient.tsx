@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import DocumentsTab from './DocumentsTab';
+import IntentsTab from './IntentsTab';
+import FAQsTab from './FAQsTab';
 
 interface Bot {
   id: string;
@@ -22,6 +25,8 @@ interface Bot {
   };
 }
 
+type TabType = 'overview' | 'documents' | 'intents' | 'faqs';
+
 export default function BotDetailsClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -30,6 +35,7 @@ export default function BotDetailsClient() {
   const [bot, setBot] = useState<Bot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
 
   useEffect(() => {
     if (!botId) {
@@ -223,8 +229,59 @@ export default function BotDetailsClient() {
         </div>
       </div>
 
-      {/* Configuration */}
-      <div className="bg-white rounded-lg shadow p-6">
+      {/* Tab Navigation */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="border-b border-gray-200">
+          <nav className="flex -mb-px">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'overview'
+                  ? 'border-indigo-600 text-indigo-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'
+              }`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('documents')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'documents'
+                  ? 'border-indigo-600 text-indigo-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'
+              }`}
+            >
+              Documents ({bot._count.documents})
+            </button>
+            <button
+              onClick={() => setActiveTab('intents')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'intents'
+                  ? 'border-indigo-600 text-indigo-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'
+              }`}
+            >
+              Intents ({bot._count.intents})
+            </button>
+            <button
+              onClick={() => setActiveTab('faqs')}
+              className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'faqs'
+                  ? 'border-indigo-600 text-indigo-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'
+              }`}
+            >
+              FAQs ({bot._count.faqs})
+            </button>
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-6">
+          {activeTab === 'overview' && (
+            <div className="space-y-6">
+              {/* Configuration */}
+      <div>
         <h2 className="text-xl font-bold text-gray-900 mb-4">Configuration</h2>
         <div className="space-y-4">
           <div>
@@ -254,7 +311,7 @@ export default function BotDetailsClient() {
 
       {/* Widget Embed Code */}
       {bot.published && (
-        <div className="bg-white rounded-lg shadow p-6">
+        <div>
           <h2 className="text-xl font-bold text-gray-900 mb-4">Widget Embed Code</h2>
           <p className="text-gray-800 mb-3 font-medium">
             Copy this code and paste it before the closing &lt;/body&gt; tag on your website:
@@ -275,7 +332,7 @@ export default function BotDetailsClient() {
       )}
 
       {/* Metadata */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div>
         <h2 className="text-xl font-bold text-gray-900 mb-4">Metadata</h2>
         <div className="space-y-2">
           <div className="flex justify-between">
@@ -294,6 +351,14 @@ export default function BotDetailsClient() {
               {new Date(bot.updatedAt).toLocaleDateString()}
             </span>
           </div>
+        </div>
+      </div>
+            </div>
+          )}
+
+          {activeTab === 'documents' && <DocumentsTab botId={botId!} />}
+          {activeTab === 'intents' && <IntentsTab botId={botId!} />}
+          {activeTab === 'faqs' && <FAQsTab botId={botId!} />}
         </div>
       </div>
     </div>
