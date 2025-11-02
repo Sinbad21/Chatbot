@@ -388,9 +388,12 @@ app.delete('/api/v1/bots/:id', authMiddleware, async (c) => {
 
 app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
   try {
+    console.log('[GET /documents] Starting request');
     const prisma = getDB(c.env.DATABASE_URL);
     const user = c.get('user');
     const botId = c.req.param('botId');
+
+    console.log('[GET /documents] userId:', user?.userId, 'botId:', botId);
 
     // Verify bot access
     const membership = await prisma.organizationMember.findFirst({
@@ -398,7 +401,10 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       select: { organizationId: true },
     });
 
+    console.log('[GET /documents] Membership found:', membership ? `org=${membership.organizationId}` : 'NULL');
+
     if (!membership) {
+      console.log('[GET /documents] User has no organization');
       return c.json({ error: 'User has no organization' }, 403);
     }
 
@@ -407,14 +413,24 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       select: { organizationId: true },
     });
 
-    if (!bot || bot.organizationId !== membership.organizationId) {
-      return c.json({ error: 'Bot not found or access denied' }, 404);
+    console.log('[GET /documents] Bot found:', bot ? `org=${bot.organizationId}` : 'NULL');
+
+    if (!bot) {
+      console.log('[GET /documents] Bot not found');
+      return c.json({ error: 'Bot not found' }, 404);
+    }
+
+    if (bot.organizationId !== membership.organizationId) {
+      console.log('[GET /documents] Organization mismatch:', bot.organizationId, '!==', membership.organizationId);
+      return c.json({ error: 'Access denied - organization mismatch' }, 403);
     }
 
     const documents = await prisma.document.findMany({
       where: { botId },
       orderBy: { createdAt: 'desc' },
     });
+
+    console.log('[GET /documents] Found documents:', documents.length);
 
     // Transform documents to match frontend interface
     const transformedDocuments = documents.map(doc => ({
@@ -427,18 +443,24 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
 
     return c.json(transformedDocuments);
   } catch (error: any) {
-    return c.json({ error: error.message }, 500);
+    console.error('[GET /documents] ERROR:', error.message);
+    console.error('[GET /documents] Stack:', error.stack);
+    return c.json({ error: error.message, details: error.stack }, 500);
   }
 });
 
 app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
   try {
+    console.log('[POST /documents] Starting request');
     const prisma = getDB(c.env.DATABASE_URL);
     const user = c.get('user');
     const botId = c.req.param('botId');
     const { name, content } = await c.req.json();
 
+    console.log('[POST /documents] userId:', user?.userId, 'botId:', botId, 'nameLength:', name?.length);
+
     if (!name || !content) {
+      console.log('[POST /documents] Missing required fields');
       return c.json({ error: 'name and content are required' }, 400);
     }
 
@@ -448,7 +470,10 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       select: { organizationId: true },
     });
 
+    console.log('[POST /documents] Membership found:', membership ? `org=${membership.organizationId}` : 'NULL');
+
     if (!membership) {
+      console.log('[POST /documents] User has no organization');
       return c.json({ error: 'User has no organization' }, 403);
     }
 
@@ -457,10 +482,19 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       select: { organizationId: true },
     });
 
-    if (!bot || bot.organizationId !== membership.organizationId) {
-      return c.json({ error: 'Bot not found or access denied' }, 404);
+    console.log('[POST /documents] Bot found:', bot ? `org=${bot.organizationId}` : 'NULL');
+
+    if (!bot) {
+      console.log('[POST /documents] Bot not found');
+      return c.json({ error: 'Bot not found' }, 404);
     }
 
+    if (bot.organizationId !== membership.organizationId) {
+      console.log('[POST /documents] Organization mismatch:', bot.organizationId, '!==', membership.organizationId);
+      return c.json({ error: 'Access denied - organization mismatch' }, 403);
+    }
+
+    console.log('[POST /documents] Creating document...');
     const document = await prisma.document.create({
       data: {
         botId,
@@ -468,6 +502,8 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
         content,
       },
     });
+
+    console.log('[POST /documents] Document created:', document.id);
 
     // Transform document to match frontend interface
     const transformedDocument = {
@@ -480,7 +516,9 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
 
     return c.json(transformedDocument, 201);
   } catch (error: any) {
-    return c.json({ error: error.message }, 500);
+    console.error('[POST /documents] ERROR:', error.message);
+    console.error('[POST /documents] Stack:', error.stack);
+    return c.json({ error: error.message, details: error.stack }, 500);
   }
 });
 
