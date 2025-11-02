@@ -395,25 +395,27 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
 
     console.log('[GET /documents] userId:', user?.userId, 'botId:', botId);
 
-    // Verify bot access
+    // Verify user has organization membership
     const membership = await prisma.organizationMember.findFirst({
       where: { userId: user.userId },
-      select: { organizationId: true },
+      select: { organizationId: true, role: true },
     });
 
-    console.log('[GET /documents] Membership found:', membership ? `org=${membership.organizationId}` : 'NULL');
+    console.log('[GET /documents] Membership found:', membership ? `org=${membership.organizationId}, role=${membership.role}` : 'NULL');
 
     if (!membership) {
-      console.log('[GET /documents] User has no organization');
-      return c.json({ error: 'User has no organization' }, 403);
+      console.log('[GET /documents] User has no organization - needs onboarding');
+      // Return empty array instead of error to allow UI to load
+      return c.json([], 200);
     }
 
+    // Verify bot exists and user has access
     const bot = await prisma.bot.findUnique({
       where: { id: botId },
-      select: { organizationId: true },
+      select: { id: true, organizationId: true, name: true },
     });
 
-    console.log('[GET /documents] Bot found:', bot ? `org=${bot.organizationId}` : 'NULL');
+    console.log('[GET /documents] Bot found:', bot ? `org=${bot.organizationId}, name=${bot.name}` : 'NULL');
 
     if (!bot) {
       console.log('[GET /documents] Bot not found');
@@ -421,10 +423,11 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     }
 
     if (bot.organizationId !== membership.organizationId) {
-      console.log('[GET /documents] Organization mismatch:', bot.organizationId, '!==', membership.organizationId);
-      return c.json({ error: 'Access denied - organization mismatch' }, 403);
+      console.log('[GET /documents] Organization mismatch - bot.org:', bot.organizationId, 'user.org:', membership.organizationId);
+      return c.json({ error: 'Access denied - this bot belongs to a different organization' }, 403);
     }
 
+    // Fetch documents
     const documents = await prisma.document.findMany({
       where: { botId },
       orderBy: { createdAt: 'desc' },
@@ -445,7 +448,11 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
   } catch (error: any) {
     console.error('[GET /documents] ERROR:', error.message);
     console.error('[GET /documents] Stack:', error.stack);
-    return c.json({ error: error.message, details: error.stack }, 500);
+    return c.json({
+      error: 'Internal server error',
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, 500);
   }
 });
 
@@ -464,25 +471,30 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       return c.json({ error: 'name and content are required' }, 400);
     }
 
-    // Verify bot access
+    // Verify user has organization membership
     const membership = await prisma.organizationMember.findFirst({
       where: { userId: user.userId },
-      select: { organizationId: true },
+      select: { organizationId: true, role: true },
     });
 
-    console.log('[POST /documents] Membership found:', membership ? `org=${membership.organizationId}` : 'NULL');
+    console.log('[POST /documents] Membership found:', membership ? `org=${membership.organizationId}, role=${membership.role}` : 'NULL');
 
     if (!membership) {
-      console.log('[POST /documents] User has no organization');
-      return c.json({ error: 'User has no organization' }, 403);
+      console.log('[POST /documents] User has no organization - needs onboarding');
+      return c.json({
+        error: 'User not associated with any organization',
+        message: 'Please contact support to set up your organization.',
+        code: 'NO_ORGANIZATION'
+      }, 403);
     }
 
+    // Verify bot exists and user has access
     const bot = await prisma.bot.findUnique({
       where: { id: botId },
-      select: { organizationId: true },
+      select: { id: true, organizationId: true, name: true },
     });
 
-    console.log('[POST /documents] Bot found:', bot ? `org=${bot.organizationId}` : 'NULL');
+    console.log('[POST /documents] Bot found:', bot ? `org=${bot.organizationId}, name=${bot.name}` : 'NULL');
 
     if (!bot) {
       console.log('[POST /documents] Bot not found');
@@ -490,8 +502,12 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     }
 
     if (bot.organizationId !== membership.organizationId) {
-      console.log('[POST /documents] Organization mismatch:', bot.organizationId, '!==', membership.organizationId);
-      return c.json({ error: 'Access denied - organization mismatch' }, 403);
+      console.log('[POST /documents] Organization mismatch - bot.org:', bot.organizationId, 'user.org:', membership.organizationId);
+      return c.json({
+        error: 'Access denied',
+        message: 'This bot belongs to a different organization',
+        code: 'ORGANIZATION_MISMATCH'
+      }, 403);
     }
 
     console.log('[POST /documents] Creating document...');
@@ -518,7 +534,11 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
   } catch (error: any) {
     console.error('[POST /documents] ERROR:', error.message);
     console.error('[POST /documents] Stack:', error.stack);
-    return c.json({ error: error.message, details: error.stack }, 500);
+    return c.json({
+      error: 'Internal server error',
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, 500);
   }
 });
 
