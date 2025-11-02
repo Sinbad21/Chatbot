@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 interface Bot {
@@ -24,12 +24,12 @@ interface Bot {
 }
 
 export default function BotsPage() {
-  const pathname = usePathname();
+  const params = useParams<{ params?: string[] }>();
   const router = useRouter();
 
-  // Extract bot ID from pathname if present
-  const pathSegments = pathname?.split('/').filter(Boolean) || [];
-  const botId = pathSegments.length > 2 ? pathSegments[2] : null;
+  // Extract bot ID from params if present
+  // params.params will be undefined (list view) or ['bot-id'] (detail view)
+  const botId = params.params?.[0] || null;
 
   const [bots, setBots] = useState<Bot[]>([]);
   const [currentBot, setCurrentBot] = useState<Bot | null>(null);
