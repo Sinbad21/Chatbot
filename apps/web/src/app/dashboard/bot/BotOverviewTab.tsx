@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Bot {
   id: string;
@@ -22,46 +22,45 @@ interface Bot {
   };
 }
 
-export default function BotDetailsClient() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const botId = searchParams.get('id');
+type Props = {
+  botId: string;
+};
 
+export default function BotOverviewTab({ botId }: Props) {
+  const router = useRouter();
   const [bot, setBot] = useState<Bot | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!botId) {
-      setError('No bot ID provided');
-      setLoading(false);
-      return;
-    }
-
     const fetchBot = async () => {
       try {
-        const token = localStorage.getItem('accessToken');
+        const token = localStorage.getItem("accessToken");
         const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
         if (!token) {
-          router.push('/auth/login');
+          router.push("/auth/login");
           return;
+        }
+
+        if (!apiUrl) {
+          throw new Error("API URL non configurata");
         }
 
         const response = await fetch(`${apiUrl}/api/v1/bots/${botId}`, {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch bot');
+          throw new Error("Failed to fetch bot");
         }
 
         const data = await response.json();
         setBot(data);
       } catch (err: any) {
-        setError(err.message || 'Failed to load bot');
+        setError(err.message || "Failed to load bot");
       } finally {
         setLoading(false);
       }
@@ -74,25 +73,29 @@ export default function BotDetailsClient() {
     if (!bot) return;
 
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem("accessToken");
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+      if (!token || !apiUrl) {
+        throw new Error("Impostazioni non valide");
+      }
+
       const response = await fetch(`${apiUrl}/api/v1/bots/${bot.id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ published: !bot.published }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update bot');
+        throw new Error("Failed to update bot");
       }
 
       setBot({ ...bot, published: !bot.published });
     } catch (err: any) {
-      setError(err.message || 'Failed to update bot');
+      setError(err.message || "Failed to update bot");
     }
   };
 
@@ -102,46 +105,48 @@ export default function BotDetailsClient() {
     }
 
     try {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem("accessToken");
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+      if (!token || !apiUrl) {
+        throw new Error("Impostazioni non valide");
+      }
+
       const response = await fetch(`${apiUrl}/api/v1/bots/${bot.id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete bot');
+        throw new Error("Failed to delete bot");
       }
 
-      router.push('/dashboard/bots');
+      router.push("/dashboard/bots");
     } catch (err: any) {
-      setError(err.message || 'Failed to delete bot');
+      setError(err.message || "Failed to delete bot");
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-800 font-medium">Loading...</div>
+      <div className="flex items-center justify-center min-h-[240px]">
+        <div className="text-gray-800 font-medium">Loading bot details...</div>
       </div>
     );
   }
 
-  if (error || !bot) {
+  if (error) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="text-red-600 font-medium mb-4">{error || 'Bot not found'}</div>
-        <button
-          onClick={() => router.push('/dashboard/bots')}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium"
-        >
-          Back to Bots
-        </button>
+      <div className="p-6 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+        {error}
       </div>
     );
+  }
+
+  if (!bot) {
+    return null;
   }
 
   const widgetCode = `<script src="https://chatbot-studio.pages.dev/widget.js"></script>
@@ -154,7 +159,6 @@ export default function BotDetailsClient() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -184,7 +188,7 @@ export default function BotDetailsClient() {
                 onClick={handlePublishToggle}
                 className="px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 font-medium"
               >
-                {bot.published ? 'Unpublish' : 'Publish'}
+                {bot.published ? "Unpublish" : "Publish"}
               </button>
               <button
                 onClick={handleDelete}
@@ -193,7 +197,7 @@ export default function BotDetailsClient() {
                 Delete
               </button>
               <button
-                onClick={() => router.push('/dashboard/bots')}
+                onClick={() => router.push("/dashboard/bots")}
                 className="px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 font-medium"
               >
                 Back to List
@@ -203,7 +207,6 @@ export default function BotDetailsClient() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="text-sm text-gray-800 font-medium mb-2">Conversations</div>
@@ -223,7 +226,6 @@ export default function BotDetailsClient() {
         </div>
       </div>
 
-      {/* Configuration */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Configuration</h2>
         <div className="space-y-4">
@@ -252,50 +254,17 @@ export default function BotDetailsClient() {
         </div>
       </div>
 
-      {/* Widget Embed Code */}
       {bot.published && (
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Widget Embed Code</h2>
           <p className="text-gray-800 mb-3 font-medium">
             Copy this code and paste it before the closing &lt;/body&gt; tag on your website:
           </p>
-          <div className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
-            <pre className="text-sm font-mono">{widgetCode}</pre>
-          </div>
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(widgetCode);
-              alert('Widget code copied to clipboard!');
-            }}
-            className="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium"
-          >
-            Copy Code
-          </button>
+          <pre className="bg-gray-900 text-white text-xs p-4 rounded-lg overflow-x-auto">
+            {widgetCode}
+          </pre>
         </div>
       )}
-
-      {/* Metadata */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Metadata</h2>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-gray-800 font-medium">Bot ID:</span>
-            <span className="text-gray-900 font-mono text-sm font-medium">{bot.id}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-800 font-medium">Created:</span>
-            <span className="text-gray-900 font-medium">
-              {new Date(bot.createdAt).toLocaleDateString()}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-800 font-medium">Last Updated:</span>
-            <span className="text-gray-900 font-medium">
-              {new Date(bot.updatedAt).toLocaleDateString()}
-            </span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
