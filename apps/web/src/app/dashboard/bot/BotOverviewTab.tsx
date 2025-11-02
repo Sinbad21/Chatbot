@@ -44,7 +44,7 @@ export default function BotOverviewTab({ botId }: Props) {
         }
 
         if (!apiUrl) {
-          throw new Error("API URL non configurata");
+          throw new Error("API URL not configured");
         }
 
         const response = await fetch(`${apiUrl}/api/v1/bots/${botId}`, {
@@ -77,7 +77,7 @@ export default function BotOverviewTab({ botId }: Props) {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
       if (!token || !apiUrl) {
-        throw new Error("Impostazioni non valide");
+        throw new Error("Invalid settings");
       }
 
       const response = await fetch(`${apiUrl}/api/v1/bots/${bot.id}`, {
@@ -109,7 +109,7 @@ export default function BotOverviewTab({ botId }: Props) {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
       if (!token || !apiUrl) {
-        throw new Error("Impostazioni non valide");
+        throw new Error("Invalid settings");
       }
 
       const response = await fetch(`${apiUrl}/api/v1/bots/${bot.id}`, {
@@ -265,6 +265,28 @@ export default function BotOverviewTab({ botId }: Props) {
           </pre>
         </div>
       )}
+
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Metadata</h2>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="text-gray-800 font-medium">Bot ID:</span>
+            <span className="text-gray-900 font-mono text-sm font-medium">{bot.id}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-800 font-medium">Created:</span>
+            <span className="text-gray-900 font-medium">
+              {new Date(bot.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-800 font-medium">Last Updated:</span>
+            <span className="text-gray-900 font-medium">
+              {new Date(bot.updatedAt).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,194 +1,226 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from 'react';
 
-type DocumentRecord = {
+interface Document {
   id: string;
-  title: string;
+  name: string;
   content: string;
+  status: string;
   createdAt: string;
-};
+}
 
-type Props = {
+interface DocumentsTabProps {
   botId: string;
   apiBaseUrl: string;
-};
+}
 
-export default function DocumentsTab({ botId, apiBaseUrl }: Props) {
-  const [docs, setDocs] = useState<DocumentRecord[]>([]);
+export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  function getAuthHeaders() {
-    const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  }
-
-  async function loadDocs() {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${apiBaseUrl}/api/bots/${botId}/documents`, {
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(),
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Impossibile caricare i documenti");
-      }
-
-      const data: DocumentRecord[] = await res.json();
-      setDocs(data);
-    } catch (err: any) {
-      setError(err.message || "Errore durante il caricamento");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!title.trim() || !content.trim()) return;
-
-    setSaving(true);
-    setError(null);
-    try {
-      const res = await fetch(`${apiBaseUrl}/api/bots/${botId}/documents`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(),
-        },
-        body: JSON.stringify({ title, content }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Errore salvataggio documento");
-      }
-
-      setTitle("");
-      setContent("");
-      await loadDocs();
-    } catch (err: any) {
-      setError(err.message || "Errore salvataggio documento");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleDelete(id: string) {
-    setError(null);
-    try {
-      const res = await fetch(`${apiBaseUrl}/api/documents/${id}`, {
-        method: "DELETE",
-        headers: {
-          ...getAuthHeaders(),
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Errore durante l'eliminazione");
-      }
-
-      setDocs((prev) => prev.filter((d) => d.id !== id));
-    } catch (err: any) {
-      setError(err.message || "Errore eliminazione documento");
-    }
-  }
+  // Form state
+  const [name, setName] = useState('');
+  const [content, setContent] = useState('');
 
   useEffect(() => {
-    loadDocs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchDocuments();
   }, [botId]);
 
+  const fetchDocuments = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        setError('No authentication token found');
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch documents');
+      }
+
+      const data = await response.json();
+      setDocuments(data);
+      setLoading(false);
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!name.trim() || !content.trim()) {
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name, content }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create document');
+      }
+
+      const newDocument = await response.json();
+      setDocuments([newDocument, ...documents]);
+      setName('');
+      setContent('');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (documentId: string) => {
+    if (!confirm('Are you sure you want to delete this document?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${apiBaseUrl}/api/v1/documents/${documentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete document');
+      }
+
+      setDocuments(documents.filter(doc => doc.id !== documentId));
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-gray-600">Loading documents...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-24">
-      <form
-        onSubmit={handleCreate}
-        className="rounded-xl border p-16 flex flex-col gap-12 bg-white shadow-sm"
-      >
-        <div className="text-lg font-semibold">Aggiungi documento conoscenza</div>
-
-        <div className="flex flex-col gap-4">
-          <label className="text-sm font-medium">Titolo</label>
-          <input
-            className="border rounded-md px-8 py-6 text-sm"
-            placeholder="Es. Listino prezzi ottobre"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            disabled={saving}
-          />
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <label className="text-sm font-medium">
-            Contenuto (testo che il bot deve sapere)
-          </label>
-          <textarea
-            className="border rounded-md px-8 py-6 text-sm min-h-[120px]"
-            placeholder="Scrivi/incolla testo qui..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            disabled={saving}
-          />
-          <p className="text-xs text-gray-500">
-            Puoi incollare FAQ interne, policy, manuali, ecc.
-          </p>
-        </div>
-
-        {error && <div className="text-xs text-red-600">{error}</div>}
-
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-black text-white text-sm font-medium rounded-md px-12 py-8 disabled:opacity-50"
-        >
-          {saving ? "Salvo..." : "Salva documento"}
-        </button>
-      </form>
-
-      <div className="rounded-xl border p-16 bg-white shadow-sm">
-        <div className="text-lg font-semibold mb-12">Documenti caricati</div>
-
-        {loading ? (
-          <div className="text-sm text-gray-500">Caricamento…</div>
-        ) : docs.length === 0 ? (
-          <div className="text-sm text-gray-500">
-            Nessun documento ancora. Aggiungine uno sopra.
+    <div className="space-y-6">
+      {/* Add Document Form */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Document</h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Document Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g., Product Guide, FAQ Document"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              required
+            />
           </div>
+
+          <div>
+            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+              Content
+            </label>
+            <textarea
+              id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Paste your document content here..."
+              rows={8}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          >
+            {submitting ? 'Adding...' : 'Add Document'}
+          </button>
+        </form>
+      </div>
+
+      {/* Documents List */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Documents ({documents.length})
+        </h3>
+
+        {documents.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">
+            No documents yet. Add your first document above to train your bot.
+          </p>
         ) : (
-          <ul className="flex flex-col gap-12">
-            {docs.map((doc) => (
-              <li
+          <div className="space-y-4">
+            {documents.map((doc) => (
+              <div
                 key={doc.id}
-                className="border rounded-md p-12 flex flex-col gap-6 bg-gray-50"
+                className="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors"
               >
-                <div className="flex items-start justify-between gap-8">
-                  <div className="font-medium">{doc.title}</div>
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900">{doc.name}</h4>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-xs text-gray-500">
+                        {new Date(doc.createdAt).toLocaleDateString()}
+                      </span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        doc.status === 'active'
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        {doc.status}
+                      </span>
+                    </div>
+                  </div>
                   <button
                     onClick={() => handleDelete(doc.id)}
-                    className="text-xs text-red-600 hover:underline"
-                    type="button"
+                    className="text-red-600 hover:text-red-700 text-sm font-medium"
                   >
-                    Elimina
+                    Delete
                   </button>
                 </div>
-
-                <div className="text-xs text-gray-700 whitespace-pre-wrap max-h-[200px] overflow-y-auto">
-                  {doc.content}
-                </div>
-
-                <div className="text-[10px] text-gray-400">
-                  {new Date(doc.createdAt).toLocaleString()}
-                </div>
-              </li>
+                <p className="text-sm text-gray-600 line-clamp-3">{doc.content}</p>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>

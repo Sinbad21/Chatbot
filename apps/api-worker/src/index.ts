@@ -383,6 +383,356 @@ app.delete('/api/v1/bots/:id', authMiddleware, async (c) => {
 });
 
 // ============================================
+// DOCUMENTS ROUTES
+// ============================================
+
+app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const botId = c.req.param('botId');
+
+    // Verify bot access
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    const documents = await prisma.document.findMany({
+      where: { botId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return c.json(documents);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const botId = c.req.param('botId');
+    const { name, content, type = 'text', url = '' } = await c.req.json();
+
+    // Verify bot access
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    const document = await prisma.document.create({
+      data: {
+        botId,
+        name,
+        content,
+        type,
+        url,
+        size: content.length,
+        status: 'COMPLETED',
+      },
+    });
+
+    return c.json(document, 201);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.delete('/api/v1/documents/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const id = c.req.param('id');
+
+    // Get document with bot organization
+    const document = await prisma.document.findUnique({
+      where: { id },
+      include: { bot: { select: { organizationId: true } } },
+    });
+
+    if (!document) {
+      return c.json({ error: 'Document not found' }, 404);
+    }
+
+    // Verify user's organization
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership || document.bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Access denied' }, 403);
+    }
+
+    await prisma.document.delete({ where: { id } });
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================
+// INTENTS ROUTES
+// ============================================
+
+app.get('/api/v1/bots/:botId/intents', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const botId = c.req.param('botId');
+
+    // Verify bot access
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    const intents = await prisma.intent.findMany({
+      where: { botId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return c.json(intents);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.post('/api/v1/bots/:botId/intents', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const botId = c.req.param('botId');
+    const { name, patterns, response, enabled = true } = await c.req.json();
+
+    // Verify bot access
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    const intent = await prisma.intent.create({
+      data: {
+        botId,
+        name,
+        patterns,
+        response,
+        enabled,
+      },
+    });
+
+    return c.json(intent, 201);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.delete('/api/v1/intents/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const id = c.req.param('id');
+
+    // Get intent with bot organization
+    const intent = await prisma.intent.findUnique({
+      where: { id },
+      include: { bot: { select: { organizationId: true } } },
+    });
+
+    if (!intent) {
+      return c.json({ error: 'Intent not found' }, 404);
+    }
+
+    // Verify user's organization
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership || intent.bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Access denied' }, 403);
+    }
+
+    await prisma.intent.delete({ where: { id } });
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================
+// FAQs ROUTES
+// ============================================
+
+app.get('/api/v1/bots/:botId/faqs', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const botId = c.req.param('botId');
+
+    // Verify bot access
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    const faqs = await prisma.fAQ.findMany({
+      where: { botId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return c.json(faqs);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.post('/api/v1/bots/:botId/faqs', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const botId = c.req.param('botId');
+    const { question, answer, category, enabled = true } = await c.req.json();
+
+    // Verify bot access
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    const faq = await prisma.fAQ.create({
+      data: {
+        botId,
+        question,
+        answer,
+        category,
+        enabled,
+      },
+    });
+
+    return c.json(faq, 201);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+app.delete('/api/v1/faqs/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const id = c.req.param('id');
+
+    // Get FAQ with bot organization
+    const faq = await prisma.fAQ.findUnique({
+      where: { id },
+      include: { bot: { select: { organizationId: true } } },
+    });
+
+    if (!faq) {
+      return c.json({ error: 'FAQ not found' }, 404);
+    }
+
+    // Verify user's organization
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership || faq.bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Access denied' }, 403);
+    }
+
+    await prisma.fAQ.delete({ where: { id } });
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================
 // CHAT ROUTES (PUBLIC)
 // ============================================
 

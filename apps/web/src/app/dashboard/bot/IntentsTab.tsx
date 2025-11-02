@@ -1,223 +1,266 @@
-"use client";
+'use client';
 
-import React, { useEffect, useMemo, useState } from "react";
+import { useState, useEffect } from 'react';
 
-type IntentRecord = {
+interface Intent {
   id: string;
   name: string;
-  trainingPhrases: string[];
+  patterns: string[];
   response: string;
   createdAt: string;
-};
+}
 
-type Props = {
+interface IntentsTabProps {
   botId: string;
   apiBaseUrl: string;
-};
+}
 
-export default function IntentsTab({ botId, apiBaseUrl }: Props) {
-  const [intents, setIntents] = useState<IntentRecord[]>([]);
+export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
+  const [intents, setIntents] = useState<Intent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [name, setName] = useState("");
-  const [phrasesText, setPhrasesText] = useState("");
-  const [response, setResponse] = useState("");
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const phrases = useMemo(
-    () =>
-      phrasesText
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean),
-    [phrasesText],
-  );
-
-  function getAuthHeaders() {
-    const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  }
-
-  async function loadIntents() {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${apiBaseUrl}/api/bots/${botId}/intents`, {
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(),
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Impossibile caricare gli intent");
-      }
-
-      const data: IntentRecord[] = await res.json();
-      setIntents(data);
-    } catch (err: any) {
-      setError(err.message || "Errore durante il caricamento");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim() || phrases.length === 0 || !response.trim()) return;
-
-    setSaving(true);
-    setError(null);
-    try {
-      const res = await fetch(`${apiBaseUrl}/api/bots/${botId}/intents`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(),
-        },
-        body: JSON.stringify({ name, trainingPhrases: phrases, response }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Errore salvataggio intent");
-      }
-
-      setName("");
-      setPhrasesText("");
-      setResponse("");
-      await loadIntents();
-    } catch (err: any) {
-      setError(err.message || "Errore salvataggio intent");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleDelete(id: string) {
-    setError(null);
-    try {
-      const res = await fetch(`${apiBaseUrl}/api/intents/${id}`, {
-        method: "DELETE",
-        headers: {
-          ...getAuthHeaders(),
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Errore durante l'eliminazione");
-      }
-
-      setIntents((prev) => prev.filter((intent) => intent.id !== id));
-    } catch (err: any) {
-      setError(err.message || "Errore eliminazione intent");
-    }
-  }
+  // Form state
+  const [name, setName] = useState('');
+  const [patternsText, setPatternsText] = useState('');
+  const [response, setResponse] = useState('');
 
   useEffect(() => {
-    loadIntents();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchIntents();
   }, [botId]);
 
+  const fetchIntents = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        setError('No authentication token found');
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/intents`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch intents');
+      }
+
+      const data = await response.json();
+      setIntents(data);
+      setLoading(false);
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!name.trim() || !patternsText.trim() || !response.trim()) {
+      return;
+    }
+
+    // Convert patterns text to array (split by newlines)
+    const patterns = patternsText
+      .split('\n')
+      .map(p => p.trim())
+      .filter(p => p.length > 0);
+
+    if (patterns.length === 0) {
+      setError('Please add at least one pattern');
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const res = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/intents`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name, patterns, response }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to create intent');
+      }
+
+      const newIntent = await res.json();
+      setIntents([newIntent, ...intents]);
+      setName('');
+      setPatternsText('');
+      setResponse('');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (intentId: string) => {
+    if (!confirm('Are you sure you want to delete this intent?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const res = await fetch(`${apiBaseUrl}/api/v1/intents/${intentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to delete intent');
+      }
+
+      setIntents(intents.filter(intent => intent.id !== intentId));
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-gray-600">Loading intents...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-24">
-      <form
-        onSubmit={handleCreate}
-        className="rounded-xl border p-16 flex flex-col gap-12 bg-white shadow-sm"
-      >
-        <div className="text-lg font-semibold">Definisci intent</div>
-
-        <div className="flex flex-col gap-4">
-          <label className="text-sm font-medium">Nome intent</label>
-          <input
-            className="border rounded-md px-8 py-6 text-sm"
-            placeholder="Es. Saluto iniziale"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            disabled={saving}
-          />
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <label className="text-sm font-medium">Frasi di training (una per riga)</label>
-          <textarea
-            className="border rounded-md px-8 py-6 text-sm min-h-[120px]"
-            placeholder={"Ciao\nBuongiorno\nHey"}
-            value={phrasesText}
-            onChange={(e) => setPhrasesText(e.target.value)}
-            disabled={saving}
-          />
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <label className="text-sm font-medium">Risposta del bot</label>
-          <textarea
-            className="border rounded-md px-8 py-6 text-sm min-h-[120px]"
-            placeholder="Messaggio che il bot invierà quando riconosce l'intent"
-            value={response}
-            onChange={(e) => setResponse(e.target.value)}
-            disabled={saving}
-          />
-        </div>
-
-        {error && <div className="text-xs text-red-600">{error}</div>}
-
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-black text-white text-sm font-medium rounded-md px-12 py-8 disabled:opacity-50"
-        >
-          {saving ? "Salvo..." : "Salva intent"}
-        </button>
-      </form>
-
-      <div className="rounded-xl border p-16 bg-white shadow-sm">
-        <div className="text-lg font-semibold mb-12">Intent configurati</div>
-
-        {loading ? (
-          <div className="text-sm text-gray-500">Caricamento…</div>
-        ) : intents.length === 0 ? (
-          <div className="text-sm text-gray-500">
-            Nessun intent ancora. Aggiungine uno sopra.
+    <div className="space-y-6">
+      {/* Add Intent Form */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Intent</h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Intent Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g., greeting, help_request, pricing_question"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              required
+            />
           </div>
+
+          <div>
+            <label htmlFor="patterns" className="block text-sm font-medium text-gray-700 mb-1">
+              Patterns (one per line)
+            </label>
+            <textarea
+              id="patterns"
+              value={patternsText}
+              onChange={(e) => setPatternsText(e.target.value)}
+              placeholder="hello&#10;hi&#10;hey there&#10;good morning"
+              rows={5}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none font-mono text-sm"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Add phrases that trigger this intent, one per line
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="response" className="block text-sm font-medium text-gray-700 mb-1">
+              Response
+            </label>
+            <textarea
+              id="response"
+              value={response}
+              onChange={(e) => setResponse(e.target.value)}
+              placeholder="Hello! How can I help you today?"
+              rows={4}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          >
+            {submitting ? 'Adding...' : 'Add Intent'}
+          </button>
+        </form>
+      </div>
+
+      {/* Intents List */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Intents ({intents.length})
+        </h3>
+
+        {intents.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">
+            No intents yet. Add your first intent above to train your bot with pattern matching.
+          </p>
         ) : (
-          <ul className="flex flex-col gap-12">
+          <div className="space-y-4">
             {intents.map((intent) => (
-              <li
+              <div
                 key={intent.id}
-                className="border rounded-md p-12 flex flex-col gap-6 bg-gray-50"
+                className="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors"
               >
-                <div className="flex items-start justify-between gap-8">
-                  <div className="font-medium">{intent.name}</div>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900">{intent.name}</h4>
+                    <span className="text-xs text-gray-500">
+                      {new Date(intent.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
                   <button
                     onClick={() => handleDelete(intent.id)}
-                    className="text-xs text-red-600 hover:underline"
-                    type="button"
+                    className="text-red-600 hover:text-red-700 text-sm font-medium"
                   >
-                    Elimina
+                    Delete
                   </button>
                 </div>
 
-                <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                  {intent.trainingPhrases.map((phrase) => (
-                    <span
-                      key={phrase}
-                      className="px-2 py-1 bg-white border border-gray-200 rounded"
-                    >
-                      {phrase}
-                    </span>
-                  ))}
+                <div className="mb-3">
+                  <p className="text-xs font-medium text-gray-700 mb-1">Patterns:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {intent.patterns.map((pattern, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs font-mono"
+                      >
+                        {pattern}
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="text-xs text-gray-700 whitespace-pre-wrap">
-                  {intent.response}
+                <div>
+                  <p className="text-xs font-medium text-gray-700 mb-1">Response:</p>
+                  <p className="text-sm text-gray-600">{intent.response}</p>
                 </div>
-
-                <div className="text-[10px] text-gray-400">
-                  {new Date(intent.createdAt).toLocaleString()}
-                </div>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>
