@@ -1,0 +1,13 @@
+# Cloudflare Pages SPA routing
+# Serve index.html for all routes except static assets
+
+# API requests should not be redirected
+/api/* 200
+
+# Static files (CSS, JS, images, etc.)
+/_next/* 200
+/favicon.ico 200
+/images/* 200
+
+# All other routes serve index.html for client-side routing
+/* /index.html 200
