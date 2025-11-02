@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone', // Optimized build for Cloudflare Pages
+  output: 'export',
   reactStrictMode: true,
   transpilePackages: ['@chatbot-studio/database'],
   images: {
