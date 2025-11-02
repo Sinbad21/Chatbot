@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { buildAuthHeaders } from '@/lib/authHeaders';
 
 interface Document {
   id: string;
@@ -31,17 +32,8 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
 
   const fetchDocuments = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        setError('No authentication token found');
-        setLoading(false);
-        return;
-      }
-
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: buildAuthHeaders(),
       });
 
       if (!response.ok) {
@@ -68,13 +60,9 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
     setError(null);
 
     try {
-      const token = localStorage.getItem('accessToken');
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: buildAuthHeaders(),
         body: JSON.stringify({ name, content }),
       });
 
@@ -99,12 +87,9 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
     }
 
     try {
-      const token = localStorage.getItem('accessToken');
       const response = await fetch(`${apiBaseUrl}/api/v1/documents/${documentId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: buildAuthHeaders(),
       });
 
       if (!response.ok) {

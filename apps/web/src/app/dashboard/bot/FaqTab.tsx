@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { buildAuthHeaders } from "@/lib/authHeaders";
 
 type FaqRecord = {
   id: string;
@@ -22,20 +23,12 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function getAuthHeaders() {
-    const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  }
-
   async function loadFaqs() {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch(`${apiBaseUrl}/api/bots/${botId}/faqs`, {
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(),
-        },
+        headers: buildAuthHeaders(),
       });
 
       if (!res.ok) {
@@ -60,10 +53,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
     try {
       const res = await fetch(`${apiBaseUrl}/api/bots/${botId}/faqs`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...getAuthHeaders(),
-        },
+        headers: buildAuthHeaders(),
         body: JSON.stringify({ question, answer }),
       });
 
@@ -86,9 +76,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
     try {
       const res = await fetch(`${apiBaseUrl}/api/faqs/${id}`, {
         method: "DELETE",
-        headers: {
-          ...getAuthHeaders(),
-        },
+        headers: buildAuthHeaders(),
       });
 
       if (!res.ok) {
