@@ -86,24 +86,58 @@ app.post('/api/v1/auth/register', async (c) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-      },
+    // Create slug for organization
+    const slugBase = `${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-workspace`;
+    let slug = slugBase;
+    let counter = 1;
+
+    // Ensure slug is unique
+    while (await prisma.organization.findUnique({ where: { slug } })) {
+      slug = `${slugBase}-${counter}`;
+      counter++;
+    }
+
+    // Multi-tenant: Create user + organization + membership in transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Create personal organization
+      const organization = await tx.organization.create({
+        data: {
+          name: `${name}'s Workspace`,
+          slug,
+          plan: 'free',
+        },
+      });
+
+      // 2. Create user
+      const user = await tx.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name,
+        },
+      });
+
+      // 3. Create organization membership with OWNER role
+      await tx.organizationMember.create({
+        data: {
+          organizationId: organization.id,
+          userId: user.id,
+          role: 'OWNER',
+        },
+      });
+
+      return { user, organization };
     });
 
     // Generate tokens
     const accessToken = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
+      { userId: result.user.id, email: result.user.email, role: result.user.role },
       c.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
     const refreshToken = jwt.sign(
-      { userId: user.id, tokenId: user.id },
+      { userId: result.user.id, tokenId: result.user.id },
       c.env.JWT_REFRESH_SECRET,
       { expiresIn: '7d' }
     );
@@ -112,17 +146,22 @@ app.post('/api/v1/auth/register', async (c) => {
     await prisma.refreshToken.create({
       data: {
         token: refreshToken,
-        userId: user.id,
+        userId: result.user.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });
 
     return c.json({
       user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
+        id: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
+        role: result.user.role,
+      },
+      organization: {
+        id: result.organization.id,
+        name: result.organization.name,
+        slug: result.organization.slug,
       },
       tokens: { accessToken, refreshToken },
     }, 201);
@@ -184,8 +223,19 @@ app.get('/api/v1/bots', authMiddleware, async (c) => {
     const prisma = getDB(c.env.DATABASE_URL);
     const user = c.get('user');
 
-    const bots = await prisma.bot.findMany({
+    // Multi-tenant: Get user's organization
+    const membership = await prisma.organizationMember.findFirst({
       where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization assigned' }, 403);
+    }
+
+    // Get all bots in user's organization (not just created by user)
+    const bots = await prisma.bot.findMany({
+      where: { organizationId: membership.organizationId },
       include: {
         _count: {
           select: {
@@ -207,13 +257,24 @@ app.post('/api/v1/bots', authMiddleware, async (c) => {
   try {
     const prisma = getDB(c.env.DATABASE_URL);
     const user = c.get('user');
-    const { name, description, organizationId, systemPrompt, welcomeMessage, color } = await c.req.json();
+    const { name, description, systemPrompt, welcomeMessage, color } = await c.req.json();
 
+    // Multi-tenant: Get user's organization membership
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true, role: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization assigned' }, 403);
+    }
+
+    // Create bot with auto-propagated organizationId
     const bot = await prisma.bot.create({
       data: {
         name,
         description,
-        organizationId,
+        organizationId: membership.organizationId, // Auto-propagated from user
         userId: user.userId,
         systemPrompt: systemPrompt || 'You are a helpful AI assistant.',
         welcomeMessage: welcomeMessage || 'Hello! How can I help you?',
