@@ -5,6 +5,7 @@ import { PrismaNeon } from '@prisma/adapter-neon';
 import { Pool } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { registerKnowledgeRoutes } from './routes/knowledge';
 
 type Bindings = {
   DATABASE_URL: string;
@@ -44,6 +45,8 @@ const authMiddleware = async (c: any, next: any) => {
     return c.json({ error: 'Invalid token' }, 401);
   }
 };
+
+registerKnowledgeRoutes(app as any, getDB, authMiddleware);
 
 // ============================================
 // HEALTH CHECK

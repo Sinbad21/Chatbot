@@ -193,26 +193,13 @@ enum MessageRole {
 model Document {
   id        String   @id @default(cuid())
   botId     String
-  name      String
-  type      String
-  size      Int
-  url       String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  title     String
   content   String   @db.Text
-  status    DocumentStatus @default(PROCESSING)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  bot Bot @relation(fields: [botId], references: [id], onDelete: Cascade)
 
   @@index([botId])
   @@map("documents")
-}
-
-enum DocumentStatus {
-  PROCESSING
-  COMPLETED
-  FAILED
 }
 
 // ============================================
@@ -220,17 +207,13 @@ enum DocumentStatus {
 // ============================================
 
 model Intent {
-  id        String   @id @default(cuid())
-  botId     String
-  name      String
-  patterns  String[]
-  response  String
-  enabled   Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  bot Bot @relation(fields: [botId], references: [id], onDelete: Cascade)
+  id              String   @id @default(cuid())
+  botId           String
+  bot             Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  name            String
+  trainingPhrases String[]
+  response        String
+  createdAt       DateTime @default(now())
 
   @@index([botId])
   @@map("intents")
@@ -239,15 +222,10 @@ model Intent {
 model FAQ {
   id        String   @id @default(cuid())
   botId     String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
   question  String
   answer    String
-  category  String?
-  enabled   Boolean  @default(true)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  bot Bot @relation(fields: [botId], references: [id], onDelete: Cascade)
 
   @@index([botId])
   @@map("faqs")
