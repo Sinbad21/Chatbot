@@ -33,7 +33,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
   const fetchDocuments = async () => {
     try {
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents`, {
-        headers: buildAuthHeaders(),
+        headers: buildAuthHeaders(false),
       });
 
       if (!response.ok) {
@@ -89,7 +89,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
     try {
       const response = await fetch(`${apiBaseUrl}/api/v1/documents/${documentId}`, {
         method: 'DELETE',
-        headers: buildAuthHeaders(),
+        headers: buildAuthHeaders(false),
       });
 
       if (!response.ok) {

@@ -28,7 +28,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
     setError(null);
     try {
       const res = await fetch(`${apiBaseUrl}/api/bots/${botId}/faqs`, {
-        headers: buildAuthHeaders(),
+        headers: buildAuthHeaders(false),
       });
 
       if (!res.ok) {
@@ -76,7 +76,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
     try {
       const res = await fetch(`${apiBaseUrl}/api/faqs/${id}`, {
         method: "DELETE",
-        headers: buildAuthHeaders(),
+        headers: buildAuthHeaders(false),
       });
 
       if (!res.ok) {
