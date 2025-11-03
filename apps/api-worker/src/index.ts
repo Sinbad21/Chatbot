@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { Pool } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
@@ -468,22 +468,28 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     try {
       body = await c.req.json();
     } catch {
+      console.log('[POST /documents] Failed to parse JSON body');
       return c.json({ error: 'Invalid JSON in request body' }, 400);
     }
 
     const { name, content } = body;
 
-    console.log('[POST /documents] userId:', user?.userId, 'botId:', botId, 'nameLength:', name?.length, 'contentLength:', content?.length);
+    console.log('[POST /documents] Request details:', {
+      userId: user?.userId,
+      botId,
+      nameLength: name?.length,
+      contentLength: content?.length,
+    });
 
     // Validate required fields
     if (!name || typeof name !== 'string') {
       console.log('[POST /documents] Invalid name field');
-      return c.json({ error: 'name is required and must be a string' }, 400);
+      return c.json({ error: 'name is required and must be a string' }, 422);
     }
 
     if (!content || typeof content !== 'string') {
       console.log('[POST /documents] Invalid content field');
-      return c.json({ error: 'content is required and must be a string' }, 400);
+      return c.json({ error: 'content is required and must be a string' }, 422);
     }
 
     // Validate field lengths
@@ -522,13 +528,17 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       select: { organizationId: true, role: true },
     });
 
-    console.log('[POST /documents] Membership found:', membership ? `org=${membership.organizationId}, role=${membership.role}` : 'NULL');
+    console.log('[POST /documents] User membership:', {
+      found: !!membership,
+      organizationId: membership?.organizationId || 'NULL',
+      role: membership?.role || 'NULL',
+    });
 
-    if (!membership) {
-      console.log('[POST /documents] User has no organization - needs onboarding');
+    if (!membership || !membership.organizationId) {
+      console.log('[POST /documents] ❌ User has no organization - needs onboarding');
       return c.json({
         error: 'User not associated with any organization',
-        message: 'Please contact support to set up your organization.',
+        message: 'Please run the multi-tenant fix script: npm run db:fix-multi-tenant',
         code: 'NO_ORGANIZATION'
       }, 403);
     }
@@ -539,15 +549,31 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       select: { id: true, organizationId: true, name: true },
     });
 
-    console.log('[POST /documents] Bot found:', bot ? `org=${bot.organizationId}, name=${bot.name}` : 'NULL');
+    console.log('[POST /documents] Bot details:', {
+      found: !!bot,
+      organizationId: bot?.organizationId || 'NULL',
+      name: bot?.name || 'NULL',
+    });
 
     if (!bot) {
-      console.log('[POST /documents] Bot not found');
+      console.log('[POST /documents] ❌ Bot not found');
       return c.json({ error: 'Bot not found' }, 404);
     }
 
+    if (!bot.organizationId) {
+      console.log('[POST /documents] ❌ Bot has no organizationId - database inconsistency!');
+      return c.json({
+        error: 'Bot configuration error',
+        message: 'This bot is not associated with any organization. Please run: npm run db:fix-multi-tenant',
+        code: 'BOT_NO_ORGANIZATION'
+      }, 500);
+    }
+
     if (bot.organizationId !== membership.organizationId) {
-      console.log('[POST /documents] Organization mismatch - bot.org:', bot.organizationId, 'user.org:', membership.organizationId);
+      console.log('[POST /documents] ❌ Organization mismatch:', {
+        botOrg: bot.organizationId,
+        userOrg: membership.organizationId,
+      });
       return c.json({
         error: 'Access denied',
         message: 'This bot belongs to a different organization',
@@ -555,7 +581,13 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       }, 403);
     }
 
-    console.log('[POST /documents] Creating document...');
+    console.log('[POST /documents] ✅ Tenant check passed - creating document...');
+    console.log('[POST /documents] Final validation:', {
+      userOrg: membership.organizationId,
+      botOrg: bot.organizationId,
+      match: membership.organizationId === bot.organizationId,
+    });
+
     const document = await prisma.document.create({
       data: {
         botId,
@@ -564,7 +596,7 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       },
     });
 
-    console.log('[POST /documents] Document created:', document.id);
+    console.log('[POST /documents] ✅ Document created successfully:', document.id);
 
     // Transform document to match frontend interface
     const transformedDocument = {
@@ -577,7 +609,58 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
 
     return c.json(transformedDocument, 201);
   } catch (error: any) {
-    console.error('[POST /documents] ERROR:', error.message);
+    console.error('[POST /documents] ❌ EXCEPTION:', error);
+
+    // Handle Prisma-specific errors
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error('[POST /documents] Prisma error code:', error.code);
+      console.error('[POST /documents] Prisma meta:', error.meta);
+
+      if (error.code === 'P2003') {
+        // Foreign key constraint failed
+        console.error('[POST /documents] Foreign key constraint violation - likely organizationId mismatch');
+        return c.json({
+          error: 'Database constraint violation',
+          message: 'Foreign key/tenant mismatch. Please run: npm run db:fix-multi-tenant',
+          code: 'FK_CONSTRAINT',
+          prismaCode: error.code,
+        }, 409);
+      }
+
+      if (error.code === 'P2025') {
+        // Record not found
+        console.error('[POST /documents] Record not found in database');
+        return c.json({
+          error: 'Record not found',
+          message: 'The referenced record does not exist',
+          code: 'NOT_FOUND',
+          prismaCode: error.code,
+        }, 404);
+      }
+
+      if (error.code === 'P2002') {
+        // Unique constraint violation
+        console.error('[POST /documents] Unique constraint violation');
+        return c.json({
+          error: 'Duplicate record',
+          message: 'A record with this data already exists',
+          code: 'DUPLICATE',
+          prismaCode: error.code,
+        }, 409);
+      }
+
+      // Other Prisma errors
+      console.error('[POST /documents] Unhandled Prisma error');
+      return c.json({
+        error: 'Database error',
+        message: error.message,
+        code: 'PRISMA_ERROR',
+        prismaCode: error.code,
+      }, 500);
+    }
+
+    // Generic errors
+    console.error('[POST /documents] Generic error:', error.message);
     console.error('[POST /documents] Stack:', error.stack);
     return c.json({
       error: 'Internal server error',

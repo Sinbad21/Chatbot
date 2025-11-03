@@ -16,6 +16,7 @@
     "lint": "turbo run lint",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "db:verify-tenant": "tsx scripts/verify-tenant-consistency.ts",
     "db:fix-multi-tenant": "tsx scripts/fix-multi-tenant.ts"
   },
   "devDependencies": {
