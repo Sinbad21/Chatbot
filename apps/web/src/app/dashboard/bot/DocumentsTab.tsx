@@ -60,14 +60,30 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
     setError(null);
 
     try {
+      const token = localStorage.getItem('accessToken');
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents`, {
         method: 'POST',
-        headers: buildAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ name, content }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create document');
+        // Try to get error details from response
+        let errorMessage = `Failed to create document (${response.status})`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch {
+          // If JSON parsing fails, use default message
+        }
+        throw new Error(errorMessage);
       }
 
       const newDocument = await response.json();
@@ -75,7 +91,8 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       setName('');
       setContent('');
     } catch (err: any) {
-      setError(err.message);
+      console.error('Error creating document:', err);
+      setError(err.message || 'Failed to create document');
     } finally {
       setSubmitting(false);
     }
@@ -119,6 +136,9 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
               Document Name
+              <span className="text-xs text-gray-500 ml-2">
+                ({name.length}/200)
+              </span>
             </label>
             <input
               type="text"
@@ -126,6 +146,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Product Guide, FAQ Document"
+              maxLength={200}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
               required
             />
@@ -134,6 +155,9 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
           <div>
             <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
               Content
+              <span className="text-xs text-gray-500 ml-2">
+                ({content.length.toLocaleString()}/200,000)
+              </span>
             </label>
             <textarea
               id="content"
@@ -141,6 +165,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
               onChange={(e) => setContent(e.target.value)}
               placeholder="Paste your document content here..."
               rows={8}
+              maxLength={200000}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-gray-900"
               required
             />

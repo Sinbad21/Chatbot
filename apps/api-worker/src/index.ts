@@ -462,13 +462,58 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     const prisma = getDB(c.env.DATABASE_URL);
     const user = c.get('user');
     const botId = c.req.param('botId');
-    const { name, content } = await c.req.json();
 
-    console.log('[POST /documents] userId:', user?.userId, 'botId:', botId, 'nameLength:', name?.length);
+    // Parse and validate request body
+    let body;
+    try {
+      body = await c.req.json();
+    } catch {
+      return c.json({ error: 'Invalid JSON in request body' }, 400);
+    }
 
-    if (!name || !content) {
-      console.log('[POST /documents] Missing required fields');
-      return c.json({ error: 'name and content are required' }, 400);
+    const { name, content } = body;
+
+    console.log('[POST /documents] userId:', user?.userId, 'botId:', botId, 'nameLength:', name?.length, 'contentLength:', content?.length);
+
+    // Validate required fields
+    if (!name || typeof name !== 'string') {
+      console.log('[POST /documents] Invalid name field');
+      return c.json({ error: 'name is required and must be a string' }, 400);
+    }
+
+    if (!content || typeof content !== 'string') {
+      console.log('[POST /documents] Invalid content field');
+      return c.json({ error: 'content is required and must be a string' }, 400);
+    }
+
+    // Validate field lengths
+    const MAX_NAME_LENGTH = 200;
+    const MAX_CONTENT_LENGTH = 200000; // ~200KB
+
+    if (name.length > MAX_NAME_LENGTH) {
+      console.log('[POST /documents] Name too long:', name.length);
+      return c.json({
+        error: 'Document name too long',
+        message: `Name must be less than ${MAX_NAME_LENGTH} characters`
+      }, 422);
+    }
+
+    if (content.length > MAX_CONTENT_LENGTH) {
+      console.log('[POST /documents] Content too large:', content.length);
+      return c.json({
+        error: 'Document content too large',
+        message: `Content must be less than ${MAX_CONTENT_LENGTH} characters (~200KB)`
+      }, 413);
+    }
+
+    if (name.trim().length === 0) {
+      console.log('[POST /documents] Name is empty after trim');
+      return c.json({ error: 'Document name cannot be empty' }, 400);
+    }
+
+    if (content.trim().length === 0) {
+      console.log('[POST /documents] Content is empty after trim');
+      return c.json({ error: 'Document content cannot be empty' }, 400);
     }
 
     // Verify user has organization membership
@@ -514,8 +559,8 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     const document = await prisma.document.create({
       data: {
         botId,
-        title: name,
-        content,
+        title: name.trim(),
+        content: content.trim(),
       },
     });
 
@@ -537,7 +582,7 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     return c.json({
       error: 'Internal server error',
       message: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      details: c.env.NODE_ENV === 'development' ? error.stack : undefined
     }, 500);
   }
 });
