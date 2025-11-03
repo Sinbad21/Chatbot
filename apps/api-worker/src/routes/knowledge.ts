@@ -41,58 +41,129 @@ export function registerKnowledgeRoutes(
 ) {
   // Documents
   app.get('/api/bots/:botId/documents', authMiddleware, async (c) => {
-    const prisma = getDB(c.env.DATABASE_URL);
-    const user = c.get('user');
-    const botId = c.req.param('botId');
+    try {
+      const prisma = getDB(c.env.DATABASE_URL);
+      const user = c.get('user');
+      const botId = c.req.param('botId');
 
-    const membership = await getOrganizationId(prisma, user.userId);
-    if (!membership) {
-      return c.json({ error: 'User has no organization assigned' }, 403);
+      // Get user's organization
+      const membership = await getOrganizationId(prisma, user.userId);
+      if (!membership) {
+        console.error('[GET /documents] User has no organization:', user.userId);
+        return c.json({ error: 'User has no organization assigned' }, 403);
+      }
+
+      // Verify bot belongs to user's organization (tenant-safe)
+      const bot = await ensureBotAccess(prisma, botId, membership.organizationId);
+      if (!bot) {
+        console.error('[GET /documents] Bot not found or not accessible:', botId, membership.organizationId);
+        return c.json({ error: 'Bot not found' }, 404);
+      }
+
+      // Fetch documents for this bot
+      const docs = await prisma.document.findMany({
+        where: { botId },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return c.json({ documents: docs });
+    } catch (error: any) {
+      console.error('[GET /documents] Database error:', error);
+      
+      // Map Prisma error codes
+      if (error.code === 'P2025') {
+        return c.json({ error: 'Resource not found' }, 404);
+      }
+      if (error.code === 'P2003') {
+        return c.json({ error: 'Invalid foreign key reference' }, 400);
+      }
+      
+      // Generic database error
+      return c.json({ 
+        error: 'Database error', 
+        code: error.code || 'UNKNOWN',
+        message: error.message || String(error)
+      }, 500);
     }
-
-    const bot = await ensureBotAccess(prisma, botId, membership.organizationId);
-    if (!bot) {
-      return c.json({ error: 'Bot not found' }, 404);
-    }
-
-    const docs = await prisma.document.findMany({
-      where: { botId },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return c.json(docs);
   });
 
   app.post('/api/bots/:botId/documents', authMiddleware, async (c) => {
-    const prisma = getDB(c.env.DATABASE_URL);
-    const user = c.get('user');
-    const botId = c.req.param('botId');
-    const body = await c.req.json<{ title?: string; content?: string }>();
-    const { title, content } = body;
+    try {
+      const prisma = getDB(c.env.DATABASE_URL);
+      const user = c.get('user');
+      const botId = c.req.param('botId');
+      const body = await c.req.json<{ title?: string; content?: string }>();
+      const { title, content } = body;
 
-    if (!title || !content) {
-      return c.json({ error: 'title and content are required' }, 400);
+      // Validate input
+      if (!title || !content) {
+        return c.json({ error: 'title and content are required' }, 400);
+      }
+
+      // Get user's organization
+      const membership = await getOrganizationId(prisma, user.userId);
+      if (!membership) {
+        console.error('[POST /documents] User has no organization:', user.userId);
+        return c.json({ error: 'User has no organization assigned' }, 403);
+      }
+
+      // Verify bot belongs to user's organization (tenant-safe)
+      const bot = await ensureBotAccess(prisma, botId, membership.organizationId);
+      if (!bot) {
+        console.error('[POST /documents] Bot not found or not accessible:', botId, membership.organizationId);
+        return c.json({ error: 'Bot not found or access denied' }, 404);
+      }
+
+      // Create document (schema only has: id, botId, title, content, createdAt)
+      const doc = await prisma.document.create({
+        data: {
+          botId,
+          title,
+          content,
+        },
+      });
+
+      return c.json(doc, 201);
+    } catch (error: any) {
+      console.error('[POST /documents] Database error:', error);
+      console.error('[POST /documents] Error code:', error.code);
+      console.error('[POST /documents] Error meta:', error.meta);
+      
+      // Map Prisma error codes
+      if (error.code === 'P2003') {
+        return c.json({ 
+          error: 'Foreign key constraint failed', 
+          details: 'The bot does not exist or has been deleted',
+          code: 'P2003'
+        }, 409);
+      }
+      if (error.code === 'P2025') {
+        return c.json({ error: 'Record not found', code: 'P2025' }, 404);
+      }
+      if (error.code === 'P2002') {
+        return c.json({ error: 'Unique constraint violation', code: 'P2002' }, 409);
+      }
+      if (error.code?.startsWith('P20')) {
+        return c.json({ 
+          error: 'Database constraint error',
+          code: error.code,
+          message: error.message
+        }, 400);
+      }
+      
+      // Generic database error
+      return c.json({ 
+        error: 'Database error', 
+        code: error.code || 'UNKNOWN',
+        message: error.message || String(error)
+      }, 500);
     }
-
-    const membership = await getOrganizationId(prisma, user.userId);
-    if (!membership) {
-      return c.json({ error: 'User has no organization assigned' }, 403);
-    }
-
-    const bot = await ensureBotAccess(prisma, botId, membership.organizationId);
-    if (!bot) {
-      return c.json({ error: 'Bot not found' }, 404);
-    }
-
-    const doc = await prisma.document.create({
-      data: {
-        botId,
-        title,
-        content,
-      },
-    });
-
-    return c.json(doc, 201);
   });
 
   app.delete('/api/documents/:docId', authMiddleware, async (c) => {

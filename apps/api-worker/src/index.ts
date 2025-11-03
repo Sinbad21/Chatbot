@@ -71,6 +71,43 @@ app.get('/debug/env', (c) => {
   });
 });
 
+// Database connection health check
+app.get('/api/v1/debug/db', async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    
+    // Test basic connection with raw query
+    await prisma.$queryRaw`SELECT 1 as test`;
+    
+    // Test that we can access tables
+    const userCount = await prisma.user.count();
+    const orgCount = await prisma.organization.count();
+    const botCount = await prisma.bot.count();
+    const docCount = await prisma.document.count();
+    
+    return c.json({
+      ok: true,
+      database: 'connected',
+      timestamp: new Date().toISOString(),
+      counts: {
+        users: userCount,
+        organizations: orgCount,
+        bots: botCount,
+        documents: docCount,
+      }
+    });
+  } catch (error: any) {
+    console.error('[DEBUG /db] Database connection failed:', error);
+    return c.json({
+      ok: false,
+      error: 'Database connection failed',
+      code: error.code || 'UNKNOWN',
+      message: error.message || String(error),
+      timestamp: new Date().toISOString()
+    }, 500);
+  }
+});
+
 // ============================================
 // AUTH ROUTES
 // ============================================
