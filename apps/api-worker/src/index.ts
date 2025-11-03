@@ -393,7 +393,10 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     const user = c.get('user');
     const botId = c.req.param('botId');
 
-    console.log('[GET /documents] userId:', user?.userId, 'botId:', botId);
+    console.log('[GET /documents] Request details:', {
+      userId: user?.userId,
+      botId,
+    });
 
     // Verify user has organization membership
     const membership = await prisma.organizationMember.findFirst({
@@ -401,10 +404,14 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       select: { organizationId: true, role: true },
     });
 
-    console.log('[GET /documents] Membership found:', membership ? `org=${membership.organizationId}, role=${membership.role}` : 'NULL');
+    console.log('[GET /documents] User membership:', {
+      found: !!membership,
+      organizationId: membership?.organizationId || 'NULL',
+      role: membership?.role || 'NULL',
+    });
 
-    if (!membership) {
-      console.log('[GET /documents] User has no organization - needs onboarding');
+    if (!membership || !membership.organizationId) {
+      console.log('[GET /documents] ⚠️  User has no organization - returning empty array');
       // Return empty array instead of error to allow UI to load
       return c.json([], 200);
     }
@@ -415,25 +422,53 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       select: { id: true, organizationId: true, name: true },
     });
 
-    console.log('[GET /documents] Bot found:', bot ? `org=${bot.organizationId}, name=${bot.name}` : 'NULL');
+    console.log('[GET /documents] Bot details:', {
+      found: !!bot,
+      organizationId: bot?.organizationId || 'NULL',
+      name: bot?.name || 'NULL',
+    });
 
     if (!bot) {
-      console.log('[GET /documents] Bot not found');
+      console.log('[GET /documents] ❌ Bot not found');
       return c.json({ error: 'Bot not found' }, 404);
     }
 
-    if (bot.organizationId !== membership.organizationId) {
-      console.log('[GET /documents] Organization mismatch - bot.org:', bot.organizationId, 'user.org:', membership.organizationId);
-      return c.json({ error: 'Access denied - this bot belongs to a different organization' }, 403);
+    if (!bot.organizationId) {
+      console.log('[GET /documents] ❌ Bot has no organizationId - database inconsistency!');
+      return c.json({
+        error: 'Bot configuration error',
+        message: 'This bot is not associated with any organization',
+        code: 'BOT_NO_ORGANIZATION'
+      }, 500);
     }
+
+    if (bot.organizationId !== membership.organizationId) {
+      console.log('[GET /documents] ❌ Organization mismatch:', {
+        botOrg: bot.organizationId,
+        userOrg: membership.organizationId,
+      });
+      return c.json({
+        error: 'Access denied',
+        message: 'This bot belongs to a different organization',
+        code: 'ORGANIZATION_MISMATCH'
+      }, 403);
+    }
+
+    console.log('[GET /documents] ✅ Tenant check passed - fetching documents...');
 
     // Fetch documents
     const documents = await prisma.document.findMany({
       where: { botId },
       orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        createdAt: true,
+      },
     });
 
-    console.log('[GET /documents] Found documents:', documents.length);
+    console.log('[GET /documents] ✅ Found documents:', documents.length);
 
     // Transform documents to match frontend interface
     const transformedDocuments = documents.map(doc => ({
@@ -446,12 +481,47 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
 
     return c.json(transformedDocuments);
   } catch (error: any) {
-    console.error('[GET /documents] ERROR:', error.message);
+    console.error('[GET /documents] ❌ EXCEPTION:', error);
+
+    // Handle Prisma-specific errors
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error('[GET /documents] Prisma error code:', error.code);
+      console.error('[GET /documents] Prisma meta:', error.meta);
+
+      if (error.code === 'P2025') {
+        // Record not found
+        console.error('[GET /documents] Record not found');
+        return c.json([], 200); // Return empty array for not found
+      }
+
+      if (error.code === 'P2021') {
+        // Table does not exist
+        console.error('[GET /documents] Table does not exist - migration needed!');
+        return c.json({
+          error: 'Database not initialized',
+          message: 'Documents table does not exist. Run: npx prisma migrate deploy',
+          code: 'TABLE_NOT_FOUND',
+          prismaCode: error.code,
+        }, 500);
+      }
+
+      // Other Prisma errors
+      console.error('[GET /documents] Unhandled Prisma error');
+      return c.json({
+        error: 'Database error',
+        message: error.message,
+        code: 'PRISMA_ERROR',
+        prismaCode: error.code,
+      }, 500);
+    }
+
+    // Generic errors
+    console.error('[GET /documents] Generic error:', error.message);
     console.error('[GET /documents] Stack:', error.stack);
     return c.json({
       error: 'Internal server error',
       message: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      details: c.env.NODE_ENV === 'development' ? error.stack : undefined
     }, 500);
   }
 });
@@ -1068,6 +1138,76 @@ app.get('/api/v1/analytics/overview', authMiddleware, async (c) => {
     return c.json({ conversations, messages, leads });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================
+// DEBUG / HEALTH CHECK ENDPOINTS
+// ============================================
+
+app.get('/api/v1/debug/db', async (c) => {
+  console.log('[DEBUG /db] Testing database connection...');
+
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+
+    // Test 1: Basic connection
+    console.log('[DEBUG /db] Test 1: Running SELECT 1');
+    await prisma.$queryRaw`SELECT 1 as result`;
+    console.log('[DEBUG /db] ✅ SELECT 1 succeeded');
+
+    // Test 2: Check tables exist
+    console.log('[DEBUG /db] Test 2: Checking tables');
+    const tables = await prisma.$queryRaw`
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+      AND table_type = 'BASE TABLE'
+    `;
+    console.log('[DEBUG /db] ✅ Found tables:', tables);
+
+    // Test 3: Count records in key tables
+    console.log('[DEBUG /db] Test 3: Counting records');
+    const [userCount, orgCount, botCount, docCount] = await Promise.all([
+      prisma.user.count().catch(() => -1),
+      prisma.organization.count().catch(() => -1),
+      prisma.bot.count().catch(() => -1),
+      prisma.document.count().catch(() => -1),
+    ]);
+
+    const counts = {
+      users: userCount,
+      organizations: orgCount,
+      bots: botCount,
+      documents: docCount,
+    };
+    console.log('[DEBUG /db] ✅ Record counts:', counts);
+
+    return c.json({
+      ok: true,
+      message: 'Database connection successful',
+      tables: Array.isArray(tables) ? tables.length : 0,
+      counts,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error: any) {
+    console.error('[DEBUG /db] ❌ FAILED:', error);
+    console.error('[DEBUG /db] Error code:', error.code);
+    console.error('[DEBUG /db] Error message:', error.message);
+    console.error('[DEBUG /db] Stack:', error.stack);
+
+    return c.json({
+      ok: false,
+      error: error.message,
+      code: error.code,
+      name: error.name,
+      details: {
+        isPrismaError: error instanceof Prisma.PrismaClientKnownRequestError,
+        prismaCode: error.code,
+        stack: error.stack,
+      },
+      timestamp: new Date().toISOString(),
+    }, 500);
   }
 });
 
