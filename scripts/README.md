@@ -2,6 +2,67 @@
 
 This directory contains scripts for database maintenance and migrations.
 
+## verify-tenant-consistency.ts
+
+**Run this FIRST** to check if you have any organizationId mismatches.
+
+### What it does:
+
+1. **Finds users without organization membership**
+2. **Finds bots without organizationId**
+3. **Finds organization mismatches** between users and their bots
+
+### When to run:
+
+- Before creating documents (prevents 500 errors)
+- After user registration to verify setup
+- When you see "Foreign key constraint" or "ORGANIZATION_MISMATCH" errors
+
+### How to run:
+
+```bash
+# From the project root
+npm run db:verify-tenant
+```
+
+### Output example:
+
+```
+🔍 Verifying multi-tenant consistency...
+
+📊 Checking users without organization membership...
+   Found 0 user(s) without organization
+
+📊 Checking bots without organizationId...
+   Found 0 bot(s) without organizationId
+
+📊 Checking for organization mismatches...
+   Found 0 organization mismatch(es)
+
+======================================================================
+📋 VERIFICATION REPORT
+======================================================================
+
+✅ All checks passed! Multi-tenant structure is consistent.
+
+You can safely create documents now.
+```
+
+**If issues are found:**
+```
+❌ Found 3 issue(s) that need to be fixed:
+
+1️⃣  Users without organization (1):
+   ❌ john@example.com (cm123...)
+
+💡 RECOMMENDED ACTIONS:
+Run the fix script to resolve these issues:
+
+   npm run db:fix-multi-tenant
+```
+
+---
+
 ## fix-multi-tenant.ts
 
 Fixes multi-tenant structure for existing users who were created before the multi-tenant system was implemented.
