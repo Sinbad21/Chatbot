@@ -218,13 +218,15 @@ enum DocumentStatus {
 // ============================================
 
 model Intent {
-  id              String   @id @default(cuid())
-  botId           String
-  bot             Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
-  name            String
-  trainingPhrases String[]
-  response        String
-  createdAt       DateTime @default(now())
+  id        String   @id @default(cuid())
+  botId     String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  name      String
+  patterns  String[]
+  response  String
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([botId])
   @@map("intents")
@@ -236,7 +238,10 @@ model FAQ {
   bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
   question  String
   answer    String
+  category  String?
+  enabled   Boolean  @default(true)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([botId])
   @@map("faqs")
