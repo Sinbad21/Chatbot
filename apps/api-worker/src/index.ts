@@ -785,6 +785,136 @@ app.delete('/api/v1/documents/:id', authMiddleware, async (c) => {
 });
 
 // ============================================
+// WEB SCRAPING ROUTE
+// ============================================
+
+app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const botId = c.req.param('botId');
+    const { url } = await c.req.json();
+
+    console.log('🌐 [SCRAPE] Request:', { botId, url });
+
+    // Validate URL
+    if (!url || typeof url !== 'string') {
+      return c.json({ error: 'URL is required' }, 400);
+    }
+
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(url);
+    } catch {
+      return c.json({ error: 'Invalid URL format' }, 400);
+    }
+
+    // Verify bot access
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    console.log('🌐 [SCRAPE] Fetching URL:', url);
+
+    // Fetch the webpage
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0; +https://chatbotstudio.com)',
+      },
+    });
+
+    if (!response.ok) {
+      return c.json({
+        error: 'Failed to fetch URL',
+        message: `HTTP ${response.status}: ${response.statusText}`,
+      }, 502);
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('text/html')) {
+      return c.json({
+        error: 'Invalid content type',
+        message: 'URL must point to an HTML page',
+      }, 400);
+    }
+
+    const html = await response.text();
+
+    // Simple text extraction from HTML
+    // Remove script and style tags
+    let text = html
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ') // Remove all HTML tags
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
+
+    // Limit content to 50,000 characters
+    if (text.length > 50000) {
+      text = text.substring(0, 50000) + '... [Content truncated]';
+    }
+
+    if (text.length < 50) {
+      return c.json({
+        error: 'Insufficient content',
+        message: 'Could not extract enough text from the webpage',
+      }, 400);
+    }
+
+    // Extract title from HTML
+    const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i);
+    const pageTitle = titleMatch
+      ? titleMatch[1].replace(/\s+/g, ' ').trim()
+      : parsedUrl.hostname;
+
+    // Create document from scraped content
+    const document = await prisma.document.create({
+      data: {
+        botId,
+        title: `${pageTitle.substring(0, 190)} [Web]`,
+        content: text,
+        type: 'web',
+        size: text.length,
+        url: url,
+        status: 'COMPLETED',
+      },
+    });
+
+    console.log('✅ [SCRAPE] Document created:', document.id);
+
+    return c.json({
+      success: true,
+      document: {
+        id: document.id,
+        title: document.title,
+        url: document.url,
+        size: document.size,
+      },
+    });
+  } catch (error: any) {
+    console.error('❌ [SCRAPE] Error:', error);
+    return c.json({
+      error: 'Scraping failed',
+      message: error.message || 'Unknown error',
+    }, 500);
+  }
+});
+
+// ============================================
 // INTENTS ROUTES
 // ============================================
 
