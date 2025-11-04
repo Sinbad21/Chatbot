@@ -42,8 +42,8 @@ function InnerBotPage() {
         <button
           className={
             activeTab === "overview"
-              ? "font-semibold"
-              : "text-gray-500 hover:text-gray-800"
+              ? "font-semibold text-black"
+              : "text-gray-700 hover:text-black"
           }
           onClick={() => setActiveTab("overview")}
         >
@@ -52,8 +52,8 @@ function InnerBotPage() {
         <button
           className={
             activeTab === "documents"
-              ? "font-semibold"
-              : "text-gray-500 hover:text-gray-800"
+              ? "font-semibold text-black"
+              : "text-gray-700 hover:text-black"
           }
           onClick={() => setActiveTab("documents")}
         >
@@ -62,8 +62,8 @@ function InnerBotPage() {
         <button
           className={
             activeTab === "scraping"
-              ? "font-semibold"
-              : "text-gray-500 hover:text-gray-800"
+              ? "font-semibold text-black"
+              : "text-gray-700 hover:text-black"
           }
           onClick={() => setActiveTab("scraping")}
         >
@@ -72,8 +72,8 @@ function InnerBotPage() {
         <button
           className={
             activeTab === "intents"
-              ? "font-semibold"
-              : "text-gray-500 hover:text-gray-800"
+              ? "font-semibold text-black"
+              : "text-gray-700 hover:text-black"
           }
           onClick={() => setActiveTab("intents")}
         >
@@ -82,8 +82,8 @@ function InnerBotPage() {
         <button
           className={
             activeTab === "faqs"
-              ? "font-semibold"
-              : "text-gray-500 hover:text-gray-800"
+              ? "font-semibold text-black"
+              : "text-gray-700 hover:text-black"
           }
           onClick={() => setActiveTab("faqs")}
         >
@@ -92,8 +92,8 @@ function InnerBotPage() {
         <button
           className={
             activeTab === "test"
-              ? "font-semibold"
-              : "text-gray-500 hover:text-gray-800"
+              ? "font-semibold text-black"
+              : "text-gray-700 hover:text-black"
           }
           onClick={() => setActiveTab("test")}
         >
