@@ -6,8 +6,9 @@ import BotOverviewTab from "./BotOverviewTab";
 import DocumentsTab from "./DocumentsTab";
 import IntentsTab from "./IntentsTab";
 import FaqTab from "./FaqTab";
+import TestChatTab from "./TestChatTab";
 
-type TabKey = "overview" | "documents" | "intents" | "faqs";
+type TabKey = "overview" | "documents" | "intents" | "faqs" | "test";
 
 function InnerBotPage() {
   const searchParams = useSearchParams();
@@ -77,6 +78,16 @@ function InnerBotPage() {
         >
           FAQ
         </button>
+        <button
+          className={
+            activeTab === "test"
+              ? "font-semibold"
+              : "text-gray-500 hover:text-gray-800"
+          }
+          onClick={() => setActiveTab("test")}
+        >
+          Test
+        </button>
       </div>
 
       {activeTab === "overview" && <BotOverviewTab botId={botId} />}
@@ -90,6 +101,10 @@ function InnerBotPage() {
       )}
 
       {activeTab === "faqs" && <FaqTab botId={botId} apiBaseUrl={apiBaseUrl} />}
+
+      {activeTab === "test" && (
+        <TestChatTab botId={botId} apiBaseUrl={apiBaseUrl} />
+      )}
     </div>
   );
 }
