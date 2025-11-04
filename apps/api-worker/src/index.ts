@@ -1025,6 +1025,11 @@ app.post('/api/v1/chat', async (c) => {
     const prisma = getDB(c.env.DATABASE_URL);
     const { botId, message, sessionId, metadata } = await c.req.json();
 
+    // Validate required fields
+    if (!botId || !message) {
+      return c.json({ error: 'botId and message are required' }, 400);
+    }
+
     console.log('💬 [CHAT] Request:', { botId, message, sessionId });
 
     // Get bot with documents
@@ -1132,15 +1137,22 @@ You are ${bot.name}, an AI assistant. Use the knowledge base, intents, and FAQs 
           ...conversationHistory,
           { role: 'user', content: message }
         ],
-        temperature: 0.7,
-        max_tokens: 1000,
       }),
     });
 
     if (!openaiResponse.ok) {
       const errorData = await openaiResponse.json().catch(() => ({}));
       console.error('❌ [CHAT] OpenAI API Error:', errorData);
-      throw new Error(`OpenAI API error: ${openaiResponse.status} - ${errorData.error?.message || 'Unknown error'}`);
+
+      // Check if it's a bad request error (invalid parameters, etc.)
+      const isBadRequest = errorData.error?.type === 'invalid_request_error' ||
+                           errorData.error?.code === 'unsupported_parameter';
+
+      return c.json({
+        error: 'OpenAI API error',
+        message: errorData.error?.message || 'Unknown OpenAI error',
+        details: errorData.error
+      }, isBadRequest ? 400 : 502);
     }
 
     const completion = await openaiResponse.json();
