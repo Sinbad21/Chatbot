@@ -5,7 +5,6 @@ import { PrismaNeon } from '@prisma/adapter-neon';
 import { Pool } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import OpenAI from 'openai';
 import { registerKnowledgeRoutes } from './routes/knowledge';
 
 type Bindings = {
@@ -1077,11 +1076,6 @@ app.post('/api/v1/chat', async (c) => {
       },
     });
 
-    // Initialize OpenAI
-    const openai = new OpenAI({
-      apiKey: c.env.OPENAI_API_KEY,
-    });
-
     // Build context from documents
     let documentsContext = '';
     if (bot.documents.length > 0) {
@@ -1124,19 +1118,33 @@ You are ${bot.name}, an AI assistant. Use the knowledge base, intents, and FAQs 
 
     console.log('🤖 [CHAT] Calling OpenAI GPT-5...');
 
-    // Call OpenAI GPT-5
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-5',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...conversationHistory,
-        { role: 'user', content: message }
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
+    // Call OpenAI GPT-5 API directly using fetch (Workers-compatible)
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${c.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-5',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...conversationHistory,
+          { role: 'user', content: message }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
     });
 
-    const response = completion.choices[0]?.message?.content || bot.welcomeMessage;
+    if (!openaiResponse.ok) {
+      const errorData = await openaiResponse.json().catch(() => ({}));
+      console.error('❌ [CHAT] OpenAI API Error:', errorData);
+      throw new Error(`OpenAI API error: ${openaiResponse.status} - ${errorData.error?.message || 'Unknown error'}`);
+    }
+
+    const completion = await openaiResponse.json();
+    const response = completion.choices?.[0]?.message?.content || bot.welcomeMessage;
 
     console.log('✅ [CHAT] GPT-5 Response received');
 
