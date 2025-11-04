@@ -5,12 +5,14 @@ import { PrismaNeon } from '@prisma/adapter-neon';
 import { Pool } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import OpenAI from 'openai';
 import { registerKnowledgeRoutes } from './routes/knowledge';
 
 type Bindings = {
   DATABASE_URL: string;
   JWT_SECRET: string;
   JWT_REFRESH_SECRET: string;
+  OPENAI_API_KEY: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -1061,10 +1063,19 @@ app.post('/api/v1/chat', async (c) => {
     const prisma = getDB(c.env.DATABASE_URL);
     const { botId, message, sessionId, metadata } = await c.req.json();
 
-    // Get bot
+    console.log('💬 [CHAT] Request:', { botId, message, sessionId });
+
+    // Get bot with documents
     const bot = await prisma.bot.findUnique({
       where: { id: botId },
-      include: { intents: true, faqs: true },
+      include: {
+        documents: {
+          where: { status: 'COMPLETED' },
+          select: { title: true, content: true }
+        },
+        intents: { where: { enabled: true } },
+        faqs: { where: { enabled: true } }
+      },
     });
 
     if (!bot || !bot.published) {
@@ -1074,6 +1085,12 @@ app.post('/api/v1/chat', async (c) => {
     // Find or create conversation
     let conversation = await prisma.conversation.findFirst({
       where: { botId, sessionId },
+      include: {
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 10  // Last 10 messages for context
+        }
+      }
     });
 
     if (!conversation) {
@@ -1084,6 +1101,7 @@ app.post('/api/v1/chat', async (c) => {
           source: metadata?.source || 'widget',
           metadata,
         },
+        include: { messages: true }
       });
     }
 
@@ -1096,23 +1114,68 @@ app.post('/api/v1/chat', async (c) => {
       },
     });
 
-    // Simple intent matching
-    let response = bot.welcomeMessage;
+    // Initialize OpenAI
+    const openai = new OpenAI({
+      apiKey: c.env.OPENAI_API_KEY,
+    });
 
-    for (const intent of bot.intents) {
-      if (intent.enabled && intent.patterns.some(p => message.toLowerCase().includes(p.toLowerCase()))) {
-        response = intent.response;
-        break;
+    // Build context from documents
+    let documentsContext = '';
+    if (bot.documents.length > 0) {
+      documentsContext = '\n\n# Knowledge Base\n\n';
+      for (const doc of bot.documents) {
+        documentsContext += `## ${doc.title}\n\n${doc.content}\n\n`;
       }
     }
 
-    // FAQ matching
-    for (const faq of bot.faqs) {
-      if (faq.enabled && message.toLowerCase().includes(faq.question.toLowerCase())) {
-        response = faq.answer;
-        break;
+    // Build context from intents
+    let intentsContext = '';
+    if (bot.intents.length > 0) {
+      intentsContext = '\n\n# Intents\n\n';
+      for (const intent of bot.intents) {
+        intentsContext += `- ${intent.name}: ${intent.response}\n`;
       }
     }
+
+    // Build context from FAQs
+    let faqsContext = '';
+    if (bot.faqs.length > 0) {
+      faqsContext = '\n\n# Frequently Asked Questions\n\n';
+      for (const faq of bot.faqs) {
+        faqsContext += `Q: ${faq.question}\nA: ${faq.answer}\n\n`;
+      }
+    }
+
+    // Build conversation history
+    const conversationHistory = conversation.messages
+      .reverse()
+      .map((msg: any) => ({
+        role: msg.role === 'USER' ? 'user' : 'assistant',
+        content: msg.content
+      }));
+
+    // Build system prompt
+    const systemPrompt = `${bot.systemPrompt}${documentsContext}${intentsContext}${faqsContext}
+
+You are ${bot.name}, an AI assistant. Use the knowledge base, intents, and FAQs provided above to answer questions accurately. If the information is not in the knowledge base, use your general knowledge but indicate that the specific information wasn't in your knowledge base.`;
+
+    console.log('🤖 [CHAT] Calling OpenAI GPT-5...');
+
+    // Call OpenAI GPT-5
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-5',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...conversationHistory,
+        { role: 'user', content: message }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000,
+    });
+
+    const response = completion.choices[0]?.message?.content || bot.welcomeMessage;
+
+    console.log('✅ [CHAT] GPT-5 Response received');
 
     // Save bot response
     await prisma.message.create({
