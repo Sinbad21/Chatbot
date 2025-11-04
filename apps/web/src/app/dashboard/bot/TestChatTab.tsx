@@ -97,14 +97,14 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Test Chat</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="text-lg font-semibold">Test Chat</h3>
+          <p className="text-sm">
             Prova il tuo bot in tempo reale
           </p>
         </div>
         <button
           onClick={clearChat}
-          className="px-3 py-1 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
         >
           Pulisci chat
         </button>
@@ -113,7 +113,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-400">
+          <div className="flex flex-col items-center justify-center h-full">
             <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
@@ -130,13 +130,11 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
                   className={`max-w-[70%] rounded-lg px-4 py-2 ${
                     msg.role === 'user'
                       ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-100 text-gray-900'
+                      : 'bg-gray-100'
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  <p className={`text-xs mt-1 ${
-                    msg.role === 'user' ? 'text-indigo-200' : 'text-gray-500'
-                  }`}>
+                  <p className="text-xs mt-1 opacity-70">
                     {msg.timestamp.toLocaleTimeString('it-IT', {
                       hour: '2-digit',
                       minute: '2-digit',
@@ -145,6 +143,21 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
                 </div>
               </div>
             ))}
+
+            {/* Typing indicator */}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="max-w-[70%] rounded-lg px-4 py-3 bg-gray-100">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    <span className="text-sm ml-2">{botName} sta scrivendo...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </>
         )}
@@ -159,7 +172,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Scrivi un messaggio..."
             disabled={loading}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-gray-900"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button
             type="submit"

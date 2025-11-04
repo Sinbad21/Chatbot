@@ -86,7 +86,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       {/* Header */}
       <div>
         <h2 className="text-xl font-semibold mb-2">Web Scraping</h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm">
           Add content from websites to your bot's knowledge base. Enter a URL and we'll extract the text content.
         </p>
       </div>
@@ -106,7 +106,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
             className="px-12 py-8 border rounded text-sm"
             disabled={isLoading}
           />
-          <p className="text-xs text-gray-500">
+          <p className="text-xs">
             Enter the full URL including https://
           </p>
         </div>
@@ -151,7 +151,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                       {item.url}
                     </a>
                   </div>
-                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                  <span className="text-xs whitespace-nowrap">
                     {new Date(item.createdAt).toLocaleDateString()}
                   </span>
                 </div>
@@ -164,7 +164,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       {/* Info Box */}
       <div className="px-12 py-8 bg-blue-50 border border-blue-200 rounded text-sm">
         <p className="font-medium mb-2">How it works:</p>
-        <ul className="list-disc list-inside space-y-1 text-gray-700">
+        <ul className="list-disc list-inside space-y-1">
           <li>Enter a URL of a webpage you want to scrape</li>
           <li>We'll extract the main text content from the page</li>
           <li>The content is saved as a document in your knowledge base</li>

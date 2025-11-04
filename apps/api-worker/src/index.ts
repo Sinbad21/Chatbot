@@ -1249,11 +1249,18 @@ app.post('/api/v1/chat', async (c) => {
     // Build system prompt
     const systemPrompt = `${bot.systemPrompt}${documentsContext}${intentsContext}${faqsContext}
 
-You are ${bot.name}, an AI assistant. Use the knowledge base, intents, and FAQs provided above to answer questions accurately. If the information is not in the knowledge base, use your general knowledge but indicate that the specific information wasn't in your knowledge base.`;
+You are ${bot.name}, an AI assistant. Use the knowledge base, intents, and FAQs provided above to answer questions accurately and concisely.
 
-    console.log('🤖 [CHAT] Calling OpenAI GPT-5...');
+Important guidelines:
+- Give direct, brief answers (2-3 sentences max when possible)
+- If you need more information to give a good answer, ask a specific clarifying question
+- If the information is not in the knowledge base, use your general knowledge but indicate that
+- Be conversational and helpful`;
 
-    // Call OpenAI GPT-5 API directly using fetch (Workers-compatible)
+    console.log('🤖 [CHAT] Calling OpenAI GPT-5 Mini...');
+
+    // Call OpenAI GPT-5 Mini API directly using fetch (Workers-compatible)
+    // Using gpt-5-mini for faster responses
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -1261,7 +1268,7 @@ You are ${bot.name}, an AI assistant. Use the knowledge base, intents, and FAQs 
         'Authorization': `Bearer ${c.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-5',
+        model: 'gpt-5-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           ...conversationHistory,
