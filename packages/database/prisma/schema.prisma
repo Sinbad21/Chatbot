@@ -191,15 +191,26 @@ enum MessageRole {
 // ============================================
 
 model Document {
-  id        String   @id @default(cuid())
+  id        String          @id @default(cuid())
   botId     String
-  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  bot       Bot             @relation(fields: [botId], references: [id], onDelete: Cascade)
   title     String
-  content   String   @db.Text
-  createdAt DateTime @default(now())
+  type      String
+  size      Int
+  url       String
+  content   String          @db.Text
+  status    DocumentStatus  @default(PROCESSING)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
 
   @@index([botId])
   @@map("documents")
+}
+
+enum DocumentStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 // ============================================

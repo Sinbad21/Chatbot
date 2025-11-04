@@ -501,7 +501,12 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
         id: true,
         title: true,
         content: true,
+        type: true,
+        size: true,
+        url: true,
+        status: true,
         createdAt: true,
+        updatedAt: true,
       },
     });
 
@@ -512,7 +517,7 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       id: doc.id,
       name: doc.title,
       content: doc.content,
-      status: 'active',
+      status: doc.status.toLowerCase(),
       createdAt: doc.createdAt,
     }));
 
@@ -700,6 +705,10 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
         botId,
         title: name.trim(),
         content: content.trim(),
+        type: 'text',
+        size: content.trim().length,
+        url: '',
+        status: 'COMPLETED',
       },
     });
 
@@ -710,7 +719,7 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       id: document.id,
       name: document.title,
       content: document.content,
-      status: 'active',
+      status: document.status.toLowerCase(),
       createdAt: document.createdAt,
     };
 
