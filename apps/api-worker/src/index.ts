@@ -1092,6 +1092,65 @@ app.post('/api/v1/chat', async (c) => {
       botName: bot.name,
     });
   } catch (error: any) {
+    console.error('❌ [CHAT] Error:', {
+      error: error.message,
+      code: error.code,
+      meta: error.meta,
+      botId,
+      sessionId,
+    });
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2003') {
+        return c.json({
+          error: 'Database constraint violation',
+          message: 'Bot not found or database FK constraint error',
+          prismaCode: error.code,
+        }, 409);
+      }
+      if (error.code === 'P2025') {
+        return c.json({
+          error: 'Record not found',
+          message: 'Bot not found',
+          prismaCode: error.code,
+        }, 404);
+      }
+      if (error.code === 'P2002') {
+        return c.json({
+          error: 'Unique constraint violation',
+          message: 'Conversation already exists',
+          prismaCode: error.code,
+        }, 409);
+      }
+      if (error.code === 'P2011') {
+        return c.json({
+          error: 'Database error',
+          message: `Null constraint violation on the fields: (${error.meta?.target})`,
+          prismaCode: error.code,
+        }, 400);
+      }
+      if (error.code === 'P2022') {
+        return c.json({
+          error: 'Database error',
+          message: `The column \`${error.meta?.column}\` does not exist in the current database.`,
+          prismaCode: error.code,
+        }, 500);
+      }
+      if (error.code === 'P2021') {
+        return c.json({
+          error: 'Database error',
+          message: `The table \`${error.meta?.table}\` does not exist in the current database.`,
+          prismaCode: error.code,
+        }, 500);
+      }
+
+      return c.json({
+        error: 'Database error',
+        message: error.message,
+        prismaCode: error.code,
+      }, 500);
+    }
+
     return c.json({ error: error.message }, 500);
   }
 });
