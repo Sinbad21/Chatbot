@@ -2130,6 +2130,428 @@ app.delete('/api/v1/leads/:id', authMiddleware, async (c) => {
   }
 });
 
+// Capture lead from conversation
+app.post('/api/v1/conversations/:id/capture-lead', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const conversationId = c.req.param('id');
+
+    const body = await c.req.json();
+    const { name, email, phone, company } = body;
+
+    // Validate required fields
+    if (!name || !email) {
+      return c.json({ error: 'Name and email are required' }, 400);
+    }
+
+    // Verify conversation exists and belongs to user
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id: conversationId,
+        bot: { userId: user.userId },
+      },
+      include: {
+        bot: { select: { name: true } },
+      },
+    });
+
+    if (!conversation) {
+      return c.json({ error: 'Conversation not found' }, 404);
+    }
+
+    // Calculate initial lead score based on data completeness
+    let score = 50; // Base score
+    if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) score += 10; // Valid email
+    if (phone && phone.trim().length > 0) score += 15; // Has phone
+    if (company && company.trim().length > 0) score += 15; // Has company
+    if (name && name.trim().split(' ').length >= 2) score += 10; // Full name
+
+    // Check if lead already exists for this conversation
+    const existingLead = await prisma.lead.findFirst({
+      where: { conversationId },
+    });
+
+    let lead;
+    if (existingLead) {
+      // Update existing lead
+      lead = await prisma.lead.update({
+        where: { id: existingLead.id },
+        data: {
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          phone: phone ? phone.trim() : null,
+          company: company ? company.trim() : null,
+          score,
+          status: 'NEW',
+        },
+      });
+    } else {
+      // Create new lead
+      lead = await prisma.lead.create({
+        data: {
+          conversationId,
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          phone: phone ? phone.trim() : null,
+          company: company ? company.trim() : null,
+          score,
+          status: 'NEW',
+        },
+      });
+    }
+
+    return c.json({
+      success: true,
+      lead: {
+        id: lead.id,
+        name: lead.name,
+        email: lead.email,
+        phone: lead.phone,
+        company: lead.company,
+        score: lead.score,
+        status: lead.status,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error capturing lead:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================
+// SCRAPING & LEAD GENERATION ENDPOINTS
+// ============================================
+
+// Web scraping
+app.post('/api/v1/scraping/web', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const body = await c.req.json();
+    const { url, depth = 1 } = body;
+
+    if (!url) {
+      return c.json({ error: 'URL is required' }, 400);
+    }
+
+    // Validate URL
+    try {
+      new URL(url);
+    } catch (e) {
+      return c.json({ error: 'Invalid URL format' }, 400);
+    }
+
+    // For production: integrate with actual web scraping service
+    // For now: return simulated results
+    const leads = [];
+
+    // Simulate scraping delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Mock data for demonstration
+    const mockLeads = [
+      {
+        id: crypto.randomUUID(),
+        name: 'John Smith',
+        email: 'john.smith@example.com',
+        phone: '+1-555-0123',
+        company: new URL(url).hostname,
+        title: 'Sales Manager',
+        source: `Web Scraper (${url})`,
+        score: 85,
+      },
+      {
+        id: crypto.randomUUID(),
+        name: 'Sarah Johnson',
+        email: 'sarah.johnson@example.com',
+        phone: '+1-555-0124',
+        company: new URL(url).hostname,
+        title: 'Marketing Director',
+        source: `Web Scraper (${url})`,
+        score: 90,
+      },
+    ];
+
+    // In production: replace with actual scraping logic
+    // Example: use Puppeteer/Playwright to scrape contact pages
+    leads.push(...mockLeads.slice(0, depth));
+
+    return c.json({ leads, count: leads.length });
+  } catch (error: any) {
+    console.error('Error in web scraping:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Email finder
+app.post('/api/v1/scraping/email-finder', authMiddleware, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { firstName, lastName, domain } = body;
+
+    if (!firstName || !lastName || !domain) {
+      return c.json({ error: 'First name, last name, and domain are required' }, 400);
+    }
+
+    // Common email patterns
+    const patterns = [
+      `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${domain}`,
+      `${firstName.toLowerCase()}${lastName.toLowerCase()}@${domain}`,
+      `${firstName.toLowerCase()}@${domain}`,
+      `${firstName[0].toLowerCase()}${lastName.toLowerCase()}@${domain}`,
+      `${firstName.toLowerCase()}.${lastName[0].toLowerCase()}@${domain}`,
+    ];
+
+    // For production: integrate with email validation service (e.g., Hunter.io, Clearbit)
+    // For now: return the most common pattern with confidence score
+    const email = patterns[0];
+    const confidence = 75; // Mock confidence score
+
+    return c.json({
+      email,
+      confidence,
+      alternativeEmails: patterns.slice(1),
+    });
+  } catch (error: any) {
+    console.error('Error in email finder:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Lead enrichment
+app.post('/api/v1/scraping/enrich', authMiddleware, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { email } = body;
+
+    if (!email) {
+      return c.json({ error: 'Email is required' }, 400);
+    }
+
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return c.json({ error: 'Invalid email format' }, 400);
+    }
+
+    // For production: integrate with enrichment service (e.g., Clearbit, FullContact)
+    // For now: return mock enriched data
+    const domain = email.split('@')[1];
+    const namePart = email.split('@')[0];
+    const nameParts = namePart.split(/[._]/);
+
+    const enrichedData = {
+      name: nameParts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' '),
+      email,
+      phone: '+1-555-' + Math.floor(1000 + Math.random() * 9000),
+      company: domain.split('.')[0].toUpperCase(),
+      title: 'Business Development Manager',
+      linkedin: `https://linkedin.com/in/${namePart}`,
+      score: 70,
+    };
+
+    return c.json(enrichedData);
+  } catch (error: any) {
+    console.error('Error in lead enrichment:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Save single scraped lead
+app.post('/api/v1/scraping/save-lead', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const body = await c.req.json();
+    const { name, email, phone, company, title, linkedin, score, source } = body;
+
+    if (!name || !email) {
+      return c.json({ error: 'Name and email are required' }, 400);
+    }
+
+    // Check if lead with this email already exists for this user
+    const existingLead = await prisma.lead.findFirst({
+      where: {
+        email: email.toLowerCase(),
+        conversation: {
+          bot: { userId: user.userId },
+        },
+      },
+    });
+
+    if (existingLead) {
+      return c.json({ error: 'Lead with this email already exists' }, 400);
+    }
+
+    // Create a system conversation for scraped leads
+    let scrapedConversation = await prisma.conversation.findFirst({
+      where: {
+        bot: {
+          userId: user.userId,
+          name: 'Scraped Leads',
+        },
+      },
+      include: { bot: true },
+    });
+
+    if (!scrapedConversation) {
+      // Find or create a "Scraped Leads" bot
+      let scrapedBot = await prisma.bot.findFirst({
+        where: {
+          userId: user.userId,
+          name: 'Scraped Leads',
+        },
+      });
+
+      if (!scrapedBot) {
+        scrapedBot = await prisma.bot.create({
+          data: {
+            userId: user.userId,
+            name: 'Scraped Leads',
+            systemPrompt: 'This bot collects leads from web scraping and enrichment tools.',
+            model: 'gpt-4o-mini',
+          },
+        });
+      }
+
+      scrapedConversation = await prisma.conversation.create({
+        data: {
+          botId: scrapedBot.id,
+          status: 'COMPLETED',
+        },
+        include: { bot: true },
+      });
+    }
+
+    // Create lead
+    const lead = await prisma.lead.create({
+      data: {
+        conversationId: scrapedConversation.id,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone ? phone.trim() : null,
+        company: company ? company.trim() : null,
+        score: score || 50,
+        status: 'NEW',
+        metadata: {
+          title: title || null,
+          linkedin: linkedin || null,
+          source: source || 'Manual',
+        },
+      },
+    });
+
+    return c.json({
+      success: true,
+      lead: {
+        id: lead.id,
+        name: lead.name,
+        email: lead.email,
+        phone: lead.phone,
+        company: lead.company,
+        score: lead.score,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error saving lead:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Save multiple scraped leads
+app.post('/api/v1/scraping/save-leads-bulk', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const body = await c.req.json();
+    const { leads } = body;
+
+    if (!Array.isArray(leads) || leads.length === 0) {
+      return c.json({ error: 'Leads array is required' }, 400);
+    }
+
+    // Find or create "Scraped Leads" bot
+    let scrapedBot = await prisma.bot.findFirst({
+      where: {
+        userId: user.userId,
+        name: 'Scraped Leads',
+      },
+    });
+
+    if (!scrapedBot) {
+      scrapedBot = await prisma.bot.create({
+        data: {
+          userId: user.userId,
+          name: 'Scraped Leads',
+          systemPrompt: 'This bot collects leads from web scraping and enrichment tools.',
+          model: 'gpt-4o-mini',
+        },
+      });
+    }
+
+    // Create a conversation for these leads
+    const scrapedConversation = await prisma.conversation.create({
+      data: {
+        botId: scrapedBot.id,
+        status: 'COMPLETED',
+      },
+    });
+
+    // Create all leads
+    const createdLeads = await Promise.all(
+      leads.map(async (leadData: any) => {
+        const { name, email, phone, company, title, linkedin, score, source } = leadData;
+
+        if (!name || !email) {
+          return null;
+        }
+
+        // Check for duplicates
+        const existing = await prisma.lead.findFirst({
+          where: {
+            email: email.toLowerCase(),
+            conversation: {
+              bot: { userId: user.userId },
+            },
+          },
+        });
+
+        if (existing) {
+          return null;
+        }
+
+        return prisma.lead.create({
+          data: {
+            conversationId: scrapedConversation.id,
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
+            phone: phone ? phone.trim() : null,
+            company: company ? company.trim() : null,
+            score: score || 50,
+            status: 'NEW',
+            metadata: {
+              title: title || null,
+              linkedin: linkedin || null,
+              source: source || 'Bulk Import',
+            },
+          },
+        });
+      })
+    );
+
+    const successfulLeads = createdLeads.filter(l => l !== null);
+
+    return c.json({
+      success: true,
+      created: successfulLeads.length,
+      skipped: leads.length - successfulLeads.length,
+    });
+  } catch (error: any) {
+    console.error('Error saving leads bulk:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 // ============================================
 // DEBUG / HEALTH CHECK ENDPOINTS
 // ============================================
