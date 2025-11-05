@@ -1608,11 +1608,11 @@ app.get('/api/v1/conversations', authMiddleware, async (c) => {
           select: {
             content: true,
             role: true,
+            createdAt: true,
           },
           orderBy: {
-            createdAt: 'desc',
+            createdAt: 'asc',
           },
-          take: 1, // Get last message
         },
         _count: {
           select: {
@@ -1628,15 +1628,29 @@ app.get('/api/v1/conversations', authMiddleware, async (c) => {
           : undefined,
     });
 
-    // Format response
-    let data = conversations.map(conv => ({
-      id: conv.id,
-      botName: conv.bot.name,
-      messageCount: conv._count.messages,
-      lastMessage: conv.messages[0]?.content || 'No messages',
-      createdAt: conv.createdAt.toISOString(),
-      status: conv.status || 'active',
-    }));
+    // Format response with duration calculation
+    let data = conversations.map(conv => {
+      const firstMsg = conv.messages[0];
+      const lastMsg = conv.messages[conv.messages.length - 1];
+      let duration = 'N/A';
+
+      if (firstMsg && lastMsg && conv.messages.length > 1) {
+        const durationMs = lastMsg.createdAt.getTime() - firstMsg.createdAt.getTime();
+        const minutes = Math.floor(durationMs / 60000);
+        const seconds = Math.floor((durationMs % 60000) / 1000);
+        duration = `${minutes}m ${seconds}s`;
+      }
+
+      return {
+        id: conv.id,
+        botName: conv.bot.name,
+        messageCount: conv._count.messages,
+        lastMessage: lastMsg?.content || 'No messages',
+        createdAt: conv.createdAt.toISOString(),
+        status: conv.status || 'active',
+        duration,
+      };
+    });
 
     // Apply search filter
     if (search) {
@@ -1728,6 +1742,120 @@ app.get('/api/v1/conversations/:id', authMiddleware, async (c) => {
     };
 
     return c.json(data);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================
+// API KEYS MANAGEMENT
+// ============================================
+
+// Get all API keys for user
+app.get('/api/v1/api-keys', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+
+    const apiKeys = await prisma.apiKey.findMany({
+      where: {
+        userId: user.userId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // Mask the keys (show only first 20 chars)
+    const data = apiKeys.map(key => ({
+      id: key.id,
+      name: key.name,
+      key: key.key.substring(0, 20) + '••••••••••••',
+      lastUsed: key.lastUsed?.toISOString() || null,
+      createdAt: key.createdAt.toISOString(),
+    }));
+
+    return c.json(data);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Generate new API key
+app.post('/api/v1/api-keys', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const body = await c.req.json();
+    const { name } = body;
+
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      return c.json({ error: 'Name is required' }, 400);
+    }
+
+    // Generate a secure random API key
+    const randomBytes = new Uint8Array(32);
+    crypto.getRandomValues(randomBytes);
+    const key = 'sk_live_' + Array.from(randomBytes)
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    // Get user's organization
+    const userWithOrg = await prisma.user.findUnique({
+      where: { id: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!userWithOrg?.organizationId) {
+      return c.json({ error: 'User organization not found' }, 404);
+    }
+
+    const apiKey = await prisma.apiKey.create({
+      data: {
+        name: name.trim(),
+        key,
+        userId: user.userId,
+        organizationId: userWithOrg.organizationId,
+      },
+    });
+
+    // Return full key only on creation (user needs to save it)
+    return c.json({
+      id: apiKey.id,
+      name: apiKey.name,
+      key: apiKey.key, // Full key shown only once
+      lastUsed: null,
+      createdAt: apiKey.createdAt.toISOString(),
+    });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Revoke/Delete API key
+app.delete('/api/v1/api-keys/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const keyId = c.req.param('id');
+
+    // Check if key exists and belongs to user
+    const apiKey = await prisma.apiKey.findFirst({
+      where: {
+        id: keyId,
+        userId: user.userId,
+      },
+    });
+
+    if (!apiKey) {
+      return c.json({ error: 'API key not found' }, 404);
+    }
+
+    await prisma.apiKey.delete({
+      where: { id: keyId },
+    });
+
+    return c.json({ success: true });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }

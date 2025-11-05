@@ -66,16 +66,22 @@ export default function SettingsPage() {
   };
 
   const loadApiKeys = async () => {
-    // Mock API keys for now - replace with real API call when endpoint exists
-    setApiKeys([
-      {
-        id: '1',
-        name: 'Production Key',
-        key: 'sk_live_••••••••••••••••',
-        lastUsed: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-      },
-    ]);
+    try {
+      const token = localStorage.getItem('accessToken');
+      const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+      if (!token) {
+        return;
+      }
+
+      const response = await axios.get(`${apiUrl}/api/v1/api-keys`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setApiKeys(response.data);
+    } catch (error) {
+      console.error('Failed to load API keys:', error);
+    }
   };
 
   const handleProfileSave = async (e: React.FormEvent) => {
@@ -137,19 +143,32 @@ export default function SettingsPage() {
     setMessage(null);
 
     try {
-      // TODO: Implement API key generation endpoint
-      const mockKey = 'sk_live_' + Math.random().toString(36).substring(2, 34);
-      setGeneratedKey(mockKey);
+      const token = localStorage.getItem('accessToken');
+      const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
-      // Add to list
+      if (!token) {
+        setMessage({ type: 'error', text: 'Authentication token not found' });
+        setCreatingKey(false);
+        return;
+      }
+
+      const response = await axios.post(
+        `${apiUrl}/api/v1/api-keys`,
+        { name: newKeyName.trim() },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Store the full key to display (only shown once)
+      setGeneratedKey(response.data.key);
+
+      // Add to list with masked key
       setApiKeys([
         ...apiKeys,
         {
-          id: Date.now().toString(),
-          name: newKeyName,
-          key: mockKey.substring(0, 20) + '••••••••••••',
-          lastUsed: null,
-          createdAt: new Date().toISOString(),
+          ...response.data,
+          key: response.data.key.substring(0, 20) + '••••••••••••',
         },
       ]);
 
@@ -168,7 +187,18 @@ export default function SettingsPage() {
     }
 
     try {
-      // TODO: Implement API key revocation endpoint
+      const token = localStorage.getItem('accessToken');
+      const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+      if (!token) {
+        setMessage({ type: 'error', text: 'Authentication token not found' });
+        return;
+      }
+
+      await axios.delete(`${apiUrl}/api/v1/api-keys/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       setApiKeys(apiKeys.filter((key) => key.id !== id));
       setMessage({ type: 'success', text: 'API key revoked successfully' });
     } catch (error: any) {

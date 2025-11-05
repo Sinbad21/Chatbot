@@ -34,7 +34,8 @@ interface IntentData {
 interface Conversation {
   id: string;
   botName: string;
-  messages: number;
+  messageCount: number;
+  lastMessage: string;
   duration: string;
   createdAt: string;
   status: 'active' | 'completed' | 'abandoned';
@@ -70,72 +71,29 @@ export default function AnalyticsPage() {
       }
 
       // Load all analytics data in parallel
-      const [overviewResponse, conversationsDataResponse, intentsDataResponse] = await Promise.all([
-        axios.get<AnalyticsOverview>(`${apiUrl}/api/v1/analytics/overview`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get<ConversationData[]>(
-          `${apiUrl}/api/v1/analytics/conversations-over-time?range=${dateRange}`,
-          {
+      const [overviewResponse, conversationsDataResponse, intentsDataResponse, conversationsListResponse] =
+        await Promise.all([
+          axios.get<AnalyticsOverview>(`${apiUrl}/api/v1/analytics/overview`, {
             headers: { Authorization: `Bearer ${token}` },
-          }
-        ),
-        axios.get<IntentData[]>(
-          `${apiUrl}/api/v1/analytics/top-intents?range=${dateRange}`,
-          {
+          }),
+          axios.get<ConversationData[]>(
+            `${apiUrl}/api/v1/analytics/conversations-over-time?range=${dateRange}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          ),
+          axios.get<IntentData[]>(`${apiUrl}/api/v1/analytics/top-intents?range=${dateRange}`, {
             headers: { Authorization: `Bearer ${token}` },
-          }
-        ),
-      ]);
+          }),
+          axios.get<Conversation[]>(`${apiUrl}/api/v1/conversations?sort=recent&status=all`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
       setOverview(overviewResponse.data);
       setConversationsData(conversationsDataResponse.data);
       setIntentsData(intentsDataResponse.data);
-
-      // Mock data for table (you can add a real endpoint later if needed)
-      const mockConversations: Conversation[] = [
-        {
-          id: '1',
-          botName: 'Support Bot',
-          messages: 12,
-          duration: '5m 23s',
-          createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-          status: 'completed',
-        },
-        {
-          id: '2',
-          botName: 'Sales Bot',
-          messages: 8,
-          duration: '3m 45s',
-          createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-          status: 'active',
-        },
-        {
-          id: '3',
-          botName: 'FAQ Bot',
-          messages: 5,
-          duration: '2m 10s',
-          createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-          status: 'completed',
-        },
-        {
-          id: '4',
-          botName: 'Support Bot',
-          messages: 3,
-          duration: '1m 05s',
-          createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-          status: 'abandoned',
-        },
-        {
-          id: '5',
-          botName: 'Sales Bot',
-          messages: 15,
-          duration: '7m 30s',
-          createdAt: new Date(Date.now() - 1000 * 60 * 240).toISOString(),
-          status: 'completed',
-        },
-      ];
-      setConversations(mockConversations);
+      setConversations(conversationsListResponse.data.slice(0, 5)); // Show only top 5
     } catch (err: any) {
       console.error('Error loading analytics:', err);
       setError(err.message || 'Failed to load analytics');
@@ -151,7 +109,7 @@ export default function AnalyticsPage() {
       ...conversations.map(conv => [
         new Date(conv.createdAt).toLocaleString(),
         conv.botName,
-        conv.messages.toString(),
+        conv.messageCount.toString(),
         conv.duration,
         conv.status,
       ]),
@@ -389,7 +347,7 @@ export default function AnalyticsPage() {
                       <div className="text-sm font-medium text-gray-900">{conv.botName}</div>
                     </td>
                     <td className="py-3 px-4">
-                      <div className="text-sm text-gray-600">{conv.messages}</div>
+                      <div className="text-sm text-gray-600">{conv.messageCount}</div>
                     </td>
                     <td className="py-3 px-4">
                       <div className="text-sm text-gray-600">{conv.duration}</div>
