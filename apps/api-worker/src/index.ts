@@ -1539,7 +1539,7 @@ app.get('/api/v1/analytics/top-intents', authMiddleware, async (c) => {
           bot: { userId: user.userId },
         },
         createdAt: { gte: startDate },
-        role: 'user', // Only count user messages
+        role: 'USER', // Only count user messages (using Prisma enum)
       },
       select: {
         content: true,
