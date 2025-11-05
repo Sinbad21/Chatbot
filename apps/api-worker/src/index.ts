@@ -1466,6 +1466,401 @@ app.get('/api/v1/analytics/overview', authMiddleware, async (c) => {
   }
 });
 
+// Get conversations over time (for line chart)
+app.get('/api/v1/analytics/conversations-over-time', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const range = c.req.query('range') || '30d';
+
+    // Calculate date range
+    const now = new Date();
+    const days = range === '7d' ? 7 : range === '30d' ? 30 : range === '90d' ? 90 : 365;
+    const startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - days);
+
+    // Get conversations grouped by date
+    const conversations = await prisma.conversation.findMany({
+      where: {
+        bot: { userId: user.userId },
+        createdAt: { gte: startDate },
+      },
+      select: {
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+    });
+
+    // Group by date
+    const dataMap = new Map<string, number>();
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      dataMap.set(dateStr, 0);
+    }
+
+    conversations.forEach(conv => {
+      const dateStr = conv.createdAt.toISOString().split('T')[0];
+      const current = dataMap.get(dateStr) || 0;
+      dataMap.set(dateStr, current + 1);
+    });
+
+    const data = Array.from(dataMap.entries()).map(([date, conversations]) => ({
+      date,
+      conversations,
+    }));
+
+    return c.json(data);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Get top intents (for bar chart)
+app.get('/api/v1/analytics/top-intents', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const range = c.req.query('range') || '30d';
+
+    // Calculate date range
+    const now = new Date();
+    const days = range === '7d' ? 7 : range === '30d' ? 30 : range === '90d' ? 90 : 365;
+    const startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - days);
+
+    // Get all messages with intent detection (simplified - you may want to enhance this)
+    const messages = await prisma.message.findMany({
+      where: {
+        conversation: {
+          bot: { userId: user.userId },
+        },
+        createdAt: { gte: startDate },
+        role: 'user', // Only count user messages
+      },
+      select: {
+        content: true,
+      },
+    });
+
+    // Simple intent detection based on keywords (enhance with your actual intent matching logic)
+    const intentCounts = new Map<string, number>();
+    const intentKeywords: Record<string, string[]> = {
+      'Greeting': ['hello', 'hi', 'hey', 'good morning', 'good afternoon'],
+      'Pricing': ['price', 'cost', 'pricing', 'how much', 'payment', 'subscription'],
+      'Support': ['help', 'support', 'issue', 'problem', 'error', 'not working'],
+      'Features': ['feature', 'can you', 'does it', 'available', 'capability'],
+      'Contact': ['contact', 'email', 'phone', 'reach', 'talk to'],
+    };
+
+    messages.forEach(msg => {
+      const content = msg.content.toLowerCase();
+      for (const [intent, keywords] of Object.entries(intentKeywords)) {
+        if (keywords.some(keyword => content.includes(keyword))) {
+          intentCounts.set(intent, (intentCounts.get(intent) || 0) + 1);
+        }
+      }
+    });
+
+    // Convert to array and sort by count
+    const data = Array.from(intentCounts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5); // Top 5
+
+    return c.json(data);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Get conversations list with filters
+app.get('/api/v1/conversations', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const status = c.req.query('status') || 'all';
+    const sort = c.req.query('sort') || 'recent';
+    const search = c.req.query('search') || '';
+
+    // Build where clause
+    const where: any = {
+      bot: { userId: user.userId },
+    };
+
+    if (status !== 'all') {
+      where.status = status;
+    }
+
+    // Get conversations with message count
+    const conversations = await prisma.conversation.findMany({
+      where,
+      include: {
+        bot: {
+          select: {
+            name: true,
+          },
+        },
+        messages: {
+          select: {
+            content: true,
+            role: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+        _count: {
+          select: {
+            messages: true,
+          },
+        },
+      },
+      orderBy:
+        sort === 'recent'
+          ? { createdAt: 'desc' }
+          : sort === 'oldest'
+          ? { createdAt: 'asc' }
+          : undefined,
+    });
+
+    // Format response with duration calculation
+    let data = conversations.map(conv => {
+      const firstMsg = conv.messages[0];
+      const lastMsg = conv.messages[conv.messages.length - 1];
+      let duration = 'N/A';
+
+      if (firstMsg && lastMsg && conv.messages.length > 1) {
+        const durationMs = lastMsg.createdAt.getTime() - firstMsg.createdAt.getTime();
+        const minutes = Math.floor(durationMs / 60000);
+        const seconds = Math.floor((durationMs % 60000) / 1000);
+        duration = `${minutes}m ${seconds}s`;
+      }
+
+      return {
+        id: conv.id,
+        botName: conv.bot.name,
+        messageCount: conv._count.messages,
+        lastMessage: lastMsg?.content || 'No messages',
+        createdAt: conv.createdAt.toISOString(),
+        status: conv.status || 'active',
+        duration,
+      };
+    });
+
+    // Apply search filter
+    if (search) {
+      data = data.filter(
+        conv =>
+          conv.botName.toLowerCase().includes(search.toLowerCase()) ||
+          conv.lastMessage.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    // Sort by message count if needed
+    if (sort === 'messages') {
+      data.sort((a, b) => b.messageCount - a.messageCount);
+    }
+
+    return c.json(data);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Get conversation detail with full transcript
+app.get('/api/v1/conversations/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const conversationId = c.req.param('id');
+
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id: conversationId,
+        bot: { userId: user.userId }, // Security: ensure user owns this conversation
+      },
+      include: {
+        bot: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        messages: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+        lead: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!conversation) {
+      return c.json({ error: 'Conversation not found' }, 404);
+    }
+
+    // Calculate duration
+    const firstMsg = conversation.messages[0];
+    const lastMsg = conversation.messages[conversation.messages.length - 1];
+    let duration = 'N/A';
+    if (firstMsg && lastMsg) {
+      const durationMs = lastMsg.createdAt.getTime() - firstMsg.createdAt.getTime();
+      const minutes = Math.floor(durationMs / 60000);
+      const seconds = Math.floor((durationMs % 60000) / 1000);
+      duration = `${minutes}m ${seconds}s`;
+    }
+
+    const data = {
+      id: conversation.id,
+      botId: conversation.bot.id,
+      botName: conversation.bot.name,
+      createdAt: conversation.createdAt.toISOString(),
+      updatedAt: conversation.updatedAt.toISOString(),
+      status: conversation.status || 'active',
+      metadata: {
+        duration,
+        leadCaptured: !!conversation.lead,
+        leadInfo: conversation.lead,
+      },
+      messages: conversation.messages.map(msg => ({
+        id: msg.id,
+        role: msg.role,
+        content: msg.content,
+        createdAt: msg.createdAt.toISOString(),
+      })),
+    };
+
+    return c.json(data);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================
+// API KEYS MANAGEMENT
+// ============================================
+
+// Get all API keys for user
+app.get('/api/v1/api-keys', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+
+    const apiKeys = await prisma.apiKey.findMany({
+      where: {
+        userId: user.userId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // Mask the keys (show only first 20 chars)
+    const data = apiKeys.map(key => ({
+      id: key.id,
+      name: key.name,
+      key: key.key.substring(0, 20) + '••••••••••••',
+      lastUsed: key.lastUsed?.toISOString() || null,
+      createdAt: key.createdAt.toISOString(),
+    }));
+
+    return c.json(data);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Generate new API key
+app.post('/api/v1/api-keys', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const body = await c.req.json();
+    const { name } = body;
+
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      return c.json({ error: 'Name is required' }, 400);
+    }
+
+    // Generate a secure random API key
+    const randomBytes = new Uint8Array(32);
+    crypto.getRandomValues(randomBytes);
+    const key = 'sk_live_' + Array.from(randomBytes)
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    // Get user's organization
+    const userWithOrg = await prisma.user.findUnique({
+      where: { id: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!userWithOrg?.organizationId) {
+      return c.json({ error: 'User organization not found' }, 404);
+    }
+
+    const apiKey = await prisma.apiKey.create({
+      data: {
+        name: name.trim(),
+        key,
+        userId: user.userId,
+        organizationId: userWithOrg.organizationId,
+      },
+    });
+
+    // Return full key only on creation (user needs to save it)
+    return c.json({
+      id: apiKey.id,
+      name: apiKey.name,
+      key: apiKey.key, // Full key shown only once
+      lastUsed: null,
+      createdAt: apiKey.createdAt.toISOString(),
+    });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Revoke/Delete API key
+app.delete('/api/v1/api-keys/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const keyId = c.req.param('id');
+
+    // Check if key exists and belongs to user
+    const apiKey = await prisma.apiKey.findFirst({
+      where: {
+        id: keyId,
+        userId: user.userId,
+      },
+    });
+
+    if (!apiKey) {
+      return c.json({ error: 'API key not found' }, 404);
+    }
+
+    await prisma.apiKey.delete({
+      where: { id: keyId },
+    });
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 // ============================================
 // DEBUG / HEALTH CHECK ENDPOINTS
 // ============================================
