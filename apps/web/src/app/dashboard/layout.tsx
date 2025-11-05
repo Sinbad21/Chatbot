@@ -10,6 +10,7 @@ const navigation = [
   { name: 'Conversations', href: '/dashboard/conversations' },
   { name: 'Analytics', href: '/dashboard/analytics' },
   { name: 'Leads', href: '/dashboard/leads' },
+  { name: 'Scraping', href: '/dashboard/scraping' },
   { name: 'Integrations', href: '/dashboard/integrations' },
   { name: 'Settings', href: '/dashboard/settings' },
 ];
