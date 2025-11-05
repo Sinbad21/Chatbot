@@ -102,30 +102,42 @@ export default function AnalyticsPage() {
     }
   };
 
-  const handleExportCSV = () => {
-    // Prepare CSV data
-    const csvRows = [
-      ['Date', 'Bot Name', 'Messages', 'Duration', 'Status'],
-      ...conversations.map(conv => [
-        new Date(conv.createdAt).toLocaleString(),
-        conv.botName,
-        conv.messageCount.toString(),
-        conv.duration,
-        conv.status,
-      ]),
-    ];
+  // CSV helper functions with RFC-compliant escaping
+  const csvEscape = (v: unknown): string => {
+    let s = v == null ? '' : String(v);
+    // Replace CR/LF with \n for uniform lines
+    s = s.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const mustQuote = /[",\n]/.test(s);
+    if (mustQuote) s = '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  };
 
-    const csvContent = csvRows.map(row => row.join(','')).join('\n');
+  const downloadCsv = (filename: string, rows: (string | number | null | undefined)[][]) => {
+    const csvRows = rows.map(r => r.map(csvEscape));
+    const csvContent = csvRows.map(row => row.join(',')).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename.endsWith('.csv') ? filename : `${filename}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
-    link.setAttribute('href', url);
-    link.setAttribute('download', `conversations_${dateRange}_${Date.now()}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleExportCSV = () => {
+    // Prepare CSV data with proper typing
+    const header = ['Date', 'Bot Name', 'Messages', 'Duration', 'Status'];
+    const rows = conversations.map(conv => [
+      new Date(conv.createdAt).toLocaleString(),
+      conv.botName,
+      conv.messageCount,
+      conv.duration,
+      conv.status,
+    ]);
+
+    downloadCsv(`conversations_${dateRange}_${Date.now()}`, [header, ...rows]);
   };
 
   const filteredConversations = conversations.filter(conv =>
