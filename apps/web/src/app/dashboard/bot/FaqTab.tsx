@@ -100,12 +100,12 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
         onSubmit={handleCreate}
         className="rounded-xl border p-16 flex flex-col gap-12 bg-white shadow-sm"
       >
-        <div className="text-lg font-semibold">Aggiungi FAQ</div>
+        <div className="text-lg font-semibold text-gray-900">Aggiungi FAQ</div>
 
         <div className="flex flex-col gap-4">
-          <label className="text-sm font-medium">Domanda</label>
+          <label className="text-sm font-medium text-gray-700">Domanda</label>
           <input
-            className="border rounded-md px-8 py-6 text-sm"
+            className="border rounded-md px-8 py-6 text-sm text-gray-900 placeholder:text-gray-400"
             placeholder="Es. Quali sono gli orari di supporto?"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
@@ -114,9 +114,9 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
         </div>
 
         <div className="flex flex-col gap-4">
-          <label className="text-sm font-medium">Risposta</label>
+          <label className="text-sm font-medium text-gray-700">Risposta</label>
           <textarea
-            className="border rounded-md px-8 py-6 text-sm min-h-[120px]"
+            className="border rounded-md px-8 py-6 text-sm text-gray-900 placeholder:text-gray-400 min-h-[120px]"
             placeholder="Inserisci la risposta dettagliata"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
@@ -136,7 +136,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
       </form>
 
       <div className="rounded-xl border p-16 bg-white shadow-sm">
-        <div className="text-lg font-semibold mb-12">FAQ configurate</div>
+        <div className="text-lg font-semibold text-gray-900 mb-12">FAQ configurate</div>
 
         {loading ? (
           <div className="text-sm text-gray-500">Caricamento…</div>
@@ -152,7 +152,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
                 className="border rounded-md p-12 flex flex-col gap-6 bg-gray-50"
               >
                 <div className="flex items-start justify-between gap-8">
-                  <div className="font-medium">{faq.question}</div>
+                  <div className="font-medium text-gray-900">{faq.question}</div>
                   <button
                     onClick={() => handleDelete(faq.id)}
                     className="text-xs text-red-600 hover:underline"

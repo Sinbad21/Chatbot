@@ -85,8 +85,8 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
     <div className="flex flex-col gap-16">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold mb-2">Web Scraping</h2>
-        <p className="text-sm">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Web Scraping</h2>
+        <p className="text-sm text-gray-600">
           Add content from websites to your bot's knowledge base. Enter a URL and we'll extract the text content.
         </p>
       </div>
@@ -94,7 +94,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       {/* Scrape Form */}
       <form onSubmit={handleScrape} className="flex flex-col gap-8">
         <div className="flex flex-col gap-4">
-          <label htmlFor="url" className="text-sm font-medium">
+          <label htmlFor="url" className="text-sm font-medium text-gray-700">
             Website URL
           </label>
           <input
@@ -103,10 +103,10 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/article"
-            className="px-12 py-8 border rounded text-sm"
+            className="px-12 py-8 border rounded text-sm text-gray-900 placeholder:text-gray-400"
             disabled={isLoading}
           />
-          <p className="text-xs">
+          <p className="text-xs text-gray-600">
             Enter the full URL including https://
           </p>
         </div>
@@ -135,13 +135,13 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       {/* Scraped URLs List */}
       {scrapedUrls.length > 0 && (
         <div className="flex flex-col gap-8">
-          <h3 className="text-sm font-semibold">Recently Scraped</h3>
+          <h3 className="text-sm font-semibold text-gray-900">Recently Scraped</h3>
           <div className="border rounded divide-y">
             {scrapedUrls.map((item) => (
               <div key={item.id} className="px-12 py-8 hover:bg-gray-50">
                 <div className="flex items-start justify-between gap-8">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{item.title}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">{item.title}</p>
                     <a
                       href={item.url}
                       target="_blank"
@@ -151,7 +151,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                       {item.url}
                     </a>
                   </div>
-                  <span className="text-xs whitespace-nowrap">
+                  <span className="text-xs text-gray-600 whitespace-nowrap">
                     {new Date(item.createdAt).toLocaleDateString()}
                   </span>
                 </div>
@@ -162,7 +162,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       )}
 
       {/* Info Box */}
-      <div className="px-12 py-8 bg-blue-50 border border-blue-200 rounded text-sm">
+      <div className="px-12 py-8 bg-blue-50 border border-blue-200 rounded text-sm text-blue-900">
         <p className="font-medium mb-2">How it works:</p>
         <ul className="list-disc list-inside space-y-1">
           <li>Enter a URL of a webpage you want to scrape</li>
