@@ -1862,6 +1862,275 @@ app.delete('/api/v1/api-keys/:id', authMiddleware, async (c) => {
 });
 
 // ============================================
+// LEADS MANAGEMENT
+// ============================================
+
+// Get all leads with filters
+app.get('/api/v1/leads', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+
+    // Query params for filtering
+    const status = c.req.query('status') || 'all';
+    const sort = c.req.query('sort') || 'recent';
+    const search = c.req.query('search') || '';
+    const minScore = parseInt(c.req.query('minScore') || '0');
+    const maxScore = parseInt(c.req.query('maxScore') || '100');
+
+    // Build where clause
+    const where: any = {
+      conversation: {
+        bot: { userId: user.userId },
+      },
+    };
+
+    if (status !== 'all') {
+      where.status = status;
+    }
+
+    if (minScore > 0 || maxScore < 100) {
+      where.score = {
+        gte: minScore,
+        lte: maxScore,
+      };
+    }
+
+    // Get leads with conversation context
+    const leads = await prisma.lead.findMany({
+      where,
+      include: {
+        conversation: {
+          select: {
+            id: true,
+            bot: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            _count: {
+              select: {
+                messages: true,
+              },
+            },
+          },
+        },
+        campaign: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy:
+        sort === 'recent'
+          ? { createdAt: 'desc' }
+          : sort === 'oldest'
+          ? { createdAt: 'asc' }
+          : sort === 'score-high'
+          ? { score: 'desc' }
+          : { score: 'asc' },
+    });
+
+    // Format response and apply search
+    let data = leads.map(lead => ({
+      id: lead.id,
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      company: lead.company,
+      score: lead.score,
+      status: lead.status,
+      botId: lead.conversation.bot.id,
+      botName: lead.conversation.bot.name,
+      conversationId: lead.conversationId,
+      messageCount: lead.conversation._count.messages,
+      campaignId: lead.campaignId,
+      campaignName: lead.campaign?.name,
+      metadata: lead.metadata,
+      createdAt: lead.createdAt.toISOString(),
+      updatedAt: lead.updatedAt.toISOString(),
+    }));
+
+    // Apply search filter
+    if (search) {
+      const searchLower = search.toLowerCase();
+      data = data.filter(
+        lead =>
+          lead.name?.toLowerCase().includes(searchLower) ||
+          lead.email?.toLowerCase().includes(searchLower) ||
+          lead.phone?.includes(search) ||
+          lead.company?.toLowerCase().includes(searchLower) ||
+          lead.botName.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return c.json(data);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Get single lead detail
+app.get('/api/v1/leads/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const leadId = c.req.param('id');
+
+    const lead = await prisma.lead.findFirst({
+      where: {
+        id: leadId,
+        conversation: {
+          bot: { userId: user.userId },
+        },
+      },
+      include: {
+        conversation: {
+          include: {
+            bot: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            messages: {
+              orderBy: { createdAt: 'asc' },
+              select: {
+                id: true,
+                role: true,
+                content: true,
+                createdAt: true,
+              },
+            },
+          },
+        },
+        campaign: true,
+      },
+    });
+
+    if (!lead) {
+      return c.json({ error: 'Lead not found' }, 404);
+    }
+
+    const data = {
+      id: lead.id,
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      company: lead.company,
+      score: lead.score,
+      status: lead.status,
+      metadata: lead.metadata,
+      createdAt: lead.createdAt.toISOString(),
+      updatedAt: lead.updatedAt.toISOString(),
+      conversation: {
+        id: lead.conversation.id,
+        botId: lead.conversation.bot.id,
+        botName: lead.conversation.bot.name,
+        messageCount: lead.conversation.messages.length,
+        messages: lead.conversation.messages.map(msg => ({
+          id: msg.id,
+          role: msg.role,
+          content: msg.content,
+          createdAt: msg.createdAt.toISOString(),
+        })),
+      },
+      campaign: lead.campaign
+        ? {
+            id: lead.campaign.id,
+            name: lead.campaign.name,
+            description: lead.campaign.description,
+          }
+        : null,
+    };
+
+    return c.json(data);
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Update lead status or score
+app.patch('/api/v1/leads/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const leadId = c.req.param('id');
+    const body = await c.req.json();
+
+    // Verify lead belongs to user
+    const lead = await prisma.lead.findFirst({
+      where: {
+        id: leadId,
+        conversation: {
+          bot: { userId: user.userId },
+        },
+      },
+    });
+
+    if (!lead) {
+      return c.json({ error: 'Lead not found' }, 404);
+    }
+
+    // Build update data
+    const updateData: any = {};
+    if (body.status) updateData.status = body.status;
+    if (body.score !== undefined) updateData.score = body.score;
+    if (body.name !== undefined) updateData.name = body.name;
+    if (body.email !== undefined) updateData.email = body.email;
+    if (body.phone !== undefined) updateData.phone = body.phone;
+    if (body.company !== undefined) updateData.company = body.company;
+
+    const updatedLead = await prisma.lead.update({
+      where: { id: leadId },
+      data: updateData,
+    });
+
+    return c.json({
+      id: updatedLead.id,
+      status: updatedLead.status,
+      score: updatedLead.score,
+      updatedAt: updatedLead.updatedAt.toISOString(),
+    });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Delete lead
+app.delete('/api/v1/leads/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const leadId = c.req.param('id');
+
+    // Verify lead belongs to user
+    const lead = await prisma.lead.findFirst({
+      where: {
+        id: leadId,
+        conversation: {
+          bot: { userId: user.userId },
+        },
+      },
+    });
+
+    if (!lead) {
+      return c.json({ error: 'Lead not found' }, 404);
+    }
+
+    await prisma.lead.delete({
+      where: { id: leadId },
+    });
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================
 // DEBUG / HEALTH CHECK ENDPOINTS
 // ============================================
 
