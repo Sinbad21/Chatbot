@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 const navigation = [
   { name: 'Dashboard', href: '/dashboard' },
   { name: 'Bots', href: '/dashboard/bots' },
+  { name: 'Conversations', href: '/dashboard/conversations' },
   { name: 'Analytics', href: '/dashboard/analytics' },
   { name: 'Leads', href: '/dashboard/leads' },
   { name: 'Integrations', href: '/dashboard/integrations' },
