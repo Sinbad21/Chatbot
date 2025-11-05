@@ -139,7 +139,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., greeting, help_request, pricing_question"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
               required
             />
           </div>
@@ -154,7 +154,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
               onChange={(e) => setPatternsText(e.target.value)}
               placeholder="hello&#10;hi&#10;hey there&#10;good morning"
               rows={5}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none font-mono text-sm"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none font-mono text-sm text-gray-900 placeholder:text-gray-400"
               required
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -172,7 +172,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
               onChange={(e) => setResponse(e.target.value)}
               placeholder="Hello! How can I help you today?"
               rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-gray-900 placeholder:text-gray-400"
               required
             />
           </div>
