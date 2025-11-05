@@ -60,7 +60,7 @@ export default function ConversationsPage() {
     } else {
       loadConversations();
     }
-  }, [conversationId, filterStatus, sortBy]);
+  }, [conversationId, filterStatus, sortBy, searchQuery]);
 
   const loadConversations = async () => {
     try {
@@ -75,74 +75,15 @@ export default function ConversationsPage() {
         return;
       }
 
-      // Mock data for now - Backend should implement: GET /api/v1/conversations?status=${filterStatus}&sort=${sortBy}
-      const mockConversations: ConversationListItem[] = [
+      // Load conversations from API
+      const response = await axios.get<ConversationListItem[]>(
+        `${apiUrl}/api/v1/conversations?status=${filterStatus}&sort=${sortBy}&search=${searchQuery}`,
         {
-          id: '1',
-          botName: 'Support Bot',
-          messageCount: 12,
-          lastMessage: 'Thank you for your help!',
-          createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-          status: 'completed',
-        },
-        {
-          id: '2',
-          botName: 'Sales Bot',
-          messageCount: 8,
-          lastMessage: 'Can you tell me more about pricing?',
-          createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-          status: 'active',
-        },
-        {
-          id: '3',
-          botName: 'FAQ Bot',
-          messageCount: 5,
-          lastMessage: 'Where can I find documentation?',
-          createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-          status: 'completed',
-        },
-        {
-          id: '4',
-          botName: 'Support Bot',
-          messageCount: 3,
-          lastMessage: 'Hello?',
-          createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
-          status: 'abandoned',
-        },
-        {
-          id: '5',
-          botName: 'Sales Bot',
-          messageCount: 15,
-          lastMessage: 'Great, I would like to proceed with the purchase.',
-          createdAt: new Date(Date.now() - 1000 * 60 * 240).toISOString(),
-          status: 'completed',
-        },
-        {
-          id: '6',
-          botName: 'Support Bot',
-          messageCount: 7,
-          lastMessage: 'Is there a mobile app available?',
-          createdAt: new Date(Date.now() - 1000 * 60 * 360).toISOString(),
-          status: 'completed',
-        },
-      ];
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-      // Apply filters
-      let filtered = mockConversations;
-      if (filterStatus !== 'all') {
-        filtered = filtered.filter(conv => conv.status === filterStatus);
-      }
-
-      // Apply sorting
-      if (sortBy === 'recent') {
-        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      } else if (sortBy === 'oldest') {
-        filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-      } else if (sortBy === 'messages') {
-        filtered.sort((a, b) => b.messageCount - a.messageCount);
-      }
-
-      setConversations(filtered);
+      setConversations(response.data);
     } catch (err: any) {
       console.error('Error loading conversations:', err);
       setError(err.message || 'Failed to load conversations');
@@ -164,73 +105,15 @@ export default function ConversationsPage() {
         return;
       }
 
-      // Mock data for now - Backend should implement: GET /api/v1/conversations/:id
-      const mockConversation: ConversationDetail = {
-        id,
-        botId: 'bot123',
-        botName: 'Support Bot',
-        createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-        updatedAt: new Date().toISOString(),
-        status: 'completed',
-        metadata: {
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          ipAddress: '192.168.1.1',
-          duration: '5m 23s',
-          leadCaptured: true,
-        },
-        messages: [
-          {
-            id: 'm1',
-            role: 'assistant',
-            content: 'Hello! How can I help you today?',
-            createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-          },
-          {
-            id: 'm2',
-            role: 'user',
-            content: 'I need help with my account setup.',
-            createdAt: new Date(Date.now() - 1000 * 60 * 29).toISOString(),
-          },
-          {
-            id: 'm3',
-            role: 'assistant',
-            content: 'I\'d be happy to help you with your account setup. Could you tell me what specific issue you\'re encountering?',
-            createdAt: new Date(Date.now() - 1000 * 60 * 28).toISOString(),
-          },
-          {
-            id: 'm4',
-            role: 'user',
-            content: 'I can\'t figure out how to add a new bot to my dashboard.',
-            createdAt: new Date(Date.now() - 1000 * 60 * 27).toISOString(),
-          },
-          {
-            id: 'm5',
-            role: 'assistant',
-            content: 'To add a new bot to your dashboard:\n\n1. Click on the "Bots" menu in the sidebar\n2. Click the "Create New Bot" button\n3. Fill in the bot name and configuration\n4. Click "Save"\n\nWould you like more detailed guidance on any of these steps?',
-            createdAt: new Date(Date.now() - 1000 * 60 * 26).toISOString(),
-          },
-          {
-            id: 'm6',
-            role: 'user',
-            content: 'That\'s perfect! I found it. Thank you so much!',
-            createdAt: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
-          },
-          {
-            id: 'm7',
-            role: 'assistant',
-            content: 'You\'re welcome! Is there anything else I can help you with?',
-            createdAt: new Date(Date.now() - 1000 * 60 * 24).toISOString(),
-          },
-          {
-            id: 'm8',
-            role: 'user',
-            content: 'No, that\'s all. Thank you for your help!',
-            createdAt: new Date(Date.now() - 1000 * 60 * 23).toISOString(),
-          },
-        ],
-      };
+      // Load conversation detail from API
+      const response = await axios.get<ConversationDetail>(
+        `${apiUrl}/api/v1/conversations/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-      setSelectedConversation(mockConversation);
+      setSelectedConversation(response.data);
     } catch (err: any) {
       console.error('Error loading conversation:', err);
       setError(err.message || 'Failed to load conversation');
@@ -277,11 +160,8 @@ ${transcript}
     document.body.removeChild(link);
   };
 
-  const filteredConversations = conversations.filter(conv =>
-    searchQuery === '' ||
-    conv.botName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conv.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Search is now handled by the backend, no need to filter here
+  const filteredConversations = conversations;
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);

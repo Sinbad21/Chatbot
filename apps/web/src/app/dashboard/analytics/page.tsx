@@ -69,33 +69,30 @@ export default function AnalyticsPage() {
         return;
       }
 
-      // Load overview data from existing endpoint
-      const overviewResponse = await axios.get<AnalyticsOverview>(
-        `${apiUrl}/api/v1/analytics/overview`,
-        {
+      // Load all analytics data in parallel
+      const [overviewResponse, conversationsDataResponse, intentsDataResponse] = await Promise.all([
+        axios.get<AnalyticsOverview>(`${apiUrl}/api/v1/analytics/overview`, {
           headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+        }),
+        axios.get<ConversationData[]>(
+          `${apiUrl}/api/v1/analytics/conversations-over-time?range=${dateRange}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        ),
+        axios.get<IntentData[]>(
+          `${apiUrl}/api/v1/analytics/top-intents?range=${dateRange}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        ),
+      ]);
+
       setOverview(overviewResponse.data);
+      setConversationsData(conversationsDataResponse.data);
+      setIntentsData(intentsDataResponse.data);
 
-      // Mock data for conversations over time (ready for backend implementation)
-      // Backend should implement: GET /api/v1/analytics/conversations-over-time?range=${dateRange}
-      const mockConversationsData = generateMockConversationsData(dateRange);
-      setConversationsData(mockConversationsData);
-
-      // Mock data for top intents (ready for backend implementation)
-      // Backend should implement: GET /api/v1/analytics/top-intents?range=${dateRange}
-      const mockIntentsData: IntentData[] = [
-        { name: 'Greeting', count: 145 },
-        { name: 'Pricing', count: 98 },
-        { name: 'Support', count: 76 },
-        { name: 'Features', count: 54 },
-        { name: 'Contact', count: 32 },
-      ];
-      setIntentsData(mockIntentsData);
-
-      // Mock data for recent conversations (ready for backend implementation)
-      // Backend should implement: GET /api/v1/analytics/conversations?range=${dateRange}&search=${searchQuery}
+      // Mock data for table (you can add a real endpoint later if needed)
       const mockConversations: Conversation[] = [
         {
           id: '1',
@@ -145,30 +142,6 @@ export default function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const generateMockConversationsData = (range: DateRange): ConversationData[] => {
-    const days = range === '7d' ? 7 : range === '30d' ? 30 : range === '90d' ? 90 : 365;
-    const data: ConversationData[] = [];
-    const now = new Date();
-
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
-
-      // Generate realistic-looking random data
-      const baseCount = 20;
-      const variance = Math.floor(Math.random() * 15);
-      const weekendPenalty = [0, 6].includes(date.getDay()) ? -5 : 0;
-
-      data.push({
-        date: dateStr,
-        conversations: Math.max(0, baseCount + variance + weekendPenalty),
-      });
-    }
-
-    return data;
   };
 
   const handleExportCSV = () => {
