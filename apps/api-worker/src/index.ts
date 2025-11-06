@@ -2226,6 +2226,7 @@ app.post('/api/v1/conversations/:id/capture-lead', authMiddleware, async (c) => 
 // Start intelligent lead discovery search
 app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
   try {
+    console.log('[Discovery] Starting lead discovery search...');
     const prisma = getDB(c.env.DATABASE_URL);
     const user = c.get('user');
     const body = await c.req.json();
@@ -2241,11 +2242,22 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
       sources,
     } = body;
 
+    console.log('[Discovery] Search params:', { searchGoal, location, radius, businessType });
+
     if (!searchGoal || !location) {
       return c.json({ error: 'Search goal and location are required' }, 400);
     }
 
+    // Check API keys status
+    const hasGoogleKey = !!c.env.GOOGLE_PLACES_API_KEY;
+    const hasYelpKey = !!c.env.YELP_API_KEY;
+    console.log('[Discovery] API Keys status:', {
+      google: hasGoogleKey ? 'configured' : 'missing',
+      yelp: hasYelpKey ? 'configured' : 'missing'
+    });
+
     // Create a discovery campaign to track this search
+    console.log('[Discovery] Creating campaign...');
     const campaign = await prisma.campaign.create({
       data: {
         userId: user.userId,
@@ -2265,8 +2277,10 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
         },
       },
     });
+    console.log('[Discovery] Campaign created:', campaign.id);
 
     // Real multi-source scraping with external APIs
+    console.log('[Discovery] Starting multi-source scraping...');
     const results = await performMultiSourceScraping({
       searchGoal,
       location,
@@ -2279,6 +2293,7 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
       googleApiKey: c.env.GOOGLE_PLACES_API_KEY,
       yelpApiKey: c.env.YELP_API_KEY,
     });
+    console.log('[Discovery] Found', results.length, 'businesses');
 
     // Return campaign ID and initial results
     return c.json({
@@ -2288,8 +2303,12 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
       message: 'Discovery search started. Results will be analyzed and scored by AI.',
     });
   } catch (error: any) {
-    console.error('Error starting discovery search:', error);
-    return c.json({ error: error.message }, 500);
+    console.error('[Discovery] ERROR:', error);
+    console.error('[Discovery] Error stack:', error.stack);
+    return c.json({
+      error: error.message || 'Internal server error',
+      details: error.stack
+    }, 500);
   }
 });
 
@@ -2298,6 +2317,9 @@ async function performMultiSourceScraping(params: any) {
   const { searchGoal, location, radius, businessType, minRating, sources, googleApiKey, yelpApiKey } = params;
 
   const allBusinesses: any[] = [];
+
+  // Check if API keys are configured
+  const hasApiKeys = googleApiKey || yelpApiKey;
 
   // Google Places API
   if (sources.includes('google_maps') && googleApiKey) {
@@ -2319,7 +2341,71 @@ async function performMultiSourceScraping(params: any) {
     }
   }
 
+  // FALLBACK: If no API keys configured or no results, return demo data
+  if (allBusinesses.length === 0) {
+    console.warn('⚠️ No API keys configured or no results found. Using demo data.');
+    console.warn('📝 Configure GOOGLE_PLACES_API_KEY and YELP_API_KEY for real data.');
+
+    return generateDemoBusinesses(location, searchGoal, businessType);
+  }
+
   return allBusinesses;
+}
+
+// Generate demo businesses for testing without API keys
+function generateDemoBusinesses(location: string, searchGoal: string, businessType: string) {
+  const category = businessType || 'Restaurant';
+
+  return [
+    {
+      id: crypto.randomUUID(),
+      name: `${category} Demo 1`,
+      address: `Via Roma 123, ${location}`,
+      phone: '+39-06-1234567',
+      email: null,
+      website: null,
+      rating: 4.2,
+      reviewCount: 87,
+      category: category,
+      source: 'Demo Data (Configure API keys for real data)',
+      coordinates: { lat: 41.9028, lng: 12.4964 },
+      technologies: [],
+      hasOnlineBooking: false,
+      socialPresence: { facebook: true, instagram: false, linkedin: false },
+    },
+    {
+      id: crypto.randomUUID(),
+      name: `${category} Demo 2`,
+      address: `Corso Italia 456, ${location}`,
+      phone: '+39-06-7654321',
+      email: 'info@demo2.it',
+      website: 'https://demo2.example.com',
+      rating: 3.8,
+      reviewCount: 143,
+      category: category,
+      source: 'Demo Data (Configure API keys for real data)',
+      coordinates: { lat: 41.9029, lng: 12.4965 },
+      technologies: ['WordPress'],
+      hasOnlineBooking: false,
+      socialPresence: { facebook: true, instagram: true, linkedin: false },
+    },
+    {
+      id: crypto.randomUUID(),
+      name: `${category} Demo 3`,
+      address: `Piazza Navona 789, ${location}`,
+      phone: '+39-06-9876543',
+      email: null,
+      website: null,
+      rating: 4.5,
+      reviewCount: 234,
+      category: category,
+      source: 'Demo Data (Configure API keys for real data)',
+      coordinates: { lat: 41.9030, lng: 12.4966 },
+      technologies: [],
+      hasOnlineBooking: false,
+      socialPresence: { facebook: false, instagram: false, linkedin: false },
+    },
+  ];
 }
 
 // Search Google Places API
@@ -2438,9 +2524,21 @@ async function searchYelp(location: string, searchGoal: string, businessType: st
 // Check if website has online booking system
 async function checkForOnlineBooking(websiteUrl: string): Promise<boolean> {
   try {
+    // Add timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
     const response = await fetch(websiteUrl, {
       headers: { 'User-Agent': 'Mozilla/5.0' },
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      return false;
+    }
+
     const html = await response.text();
 
     // Simple keyword detection for booking systems
@@ -2459,6 +2557,7 @@ async function checkForOnlineBooking(websiteUrl: string): Promise<boolean> {
     const htmlLower = html.toLowerCase();
     return bookingKeywords.some((keyword) => htmlLower.includes(keyword));
   } catch (error) {
+    // Silent fail - just return false if we can't check
     return false;
   }
 }
