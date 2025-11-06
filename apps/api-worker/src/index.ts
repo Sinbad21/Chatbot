@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { PrismaNeon } from '@prisma/adapter-neon';
-import { Pool } from '@neondatabase/serverless';
+import { neon } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerKnowledgeRoutes } from './routes/knowledge';
@@ -23,10 +23,11 @@ app.use('/*', cors({
   credentials: true,
 }));
 
-// Database connection helper
+// Database connection helper for Cloudflare Workers Edge
+// Uses HTTP connection (neon) instead of TCP (Pool) for edge compatibility
 const getDB = (databaseUrl: string) => {
-  const pool = new Pool({ connectionString: databaseUrl });
-  const adapter = new PrismaNeon(pool);
+  const sql = neon(databaseUrl);
+  const adapter = new PrismaNeon(sql);
   return new PrismaClient({ adapter });
 };
 
