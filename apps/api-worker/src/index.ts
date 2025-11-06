@@ -654,19 +654,20 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       return c.json({ error: 'Invalid JSON in request body' }, 400);
     }
 
-    const { name, content } = body;
+    const { title, content, url, metadata } = body;
 
     console.log('[POST /documents] Request details:', {
       userId: user?.userId,
       botId,
-      nameLength: name?.length,
+      titleLength: title?.length,
       contentLength: content?.length,
+      url,
     });
 
     // Validate required fields
-    if (!name || typeof name !== 'string') {
-      console.log('[POST /documents] Invalid name field');
-      return c.json({ error: 'name is required and must be a string' }, 422);
+    if (!title || typeof title !== 'string') {
+      console.log('[POST /documents] Invalid title field');
+      return c.json({ error: 'title is required and must be a string' }, 422);
     }
 
     if (!content || typeof content !== 'string') {
@@ -675,14 +676,14 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     }
 
     // Validate field lengths
-    const MAX_NAME_LENGTH = 200;
+    const MAX_TITLE_LENGTH = 200;
     const MAX_CONTENT_LENGTH = 200000; // ~200KB
 
-    if (name.length > MAX_NAME_LENGTH) {
-      console.log('[POST /documents] Name too long:', name.length);
+    if (title.length > MAX_TITLE_LENGTH) {
+      console.log('[POST /documents] Title too long:', title.length);
       return c.json({
-        error: 'Document name too long',
-        message: `Name must be less than ${MAX_NAME_LENGTH} characters`
+        error: 'Document title too long',
+        message: `Title must be less than ${MAX_TITLE_LENGTH} characters`
       }, 422);
     }
 
@@ -694,9 +695,9 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       }, 413);
     }
 
-    if (name.trim().length === 0) {
-      console.log('[POST /documents] Name is empty after trim');
-      return c.json({ error: 'Document name cannot be empty' }, 400);
+    if (title.trim().length === 0) {
+      console.log('[POST /documents] Title is empty after trim');
+      return c.json({ error: 'Document title cannot be empty' }, 400);
     }
 
     if (content.trim().length === 0) {
@@ -770,14 +771,17 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       match: membership.organizationId === bot.organizationId,
     });
 
+    // Determine document type from URL or content
+    const documentType = url ? 'url' : 'text';
+
     const document = await prisma.document.create({
       data: {
         botId,
-        title: name.trim(),
+        title: title.trim(),
         content: content.trim(),
-        type: 'text',
+        type: documentType,
         size: content.trim().length,
-        url: '',
+        url: url || '',
         status: 'COMPLETED',
       },
     });
@@ -788,9 +792,13 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     const transformedDocument = {
       id: document.id,
       name: document.title,
+      title: document.title,
       content: document.content,
+      url: document.url,
+      type: document.type,
       status: document.status.toLowerCase(),
       createdAt: document.createdAt,
+      metadata: metadata || {},
     };
 
     return c.json(transformedDocument, 201);
