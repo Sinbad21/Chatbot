@@ -1815,6 +1815,37 @@ app.get('/api/v1/conversations/:id', authMiddleware, async (c) => {
   }
 });
 
+// Delete conversation
+app.delete('/api/v1/conversations/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const conversationId = c.req.param('id');
+
+    // Verify conversation belongs to user's bot
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id: conversationId,
+        bot: { userId: user.userId },
+      },
+    });
+
+    if (!conversation) {
+      return c.json({ error: 'Conversation not found' }, 404);
+    }
+
+    // Delete conversation (cascade will handle messages)
+    await prisma.conversation.delete({
+      where: { id: conversationId },
+    });
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error('[DELETE /conversations/:id] Error:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 // ============================================
 // API KEYS MANAGEMENT
 // ============================================
