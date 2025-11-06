@@ -2220,334 +2220,412 @@ app.post('/api/v1/conversations/:id/capture-lead', authMiddleware, async (c) => 
 });
 
 // ============================================
-// SCRAPING & LEAD GENERATION ENDPOINTS
+// LEAD DISCOVERY & GENERATION ENDPOINTS
 // ============================================
 
-// Web scraping
-app.post('/api/v1/scraping/web', authMiddleware, async (c) => {
+// Start intelligent lead discovery search
+app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
   try {
     const prisma = getDB(c.env.DATABASE_URL);
     const user = c.get('user');
     const body = await c.req.json();
-    const { url, depth = 1 } = body;
+    const {
+      searchGoal,
+      location,
+      radius,
+      businessType,
+      minRating,
+      maxRating,
+      hasWebsite,
+      employeeRange,
+      sources,
+    } = body;
 
-    if (!url) {
-      return c.json({ error: 'URL is required' }, 400);
+    if (!searchGoal || !location) {
+      return c.json({ error: 'Search goal and location are required' }, 400);
     }
 
-    // Validate URL
-    try {
-      new URL(url);
-    } catch (e) {
-      return c.json({ error: 'Invalid URL format' }, 400);
-    }
-
-    // For production: integrate with actual web scraping service
-    // For now: return simulated results
-    const leads = [];
-
-    // Simulate scraping delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Mock data for demonstration
-    const mockLeads = [
-      {
-        id: crypto.randomUUID(),
-        name: 'John Smith',
-        email: 'john.smith@example.com',
-        phone: '+1-555-0123',
-        company: new URL(url).hostname,
-        title: 'Sales Manager',
-        source: `Web Scraper (${url})`,
-        score: 85,
-      },
-      {
-        id: crypto.randomUUID(),
-        name: 'Sarah Johnson',
-        email: 'sarah.johnson@example.com',
-        phone: '+1-555-0124',
-        company: new URL(url).hostname,
-        title: 'Marketing Director',
-        source: `Web Scraper (${url})`,
-        score: 90,
-      },
-    ];
-
-    // In production: replace with actual scraping logic
-    // Example: use Puppeteer/Playwright to scrape contact pages
-    leads.push(...mockLeads.slice(0, depth));
-
-    return c.json({ leads, count: leads.length });
-  } catch (error: any) {
-    console.error('Error in web scraping:', error);
-    return c.json({ error: error.message }, 500);
-  }
-});
-
-// Email finder
-app.post('/api/v1/scraping/email-finder', authMiddleware, async (c) => {
-  try {
-    const body = await c.req.json();
-    const { firstName, lastName, domain } = body;
-
-    if (!firstName || !lastName || !domain) {
-      return c.json({ error: 'First name, last name, and domain are required' }, 400);
-    }
-
-    // Common email patterns
-    const patterns = [
-      `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${domain}`,
-      `${firstName.toLowerCase()}${lastName.toLowerCase()}@${domain}`,
-      `${firstName.toLowerCase()}@${domain}`,
-      `${firstName[0].toLowerCase()}${lastName.toLowerCase()}@${domain}`,
-      `${firstName.toLowerCase()}.${lastName[0].toLowerCase()}@${domain}`,
-    ];
-
-    // For production: integrate with email validation service (e.g., Hunter.io, Clearbit)
-    // For now: return the most common pattern with confidence score
-    const email = patterns[0];
-    const confidence = 75; // Mock confidence score
-
-    return c.json({
-      email,
-      confidence,
-      alternativeEmails: patterns.slice(1),
-    });
-  } catch (error: any) {
-    console.error('Error in email finder:', error);
-    return c.json({ error: error.message }, 500);
-  }
-});
-
-// Lead enrichment
-app.post('/api/v1/scraping/enrich', authMiddleware, async (c) => {
-  try {
-    const body = await c.req.json();
-    const { email } = body;
-
-    if (!email) {
-      return c.json({ error: 'Email is required' }, 400);
-    }
-
-    // Validate email format
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return c.json({ error: 'Invalid email format' }, 400);
-    }
-
-    // For production: integrate with enrichment service (e.g., Clearbit, FullContact)
-    // For now: return mock enriched data
-    const domain = email.split('@')[1];
-    const namePart = email.split('@')[0];
-    const nameParts = namePart.split(/[._]/);
-
-    const enrichedData = {
-      name: nameParts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' '),
-      email,
-      phone: '+1-555-' + Math.floor(1000 + Math.random() * 9000),
-      company: domain.split('.')[0].toUpperCase(),
-      title: 'Business Development Manager',
-      linkedin: `https://linkedin.com/in/${namePart}`,
-      score: 70,
-    };
-
-    return c.json(enrichedData);
-  } catch (error: any) {
-    console.error('Error in lead enrichment:', error);
-    return c.json({ error: error.message }, 500);
-  }
-});
-
-// Save single scraped lead
-app.post('/api/v1/scraping/save-lead', authMiddleware, async (c) => {
-  try {
-    const prisma = getDB(c.env.DATABASE_URL);
-    const user = c.get('user');
-    const body = await c.req.json();
-    const { name, email, phone, company, title, linkedin, score, source } = body;
-
-    if (!name || !email) {
-      return c.json({ error: 'Name and email are required' }, 400);
-    }
-
-    // Check if lead with this email already exists for this user
-    const existingLead = await prisma.lead.findFirst({
-      where: {
-        email: email.toLowerCase(),
-        conversation: {
-          bot: { userId: user.userId },
-        },
-      },
-    });
-
-    if (existingLead) {
-      return c.json({ error: 'Lead with this email already exists' }, 400);
-    }
-
-    // Create a system conversation for scraped leads
-    let scrapedConversation = await prisma.conversation.findFirst({
-      where: {
-        bot: {
-          userId: user.userId,
-          name: 'Scraped Leads',
-        },
-      },
-      include: { bot: true },
-    });
-
-    if (!scrapedConversation) {
-      // Find or create a "Scraped Leads" bot
-      let scrapedBot = await prisma.bot.findFirst({
-        where: {
-          userId: user.userId,
-          name: 'Scraped Leads',
-        },
-      });
-
-      if (!scrapedBot) {
-        scrapedBot = await prisma.bot.create({
-          data: {
-            userId: user.userId,
-            name: 'Scraped Leads',
-            systemPrompt: 'This bot collects leads from web scraping and enrichment tools.',
-            model: 'gpt-4o-mini',
-          },
-        });
-      }
-
-      scrapedConversation = await prisma.conversation.create({
-        data: {
-          botId: scrapedBot.id,
-          status: 'COMPLETED',
-        },
-        include: { bot: true },
-      });
-    }
-
-    // Create lead
-    const lead = await prisma.lead.create({
+    // Create a discovery campaign to track this search
+    const campaign = await prisma.campaign.create({
       data: {
-        conversationId: scrapedConversation.id,
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        phone: phone ? phone.trim() : null,
-        company: company ? company.trim() : null,
-        score: score || 50,
-        status: 'NEW',
-        metadata: {
-          title: title || null,
-          linkedin: linkedin || null,
-          source: source || 'Manual',
+        userId: user.userId,
+        name: `Discovery: ${searchGoal}`,
+        type: 'DISCOVERY',
+        status: 'ACTIVE',
+        config: {
+          searchGoal,
+          location,
+          radius: radius || 10,
+          businessType,
+          minRating,
+          maxRating,
+          hasWebsite,
+          employeeRange,
+          sources: sources || ['google_maps', 'yelp'],
         },
       },
     });
 
+    // Simulate multi-source scraping (in production: use real APIs)
+    const results = await performMultiSourceScraping({
+      searchGoal,
+      location,
+      radius: radius || 10,
+      businessType,
+      minRating,
+      maxRating,
+      hasWebsite,
+      sources: sources || ['google_maps', 'yelp'],
+    });
+
+    // Return campaign ID and initial results
     return c.json({
-      success: true,
-      lead: {
-        id: lead.id,
-        name: lead.name,
-        email: lead.email,
-        phone: lead.phone,
-        company: lead.company,
-        score: lead.score,
-      },
+      campaignId: campaign.id,
+      status: 'processing',
+      initialResults: results,
+      message: 'Discovery search started. Results will be analyzed and scored by AI.',
     });
   } catch (error: any) {
-    console.error('Error saving lead:', error);
+    console.error('Error starting discovery search:', error);
     return c.json({ error: error.message }, 500);
   }
 });
 
-// Save multiple scraped leads
-app.post('/api/v1/scraping/save-leads-bulk', authMiddleware, async (c) => {
+// Helper function for multi-source scraping (mock implementation)
+async function performMultiSourceScraping(params: any) {
+  const { searchGoal, location, radius, businessType, minRating, sources } = params;
+
+  // Simulate delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
+  // Mock results from multiple sources
+  const businesses = [
+    {
+      id: crypto.randomUUID(),
+      name: 'La Bella Trattoria',
+      address: `123 Main St, ${location}`,
+      phone: '+39-06-1234567',
+      email: null,
+      website: null,
+      rating: 4.2,
+      reviewCount: 87,
+      category: 'Restaurant',
+      source: 'Google Maps',
+      coordinates: { lat: 41.9028, lng: 12.4964 },
+      technologies: [],
+      hasOnlineBooking: false,
+      socialPresence: { facebook: true, instagram: false, linkedin: false },
+    },
+    {
+      id: crypto.randomUUID(),
+      name: 'Hotel Palazzo Romano',
+      address: `456 Via Roma, ${location}`,
+      phone: '+39-06-7654321',
+      email: 'info@palazzoromano.it',
+      website: 'https://palazzoromano.it',
+      rating: 3.8,
+      reviewCount: 143,
+      category: 'Hotel',
+      source: 'Google Maps',
+      coordinates: { lat: 41.9029, lng: 12.4965 },
+      technologies: ['WordPress', 'jQuery'],
+      hasOnlineBooking: false,
+      socialPresence: { facebook: true, instagram: true, linkedin: false },
+    },
+    {
+      id: crypto.randomUUID(),
+      name: 'Ristorante Da Mario',
+      address: `789 Corso Italia, ${location}`,
+      phone: '+39-06-9876543',
+      email: null,
+      website: null,
+      rating: 4.5,
+      reviewCount: 234,
+      category: 'Restaurant',
+      source: 'Yelp',
+      coordinates: { lat: 41.9030, lng: 12.4966 },
+      technologies: [],
+      hasOnlineBooking: false,
+      socialPresence: { facebook: false, instagram: false, linkedin: false },
+    },
+  ];
+
+  return businesses;
+}
+
+// Analyze lead with AI and generate intelligent score
+app.post('/api/v1/discovery/analyze', authMiddleware, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { business, searchGoal, userProduct } = body;
+
+    if (!business || !searchGoal) {
+      return c.json({ error: 'Business data and search goal are required' }, 400);
+    }
+
+    // Use OpenAI to analyze the lead
+    const openai = new OpenAI({
+      apiKey: c.env.OPENAI_API_KEY,
+    });
+
+    const analysisPrompt = `You are an expert lead qualification analyst. Analyze this business and determine how well it matches the search goal.
+
+Search Goal: ${searchGoal}
+User's Product/Service: ${userProduct || 'a solution to help businesses grow'}
+
+Business Data:
+- Name: ${business.name}
+- Category: ${business.category}
+- Rating: ${business.rating}/5 (${business.reviewCount} reviews)
+- Website: ${business.website || 'None'}
+- Has Online Booking: ${business.hasOnlineBooking ? 'Yes' : 'No'}
+- Technologies: ${business.technologies?.join(', ') || 'Unknown'}
+- Social Presence: ${JSON.stringify(business.socialPresence)}
+
+Analyze this business and provide:
+1. Lead Score (0-100): How well this business matches the search goal
+2. Pain Points: What problems does this business likely have?
+3. Opportunity: Why is this a good lead?
+4. Approach Strategy: How should we contact them?
+5. Best Contact Time: When to reach out?
+6. Email Hook: A compelling opening line for an outreach email
+
+Return your analysis as JSON with this exact structure:
+{
+  "score": number,
+  "painPoints": string[],
+  "opportunity": string,
+  "approachStrategy": string,
+  "bestContactTime": string,
+  "emailHook": string,
+  "reasoning": string
+}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert lead qualification analyst. Always respond with valid JSON only.',
+        },
+        {
+          role: 'user',
+          content: analysisPrompt,
+        },
+      ],
+      temperature: 0.7,
+      response_format: { type: 'json_object' },
+    });
+
+    const analysis = JSON.parse(completion.choices[0].message.content || '{}');
+
+    return c.json({
+      businessId: business.id,
+      analysis,
+    });
+  } catch (error: any) {
+    console.error('Error analyzing lead:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Generate personalized outreach email
+app.post('/api/v1/discovery/generate-outreach', authMiddleware, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { business, analysis, userInfo } = body;
+
+    if (!business || !analysis) {
+      return c.json({ error: 'Business and analysis data are required' }, 400);
+    }
+
+    const openai = new OpenAI({
+      apiKey: c.env.OPENAI_API_KEY,
+    });
+
+    const emailPrompt = `Generate a personalized outreach email for this lead.
+
+Business: ${business.name}
+Category: ${business.category}
+Pain Points: ${analysis.painPoints?.join(', ')}
+Opportunity: ${analysis.opportunity}
+Email Hook: ${analysis.emailHook}
+
+Sender Info:
+- Name: ${userInfo?.name || 'Your Name'}
+- Company: ${userInfo?.company || 'Your Company'}
+- Product: ${userInfo?.product || 'our solution'}
+
+Write a professional, personalized cold email that:
+1. Uses the email hook as opening
+2. Addresses their specific pain points
+3. Proposes a clear value proposition
+4. Includes a soft call-to-action
+5. Keeps it under 150 words
+6. Sounds natural and friendly, not salesy
+
+Return JSON:
+{
+  "subject": "email subject line",
+  "body": "email body",
+  "followUpSuggestions": ["suggestion 1", "suggestion 2"]
+}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert email copywriter. Always respond with valid JSON only.',
+        },
+        {
+          role: 'user',
+          content: emailPrompt,
+        },
+      ],
+      temperature: 0.8,
+      response_format: { type: 'json_object' },
+    });
+
+    const emailContent = JSON.parse(completion.choices[0].message.content || '{}');
+
+    return c.json(emailContent);
+  } catch (error: any) {
+    console.error('Error generating outreach email:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Get discovery campaign results
+app.get('/api/v1/discovery/campaigns/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const campaignId = c.req.param('id');
+
+    const campaign = await prisma.campaign.findFirst({
+      where: {
+        id: campaignId,
+        userId: user.userId,
+      },
+    });
+
+    if (!campaign) {
+      return c.json({ error: 'Campaign not found' }, 404);
+    }
+
+    // Get leads associated with this campaign
+    const leads = await prisma.lead.findMany({
+      where: { campaignId },
+      orderBy: { score: 'desc' },
+    });
+
+    return c.json({
+      campaign,
+      leads,
+      stats: {
+        total: leads.length,
+        qualified: leads.filter(l => l.score >= 70).length,
+        contacted: leads.filter(l => l.status === 'CONTACTED').length,
+        converted: leads.filter(l => l.status === 'CONVERTED').length,
+      },
+    });
+  } catch (error: any) {
+    console.error('Error fetching campaign:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Save discovered leads to database
+app.post('/api/v1/discovery/save-results', authMiddleware, async (c) => {
   try {
     const prisma = getDB(c.env.DATABASE_URL);
     const user = c.get('user');
     const body = await c.req.json();
-    const { leads } = body;
+    const { campaignId, businesses, analyses } = body;
 
-    if (!Array.isArray(leads) || leads.length === 0) {
-      return c.json({ error: 'Leads array is required' }, 400);
+    if (!campaignId || !Array.isArray(businesses)) {
+      return c.json({ error: 'Campaign ID and businesses array are required' }, 400);
     }
 
-    // Find or create "Scraped Leads" bot
-    let scrapedBot = await prisma.bot.findFirst({
+    // Verify campaign ownership
+    const campaign = await prisma.campaign.findFirst({
+      where: {
+        id: campaignId,
+        userId: user.userId,
+      },
+    });
+
+    if (!campaign) {
+      return c.json({ error: 'Campaign not found' }, 404);
+    }
+
+    // Create conversation for this discovery campaign
+    let discoveryBot = await prisma.bot.findFirst({
       where: {
         userId: user.userId,
-        name: 'Scraped Leads',
+        name: 'Lead Discovery',
       },
     });
 
-    if (!scrapedBot) {
-      scrapedBot = await prisma.bot.create({
+    if (!discoveryBot) {
+      discoveryBot = await prisma.bot.create({
         data: {
           userId: user.userId,
-          name: 'Scraped Leads',
-          systemPrompt: 'This bot collects leads from web scraping and enrichment tools.',
+          name: 'Lead Discovery',
+          systemPrompt: 'This bot manages leads from intelligent discovery campaigns.',
           model: 'gpt-4o-mini',
         },
       });
     }
 
-    // Create a conversation for these leads
-    const scrapedConversation = await prisma.conversation.create({
+    const conversation = await prisma.conversation.create({
       data: {
-        botId: scrapedBot.id,
+        botId: discoveryBot.id,
         status: 'COMPLETED',
       },
     });
 
-    // Create all leads
+    // Save all businesses as leads
     const createdLeads = await Promise.all(
-      leads.map(async (leadData: any) => {
-        const { name, email, phone, company, title, linkedin, score, source } = leadData;
-
-        if (!name || !email) {
-          return null;
-        }
-
-        // Check for duplicates
-        const existing = await prisma.lead.findFirst({
-          where: {
-            email: email.toLowerCase(),
-            conversation: {
-              bot: { userId: user.userId },
-            },
-          },
-        });
-
-        if (existing) {
-          return null;
-        }
+      businesses.map(async (business: any, index: number) => {
+        const analysis = analyses?.[index];
 
         return prisma.lead.create({
           data: {
-            conversationId: scrapedConversation.id,
-            name: name.trim(),
-            email: email.trim().toLowerCase(),
-            phone: phone ? phone.trim() : null,
-            company: company ? company.trim() : null,
-            score: score || 50,
+            conversationId: conversation.id,
+            campaignId: campaign.id,
+            name: business.name,
+            email: business.email || null,
+            phone: business.phone || null,
+            company: business.name,
+            score: analysis?.score || 50,
             status: 'NEW',
             metadata: {
-              title: title || null,
-              linkedin: linkedin || null,
-              source: source || 'Bulk Import',
+              address: business.address,
+              website: business.website,
+              rating: business.rating,
+              reviewCount: business.reviewCount,
+              category: business.category,
+              source: business.source,
+              coordinates: business.coordinates,
+              technologies: business.technologies,
+              hasOnlineBooking: business.hasOnlineBooking,
+              socialPresence: business.socialPresence,
+              aiAnalysis: analysis || null,
             },
           },
         });
       })
     );
 
-    const successfulLeads = createdLeads.filter(l => l !== null);
-
     return c.json({
       success: true,
-      created: successfulLeads.length,
-      skipped: leads.length - successfulLeads.length,
+      saved: createdLeads.length,
+      campaignId: campaign.id,
     });
   } catch (error: any) {
-    console.error('Error saving leads bulk:', error);
+    console.error('Error saving discovery results:', error);
     return c.json({ error: error.message }, 500);
   }
 });
