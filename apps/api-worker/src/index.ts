@@ -2951,14 +2951,19 @@ app.post('/api/v1/discovery/save-results', authMiddleware, async (c) => {
 });
 
 // ============================================
-// WEB SCRAPING ENDPOINTS
+// WEB SCRAPING ENDPOINTS with robust error handling
 // ============================================
+
+// OPTIONS handler for CORS preflight
+app.options('/api/v1/scrape', async (c) => {
+  return c.json({ ok: true }, 200);
+});
 
 // Scrape URL and extract all links
 app.post('/api/v1/scrape', authMiddleware, async (c) => {
   try {
     const body = await c.req.json();
-    const { url } = body;
+    const { url, selector = 'a', max = 200 } = body;
 
     if (!url) {
       return c.json({ error: 'URL is required' }, 400);
@@ -2974,24 +2979,58 @@ app.post('/api/v1/scrape', authMiddleware, async (c) => {
 
     console.log('[Scrape] Fetching:', url);
 
-    // Fetch the page with custom User-Agent
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudioBot/1.0; +https://chatbot-studio.pages.dev)',
-      },
-    });
+    // Timeout hard (10s) with AbortController
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 10000);
+
+    let response;
+    try {
+      // Fetch the page with timeout and better User-Agent
+      response = await fetch(url, {
+        signal: abortController.signal,
+        redirect: 'follow',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+      });
+    } catch (fetchError: any) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        return c.json({ error: 'Request timeout', message: 'The page took too long to respond (>10s)' }, 504);
+      }
+      throw fetchError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      console.log('[Scrape] Upstream fetch failed:', response.status);
+      return c.json({
+        error: 'Upstream fetch failed',
+        status: response.status,
+        message: `The target website returned ${response.status} ${response.statusText}`
+      }, 502);
     }
 
     const html = await response.text();
 
     // Parse HTML with linkedom
-    const { document } = parseHTML(html);
+    let document;
+    try {
+      const parsed = parseHTML(html);
+      document = parsed.document;
+    } catch (parseError: any) {
+      console.error('[Scrape] HTML parsing error:', parseError);
+      return c.json({
+        error: 'HTML parsing failed',
+        message: 'Could not parse the HTML content'
+      }, 500);
+    }
 
     // Extract all links
-    const links = Array.from(document.querySelectorAll('a[href]'))
+    const links = Array.from(document.querySelectorAll(selector))
       .map((a: any) => {
         const href = a.getAttribute('href');
         if (!href) return null;
@@ -3013,14 +3052,15 @@ app.post('/api/v1/scrape', authMiddleware, async (c) => {
       })
       .filter((link): link is { url: string; text: string } => link !== null);
 
-    // Deduplicate by URL
+    // Deduplicate by URL and limit
     const uniqueLinks = Array.from(
       new Map(links.map(link => [link.url, link])).values()
-    );
+    ).slice(0, Number(max) || 200);
 
     console.log('[Scrape] Found', uniqueLinks.length, 'unique links');
 
     return c.json({
+      ok: true,
       url,
       totalLinks: uniqueLinks.length,
       links: uniqueLinks,
@@ -3028,8 +3068,9 @@ app.post('/api/v1/scrape', authMiddleware, async (c) => {
   } catch (error: any) {
     console.error('[Scrape] Error:', error);
     return c.json({
-      error: error.message || 'Failed to scrape URL',
-      details: error.stack,
+      error: 'SCRAPE_ERROR',
+      message: error.message || 'Failed to scrape URL',
+      details: error.name || 'Unknown error',
     }, 500);
   }
 });
@@ -3052,21 +3093,49 @@ app.get('/api/v1/scrape', authMiddleware, async (c) => {
 
     console.log('[Scrape Preview] Fetching:', url);
 
-    // Fetch the page
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudioBot/1.0; +https://chatbot-studio.pages.dev)',
-      },
-    });
+    // Timeout hard (10s)
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 10000);
+
+    let response;
+    try {
+      // Fetch the page
+      response = await fetch(url, {
+        signal: abortController.signal,
+        redirect: 'follow',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        },
+      });
+    } catch (fetchError: any) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        return c.json({ error: 'Request timeout', message: 'The page took too long to respond' }, 504);
+      }
+      throw fetchError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      return c.json({
+        error: 'Upstream fetch failed',
+        status: response.status,
+        message: `The target website returned ${response.status} ${response.statusText}`
+      }, 502);
     }
 
     const html = await response.text();
 
     // Parse HTML
-    const { document } = parseHTML(html);
+    let document;
+    try {
+      const parsed = parseHTML(html);
+      document = parsed.document;
+    } catch (parseError) {
+      return c.json({ error: 'HTML parsing failed' }, 500);
+    }
 
     // Extract title
     const title = document.querySelector('title')?.textContent?.trim() || 'Untitled';
@@ -3094,8 +3163,9 @@ app.get('/api/v1/scrape', authMiddleware, async (c) => {
   } catch (error: any) {
     console.error('[Scrape Preview] Error:', error);
     return c.json({
-      error: error.message || 'Failed to preview URL',
-      details: error.stack,
+      error: 'SCRAPE_ERROR',
+      message: error.message || 'Failed to preview URL',
+      details: error.name || 'Unknown error',
     }, 500);
   }
 });
