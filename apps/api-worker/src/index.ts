@@ -6,6 +6,7 @@ import { Pool } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerKnowledgeRoutes } from './routes/knowledge';
+import { parseHTML } from 'linkedom';
 
 type Bindings = {
   DATABASE_URL: string;
@@ -416,6 +417,73 @@ app.delete('/api/v1/bots/:id', authMiddleware, async (c) => {
 
     return c.json({ success: true });
   } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// Logo upload endpoint
+app.post('/api/v1/bots/:id/logo', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const id = c.req.param('id');
+
+    // Verify bot belongs to user
+    const existingBot = await prisma.bot.findUnique({
+      where: { id },
+    });
+
+    if (!existingBot) {
+      return c.json({ error: 'Bot not found' }, 404);
+    }
+
+    if (existingBot.userId !== user.userId) {
+      return c.json({ error: 'Unauthorized' }, 403);
+    }
+
+    // Parse FormData
+    const formData = await c.req.formData();
+    const logoFile = formData.get('logo');
+
+    if (!logoFile || !(logoFile instanceof File)) {
+      return c.json({ error: 'No logo file provided' }, 400);
+    }
+
+    // Validate file type
+    if (!logoFile.type.startsWith('image/')) {
+      return c.json({ error: 'File must be an image' }, 400);
+    }
+
+    // Validate file size (2MB max)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (logoFile.size > maxSize) {
+      return c.json({ error: 'File size must be less than 2MB' }, 400);
+    }
+
+    // Convert to base64 data URL
+    const arrayBuffer = await logoFile.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
+
+    // Convert Uint8Array to base64
+    let binary = '';
+    for (let i = 0; i < buffer.byteLength; i++) {
+      binary += String.fromCharCode(buffer[i]);
+    }
+    const base64 = btoa(binary);
+    const dataUrl = `data:${logoFile.type};base64,${base64}`;
+
+    // Update bot with logo URL
+    const updatedBot = await prisma.bot.update({
+      where: { id },
+      data: { logoUrl: dataUrl },
+    });
+
+    return c.json({
+      success: true,
+      logoUrl: updatedBot.logoUrl,
+    });
+  } catch (error: any) {
+    console.error('[POST /bots/:id/logo] Error:', error);
     return c.json({ error: error.message }, 500);
   }
 });
@@ -1747,6 +1815,37 @@ app.get('/api/v1/conversations/:id', authMiddleware, async (c) => {
   }
 });
 
+// Delete conversation
+app.delete('/api/v1/conversations/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const conversationId = c.req.param('id');
+
+    // Verify conversation belongs to user's bot
+    const conversation = await prisma.conversation.findFirst({
+      where: {
+        id: conversationId,
+        bot: { userId: user.userId },
+      },
+    });
+
+    if (!conversation) {
+      return c.json({ error: 'Conversation not found' }, 404);
+    }
+
+    // Delete conversation (cascade will handle messages)
+    await prisma.conversation.delete({
+      where: { id: conversationId },
+    });
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    console.error('[DELETE /conversations/:id] Error:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 // ============================================
 // API KEYS MANAGEMENT
 // ============================================
@@ -2836,6 +2935,156 @@ app.post('/api/v1/discovery/save-results', authMiddleware, async (c) => {
   } catch (error: any) {
     console.error('Error saving discovery results:', error);
     return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================
+// WEB SCRAPING ENDPOINTS
+// ============================================
+
+// Scrape URL and extract all links
+app.post('/api/v1/scrape', authMiddleware, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { url } = body;
+
+    if (!url) {
+      return c.json({ error: 'URL is required' }, 400);
+    }
+
+    // Validate URL
+    let targetUrl: URL;
+    try {
+      targetUrl = new URL(url);
+    } catch (e) {
+      return c.json({ error: 'Invalid URL format' }, 400);
+    }
+
+    console.log('[Scrape] Fetching:', url);
+
+    // Fetch the page with custom User-Agent
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudioBot/1.0; +https://chatbot-studio.pages.dev)',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const html = await response.text();
+
+    // Parse HTML with linkedom
+    const { document } = parseHTML(html);
+
+    // Extract all links
+    const links = Array.from(document.querySelectorAll('a[href]'))
+      .map((a: any) => {
+        const href = a.getAttribute('href');
+        if (!href) return null;
+
+        // Convert relative URLs to absolute
+        try {
+          const absoluteUrl = new URL(href, targetUrl.href);
+          // Only return http/https URLs
+          if (absoluteUrl.protocol === 'http:' || absoluteUrl.protocol === 'https:') {
+            return {
+              url: absoluteUrl.href,
+              text: a.textContent?.trim() || '',
+            };
+          }
+        } catch (e) {
+          // Invalid URL, skip
+        }
+        return null;
+      })
+      .filter((link): link is { url: string; text: string } => link !== null);
+
+    // Deduplicate by URL
+    const uniqueLinks = Array.from(
+      new Map(links.map(link => [link.url, link])).values()
+    );
+
+    console.log('[Scrape] Found', uniqueLinks.length, 'unique links');
+
+    return c.json({
+      url,
+      totalLinks: uniqueLinks.length,
+      links: uniqueLinks,
+    });
+  } catch (error: any) {
+    console.error('[Scrape] Error:', error);
+    return c.json({
+      error: error.message || 'Failed to scrape URL',
+      details: error.stack,
+    }, 500);
+  }
+});
+
+// Preview content from a URL
+app.get('/api/v1/scrape', authMiddleware, async (c) => {
+  try {
+    const url = c.req.query('url');
+
+    if (!url) {
+      return c.json({ error: 'URL parameter is required' }, 400);
+    }
+
+    // Validate URL
+    try {
+      new URL(url);
+    } catch (e) {
+      return c.json({ error: 'Invalid URL format' }, 400);
+    }
+
+    console.log('[Scrape Preview] Fetching:', url);
+
+    // Fetch the page
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudioBot/1.0; +https://chatbot-studio.pages.dev)',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const html = await response.text();
+
+    // Parse HTML
+    const { document } = parseHTML(html);
+
+    // Extract title
+    const title = document.querySelector('title')?.textContent?.trim() || 'Untitled';
+
+    // Extract meta description
+    const metaDesc = document.querySelector('meta[name="description"]')?.getAttribute('content')?.trim() || '';
+
+    // Extract text content (simplified - get paragraphs)
+    const paragraphs = Array.from(document.querySelectorAll('p'))
+      .map((p: any) => p.textContent?.trim())
+      .filter((text: string) => text && text.length > 20) // Filter out short paragraphs
+      .slice(0, 10); // Limit to first 10 paragraphs
+
+    const content = paragraphs.join('\n\n');
+
+    console.log('[Scrape Preview] Extracted:', { title, contentLength: content.length });
+
+    return c.json({
+      url,
+      title,
+      description: metaDesc,
+      content,
+      contentPreview: content.substring(0, 500) + (content.length > 500 ? '...' : ''),
+    });
+  } catch (error: any) {
+    console.error('[Scrape Preview] Error:', error);
+    return c.json({
+      error: error.message || 'Failed to preview URL',
+      details: error.stack,
+    }, 500);
   }
 });
 

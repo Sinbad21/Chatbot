@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
+import { Trash2, BookOpen, X, Loader2 } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -53,6 +54,12 @@ export default function ConversationsClient() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [sortBy, setSortBy] = useState<SortBy>('recent');
+
+  // Training modal state
+  const [trainingModalOpen, setTrainingModalOpen] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<{ user: string; bot: string } | null>(null);
+  const [trainingType, setTrainingType] = useState<'faq' | 'intent'>('faq');
+  const [isSavingTraining, setIsSavingTraining] = useState(false);
 
   useEffect(() => {
     if (conversationId) {
@@ -160,6 +167,80 @@ ${transcript}
     document.body.removeChild(link);
   };
 
+  const handleDeleteConversation = async (conversationId: string) => {
+    if (!confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+      await axios.delete(`${apiUrl}/api/v1/conversations/${conversationId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Navigate back to list
+      router.push('/dashboard/conversations');
+      // Reload conversations
+      loadConversations();
+    } catch (err: any) {
+      console.error('Error deleting conversation:', err);
+      alert('Failed to delete conversation');
+    }
+  };
+
+  const handleUseAsTraining = (userMessage: string, botMessage: string) => {
+    setSelectedMessage({ user: userMessage, bot: botMessage });
+    setTrainingModalOpen(true);
+  };
+
+  const handleSaveTraining = async () => {
+    if (!selectedMessage || !selectedConversation) return;
+
+    setIsSavingTraining(true);
+    try {
+      const token = localStorage.getItem('accessToken');
+      const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+      if (trainingType === 'faq') {
+        await axios.post(
+          `${apiUrl}/api/v1/bots/${selectedConversation.botId}/faqs`,
+          {
+            question: selectedMessage.user,
+            answer: selectedMessage.bot,
+            enabled: true,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      } else {
+        // For intent, use the bot message as response
+        await axios.post(
+          `${apiUrl}/api/v1/bots/${selectedConversation.botId}/intents`,
+          {
+            name: selectedMessage.user.substring(0, 50), // Truncate for intent name
+            response: selectedMessage.bot,
+            enabled: true,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      }
+
+      alert(`Successfully saved as ${trainingType.toUpperCase()}`);
+      setTrainingModalOpen(false);
+      setSelectedMessage(null);
+    } catch (err: any) {
+      console.error('Error saving training:', err);
+      alert('Failed to save training data');
+    } finally {
+      setIsSavingTraining(false);
+    }
+  };
+
   // Search is now handled by the backend, no need to filter here
   const filteredConversations = conversations;
 
@@ -214,12 +295,21 @@ ${transcript}
               <p className="text-sm text-gray-600 mt-1">View full transcript and metadata</p>
             </div>
           </div>
-          <button
-            onClick={() => handleExportConversation(selectedConversation)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
-          >
-            Export Transcript
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => handleExportConversation(selectedConversation)}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
+            >
+              Export Transcript
+            </button>
+            <button
+              onClick={() => handleDeleteConversation(selectedConversation.id)}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium flex items-center gap-2"
+            >
+              <Trash2 size={16} />
+              Delete
+            </button>
+          </div>
         </div>
 
         {/* Metadata Card */}
@@ -281,34 +371,139 @@ ${transcript}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Transcript</h2>
           <div className="space-y-4">
-            {selectedConversation.messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div className={`max-w-[75%] ${message.role === 'user' ? 'order-2' : 'order-1'}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-gray-600">
-                      {message.role === 'user' ? 'User' : selectedConversation.botName}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {new Date(message.createdAt).toLocaleTimeString()}
-                    </span>
+            {selectedConversation.messages.map((message, index) => {
+              const prevMessage = index > 0 ? selectedConversation.messages[index - 1] : null;
+              const canUseAsTraining = message.role === 'assistant' && prevMessage?.role === 'user';
+
+              return (
+                <div
+                  key={message.id}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`max-w-[75%] ${message.role === 'user' ? 'order-2' : 'order-1'}`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-medium text-gray-600">
+                        {message.role === 'user' ? 'User' : selectedConversation.botName}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(message.createdAt).toLocaleTimeString()}
+                      </span>
+                    </div>
+                    <div
+                      className={`rounded-lg px-4 py-2 ${
+                        message.role === 'user'
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-gray-100 text-gray-900'
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                    {canUseAsTraining && prevMessage && (
+                      <button
+                        onClick={() => handleUseAsTraining(prevMessage.content, message.content)}
+                        className="mt-2 flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+                      >
+                        <BookOpen size={14} />
+                        Use as Training
+                      </button>
+                    )}
                   </div>
-                  <div
-                    className={`rounded-lg px-4 py-2 ${
-                      message.role === 'user'
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-gray-100 text-gray-900'
-                    }`}
-                  >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Training Modal */}
+        {trainingModalOpen && selectedMessage && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+              {/* Modal Header */}
+              <div className="px-6 py-4 border-b flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Add to Training Data</h3>
+                <button
+                  onClick={() => setTrainingModalOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Type</label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="trainingType"
+                        value="faq"
+                        checked={trainingType === 'faq'}
+                        onChange={(e) => setTrainingType(e.target.value as 'faq' | 'intent')}
+                        className="w-4 h-4 text-indigo-600"
+                      />
+                      <span className="text-sm text-gray-900">FAQ (Question & Answer)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="trainingType"
+                        value="intent"
+                        checked={trainingType === 'intent'}
+                        onChange={(e) => setTrainingType(e.target.value as 'faq' | 'intent')}
+                        className="w-4 h-4 text-indigo-600"
+                      />
+                      <span className="text-sm text-gray-900">Intent (Trigger & Response)</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    {trainingType === 'faq' ? 'Question' : 'Trigger'}
+                  </label>
+                  <div className="bg-gray-50 rounded-lg p-4 border">
+                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedMessage.user}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    {trainingType === 'faq' ? 'Answer' : 'Response'}
+                  </label>
+                  <div className="bg-gray-50 rounded-lg p-4 border">
+                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedMessage.bot}</p>
                   </div>
                 </div>
               </div>
-            ))}
+
+              {/* Modal Footer */}
+              <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
+                <button
+                  onClick={() => setTrainingModalOpen(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveTraining}
+                  disabled={isSavingTraining}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isSavingTraining ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save to Training'
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
