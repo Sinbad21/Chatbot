@@ -2266,7 +2266,7 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
       },
     });
 
-    // Simulate multi-source scraping (in production: use real APIs)
+    // Real multi-source scraping with external APIs
     const results = await performMultiSourceScraping({
       searchGoal,
       location,
@@ -2276,6 +2276,8 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
       maxRating,
       hasWebsite,
       sources: sources || ['google_maps', 'yelp'],
+      googleApiKey: c.env.GOOGLE_PLACES_API_KEY,
+      yelpApiKey: c.env.YELP_API_KEY,
     });
 
     // Return campaign ID and initial results
@@ -2291,66 +2293,174 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
   }
 });
 
-// Helper function for multi-source scraping (mock implementation)
+// Helper function for multi-source scraping (REAL implementation)
 async function performMultiSourceScraping(params: any) {
-  const { searchGoal, location, radius, businessType, minRating, sources } = params;
+  const { searchGoal, location, radius, businessType, minRating, sources, googleApiKey, yelpApiKey } = params;
 
-  // Simulate delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  const allBusinesses: any[] = [];
 
-  // Mock results from multiple sources
-  const businesses = [
-    {
-      id: crypto.randomUUID(),
-      name: 'La Bella Trattoria',
-      address: `123 Main St, ${location}`,
-      phone: '+39-06-1234567',
-      email: null,
-      website: null,
-      rating: 4.2,
-      reviewCount: 87,
-      category: 'Restaurant',
-      source: 'Google Maps',
-      coordinates: { lat: 41.9028, lng: 12.4964 },
-      technologies: [],
-      hasOnlineBooking: false,
-      socialPresence: { facebook: true, instagram: false, linkedin: false },
+  // Google Places API
+  if (sources.includes('google_maps') && googleApiKey) {
+    try {
+      const googleResults = await searchGooglePlaces(location, searchGoal, businessType, radius, minRating, googleApiKey);
+      allBusinesses.push(...googleResults);
+    } catch (error) {
+      console.error('Error searching Google Places:', error);
+    }
+  }
+
+  // Yelp API
+  if (sources.includes('yelp') && yelpApiKey) {
+    try {
+      const yelpResults = await searchYelp(location, searchGoal, businessType, radius, minRating, yelpApiKey);
+      allBusinesses.push(...yelpResults);
+    } catch (error) {
+      console.error('Error searching Yelp:', error);
+    }
+  }
+
+  return allBusinesses;
+}
+
+// Search Google Places API
+async function searchGooglePlaces(location: string, searchGoal: string, businessType: string, radius: number, minRating: number, apiKey: string) {
+
+  // Step 1: Geocode location to get coordinates
+  const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${apiKey}`;
+  const geocodeResponse = await fetch(geocodeUrl);
+  const geocodeData = await geocodeResponse.json();
+
+  if (!geocodeData.results || geocodeData.results.length === 0) {
+    throw new Error('Location not found');
+  }
+
+  const { lat, lng } = geocodeData.results[0].geometry.location;
+
+  // Step 2: Search for places nearby
+  const query = businessType || searchGoal;
+  const searchUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius * 1000}&keyword=${encodeURIComponent(query)}&key=${apiKey}`;
+  const searchResponse = await fetch(searchUrl);
+  const searchData = await searchResponse.json();
+
+  if (!searchData.results) {
+    return [];
+  }
+
+  // Step 3: Get details for each place
+  const businesses = await Promise.all(
+    searchData.results.slice(0, 20).map(async (place: any) => {
+      // Skip if rating below minimum
+      if (minRating > 0 && (!place.rating || place.rating < minRating)) {
+        return null;
+      }
+
+      // Get place details for more info
+      const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,formatted_address,formatted_phone_number,website,rating,user_ratings_total,types,geometry&key=${apiKey}`;
+      const detailsResponse = await fetch(detailsUrl);
+      const detailsData = await detailsResponse.json();
+
+      if (!detailsData.result) {
+        return null;
+      }
+
+      const details = detailsData.result;
+
+      // Check for online booking presence
+      const hasOnlineBooking = details.website ? await checkForOnlineBooking(details.website) : false;
+
+      return {
+        id: crypto.randomUUID(),
+        name: details.name || 'Unknown',
+        address: details.formatted_address || '',
+        phone: details.formatted_phone_number || null,
+        email: null, // Google Places doesn't provide email
+        website: details.website || null,
+        rating: details.rating || 0,
+        reviewCount: details.user_ratings_total || 0,
+        category: details.types?.[0]?.replace('_', ' ') || 'Business',
+        source: 'Google Maps',
+        coordinates: {
+          lat: details.geometry?.location?.lat || 0,
+          lng: details.geometry?.location?.lng || 0,
+        },
+        technologies: [],
+        hasOnlineBooking,
+        socialPresence: { facebook: false, instagram: false, linkedin: false },
+      };
+    })
+  );
+
+  return businesses.filter((b) => b !== null);
+}
+
+// Search Yelp API
+async function searchYelp(location: string, searchGoal: string, businessType: string, radius: number, minRating: number, apiKey: string) {
+  const term = businessType || searchGoal;
+  const searchUrl = `https://api.yelp.com/v3/businesses/search?location=${encodeURIComponent(location)}&term=${encodeURIComponent(term)}&radius=${Math.min(radius * 1000, 40000)}&limit=20`;
+
+  const response = await fetch(searchUrl, {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
     },
-    {
+  });
+
+  const data = await response.json();
+
+  if (!data.businesses) {
+    return [];
+  }
+
+  const businesses = data.businesses
+    .filter((biz: any) => !minRating || biz.rating >= minRating)
+    .map((biz: any) => ({
       id: crypto.randomUUID(),
-      name: 'Hotel Palazzo Romano',
-      address: `456 Via Roma, ${location}`,
-      phone: '+39-06-7654321',
-      email: 'info@palazzoromano.it',
-      website: 'https://palazzoromano.it',
-      rating: 3.8,
-      reviewCount: 143,
-      category: 'Hotel',
-      source: 'Google Maps',
-      coordinates: { lat: 41.9029, lng: 12.4965 },
-      technologies: ['WordPress', 'jQuery'],
-      hasOnlineBooking: false,
-      socialPresence: { facebook: true, instagram: true, linkedin: false },
-    },
-    {
-      id: crypto.randomUUID(),
-      name: 'Ristorante Da Mario',
-      address: `789 Corso Italia, ${location}`,
-      phone: '+39-06-9876543',
+      name: biz.name,
+      address: `${biz.location.address1 || ''}, ${biz.location.city || ''}, ${biz.location.country || ''}`.trim(),
+      phone: biz.phone || null,
       email: null,
-      website: null,
-      rating: 4.5,
-      reviewCount: 234,
-      category: 'Restaurant',
+      website: biz.url || null,
+      rating: biz.rating || 0,
+      reviewCount: biz.review_count || 0,
+      category: biz.categories?.[0]?.title || 'Business',
       source: 'Yelp',
-      coordinates: { lat: 41.9030, lng: 12.4966 },
+      coordinates: {
+        lat: biz.coordinates?.latitude || 0,
+        lng: biz.coordinates?.longitude || 0,
+      },
       technologies: [],
       hasOnlineBooking: false,
       socialPresence: { facebook: false, instagram: false, linkedin: false },
-    },
-  ];
+    }));
 
   return businesses;
+}
+
+// Check if website has online booking system
+async function checkForOnlineBooking(websiteUrl: string): Promise<boolean> {
+  try {
+    const response = await fetch(websiteUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+    });
+    const html = await response.text();
+
+    // Simple keyword detection for booking systems
+    const bookingKeywords = [
+      'book now',
+      'booking',
+      'reservation',
+      'prenotazione',
+      'prenota',
+      'opentable',
+      'resy',
+      'tock',
+      'bookatable',
+    ];
+
+    const htmlLower = html.toLowerCase();
+    return bookingKeywords.some((keyword) => htmlLower.includes(keyword));
+  } catch (error) {
+    return false;
+  }
 }
 
 // Analyze lead with AI and generate intelligent score
@@ -2402,7 +2512,7 @@ Return your analysis as JSON with this exact structure:
 }`;
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-5-mini',
       messages: [
         {
           role: 'system',
@@ -2472,7 +2582,7 @@ Return JSON:
 }`;
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-5-mini',
       messages: [
         {
           role: 'system',
