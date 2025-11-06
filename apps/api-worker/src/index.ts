@@ -421,6 +421,73 @@ app.delete('/api/v1/bots/:id', authMiddleware, async (c) => {
   }
 });
 
+// Logo upload endpoint
+app.post('/api/v1/bots/:id/logo', authMiddleware, async (c) => {
+  try {
+    const prisma = getDB(c.env.DATABASE_URL);
+    const user = c.get('user');
+    const id = c.req.param('id');
+
+    // Verify bot belongs to user
+    const existingBot = await prisma.bot.findUnique({
+      where: { id },
+    });
+
+    if (!existingBot) {
+      return c.json({ error: 'Bot not found' }, 404);
+    }
+
+    if (existingBot.userId !== user.userId) {
+      return c.json({ error: 'Unauthorized' }, 403);
+    }
+
+    // Parse FormData
+    const formData = await c.req.formData();
+    const logoFile = formData.get('logo');
+
+    if (!logoFile || !(logoFile instanceof File)) {
+      return c.json({ error: 'No logo file provided' }, 400);
+    }
+
+    // Validate file type
+    if (!logoFile.type.startsWith('image/')) {
+      return c.json({ error: 'File must be an image' }, 400);
+    }
+
+    // Validate file size (2MB max)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (logoFile.size > maxSize) {
+      return c.json({ error: 'File size must be less than 2MB' }, 400);
+    }
+
+    // Convert to base64 data URL
+    const arrayBuffer = await logoFile.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
+
+    // Convert Uint8Array to base64
+    let binary = '';
+    for (let i = 0; i < buffer.byteLength; i++) {
+      binary += String.fromCharCode(buffer[i]);
+    }
+    const base64 = btoa(binary);
+    const dataUrl = `data:${logoFile.type};base64,${base64}`;
+
+    // Update bot with logo URL
+    const updatedBot = await prisma.bot.update({
+      where: { id },
+      data: { logoUrl: dataUrl },
+    });
+
+    return c.json({
+      success: true,
+      logoUrl: updatedBot.logoUrl,
+    });
+  } catch (error: any) {
+    console.error('[POST /bots/:id/logo] Error:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 // ============================================
 // DOCUMENTS ROUTES
 // ============================================
