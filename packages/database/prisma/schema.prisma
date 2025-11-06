@@ -2,7 +2,7 @@
 // 23 Tables for Multi-Tenant SaaS Platform
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
 }
 
