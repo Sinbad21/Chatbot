@@ -6,6 +6,7 @@ import { Pool } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerKnowledgeRoutes } from './routes/knowledge';
+import { parseHTML } from 'linkedom';
 
 type Bindings = {
   DATABASE_URL: string;
@@ -2836,6 +2837,156 @@ app.post('/api/v1/discovery/save-results', authMiddleware, async (c) => {
   } catch (error: any) {
     console.error('Error saving discovery results:', error);
     return c.json({ error: error.message }, 500);
+  }
+});
+
+// ============================================
+// WEB SCRAPING ENDPOINTS
+// ============================================
+
+// Scrape URL and extract all links
+app.post('/api/v1/scrape', authMiddleware, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { url } = body;
+
+    if (!url) {
+      return c.json({ error: 'URL is required' }, 400);
+    }
+
+    // Validate URL
+    let targetUrl: URL;
+    try {
+      targetUrl = new URL(url);
+    } catch (e) {
+      return c.json({ error: 'Invalid URL format' }, 400);
+    }
+
+    console.log('[Scrape] Fetching:', url);
+
+    // Fetch the page with custom User-Agent
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudioBot/1.0; +https://chatbot-studio.pages.dev)',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const html = await response.text();
+
+    // Parse HTML with linkedom
+    const { document } = parseHTML(html);
+
+    // Extract all links
+    const links = Array.from(document.querySelectorAll('a[href]'))
+      .map((a: any) => {
+        const href = a.getAttribute('href');
+        if (!href) return null;
+
+        // Convert relative URLs to absolute
+        try {
+          const absoluteUrl = new URL(href, targetUrl.href);
+          // Only return http/https URLs
+          if (absoluteUrl.protocol === 'http:' || absoluteUrl.protocol === 'https:') {
+            return {
+              url: absoluteUrl.href,
+              text: a.textContent?.trim() || '',
+            };
+          }
+        } catch (e) {
+          // Invalid URL, skip
+        }
+        return null;
+      })
+      .filter((link): link is { url: string; text: string } => link !== null);
+
+    // Deduplicate by URL
+    const uniqueLinks = Array.from(
+      new Map(links.map(link => [link.url, link])).values()
+    );
+
+    console.log('[Scrape] Found', uniqueLinks.length, 'unique links');
+
+    return c.json({
+      url,
+      totalLinks: uniqueLinks.length,
+      links: uniqueLinks,
+    });
+  } catch (error: any) {
+    console.error('[Scrape] Error:', error);
+    return c.json({
+      error: error.message || 'Failed to scrape URL',
+      details: error.stack,
+    }, 500);
+  }
+});
+
+// Preview content from a URL
+app.get('/api/v1/scrape', authMiddleware, async (c) => {
+  try {
+    const url = c.req.query('url');
+
+    if (!url) {
+      return c.json({ error: 'URL parameter is required' }, 400);
+    }
+
+    // Validate URL
+    try {
+      new URL(url);
+    } catch (e) {
+      return c.json({ error: 'Invalid URL format' }, 400);
+    }
+
+    console.log('[Scrape Preview] Fetching:', url);
+
+    // Fetch the page
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudioBot/1.0; +https://chatbot-studio.pages.dev)',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const html = await response.text();
+
+    // Parse HTML
+    const { document } = parseHTML(html);
+
+    // Extract title
+    const title = document.querySelector('title')?.textContent?.trim() || 'Untitled';
+
+    // Extract meta description
+    const metaDesc = document.querySelector('meta[name="description"]')?.getAttribute('content')?.trim() || '';
+
+    // Extract text content (simplified - get paragraphs)
+    const paragraphs = Array.from(document.querySelectorAll('p'))
+      .map((p: any) => p.textContent?.trim())
+      .filter((text: string) => text && text.length > 20) // Filter out short paragraphs
+      .slice(0, 10); // Limit to first 10 paragraphs
+
+    const content = paragraphs.join('\n\n');
+
+    console.log('[Scrape Preview] Extracted:', { title, contentLength: content.length });
+
+    return c.json({
+      url,
+      title,
+      description: metaDesc,
+      content,
+      contentPreview: content.substring(0, 500) + (content.length > 500 ? '...' : ''),
+    });
+  } catch (error: any) {
+    console.error('[Scrape Preview] Error:', error);
+    return c.json({
+      error: error.message || 'Failed to preview URL',
+      details: error.stack,
+    }, 500);
   }
 });
 
