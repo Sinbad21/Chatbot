@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { registerKnowledgeRoutes } from './routes/knowledge';
 import { parseHTML } from 'linkedom';
 import { getPrisma } from './db';
+import { extractText } from 'unpdf';
 
 type Bindings = {
   DATABASE_URL: string;
@@ -1196,70 +1197,55 @@ app.post('/api/v1/bots/:botId/documents/upload', authMiddleware, async (c) => {
       // Text files - read directly
       content = await file.text();
     } else if (fileExtension === 'pdf' || file.type === 'application/pdf') {
-      // PDF text extraction
-      // For production use, install a Workers-compatible PDF library:
-      //
-      // Option 1: pdf.js (Mozilla's PDF library, works in Workers)
-      //   npm install pdfjs-dist
-      //   import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
-      //
-      //   const arrayBuffer = await file.arrayBuffer();
-      //   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-      //   const pdf = await loadingTask.promise;
-      //   let fullText = '';
-      //   for (let i = 1; i <= pdf.numPages; i++) {
-      //     const page = await pdf.getPage(i);
-      //     const textContent = await page.getTextContent();
-      //     const pageText = textContent.items.map((item: any) => item.str).join(' ');
-      //     fullText += pageText + '\n';
-      //   }
-      //   content = fullText;
-      //
-      // Option 2: Call external API (if Workers can't handle large PDFs)
-      //   const formData = new FormData();
-      //   formData.append('file', file);
-      //   const response = await fetch('https://pdf-extraction-service/extract', {
-      //     method: 'POST',
-      //     body: formData,
-      //   });
-      //   content = await response.text();
-      //
-      // For now, we store a placeholder and mark status as PROCESSING
-      // which can be updated by a background job
+      // PDF text extraction using unpdf
+      console.log('[POST /documents/upload] Extracting text from PDF...');
 
-      console.log('[POST /documents/upload] PDF uploaded - extracting basic metadata');
+      try {
+        const arrayBuffer = await file.arrayBuffer();
 
-      // Try to read PDF header for basic info
-      const arrayBuffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      const header = String.fromCharCode.apply(null, Array.from(bytes.slice(0, 100)));
+        // Validate PDF header
+        const bytes = new Uint8Array(arrayBuffer);
+        const header = String.fromCharCode.apply(null, Array.from(bytes.slice(0, 5)));
 
-      // Check if it's a valid PDF
-      if (!header.startsWith('%PDF')) {
+        if (!header.startsWith('%PDF')) {
+          return c.json({
+            error: 'Invalid PDF',
+            message: 'File does not appear to be a valid PDF document'
+          }, 400);
+        }
+
+        // Extract text using unpdf
+        const extracted = await extractText(arrayBuffer, { mergePages: true });
+        content = extracted.text;
+
+        console.log('[POST /documents/upload] PDF text extracted:', {
+          fileName: file.name,
+          textLength: content.length,
+          pages: extracted.totalPages || 'unknown'
+        });
+
+        // If no text extracted, provide helpful message
+        if (!content || content.trim().length === 0) {
+          content = `[PDF Document: ${file.name}]
+
+This PDF appears to contain no extractable text. This can happen when:
+- The PDF contains only images or scanned documents (requires OCR)
+- The PDF is encrypted or password-protected
+- The PDF uses unsupported fonts or encoding
+
+Consider using a text-based PDF or converting images to text first.`;
+
+          console.log('[POST /documents/upload] ⚠️ No text extracted from PDF');
+        }
+      } catch (pdfError: any) {
+        console.error('[POST /documents/upload] PDF extraction failed:', pdfError);
+
         return c.json({
-          error: 'Invalid PDF',
-          message: 'File does not appear to be a valid PDF document'
+          error: 'PDF extraction failed',
+          message: pdfError.message || 'Failed to extract text from PDF. The file may be corrupted or encrypted.',
+          details: 'Try converting the PDF to a text file or ensure it contains selectable text.'
         }, 400);
       }
-
-      // Extract PDF version
-      const versionMatch = header.match(/%PDF-([\d.]+)/);
-      const pdfVersion = versionMatch ? versionMatch[1] : 'unknown';
-
-      content = `[PDF Document: ${file.name}]
-PDF Version: ${pdfVersion}
-Size: ${(file.size / 1024).toFixed(2)} KB
-
-TEXT EXTRACTION PENDING
-This PDF has been uploaded successfully and is ready for processing.
-
-To enable full text extraction, install a PDF parsing library:
-- pdfjs-dist (recommended for Workers)
-- Or set up an external PDF extraction service
-
-The document is available for training once text extraction is complete.`;
-
-      console.log(`[POST /documents/upload] PDF ${file.name} uploaded (v${pdfVersion})`);
     }
 
     if (!content || content.trim().length === 0) {
