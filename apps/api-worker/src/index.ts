@@ -1584,15 +1584,83 @@ app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
     // Remove duplicates
     const uniqueLinks = Array.from(new Set(discoveredLinks.map(l => l.url))).map(url => ({ url, title: '', snippet: '' }));
 
-    // Limit to 2000 links as per mega-prompt
-    const limitedLinks = uniqueLinks.slice(0, 2000);
+    // Limit to 100 links for preview fetching (balance between completeness and performance)
+    const limitedLinks = uniqueLinks.slice(0, 100);
 
-    console.log(`✅ [DISCOVER] Found ${limitedLinks.length} unique links`);
+    console.log(`✅ [DISCOVER] Found ${limitedLinks.length} unique links, fetching previews...`);
+
+    // Fetch title and snippet for each URL (in parallel batches)
+    const fetchPreview = async (url: string): Promise<{ url: string; title: string; snippet: string }> => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout per URL
+
+        const response = await fetch(url, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          return { url, title: url, snippet: '' };
+        }
+
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('text/html')) {
+          return { url, title: url, snippet: '' };
+        }
+
+        const html = await response.text();
+        const { document } = parseHTML(html);
+
+        // Extract title
+        let title = document.querySelector('title')?.textContent?.trim() || '';
+        if (!title) {
+          const h1 = document.querySelector('h1')?.textContent?.trim();
+          title = h1 || url;
+        }
+
+        // Extract snippet (meta description or first paragraph)
+        let snippet = '';
+        const metaDesc = document.querySelector('meta[name="description"]')?.getAttribute('content');
+        if (metaDesc) {
+          snippet = metaDesc.trim();
+        } else {
+          // Fallback to first paragraph
+          const p = document.querySelector('p')?.textContent?.trim();
+          snippet = p || '';
+        }
+
+        // Limit snippet to 300 characters
+        if (snippet.length > 300) {
+          snippet = snippet.substring(0, 297) + '...';
+        }
+
+        return { url, title, snippet };
+      } catch (err) {
+        // On error, return URL as fallback
+        return { url, title: url, snippet: '' };
+      }
+    };
+
+    // Process in batches of 10 for parallel efficiency
+    const BATCH_SIZE = 10;
+    const enrichedLinks: Array<{ url: string; title: string; snippet: string }> = [];
+
+    for (let i = 0; i < limitedLinks.length; i += BATCH_SIZE) {
+      const batch = limitedLinks.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.all(batch.map(link => fetchPreview(link.url)));
+      enrichedLinks.push(...batchResults);
+      console.log(`📦 [DISCOVER] Processed batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(limitedLinks.length / BATCH_SIZE)}`);
+    }
+
+    console.log(`✅ [DISCOVER] Enriched ${enrichedLinks.length} links with title and snippet`);
 
     return c.json({
       success: true,
-      count: limitedLinks.length,
-      links: limitedLinks,
+      count: enrichedLinks.length,
+      links: enrichedLinks,
     });
   } catch (error: any) {
     console.error('❌ [DISCOVER] Error:', error);
