@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { MiddlewareHandler } from 'hono';
-import type { PrismaClient } from '@prisma/client';
+import type { PrismaClient } from '@prisma/client/edge';
 import { getPrisma } from '../db';
 
 interface Bindings {
