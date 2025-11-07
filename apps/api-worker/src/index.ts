@@ -480,6 +480,124 @@ app.post('/api/v1/bots/:id/logo', authMiddleware, async (c) => {
   }
 });
 
+// Get bot usage analytics
+app.get('/api/v1/bots/:id/usage', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const botId = c.req.param('id');
+    const from = c.req.query('from');
+    const to = c.req.query('to');
+
+    // Verify bot access
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    // Build date filter
+    const dateFilter: any = {};
+    if (from) {
+      dateFilter.gte = new Date(from);
+    }
+    if (to) {
+      dateFilter.lte = new Date(to);
+    }
+
+    const whereClause: any = { botId };
+    if (Object.keys(dateFilter).length > 0) {
+      whereClause.createdAt = dateFilter;
+    }
+
+    // Fetch usage logs
+    const usageLogs = await prisma.usageLog.findMany({
+      where: whereClause,
+      orderBy: { createdAt: 'asc' },
+    });
+
+    // Aggregate by model
+    const byModel: Record<string, {
+      model: string;
+      requests: number;
+      inputTokens: number;
+      outputTokens: number;
+      cost: number;
+    }> = {};
+
+    usageLogs.forEach(log => {
+      if (!byModel[log.model]) {
+        byModel[log.model] = {
+          model: log.model,
+          requests: 0,
+          inputTokens: 0,
+          outputTokens: 0,
+          cost: 0,
+        };
+      }
+
+      byModel[log.model].requests += 1;
+      byModel[log.model].inputTokens += log.inputTokens;
+      byModel[log.model].outputTokens += log.outputTokens;
+      byModel[log.model].cost += log.cost;
+    });
+
+    // Prepare time series data (group by date)
+    const byDate: Record<string, {
+      date: string;
+      requests: number;
+      inputTokens: number;
+      outputTokens: number;
+      cost: number;
+    }> = {};
+
+    usageLogs.forEach(log => {
+      const dateKey = log.createdAt.toISOString().split('T')[0];
+
+      if (!byDate[dateKey]) {
+        byDate[dateKey] = {
+          date: dateKey,
+          requests: 0,
+          inputTokens: 0,
+          outputTokens: 0,
+          cost: 0,
+        };
+      }
+
+      byDate[dateKey].requests += 1;
+      byDate[dateKey].inputTokens += log.inputTokens;
+      byDate[dateKey].outputTokens += log.outputTokens;
+      byDate[dateKey].cost += log.cost;
+    });
+
+    return c.json({
+      byModel: Object.values(byModel),
+      byDate: Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date)),
+      total: {
+        requests: usageLogs.length,
+        inputTokens: usageLogs.reduce((sum, log) => sum + log.inputTokens, 0),
+        outputTokens: usageLogs.reduce((sum, log) => sum + log.outputTokens, 0),
+        cost: usageLogs.reduce((sum, log) => sum + log.cost, 0),
+      },
+    });
+  } catch (error: any) {
+    console.error('[GET /bots/:id/usage] Error:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 // ============================================
 // DOCUMENTS ROUTES
 // ============================================
@@ -1735,6 +1853,41 @@ Important guidelines:
     const response = completion.choices?.[0]?.message?.content || bot.welcomeMessage;
 
     console.log('✅ [CHAT] GPT-5 Response received');
+
+    // Extract usage data
+    const usage = completion.usage || {};
+    const inputTokens = usage.prompt_tokens || 0;
+    const outputTokens = usage.completion_tokens || 0;
+
+    // Calculate cost based on model pricing (per 1M tokens)
+    // Pricing map: https://openai.com/pricing
+    const modelPricing: Record<string, { input: number; output: number }> = {
+      'gpt-5-mini': { input: 0.15, output: 0.60 }, // $0.15 / $0.60 per 1M tokens
+      'gpt-4o': { input: 2.50, output: 10.00 },
+      'claude-3.5-sonnet': { input: 3.00, output: 15.00 },
+      'llama-3.1-70B': { input: 0.90, output: 0.90 },
+    };
+
+    const modelUsed = bot.model || 'gpt-5-mini';
+    const pricing = modelPricing[modelUsed] || modelPricing['gpt-5-mini'];
+    const cost = (inputTokens / 1000000) * pricing.input + (outputTokens / 1000000) * pricing.output;
+
+    // Log usage
+    try {
+      await prisma.usageLog.create({
+        data: {
+          botId,
+          model: modelUsed,
+          inputTokens,
+          outputTokens,
+          cost,
+        },
+      });
+      console.log(`📊 [USAGE] Logged: ${inputTokens} in, ${outputTokens} out, $${cost.toFixed(6)}`);
+    } catch (usageError) {
+      console.error('⚠️ [USAGE] Failed to log usage:', usageError);
+      // Don't fail the request if usage logging fails
+    }
 
     // Save bot response
     await prisma.message.create({
