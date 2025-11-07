@@ -1116,10 +1116,70 @@ app.post('/api/v1/bots/:botId/documents/upload', authMiddleware, async (c) => {
       // Text files - read directly
       content = await file.text();
     } else if (fileExtension === 'pdf' || file.type === 'application/pdf') {
-      // PDF - for now, store placeholder and handle extraction separately
-      // TODO: Implement PDF text extraction with pdf-parse or similar
-      content = `[PDF Document: ${file.name}]\n\nPDF text extraction pending. File uploaded successfully.`;
-      console.log('[POST /documents/upload] PDF uploaded - text extraction to be implemented');
+      // PDF text extraction
+      // For production use, install a Workers-compatible PDF library:
+      //
+      // Option 1: pdf.js (Mozilla's PDF library, works in Workers)
+      //   npm install pdfjs-dist
+      //   import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
+      //
+      //   const arrayBuffer = await file.arrayBuffer();
+      //   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      //   const pdf = await loadingTask.promise;
+      //   let fullText = '';
+      //   for (let i = 1; i <= pdf.numPages; i++) {
+      //     const page = await pdf.getPage(i);
+      //     const textContent = await page.getTextContent();
+      //     const pageText = textContent.items.map((item: any) => item.str).join(' ');
+      //     fullText += pageText + '\n';
+      //   }
+      //   content = fullText;
+      //
+      // Option 2: Call external API (if Workers can't handle large PDFs)
+      //   const formData = new FormData();
+      //   formData.append('file', file);
+      //   const response = await fetch('https://pdf-extraction-service/extract', {
+      //     method: 'POST',
+      //     body: formData,
+      //   });
+      //   content = await response.text();
+      //
+      // For now, we store a placeholder and mark status as PROCESSING
+      // which can be updated by a background job
+
+      console.log('[POST /documents/upload] PDF uploaded - extracting basic metadata');
+
+      // Try to read PDF header for basic info
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      const header = String.fromCharCode.apply(null, Array.from(bytes.slice(0, 100)));
+
+      // Check if it's a valid PDF
+      if (!header.startsWith('%PDF')) {
+        return c.json({
+          error: 'Invalid PDF',
+          message: 'File does not appear to be a valid PDF document'
+        }, 400);
+      }
+
+      // Extract PDF version
+      const versionMatch = header.match(/%PDF-([\d.]+)/);
+      const pdfVersion = versionMatch ? versionMatch[1] : 'unknown';
+
+      content = `[PDF Document: ${file.name}]
+PDF Version: ${pdfVersion}
+Size: ${(file.size / 1024).toFixed(2)} KB
+
+TEXT EXTRACTION PENDING
+This PDF has been uploaded successfully and is ready for processing.
+
+To enable full text extraction, install a PDF parsing library:
+- pdfjs-dist (recommended for Workers)
+- Or set up an external PDF extraction service
+
+The document is available for training once text extraction is complete.`;
+
+      console.log(`[POST /documents/upload] PDF ${file.name} uploaded (v${pdfVersion})`);
     }
 
     if (!content || content.trim().length === 0) {
