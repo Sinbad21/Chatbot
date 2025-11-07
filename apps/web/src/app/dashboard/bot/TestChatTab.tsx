@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, Settings, Check, ChevronDown } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -14,6 +14,29 @@ interface TestChatTabProps {
   apiBaseUrl: string;
 }
 
+const PROMPT_TEMPLATES = [
+  {
+    name: 'Customer Support',
+    prompt: 'You are a helpful customer support assistant. Be professional, empathetic, and provide clear solutions to customer problems. Always ask follow-up questions to better understand the issue.'
+  },
+  {
+    name: 'Sales Assistant',
+    prompt: 'You are a knowledgeable sales assistant. Help customers find the right products, answer questions about features and pricing, and guide them through the purchase process. Be persuasive but not pushy.'
+  },
+  {
+    name: 'Technical Expert',
+    prompt: 'You are a technical expert with deep knowledge of software and systems. Provide detailed technical explanations, troubleshooting steps, and best practices. Use technical terminology when appropriate.'
+  },
+  {
+    name: 'Friendly Chatbot',
+    prompt: 'You are a friendly and conversational AI assistant. Use a warm, approachable tone and emojis when appropriate. Keep responses concise and engaging.'
+  },
+  {
+    name: 'Professional Advisor',
+    prompt: 'You are a professional advisor providing expert guidance. Be formal, precise, and data-driven in your responses. Cite sources when possible and acknowledge limitations.'
+  },
+];
+
 export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -21,6 +44,11 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
   const [sessionId] = useState(`test-${Date.now()}`);
   const [botName, setBotName] = useState('Bot');
   const [botLogoUrl, setBotLogoUrl] = useState<string | null>(null);
+  const [systemPrompt, setSystemPrompt] = useState('You are a helpful AI assistant.');
+  const [editedPrompt, setEditedPrompt] = useState('');
+  const [isEditingPrompt, setIsEditingPrompt] = useState(false);
+  const [isSavingPrompt, setIsSavingPrompt] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -32,7 +60,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
   }, [messages]);
 
   useEffect(() => {
-    // Fetch bot details to get logo
+    // Fetch bot details to get logo and system prompt
     const fetchBotDetails = async () => {
       try {
         const token = localStorage.getItem('accessToken');
@@ -44,6 +72,10 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
           const bot = await response.json();
           if (bot.name) setBotName(bot.name);
           if (bot.logoUrl) setBotLogoUrl(bot.logoUrl);
+          if (bot.systemPrompt) {
+            setSystemPrompt(bot.systemPrompt);
+            setEditedPrompt(bot.systemPrompt);
+          }
         }
       } catch (err) {
         console.error('Failed to fetch bot details:', err);
@@ -116,11 +148,128 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
     setMessages([]);
   };
 
+  const applyPrompt = async () => {
+    if (isSavingPrompt || editedPrompt.trim() === systemPrompt) return;
+
+    setIsSavingPrompt(true);
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ systemPrompt: editedPrompt.trim() }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update prompt (${response.status})`);
+      }
+
+      setSystemPrompt(editedPrompt.trim());
+      setIsEditingPrompt(false);
+    } catch (error: any) {
+      console.error('Error updating prompt:', error);
+      alert(`Failed to update prompt: ${error.message}`);
+    } finally {
+      setIsSavingPrompt(false);
+    }
+  };
+
+  const applyTemplate = (template: typeof PROMPT_TEMPLATES[0]) => {
+    setEditedPrompt(template.prompt);
+    setShowTemplates(false);
+  };
+
   return (
-    <div className="flex flex-col h-[600px] bg-white rounded-lg shadow-sm border border-gray-200">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <div className="flex items-center gap-3">
+    <div className="space-y-4">
+      {/* Prompt Editor */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Settings className="w-5 h-5 text-gray-600" />
+            <h3 className="text-sm font-semibold text-gray-900">Bot System Prompt</h3>
+          </div>
+          <button
+            onClick={() => {
+              if (isEditingPrompt) {
+                setEditedPrompt(systemPrompt);
+              }
+              setIsEditingPrompt(!isEditingPrompt);
+            }}
+            className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+          >
+            {isEditingPrompt ? 'Cancel' : 'Edit'}
+          </button>
+        </div>
+
+        {isEditingPrompt ? (
+          <div className="space-y-3">
+            {/* Templates Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setShowTemplates(!showTemplates)}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-between"
+              >
+                <span className="text-gray-700">Choose a template...</span>
+                <ChevronDown className="w-4 h-4 text-gray-500" />
+              </button>
+
+              {showTemplates && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {PROMPT_TEMPLATES.map((template, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => applyTemplate(template)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-0"
+                    >
+                      <div className="font-medium text-sm text-gray-900">{template.name}</div>
+                      <div className="text-xs text-gray-600 mt-1 line-clamp-2">{template.prompt}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Prompt Textarea */}
+            <textarea
+              value={editedPrompt}
+              onChange={(e) => setEditedPrompt(e.target.value)}
+              rows={4}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-gray-900"
+              placeholder="Enter your system prompt..."
+            />
+
+            {/* Apply Button */}
+            <div className="flex justify-end">
+              <button
+                onClick={applyPrompt}
+                disabled={isSavingPrompt || editedPrompt.trim() === systemPrompt}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isSavingPrompt ? (
+                  <>Applying...</>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Apply
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-600 line-clamp-2">{systemPrompt}</p>
+        )}
+      </div>
+
+      {/* Chat Container */}
+      <div className="flex flex-col h-[600px] bg-white rounded-lg shadow-sm border border-gray-200">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <div className="flex items-center gap-3">
           {botLogoUrl ? (
             <img
               src={botLogoUrl}
@@ -219,6 +368,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             <ArrowUp className="w-5 h-5" />
           </button>
         </form>
+      </div>
       </div>
     </div>
   );

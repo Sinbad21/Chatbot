@@ -320,6 +320,13 @@ export default function SettingsPage() {
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Authentication Method</label>
+                <div className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700">
+                  Email & Password
+                </div>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
                 <div className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-700">
                   {user?.role || 'USER'}

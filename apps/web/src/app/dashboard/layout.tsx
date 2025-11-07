@@ -41,26 +41,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [showLangMenu, setShowLangMenu] = useState(false);
 
   useEffect(() => {
-    // Auth check
-    const token = localStorage.getItem('accessToken');
-    const userStr = localStorage.getItem('user');
+    // Immediate auth check - runs on mount
+    const checkAuth = () => {
+      const token = localStorage.getItem('accessToken');
+      const userStr = localStorage.getItem('user');
 
-    if (!token || !userStr) {
-      // Not authenticated - redirect to login
-      router.push('/auth/login');
-      return;
-    }
+      if (!token || !userStr) {
+        // Not authenticated - clear session cookie and redirect to login
+        document.cookie = 'auth_session=; path=/; max-age=0';
+        // Use replace to prevent back button access
+        router.replace('/auth/login');
+        return false;
+      }
 
-    try {
-      const user = JSON.parse(userStr);
-      setUserEmail(user.email || 'user@example.com');
-      setIsAuthenticated(true);
-    } catch (e) {
-      // Invalid user data - redirect to login
-      router.push('/auth/login');
-      return;
-    } finally {
-      setLoading(false);
+      try {
+        const user = JSON.parse(userStr);
+        setUserEmail(user.email || 'user@example.com');
+        setIsAuthenticated(true);
+        return true;
+      } catch (e) {
+        // Invalid user data - clear session cookie and redirect to login
+        document.cookie = 'auth_session=; path=/; max-age=0';
+        router.replace('/auth/login');
+        return false;
+      }
+    };
+
+    const isAuth = checkAuth();
+    setLoading(false);
+
+    if (!isAuth) {
+      return; // Already redirecting
     }
   }, [router]);
 
@@ -68,6 +79,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+
+    // Remove auth session cookie
+    document.cookie = 'auth_session=; path=/; max-age=0';
+
     router.push('/auth/login');
   };
 

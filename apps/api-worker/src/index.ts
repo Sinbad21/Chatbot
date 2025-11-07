@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { registerKnowledgeRoutes } from './routes/knowledge';
 import { parseHTML } from 'linkedom';
 import { getPrisma } from './db';
+import { extractText } from 'unpdf';
 
 type Bindings = {
   DATABASE_URL: string;
@@ -39,8 +40,21 @@ app.options('*', (c) => c.text('', 204));
 // Global error handler - ensures CORS headers are maintained even on 500 errors
 app.onError((err, c) => {
   console.error('[Global Error Handler]', err);
-  c.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+
+  // Get the origin from the request
+  const origin = c.req.header('Origin');
+
+  // Set CORS headers based on the request origin
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    c.header('Access-Control-Allow-Origin', origin);
+  } else {
+    // Fallback to first allowed origin
+    c.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+  }
+
+  c.header('Access-Control-Allow-Credentials', 'true');
   c.header('Vary', 'Origin');
+
   return c.json({ error: 'Internal server error', message: err.message }, 500);
 });
 
@@ -415,17 +429,28 @@ app.patch('/api/v1/bots/:id', authMiddleware, async (c) => {
     const id = c.req.param('id');
     const updates = await c.req.json();
 
-    // Verify bot belongs to user
+    // Verify user's organization membership
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    // Verify bot belongs to user's organization
     const existingBot = await prisma.bot.findUnique({
       where: { id },
+      select: { id: true, organizationId: true },
     });
 
     if (!existingBot) {
       return c.json({ error: 'Bot not found' }, 404);
     }
 
-    if (existingBot.userId !== user.userId) {
-      return c.json({ error: 'Unauthorized' }, 403);
+    if (existingBot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Access denied' }, 403);
     }
 
     // Update bot
@@ -446,17 +471,28 @@ app.delete('/api/v1/bots/:id', authMiddleware, async (c) => {
     const user = c.get('user');
     const id = c.req.param('id');
 
-    // Verify bot belongs to user
+    // Verify user's organization membership
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    // Verify bot belongs to user's organization
     const existingBot = await prisma.bot.findUnique({
       where: { id },
+      select: { id: true, organizationId: true },
     });
 
     if (!existingBot) {
       return c.json({ error: 'Bot not found' }, 404);
     }
 
-    if (existingBot.userId !== user.userId) {
-      return c.json({ error: 'Unauthorized' }, 403);
+    if (existingBot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Access denied' }, 403);
     }
 
     // Delete bot (cascade will handle related records)
@@ -477,17 +513,28 @@ app.post('/api/v1/bots/:id/logo', authMiddleware, async (c) => {
     const user = c.get('user');
     const id = c.req.param('id');
 
-    // Verify bot belongs to user
+    // Verify user's organization membership
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    // Verify bot belongs to user's organization
     const existingBot = await prisma.bot.findUnique({
       where: { id },
+      select: { id: true, organizationId: true },
     });
 
     if (!existingBot) {
       return c.json({ error: 'Bot not found' }, 404);
     }
 
-    if (existingBot.userId !== user.userId) {
-      return c.json({ error: 'Unauthorized' }, 403);
+    if (existingBot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Access denied' }, 403);
     }
 
     // Parse FormData
@@ -1116,13 +1163,23 @@ app.post('/api/v1/bots/:botId/documents/upload', authMiddleware, async (c) => {
 
     console.log('[POST /documents/upload] Starting file upload');
 
-    // Verify bot access
-    const bot = await prisma.bot.findFirst({
-      where: { id: botId, userId: user.userId },
-      select: { id: true, name: true },
+    // Verify user's organization membership
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
     });
 
-    if (!bot) {
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    // Verify bot belongs to user's organization
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { id: true, name: true, organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
       return c.json({ error: 'Bot not found or access denied' }, 404);
     }
 
@@ -1173,70 +1230,55 @@ app.post('/api/v1/bots/:botId/documents/upload', authMiddleware, async (c) => {
       // Text files - read directly
       content = await file.text();
     } else if (fileExtension === 'pdf' || file.type === 'application/pdf') {
-      // PDF text extraction
-      // For production use, install a Workers-compatible PDF library:
-      //
-      // Option 1: pdf.js (Mozilla's PDF library, works in Workers)
-      //   npm install pdfjs-dist
-      //   import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
-      //
-      //   const arrayBuffer = await file.arrayBuffer();
-      //   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-      //   const pdf = await loadingTask.promise;
-      //   let fullText = '';
-      //   for (let i = 1; i <= pdf.numPages; i++) {
-      //     const page = await pdf.getPage(i);
-      //     const textContent = await page.getTextContent();
-      //     const pageText = textContent.items.map((item: any) => item.str).join(' ');
-      //     fullText += pageText + '\n';
-      //   }
-      //   content = fullText;
-      //
-      // Option 2: Call external API (if Workers can't handle large PDFs)
-      //   const formData = new FormData();
-      //   formData.append('file', file);
-      //   const response = await fetch('https://pdf-extraction-service/extract', {
-      //     method: 'POST',
-      //     body: formData,
-      //   });
-      //   content = await response.text();
-      //
-      // For now, we store a placeholder and mark status as PROCESSING
-      // which can be updated by a background job
+      // PDF text extraction using unpdf
+      console.log('[POST /documents/upload] Extracting text from PDF...');
 
-      console.log('[POST /documents/upload] PDF uploaded - extracting basic metadata');
+      try {
+        const arrayBuffer = await file.arrayBuffer();
 
-      // Try to read PDF header for basic info
-      const arrayBuffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      const header = String.fromCharCode.apply(null, Array.from(bytes.slice(0, 100)));
+        // Validate PDF header
+        const bytes = new Uint8Array(arrayBuffer);
+        const header = String.fromCharCode.apply(null, Array.from(bytes.slice(0, 5)));
 
-      // Check if it's a valid PDF
-      if (!header.startsWith('%PDF')) {
+        if (!header.startsWith('%PDF')) {
+          return c.json({
+            error: 'Invalid PDF',
+            message: 'File does not appear to be a valid PDF document'
+          }, 400);
+        }
+
+        // Extract text using unpdf
+        const extracted = await extractText(arrayBuffer, { mergePages: true });
+        content = extracted.text;
+
+        console.log('[POST /documents/upload] PDF text extracted:', {
+          fileName: file.name,
+          textLength: content.length,
+          pages: extracted.totalPages || 'unknown'
+        });
+
+        // If no text extracted, provide helpful message
+        if (!content || content.trim().length === 0) {
+          content = `[PDF Document: ${file.name}]
+
+This PDF appears to contain no extractable text. This can happen when:
+- The PDF contains only images or scanned documents (requires OCR)
+- The PDF is encrypted or password-protected
+- The PDF uses unsupported fonts or encoding
+
+Consider using a text-based PDF or converting images to text first.`;
+
+          console.log('[POST /documents/upload] ⚠️ No text extracted from PDF');
+        }
+      } catch (pdfError: any) {
+        console.error('[POST /documents/upload] PDF extraction failed:', pdfError);
+
         return c.json({
-          error: 'Invalid PDF',
-          message: 'File does not appear to be a valid PDF document'
+          error: 'PDF extraction failed',
+          message: pdfError.message || 'Failed to extract text from PDF. The file may be corrupted or encrypted.',
+          details: 'Try converting the PDF to a text file or ensure it contains selectable text.'
         }, 400);
       }
-
-      // Extract PDF version
-      const versionMatch = header.match(/%PDF-([\d.]+)/);
-      const pdfVersion = versionMatch ? versionMatch[1] : 'unknown';
-
-      content = `[PDF Document: ${file.name}]
-PDF Version: ${pdfVersion}
-Size: ${(file.size / 1024).toFixed(2)} KB
-
-TEXT EXTRACTION PENDING
-This PDF has been uploaded successfully and is ready for processing.
-
-To enable full text extraction, install a PDF parsing library:
-- pdfjs-dist (recommended for Workers)
-- Or set up an external PDF extraction service
-
-The document is available for training once text extraction is complete.`;
-
-      console.log(`[POST /documents/upload] PDF ${file.name} uploaded (v${pdfVersion})`);
     }
 
     if (!content || content.trim().length === 0) {
@@ -1429,7 +1471,157 @@ app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
   }
 });
 
-// Discover links from sitemap
+// ============================================
+// CRAWLER UTILITIES
+// ============================================
+
+interface RobotsRules {
+  sitemaps: string[];
+  disallowedPaths: string[];
+}
+
+const parseRobotsTxt = (robotsTxt: string): RobotsRules => {
+  const lines = robotsTxt.split('\n');
+  const sitemaps: string[] = [];
+  const disallowedPaths: string[] = [];
+  let relevantUserAgent = false;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    // Check for sitemap
+    if (trimmed.toLowerCase().startsWith('sitemap:')) {
+      const sitemap = trimmed.substring(8).trim();
+      if (sitemap) sitemaps.push(sitemap);
+      continue;
+    }
+
+    // Check for user-agent
+    if (trimmed.toLowerCase().startsWith('user-agent:')) {
+      const agent = trimmed.substring(11).trim();
+      relevantUserAgent = agent === '*' || agent.toLowerCase().includes('chatbotstudio');
+      continue;
+    }
+
+    // Check for disallow rules (only for relevant user-agent)
+    if (relevantUserAgent && trimmed.toLowerCase().startsWith('disallow:')) {
+      const path = trimmed.substring(9).trim();
+      if (path && path !== '/') {
+        disallowedPaths.push(path);
+      }
+    }
+  }
+
+  return { sitemaps, disallowedPaths };
+};
+
+const isUrlAllowed = (url: string, disallowedPaths: string[]): boolean => {
+  try {
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+
+    for (const disallowed of disallowedPaths) {
+      if (pathname.startsWith(disallowed)) {
+        return false;
+      }
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const crawlWebsite = async (
+  startUrl: string,
+  origin: string,
+  disallowedPaths: string[],
+  maxPages: number = 2000,
+  concurrency: number = 5
+): Promise<Set<string>> => {
+  const discovered = new Set<string>([startUrl]);
+  const visited = new Set<string>();
+  const queue: string[] = [startUrl];
+
+  while (queue.length > 0 && visited.size < maxPages) {
+    const batch = queue.splice(0, concurrency);
+
+    const results = await Promise.allSettled(
+      batch.map(async (url) => {
+        if (visited.has(url)) return [];
+        visited.add(url);
+
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+          const response = await fetch(url, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!response.ok) return [];
+
+          const contentType = response.headers.get('content-type') || '';
+          if (!contentType.includes('text/html')) return [];
+
+          const html = await response.text();
+          const linkMatches = html.matchAll(/<a[^>]+href=["']([^"']+)["']/gi);
+          const foundLinks: string[] = [];
+
+          for (const match of linkMatches) {
+            let linkUrl = match[1].trim();
+
+            if (linkUrl.startsWith('#') || linkUrl.startsWith('mailto:') ||
+                linkUrl.startsWith('tel:') || linkUrl.startsWith('javascript:')) {
+              continue;
+            }
+
+            if (linkUrl.startsWith('/')) {
+              linkUrl = `${origin}${linkUrl}`;
+            } else if (!linkUrl.startsWith('http')) {
+              try {
+                linkUrl = new URL(linkUrl, url).href;
+              } catch {
+                continue;
+              }
+            }
+
+            if (linkUrl.startsWith(origin) && !linkUrl.includes('#')) {
+              if (isUrlAllowed(linkUrl, disallowedPaths)) {
+                foundLinks.push(linkUrl);
+              }
+            }
+          }
+
+          return foundLinks;
+        } catch {
+          return [];
+        }
+      })
+    );
+
+    for (const result of results) {
+      if (result.status === 'fulfilled') {
+        for (const link of result.value) {
+          if (!discovered.has(link) && discovered.size < maxPages) {
+            discovered.add(link);
+            queue.push(link);
+          }
+        }
+      }
+    }
+
+    if (visited.size % 50 === 0) {
+      console.log(`🔍 [CRAWLER] Progress: ${visited.size} visited, ${discovered.size} discovered`);
+    }
+  }
+
+  return discovered;
+};
+
+// Discover links from sitemap or full crawl
 app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
   try {
     const prisma = getPrisma(c.env);
@@ -1471,10 +1663,11 @@ app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
     }
 
     const origin = parsedUrl.origin;
-    const discoveredLinks: Array<{ url: string; title: string; snippet: string }> = [];
+    let discoveredUrls: Set<string> = new Set();
+    let robotsRules: RobotsRules = { sitemaps: [], disallowedPaths: [] };
 
-    // Step 1: Try to find sitemap from robots.txt
-    console.log('🔍 [DISCOVER] Checking robots.txt');
+    // Fetch and parse robots.txt
+    console.log('🔍 [DISCOVER] Fetching robots.txt');
     try {
       const robotsResponse = await fetch(`${origin}/robots.txt`, {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
@@ -1482,185 +1675,86 @@ app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
 
       if (robotsResponse.ok) {
         const robotsTxt = await robotsResponse.text();
-        const sitemapMatch = robotsTxt.match(/Sitemap:\s*(.+)/i);
-        if (sitemapMatch) {
-          const sitemapUrl = sitemapMatch[1].trim();
-          console.log('✅ [DISCOVER] Found sitemap in robots.txt:', sitemapUrl);
-
-          // Fetch and parse sitemap
-          const sitemapResponse = await fetch(sitemapUrl, {
-            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
-          });
-
-          if (sitemapResponse.ok) {
-            const sitemapXml = await sitemapResponse.text();
-            const urlMatches = sitemapXml.matchAll(/<loc>(.*?)<\/loc>/g);
-
-            for (const match of urlMatches) {
-              const url = match[1].trim();
-              // Filter: same domain only, no anchors
-              if (url.startsWith(origin) && !url.includes('#')) {
-                discoveredLinks.push({ url, title: '', snippet: '' });
-              }
-            }
-          }
-        }
+        robotsRules = parseRobotsTxt(robotsTxt);
+        console.log('✅ [DISCOVER] Parsed robots.txt:', {
+          sitemaps: robotsRules.sitemaps.length,
+          disallowedPaths: robotsRules.disallowedPaths.length,
+        });
       }
     } catch (err) {
-      console.log('⚠️ [DISCOVER] robots.txt check failed:', err);
+      console.log('⚠️ [DISCOVER] Failed to fetch robots.txt:', err);
     }
 
-    // Step 2: If no links found, try common sitemap URLs
-    if (discoveredLinks.length === 0) {
-      console.log('🔍 [DISCOVER] Trying common sitemap URLs');
-      const commonSitemaps = ['/sitemap.xml', '/sitemap_index.xml', '/sitemap-index.xml'];
+    // Try to find sitemap
+    const sitemapsToTry = [
+      ...robotsRules.sitemaps,
+      `${origin}/sitemap.xml`,
+      `${origin}/sitemap_index.xml`,
+      `${origin}/sitemap-index.xml`,
+    ];
 
-      for (const path of commonSitemaps) {
-        try {
-          const sitemapUrl = `${origin}${path}`;
-          const response = await fetch(sitemapUrl, {
-            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
-          });
+    let foundSitemap = false;
 
-          if (response.ok) {
-            console.log('✅ [DISCOVER] Found sitemap at:', sitemapUrl);
-            const sitemapXml = await response.text();
-            const urlMatches = sitemapXml.matchAll(/<loc>(.*?)<\/loc>/g);
-
-            for (const match of urlMatches) {
-              const url = match[1].trim();
-              if (url.startsWith(origin) && !url.includes('#')) {
-                discoveredLinks.push({ url, title: '', snippet: '' });
-              }
-            }
-
-            break; // Stop after first successful sitemap
-          }
-        } catch (err) {
-          console.log('⚠️ [DISCOVER] Failed to fetch:', err);
-        }
-      }
-    }
-
-    // Step 3: If still no links, basic crawl of the homepage
-    if (discoveredLinks.length === 0) {
-      console.log('🔍 [DISCOVER] No sitemap found, crawling homepage');
+    for (const sitemapUrl of sitemapsToTry) {
       try {
-        const response = await fetch(baseUrl, {
+        console.log('🔍 [DISCOVER] Trying sitemap:', sitemapUrl);
+        const response = await fetch(sitemapUrl, {
           headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
         });
 
         if (response.ok) {
-          const html = await response.text();
-          // Extract links from HTML
-          const linkMatches = html.matchAll(/<a[^>]+href=["']([^"']+)["']/gi);
+          const sitemapXml = await response.text();
+          const urlMatches = sitemapXml.matchAll(/<loc>(.*?)<\/loc>/g);
 
-          for (const match of linkMatches) {
-            let url = match[1].trim();
-
-            // Skip anchors, mailto, tel, javascript
-            if (url.startsWith('#') || url.startsWith('mailto:') || url.startsWith('tel:') || url.startsWith('javascript:')) {
-              continue;
-            }
-
-            // Handle relative URLs
-            if (url.startsWith('/')) {
-              url = `${origin}${url}`;
-            } else if (!url.startsWith('http')) {
-              continue; // Skip other relative patterns
-            }
-
-            // Only same domain
+          for (const match of urlMatches) {
+            const url = match[1].trim();
             if (url.startsWith(origin) && !url.includes('#')) {
-              discoveredLinks.push({ url, title: '', snippet: '' });
+              if (isUrlAllowed(url, robotsRules.disallowedPaths)) {
+                discoveredUrls.add(url);
+              }
             }
+          }
+
+          if (discoveredUrls.size > 0) {
+            foundSitemap = true;
+            console.log(`✅ [DISCOVER] Found sitemap with ${discoveredUrls.size} URLs`);
+            break; // Use ONLY sitemap URLs as per requirements
           }
         }
       } catch (err) {
-        console.log('⚠️ [DISCOVER] Homepage crawl failed:', err);
+        console.log('⚠️ [DISCOVER] Failed to fetch sitemap:', err);
       }
     }
 
-    // Remove duplicates
-    const uniqueLinks = Array.from(new Set(discoveredLinks.map(l => l.url))).map(url => ({ url, title: '', snippet: '' }));
-
-    // Limit to 100 links for preview fetching (balance between completeness and performance)
-    const limitedLinks = uniqueLinks.slice(0, 100);
-
-    console.log(`✅ [DISCOVER] Found ${limitedLinks.length} unique links, fetching previews...`);
-
-    // Fetch title and snippet for each URL (in parallel batches)
-    const fetchPreview = async (url: string): Promise<{ url: string; title: string; snippet: string }> => {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout per URL
-
-        const response = await fetch(url, {
-          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-          return { url, title: url, snippet: '' };
-        }
-
-        const contentType = response.headers.get('content-type') || '';
-        if (!contentType.includes('text/html')) {
-          return { url, title: url, snippet: '' };
-        }
-
-        const html = await response.text();
-        const { document } = parseHTML(html);
-
-        // Extract title
-        let title = document.querySelector('title')?.textContent?.trim() || '';
-        if (!title) {
-          const h1 = document.querySelector('h1')?.textContent?.trim();
-          title = h1 || url;
-        }
-
-        // Extract snippet (meta description or first paragraph)
-        let snippet = '';
-        const metaDesc = document.querySelector('meta[name="description"]')?.getAttribute('content');
-        if (metaDesc) {
-          snippet = metaDesc.trim();
-        } else {
-          // Fallback to first paragraph
-          const p = document.querySelector('p')?.textContent?.trim();
-          snippet = p || '';
-        }
-
-        // Limit snippet to 300 characters
-        if (snippet.length > 300) {
-          snippet = snippet.substring(0, 297) + '...';
-        }
-
-        return { url, title, snippet };
-      } catch (err) {
-        // On error, return URL as fallback
-        return { url, title: url, snippet: '' };
-      }
-    };
-
-    // Process in batches of 10 for parallel efficiency
-    const BATCH_SIZE = 10;
-    const enrichedLinks: Array<{ url: string; title: string; snippet: string }> = [];
-
-    for (let i = 0; i < limitedLinks.length; i += BATCH_SIZE) {
-      const batch = limitedLinks.slice(i, i + BATCH_SIZE);
-      const batchResults = await Promise.all(batch.map(link => fetchPreview(link.url)));
-      enrichedLinks.push(...batchResults);
-      console.log(`📦 [DISCOVER] Processed batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(limitedLinks.length / BATCH_SIZE)}`);
+    // If NO sitemap found, do full crawl
+    if (!foundSitemap) {
+      console.log('🔍 [DISCOVER] No sitemap found, starting full crawl (max 2000 pages)');
+      discoveredUrls = await crawlWebsite(
+        baseUrl,
+        origin,
+        robotsRules.disallowedPaths,
+        2000, // maxPages
+        5     // concurrency
+      );
+      console.log(`✅ [DISCOVER] Crawl complete: ${discoveredUrls.size} URLs discovered`);
     }
 
-    console.log(`✅ [DISCOVER] Enriched ${enrichedLinks.length} links with title and snippet`);
+    // Convert to array and return (preview will be fetched on-demand)
+    const links = Array.from(discoveredUrls)
+      .slice(0, 2000)
+      .map(url => ({
+        url,
+        title: '', // Empty - will be fetched on-demand
+        snippet: '', // Empty - will be fetched on-demand
+      }));
+
+    console.log(`✅ [DISCOVER] Returning ${links.length} links`);
 
     return c.json({
       success: true,
-      count: enrichedLinks.length,
-      links: enrichedLinks,
+      count: links.length,
+      links,
+      strategy: foundSitemap ? 'sitemap' : 'crawl',
     });
   } catch (error: any) {
     console.error('❌ [DISCOVER] Error:', error);

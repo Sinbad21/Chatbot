@@ -51,13 +51,18 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Store tokens
+      // Store tokens in localStorage
       localStorage.setItem('accessToken', data.tokens.accessToken);
       localStorage.setItem('refreshToken', data.tokens.refreshToken);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Set auth session cookie for middleware protection
+      // Use Secure flag for HTTPS (CF Pages), SameSite=Lax for CSRF protection
+      const isSecure = window.location.protocol === 'https:';
+      document.cookie = `auth_session=true; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+
+      // Hard redirect to ensure cookie is set and page fully reloads
+      window.location.href = '/dashboard';
     } catch (err: any) {
       if (err.message.includes('fetch')) {
         setError('Unable to connect to the server. The API service is being configured. Please try again later.');

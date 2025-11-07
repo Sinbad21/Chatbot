@@ -2,15 +2,16 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { LayoutGrid, FileText, Globe, Lightbulb, HelpCircle, MessageSquare } from "lucide-react";
+import { LayoutGrid, FileText, Globe, Lightbulb, HelpCircle, MessageSquare, BarChart2 } from "lucide-react";
 import BotOverviewTab from "./BotOverviewTab";
 import DocumentsTab from "./DocumentsTab";
 import IntentsTab from "./IntentsTab";
 import FaqTab from "./FaqTab";
 import TestChatTab from "./TestChatTab";
 import WebScrapingTab from "./WebScrapingTab";
+import AnalyticsTab from "./AnalyticsTab";
 
-type TabKey = "overview" | "documents" | "scraping" | "intents" | "faqs" | "test";
+type TabKey = "overview" | "documents" | "scraping" | "intents" | "faqs" | "analytics" | "test";
 
 const tabs = [
   { key: "overview" as TabKey, label: "Overview", icon: LayoutGrid },
@@ -18,6 +19,7 @@ const tabs = [
   { key: "scraping" as TabKey, label: "Web Scraping", icon: Globe },
   { key: "intents" as TabKey, label: "Intents", icon: Lightbulb },
   { key: "faqs" as TabKey, label: "FAQ", icon: HelpCircle },
+  { key: "analytics" as TabKey, label: "Analytics", icon: BarChart2 },
   { key: "test" as TabKey, label: "Test", icon: MessageSquare },
 ];
 
@@ -84,6 +86,10 @@ function InnerBotPage() {
       )}
 
       {activeTab === "faqs" && <FaqTab botId={botId} apiBaseUrl={apiBaseUrl} />}
+
+      {activeTab === "analytics" && (
+        <AnalyticsTab botId={botId} apiBaseUrl={apiBaseUrl} />
+      )}
 
       {activeTab === "test" && (
         <TestChatTab botId={botId} apiBaseUrl={apiBaseUrl} />
