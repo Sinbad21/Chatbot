@@ -1,9 +1,13 @@
 import { Hono } from 'hono';
 import type { MiddlewareHandler } from 'hono';
 import type { PrismaClient } from '@prisma/client';
+import { getPrisma } from '../db';
 
 interface Bindings {
   DATABASE_URL: string;
+  JWT_SECRET?: string;
+  JWT_REFRESH_SECRET?: string;
+  OPENAI_API_KEY?: string;
 }
 
 interface Variables {
@@ -11,8 +15,6 @@ interface Variables {
 }
 
 type App = Hono<{ Bindings: Bindings; Variables: Variables }>;
-
-type GetDB = (databaseUrl: string) => PrismaClient;
 
 async function getOrganizationId(prisma: PrismaClient, userId: string) {
   return prisma.organizationMember.findFirst({
@@ -36,13 +38,12 @@ async function ensureBotAccess(prisma: PrismaClient, botId: string, organization
 
 export function registerKnowledgeRoutes(
   app: App,
-  getDB: GetDB,
   authMiddleware: MiddlewareHandler<{ Bindings: Bindings; Variables: Variables }>,
 ) {
   // Documents
   app.get('/api/bots/:botId/documents', authMiddleware, async (c) => {
     try {
-      const prisma = getDB(c.env.DATABASE_URL);
+      const prisma = getPrisma(c.env);
       const user = c.get('user');
       const botId = c.req.param('botId');
 
@@ -95,7 +96,7 @@ export function registerKnowledgeRoutes(
 
   app.post('/api/bots/:botId/documents', authMiddleware, async (c) => {
     try {
-      const prisma = getDB(c.env.DATABASE_URL);
+      const prisma = getPrisma(c.env);
       const user = c.get('user');
       const botId = c.req.param('botId');
       const body = await c.req.json<{ title?: string; content?: string }>();
@@ -167,7 +168,7 @@ export function registerKnowledgeRoutes(
   });
 
   app.delete('/api/documents/:docId', authMiddleware, async (c) => {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const docId = c.req.param('docId');
 
@@ -191,7 +192,7 @@ export function registerKnowledgeRoutes(
 
   // Intents
   app.get('/api/bots/:botId/intents', authMiddleware, async (c) => {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
 
@@ -214,7 +215,7 @@ export function registerKnowledgeRoutes(
   });
 
   app.post('/api/bots/:botId/intents', authMiddleware, async (c) => {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
     const body = await c.req.json<{ name?: string; trainingPhrases?: string[]; response?: string }>();
@@ -247,7 +248,7 @@ export function registerKnowledgeRoutes(
   });
 
   app.delete('/api/intents/:intentId', authMiddleware, async (c) => {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const intentId = c.req.param('intentId');
 
@@ -271,7 +272,7 @@ export function registerKnowledgeRoutes(
 
   // FAQs
   app.get('/api/bots/:botId/faqs', authMiddleware, async (c) => {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
 
@@ -294,7 +295,7 @@ export function registerKnowledgeRoutes(
   });
 
   app.post('/api/bots/:botId/faqs', authMiddleware, async (c) => {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
     const body = await c.req.json<{ question?: string; answer?: string }>();
@@ -326,7 +327,7 @@ export function registerKnowledgeRoutes(
   });
 
   app.delete('/api/faqs/:faqId', authMiddleware, async (c) => {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const faqId = c.req.param('faqId');
 

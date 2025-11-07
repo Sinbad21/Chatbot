@@ -1,12 +1,11 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { PrismaClient, Prisma } from '@prisma/client';
-import { PrismaNeon } from '@prisma/adapter-neon';
-import { Pool } from '@neondatabase/serverless';
+import { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerKnowledgeRoutes } from './routes/knowledge';
 import { parseHTML } from 'linkedom';
+import { getPrisma } from './db';
 
 type Bindings = {
   DATABASE_URL: string;
@@ -22,17 +21,6 @@ app.use('/*', cors({
   origin: ['https://chatbot-studio.pages.dev', 'https://chatbot-5o5.pages.dev', 'https://chatbot-studio-29k.pages.dev', 'http://localhost:3000'],
   credentials: true,
 }));
-
-// Database connection helper for Cloudflare Workers
-// PrismaNeon adapter requires Pool instance (not neon())
-const getDB = (databaseUrl: string) => {
-  if (!databaseUrl) {
-    throw new Error('DATABASE_URL is not defined');
-  }
-  const pool = new Pool({ connectionString: databaseUrl });
-  const adapter = new PrismaNeon(pool);
-  return new PrismaClient({ adapter });
-};
 
 // Auth middleware
 const authMiddleware = async (c: any, next: any) => {
@@ -52,7 +40,7 @@ const authMiddleware = async (c: any, next: any) => {
   }
 };
 
-registerKnowledgeRoutes(app as any, getDB, authMiddleware);
+registerKnowledgeRoutes(app as any, authMiddleware);
 
 // ============================================
 // HEALTH CHECK
@@ -80,7 +68,7 @@ app.get('/debug/env', (c) => {
 // Database connection health check
 app.get('/api/v1/debug/db', async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     
     // Test basic connection with raw query
     await prisma.$queryRaw`SELECT 1 as test`;
@@ -120,7 +108,7 @@ app.get('/api/v1/debug/db', async (c) => {
 
 app.post('/api/v1/auth/register', async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const { email, password, name } = await c.req.json();
 
     // Check if user exists
@@ -218,7 +206,7 @@ app.post('/api/v1/auth/register', async (c) => {
 
 app.post('/api/v1/auth/login', async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const { email, password } = await c.req.json();
 
     // Find user
@@ -266,7 +254,7 @@ app.post('/api/v1/auth/login', async (c) => {
 
 app.get('/api/v1/bots', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
 
     // Multi-tenant: Get user's organization
@@ -301,7 +289,7 @@ app.get('/api/v1/bots', authMiddleware, async (c) => {
 
 app.post('/api/v1/bots', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const { name, description, systemPrompt, welcomeMessage, color } = await c.req.json();
 
@@ -336,7 +324,7 @@ app.post('/api/v1/bots', authMiddleware, async (c) => {
 
 app.get('/api/v1/bots/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const id = c.req.param('id');
 
     const bot = await prisma.bot.findUnique({
@@ -365,7 +353,7 @@ app.get('/api/v1/bots/:id', authMiddleware, async (c) => {
 
 app.patch('/api/v1/bots/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
     const updates = await c.req.json();
@@ -397,7 +385,7 @@ app.patch('/api/v1/bots/:id', authMiddleware, async (c) => {
 
 app.delete('/api/v1/bots/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
 
@@ -428,7 +416,7 @@ app.delete('/api/v1/bots/:id', authMiddleware, async (c) => {
 // Logo upload endpoint
 app.post('/api/v1/bots/:id/logo', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
 
@@ -499,7 +487,7 @@ app.post('/api/v1/bots/:id/logo', authMiddleware, async (c) => {
 app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
   try {
     console.log('[GET /documents] Starting request');
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
 
@@ -644,7 +632,7 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
 app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
   try {
     console.log('[POST /documents] Starting request');
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
 
@@ -869,7 +857,7 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
 
 app.delete('/api/v1/documents/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
 
@@ -907,7 +895,7 @@ app.delete('/api/v1/documents/:id', authMiddleware, async (c) => {
 
 app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
     const { url } = await c.req.json();
@@ -1037,7 +1025,7 @@ app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
 
 app.get('/api/v1/bots/:botId/intents', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
 
@@ -1073,7 +1061,7 @@ app.get('/api/v1/bots/:botId/intents', authMiddleware, async (c) => {
 
 app.post('/api/v1/bots/:botId/intents', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
     const { name, patterns, response, enabled = true } = await c.req.json();
@@ -1115,7 +1103,7 @@ app.post('/api/v1/bots/:botId/intents', authMiddleware, async (c) => {
 
 app.delete('/api/v1/intents/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
 
@@ -1153,7 +1141,7 @@ app.delete('/api/v1/intents/:id', authMiddleware, async (c) => {
 
 app.get('/api/v1/bots/:botId/faqs', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
 
@@ -1189,7 +1177,7 @@ app.get('/api/v1/bots/:botId/faqs', authMiddleware, async (c) => {
 
 app.post('/api/v1/bots/:botId/faqs', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
     const { question, answer, category, enabled = true } = await c.req.json();
@@ -1231,7 +1219,7 @@ app.post('/api/v1/bots/:botId/faqs', authMiddleware, async (c) => {
 
 app.delete('/api/v1/faqs/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
 
@@ -1269,7 +1257,7 @@ app.delete('/api/v1/faqs/:id', authMiddleware, async (c) => {
 
 app.post('/api/v1/chat', async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const { botId, message, sessionId, metadata } = await c.req.json();
 
     // Validate required fields
@@ -1494,7 +1482,7 @@ Important guidelines:
 
 app.get('/api/v1/chat/:botId/config', async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const botId = c.req.param('botId');
 
     const bot = await prisma.bot.findUnique({
@@ -1525,7 +1513,7 @@ app.get('/api/v1/chat/:botId/config', async (c) => {
 
 app.get('/api/v1/analytics/overview', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
 
     const [conversations, messages, leads] = await Promise.all([
@@ -1549,7 +1537,7 @@ app.get('/api/v1/analytics/overview', authMiddleware, async (c) => {
 // Get conversations over time (for line chart)
 app.get('/api/v1/analytics/conversations-over-time', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const range = c.req.query('range') || '30d';
 
@@ -1602,7 +1590,7 @@ app.get('/api/v1/analytics/conversations-over-time', authMiddleware, async (c) =
 // Get top intents (for bar chart)
 app.get('/api/v1/analytics/top-intents', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const range = c.req.query('range') || '30d';
 
@@ -1660,7 +1648,7 @@ app.get('/api/v1/analytics/top-intents', authMiddleware, async (c) => {
 // Get conversations list with filters
 app.get('/api/v1/conversations', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const status = c.req.query('status') || 'all';
     const sort = c.req.query('sort') || 'recent';
@@ -1755,7 +1743,7 @@ app.get('/api/v1/conversations', authMiddleware, async (c) => {
 // Get conversation detail with full transcript
 app.get('/api/v1/conversations/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const conversationId = c.req.param('id');
 
@@ -1830,7 +1818,7 @@ app.get('/api/v1/conversations/:id', authMiddleware, async (c) => {
 // Delete conversation
 app.delete('/api/v1/conversations/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const conversationId = c.req.param('id');
 
@@ -1865,7 +1853,7 @@ app.delete('/api/v1/conversations/:id', authMiddleware, async (c) => {
 // Get all API keys for user
 app.get('/api/v1/api-keys', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
 
     const apiKeys = await prisma.apiKey.findMany({
@@ -1895,7 +1883,7 @@ app.get('/api/v1/api-keys', authMiddleware, async (c) => {
 // Generate new API key
 app.post('/api/v1/api-keys', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const body = await c.req.json();
     const { name } = body;
@@ -1946,7 +1934,7 @@ app.post('/api/v1/api-keys', authMiddleware, async (c) => {
 // Revoke/Delete API key
 app.delete('/api/v1/api-keys/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const keyId = c.req.param('id');
 
@@ -1979,7 +1967,7 @@ app.delete('/api/v1/api-keys/:id', authMiddleware, async (c) => {
 // Get all leads with filters
 app.get('/api/v1/leads', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
 
     // Query params for filtering
@@ -2086,7 +2074,7 @@ app.get('/api/v1/leads', authMiddleware, async (c) => {
 // Get single lead detail
 app.get('/api/v1/leads/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const leadId = c.req.param('id');
 
@@ -2166,7 +2154,7 @@ app.get('/api/v1/leads/:id', authMiddleware, async (c) => {
 // Update lead status or score
 app.patch('/api/v1/leads/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const leadId = c.req.param('id');
     const body = await c.req.json();
@@ -2213,7 +2201,7 @@ app.patch('/api/v1/leads/:id', authMiddleware, async (c) => {
 // Delete lead
 app.delete('/api/v1/leads/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const leadId = c.req.param('id');
 
@@ -2244,7 +2232,7 @@ app.delete('/api/v1/leads/:id', authMiddleware, async (c) => {
 // Capture lead from conversation
 app.post('/api/v1/conversations/:id/capture-lead', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const conversationId = c.req.param('id');
 
@@ -2338,7 +2326,7 @@ app.post('/api/v1/conversations/:id/capture-lead', authMiddleware, async (c) => 
 app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
   try {
     console.log('[Discovery] Starting lead discovery search...');
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const body = await c.req.json();
     const {
@@ -2819,7 +2807,7 @@ Return JSON:
 // Get discovery campaign results
 app.get('/api/v1/discovery/campaigns/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const campaignId = c.req.param('id');
 
@@ -2859,7 +2847,7 @@ app.get('/api/v1/discovery/campaigns/:id', authMiddleware, async (c) => {
 // Save discovered leads to database
 app.post('/api/v1/discovery/save-results', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const body = await c.req.json();
     const { campaignId, businesses, analyses } = body;
@@ -3178,7 +3166,7 @@ app.get('/api/v1/debug/db', async (c) => {
   console.log('[DEBUG /db] Testing database connection...');
 
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
 
     // Test 1: Basic connection
     console.log('[DEBUG /db] Test 1: Running SELECT 1');
