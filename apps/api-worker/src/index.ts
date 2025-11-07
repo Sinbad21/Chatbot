@@ -1179,6 +1179,180 @@ app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
   }
 });
 
+// Discover links from sitemap
+app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const botId = c.req.param('botId');
+    const { url: baseUrl } = await c.req.json();
+
+    console.log('🔍 [DISCOVER] Request:', { botId, baseUrl });
+
+    // Validate URL
+    if (!baseUrl || typeof baseUrl !== 'string') {
+      return c.json({ error: 'URL is required' }, 400);
+    }
+
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(baseUrl);
+    } catch {
+      return c.json({ error: 'Invalid URL format' }, 400);
+    }
+
+    // Verify bot access
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    const origin = parsedUrl.origin;
+    const discoveredLinks: Array<{ url: string; title: string; snippet: string }> = [];
+
+    // Step 1: Try to find sitemap from robots.txt
+    console.log('🔍 [DISCOVER] Checking robots.txt');
+    try {
+      const robotsResponse = await fetch(`${origin}/robots.txt`, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
+      });
+
+      if (robotsResponse.ok) {
+        const robotsTxt = await robotsResponse.text();
+        const sitemapMatch = robotsTxt.match(/Sitemap:\s*(.+)/i);
+        if (sitemapMatch) {
+          const sitemapUrl = sitemapMatch[1].trim();
+          console.log('✅ [DISCOVER] Found sitemap in robots.txt:', sitemapUrl);
+
+          // Fetch and parse sitemap
+          const sitemapResponse = await fetch(sitemapUrl, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
+          });
+
+          if (sitemapResponse.ok) {
+            const sitemapXml = await sitemapResponse.text();
+            const urlMatches = sitemapXml.matchAll(/<loc>(.*?)<\/loc>/g);
+
+            for (const match of urlMatches) {
+              const url = match[1].trim();
+              // Filter: same domain only, no anchors
+              if (url.startsWith(origin) && !url.includes('#')) {
+                discoveredLinks.push({ url, title: '', snippet: '' });
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.log('⚠️ [DISCOVER] robots.txt check failed:', err);
+    }
+
+    // Step 2: If no links found, try common sitemap URLs
+    if (discoveredLinks.length === 0) {
+      console.log('🔍 [DISCOVER] Trying common sitemap URLs');
+      const commonSitemaps = ['/sitemap.xml', '/sitemap_index.xml', '/sitemap-index.xml'];
+
+      for (const path of commonSitemaps) {
+        try {
+          const sitemapUrl = `${origin}${path}`;
+          const response = await fetch(sitemapUrl, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
+          });
+
+          if (response.ok) {
+            console.log('✅ [DISCOVER] Found sitemap at:', sitemapUrl);
+            const sitemapXml = await response.text();
+            const urlMatches = sitemapXml.matchAll(/<loc>(.*?)<\/loc>/g);
+
+            for (const match of urlMatches) {
+              const url = match[1].trim();
+              if (url.startsWith(origin) && !url.includes('#')) {
+                discoveredLinks.push({ url, title: '', snippet: '' });
+              }
+            }
+
+            break; // Stop after first successful sitemap
+          }
+        } catch (err) {
+          console.log('⚠️ [DISCOVER] Failed to fetch:', err);
+        }
+      }
+    }
+
+    // Step 3: If still no links, basic crawl of the homepage
+    if (discoveredLinks.length === 0) {
+      console.log('🔍 [DISCOVER] No sitemap found, crawling homepage');
+      try {
+        const response = await fetch(baseUrl, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
+        });
+
+        if (response.ok) {
+          const html = await response.text();
+          // Extract links from HTML
+          const linkMatches = html.matchAll(/<a[^>]+href=["']([^"']+)["']/gi);
+
+          for (const match of linkMatches) {
+            let url = match[1].trim();
+
+            // Skip anchors, mailto, tel, javascript
+            if (url.startsWith('#') || url.startsWith('mailto:') || url.startsWith('tel:') || url.startsWith('javascript:')) {
+              continue;
+            }
+
+            // Handle relative URLs
+            if (url.startsWith('/')) {
+              url = `${origin}${url}`;
+            } else if (!url.startsWith('http')) {
+              continue; // Skip other relative patterns
+            }
+
+            // Only same domain
+            if (url.startsWith(origin) && !url.includes('#')) {
+              discoveredLinks.push({ url, title: '', snippet: '' });
+            }
+          }
+        }
+      } catch (err) {
+        console.log('⚠️ [DISCOVER] Homepage crawl failed:', err);
+      }
+    }
+
+    // Remove duplicates
+    const uniqueLinks = Array.from(new Set(discoveredLinks.map(l => l.url))).map(url => ({ url, title: '', snippet: '' }));
+
+    // Limit to 2000 links as per mega-prompt
+    const limitedLinks = uniqueLinks.slice(0, 2000);
+
+    console.log(`✅ [DISCOVER] Found ${limitedLinks.length} unique links`);
+
+    return c.json({
+      success: true,
+      count: limitedLinks.length,
+      links: limitedLinks,
+    });
+  } catch (error: any) {
+    console.error('❌ [DISCOVER] Error:', error);
+    return c.json({
+      error: 'Discovery failed',
+      message: error.message || 'Unknown error',
+    }, 500);
+  }
+});
+
 // ============================================
 // INTENTS ROUTES
 // ============================================
