@@ -11,6 +11,8 @@ interface WebScrapingTabProps {
 interface ScrapedLink {
   url: string;
   text: string;
+  title?: string;
+  snippet?: string;
 }
 
 interface LinkPreview {
@@ -26,6 +28,7 @@ type ToastType = "success" | "error" | "info";
 export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProps) {
   const [url, setUrl] = useState("");
   const [isScrapingLinks, setIsScrapingLinks] = useState(false);
+  const [isDiscoveringWithSitemap, setIsDiscoveringWithSitemap] = useState(false);
   const [links, setLinks] = useState<ScrapedLink[]>([]);
   const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -125,6 +128,66 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       showToast(err.message || "Failed to scrape website", "error");
     } finally {
       setIsScrapingLinks(false);
+    }
+  };
+
+  const handleDiscoverWithSitemap = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!url.trim()) {
+      showToast("Please enter a URL", "error");
+      return;
+    }
+
+    // Validate URL format
+    try {
+      new URL(url.trim());
+    } catch {
+      showToast("Please enter a valid URL (e.g., https://example.com)", "error");
+      return;
+    }
+
+    setIsDiscoveringWithSitemap(true);
+    setLinks([]);
+    setSelectedUrls(new Set());
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await fetchWithRetry(
+        `${apiBaseUrl}/api/v1/bots/${botId}/discover-links`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ url: url.trim() }),
+        }
+      );
+
+      if (!response.ok) {
+        let errorMessage = `Failed to discover links (${response.status})`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) errorMessage = errorData.error;
+        } catch {}
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      // Transform the response to match ScrapedLink interface
+      const transformedLinks = (data.links || []).map((link: any) => ({
+        url: link.url,
+        text: link.title || link.url,
+        title: link.title,
+        snippet: link.snippet,
+      }));
+      setLinks(transformedLinks);
+      showToast(`Found ${data.count} links via sitemap/robots.txt`, "success");
+    } catch (err: any) {
+      showToast(err.message || "Failed to discover links with sitemap", "error");
+    } finally {
+      setIsDiscoveringWithSitemap(false);
     }
   };
 
@@ -302,11 +365,11 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com"
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              disabled={isScrapingLinks}
+              disabled={isScrapingLinks || isDiscoveringWithSitemap}
             />
             <button
               type="submit"
-              disabled={isScrapingLinks}
+              disabled={isScrapingLinks || isDiscoveringWithSitemap}
               className="px-6 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isScrapingLinks ? (
@@ -321,9 +384,27 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                 </>
               )}
             </button>
+            <button
+              type="button"
+              onClick={handleDiscoverWithSitemap}
+              disabled={isScrapingLinks || isDiscoveringWithSitemap}
+              className="px-6 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {isDiscoveringWithSitemap ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Discovering...
+                </>
+              ) : (
+                <>
+                  <Globe size={16} />
+                  Find links with sitemap
+                </>
+              )}
+            </button>
           </div>
           <p className="text-xs text-gray-500">
-            Enter a URL to discover all links on that page
+            Use "Find Links" to scrape links from a page, or "Find links with sitemap" to discover links via sitemap/robots.txt
           </p>
         </div>
       </form>
@@ -380,7 +461,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 break-words">
-                    {link.text || "No text"}
+                    {link.title || link.text || "No title"}
                   </p>
                   <a
                     href={link.url}
@@ -390,6 +471,11 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                   >
                     {link.url}
                   </a>
+                  {link.snippet && (
+                    <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                      {link.snippet}
+                    </p>
+                  )}
                 </div>
                 <button
                   onClick={() => handlePreview(link.url)}
