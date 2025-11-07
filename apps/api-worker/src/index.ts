@@ -39,8 +39,21 @@ app.options('*', (c) => c.text('', 204));
 // Global error handler - ensures CORS headers are maintained even on 500 errors
 app.onError((err, c) => {
   console.error('[Global Error Handler]', err);
-  c.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+
+  // Get the origin from the request
+  const origin = c.req.header('Origin');
+
+  // Set CORS headers based on the request origin
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    c.header('Access-Control-Allow-Origin', origin);
+  } else {
+    // Fallback to first allowed origin
+    c.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+  }
+
+  c.header('Access-Control-Allow-Credentials', 'true');
   c.header('Vary', 'Origin');
+
   return c.json({ error: 'Internal server error', message: err.message }, 500);
 });
 
