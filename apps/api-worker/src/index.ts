@@ -1129,13 +1129,23 @@ app.post('/api/v1/bots/:botId/documents/upload', authMiddleware, async (c) => {
 
     console.log('[POST /documents/upload] Starting file upload');
 
-    // Verify bot access
-    const bot = await prisma.bot.findFirst({
-      where: { id: botId, userId: user.userId },
-      select: { id: true, name: true },
+    // Verify user's organization membership
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
     });
 
-    if (!bot) {
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    // Verify bot belongs to user's organization
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { id: true, name: true, organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
       return c.json({ error: 'Bot not found or access denied' }, 404);
     }
 
