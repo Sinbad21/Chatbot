@@ -7,6 +7,11 @@ import {
   Line,
   BarChart,
   Bar,
+  PieChart,
+  Pie,
+  Cell,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -41,6 +46,38 @@ interface Conversation {
   status: 'active' | 'completed' | 'abandoned';
 }
 
+interface UsageByModel {
+  model: string;
+  requests: number;
+  inputTokens: number;
+  outputTokens: number;
+  cost: number;
+}
+
+interface UsageByDate {
+  date: string;
+  requests: number;
+  inputTokens: number;
+  outputTokens: number;
+  cost: number;
+}
+
+interface UsageData {
+  byModel: UsageByModel[];
+  byDate: UsageByDate[];
+  total: {
+    requests: number;
+    inputTokens: number;
+    outputTokens: number;
+    cost: number;
+  };
+}
+
+interface Bot {
+  id: string;
+  name: string;
+}
+
 type DateRange = '7d' | '30d' | '90d' | 'all';
 
 export default function AnalyticsPage() {
@@ -48,14 +85,86 @@ export default function AnalyticsPage() {
   const [conversationsData, setConversationsData] = useState<ConversationData[]>([]);
   const [intentsData, setIntentsData] = useState<IntentData[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [bots, setBots] = useState<Bot[]>([]);
+  const [selectedBotId, setSelectedBotId] = useState<string>('');
+  const [usageData, setUsageData] = useState<UsageData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>('30d');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    loadBots();
+  }, []);
+
+  useEffect(() => {
     loadAnalytics();
   }, [dateRange]);
+
+  useEffect(() => {
+    if (selectedBotId) {
+      loadUsageData();
+    }
+  }, [selectedBotId, dateRange]);
+
+  const loadBots = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+      if (!token) return;
+
+      const response = await axios.get<Bot[]>(`${apiUrl}/api/v1/bots`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setBots(response.data);
+      if (response.data.length > 0 && !selectedBotId) {
+        setSelectedBotId(response.data[0].id);
+      }
+    } catch (err) {
+      console.error('Error loading bots:', err);
+    }
+  };
+
+  const loadUsageData = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+      if (!token || !selectedBotId) return;
+
+      // Calculate date range
+      const to = new Date();
+      const from = new Date();
+      switch (dateRange) {
+        case '7d':
+          from.setDate(from.getDate() - 7);
+          break;
+        case '30d':
+          from.setDate(from.getDate() - 30);
+          break;
+        case '90d':
+          from.setDate(from.getDate() - 90);
+          break;
+        case 'all':
+          from.setFullYear(from.getFullYear() - 10); // 10 years ago
+          break;
+      }
+
+      const response = await axios.get<UsageData>(`${apiUrl}/api/v1/bots/${selectedBotId}/usage`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          from: from.toISOString(),
+          to: to.toISOString(),
+        },
+      });
+
+      setUsageData(response.data);
+    } catch (err) {
+      console.error('Error loading usage data:', err);
+    }
+  };
 
   const loadAnalytics = async () => {
     try {
@@ -387,6 +496,180 @@ export default function AnalyticsPage() {
           </table>
         </div>
       </div>
+
+      {/* Usage Analytics Section */}
+      {bots.length > 0 && (
+        <>
+          <div className="border-t border-gray-200 my-8"></div>
+
+          {/* Bot Selector + Usage Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Usage & Costs</h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Token usage and API costs by model
+              </p>
+            </div>
+            <select
+              value={selectedBotId}
+              onChange={(e) => setSelectedBotId(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            >
+              {bots.map((bot) => (
+                <option key={bot.id} value={bot.id}>
+                  {bot.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Usage Stats Cards */}
+          {usageData && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">Total Requests</h3>
+                  <div className="text-3xl font-bold text-gray-900">
+                    {usageData.total.requests.toLocaleString()}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">Input Tokens</h3>
+                  <div className="text-3xl font-bold text-gray-900">
+                    {usageData.total.inputTokens.toLocaleString()}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">Output Tokens</h3>
+                  <div className="text-3xl font-bold text-gray-900">
+                    {usageData.total.outputTokens.toLocaleString()}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">Total Cost</h3>
+                  <div className="text-3xl font-bold text-green-600">
+                    ${usageData.total.cost.toFixed(4)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Usage Over Time Chart */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Usage Over Time</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={usageData.byDate}>
+                    <defs>
+                      <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis
+                      dataKey="date"
+                      stroke="#6b7280"
+                      fontSize={12}
+                      tickFormatter={(value) => {
+                        const date = new Date(value);
+                        return `${date.getMonth() + 1}/${date.getDate()}`;
+                      }}
+                    />
+                    <YAxis stroke="#6b7280" fontSize={12} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                      }}
+                      formatter={(value: any, name: string) => {
+                        if (name === 'cost') return [`$${Number(value).toFixed(4)}`, 'Cost'];
+                        return [Number(value).toLocaleString(), name];
+                      }}
+                    />
+                    <Legend />
+                    <Area
+                      type="monotone"
+                      dataKey="requests"
+                      stroke="#4f46e5"
+                      fillOpacity={1}
+                      fill="url(#colorRequests)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="cost"
+                      stroke="#10b981"
+                      fillOpacity={1}
+                      fill="url(#colorCost)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Model Distribution Pie Chart */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Usage by Model</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={usageData.byModel}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={(entry) => `${entry.model}: ${entry.requests}`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="requests"
+                      >
+                        {usageData.byModel.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={['#4f46e5', '#10b981', '#f59e0b', '#ef4444'][index % 4]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Model Stats Table */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Model Breakdown</h3>
+                  <div className="space-y-4">
+                    {usageData.byModel.map((model, index) => (
+                      <div key={model.model} className="border-b border-gray-100 pb-3 last:border-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-medium text-gray-900">{model.model}</span>
+                          <span className="text-sm font-semibold text-green-600">${model.cost.toFixed(4)}</span>
+                        </div>
+                        <div className="text-xs text-gray-600 space-y-1">
+                          <div className="flex justify-between">
+                            <span>Requests:</span>
+                            <span className="font-medium">{model.requests.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Input Tokens:</span>
+                            <span className="font-medium">{model.inputTokens.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Output Tokens:</span>
+                            <span className="font-medium">{model.outputTokens.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 }
