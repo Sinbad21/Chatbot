@@ -124,6 +124,9 @@ model Bot {
   systemPrompt   String   @default("You are a helpful AI assistant.")
   welcomeMessage String   @default("Hello! How can I help you?")
   color          String   @default("#6366f1")
+  model          String   @default("gpt-5-mini")
+  logoUrl        String?
+  theme          Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -135,6 +138,7 @@ model Bot {
   intents       Intent[]
   faqs          FAQ[]
   analytics     Analytics[]
+  usageLogs     UsageLog[]
 
   @@index([organizationId])
   @@index([userId])
@@ -200,10 +204,14 @@ model Document {
   url       String
   content   String          @db.Text
   status    DocumentStatus  @default(PROCESSING)
+  source    DocumentSource  @default(SCRAPED)
+  excluded  Boolean         @default(false)
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 
+  @@unique([url, botId], name: "unique_url_per_bot")
   @@index([botId])
+  @@index([excluded])
   @@map("documents")
 }
 
@@ -211,6 +219,11 @@ enum DocumentStatus {
   PROCESSING
   COMPLETED
   FAILED
+}
+
+enum DocumentSource {
+  UPLOAD
+  SCRAPED
 }
 
 // ============================================
@@ -492,6 +505,24 @@ model Analytics {
   @@index([botId])
   @@index([date])
   @@map("analytics")
+}
+
+model UsageLog {
+  id           String   @id @default(cuid())
+  botId        String
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  cost         Float
+  createdAt    DateTime @default(now())
+
+  // Relations
+  bot Bot @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@index([botId])
+  @@index([createdAt])
+  @@index([botId, createdAt])
+  @@map("usage_logs")
 }
 
 // ============================================

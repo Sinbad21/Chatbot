@@ -2,6 +2,7 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { LayoutGrid, FileText, Globe, Lightbulb, HelpCircle, MessageSquare } from "lucide-react";
 import BotOverviewTab from "./BotOverviewTab";
 import DocumentsTab from "./DocumentsTab";
 import IntentsTab from "./IntentsTab";
@@ -10,6 +11,15 @@ import TestChatTab from "./TestChatTab";
 import WebScrapingTab from "./WebScrapingTab";
 
 type TabKey = "overview" | "documents" | "scraping" | "intents" | "faqs" | "test";
+
+const tabs = [
+  { key: "overview" as TabKey, label: "Overview", icon: LayoutGrid },
+  { key: "documents" as TabKey, label: "Documents", icon: FileText },
+  { key: "scraping" as TabKey, label: "Web Scraping", icon: Globe },
+  { key: "intents" as TabKey, label: "Intents", icon: Lightbulb },
+  { key: "faqs" as TabKey, label: "FAQ", icon: HelpCircle },
+  { key: "test" as TabKey, label: "Test", icon: MessageSquare },
+];
 
 function InnerBotPage() {
   const searchParams = useSearchParams();
@@ -38,67 +48,25 @@ function InnerBotPage() {
 
   return (
     <div className="p-16 flex flex-col gap-16">
-      <div className="flex gap-8 border-b pb-8 text-sm">
-        <button
-          className={
-            activeTab === "overview"
-              ? "font-semibold text-black"
-              : "text-gray-700 hover:text-black"
-          }
-          onClick={() => setActiveTab("overview")}
-        >
-          Overview
-        </button>
-        <button
-          className={
-            activeTab === "documents"
-              ? "font-semibold text-black"
-              : "text-gray-700 hover:text-black"
-          }
-          onClick={() => setActiveTab("documents")}
-        >
-          Documents
-        </button>
-        <button
-          className={
-            activeTab === "scraping"
-              ? "font-semibold text-black"
-              : "text-gray-700 hover:text-black"
-          }
-          onClick={() => setActiveTab("scraping")}
-        >
-          Web Scraping
-        </button>
-        <button
-          className={
-            activeTab === "intents"
-              ? "font-semibold text-black"
-              : "text-gray-700 hover:text-black"
-          }
-          onClick={() => setActiveTab("intents")}
-        >
-          Intents
-        </button>
-        <button
-          className={
-            activeTab === "faqs"
-              ? "font-semibold text-black"
-              : "text-gray-700 hover:text-black"
-          }
-          onClick={() => setActiveTab("faqs")}
-        >
-          FAQ
-        </button>
-        <button
-          className={
-            activeTab === "test"
-              ? "font-semibold text-black"
-              : "text-gray-700 hover:text-black"
-          }
-          onClick={() => setActiveTab("test")}
-        >
-          Test
-        </button>
+      <div className="flex gap-2 border-b pb-0 overflow-x-auto">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                isActive
+                  ? "border-indigo-600 text-indigo-600"
+                  : "border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300"
+              }`}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              <Icon size={18} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {activeTab === "overview" && <BotOverviewTab botId={botId} />}

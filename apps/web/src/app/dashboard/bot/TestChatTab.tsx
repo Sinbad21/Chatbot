@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { ArrowUp } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -19,6 +20,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
   const [loading, setLoading] = useState(false);
   const [sessionId] = useState(`test-${Date.now()}`);
   const [botName, setBotName] = useState('Bot');
+  const [botLogoUrl, setBotLogoUrl] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -28,6 +30,28 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    // Fetch bot details to get logo
+    const fetchBotDetails = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}`, {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        });
+
+        if (response.ok) {
+          const bot = await response.json();
+          if (bot.name) setBotName(bot.name);
+          if (bot.logoUrl) setBotLogoUrl(bot.logoUrl);
+        }
+      } catch (err) {
+        console.error('Failed to fetch bot details:', err);
+      }
+    };
+
+    fetchBotDetails();
+  }, [botId, apiBaseUrl]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,11 +120,26 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
     <div className="flex flex-col h-[600px] bg-white rounded-lg shadow-sm border border-gray-200">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Test Chat</h3>
-          <p className="text-sm text-gray-600">
-            Prova il tuo bot in tempo reale
-          </p>
+        <div className="flex items-center gap-3">
+          {botLogoUrl ? (
+            <img
+              src={botLogoUrl}
+              alt={botName}
+              className="w-10 h-10 rounded-lg object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center">
+              <span className="text-white font-bold text-lg">
+                {botName.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">{botLogoUrl ? botName : 'Test Chat'}</h3>
+            <p className="text-sm text-gray-600">
+              {botLogoUrl ? 'Test your bot in real-time' : 'Prova il tuo bot in tempo reale'}
+            </p>
+          </div>
         </div>
         <button
           onClick={clearChat}
@@ -124,8 +163,11 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
               >
+                <p className="text-xs font-medium text-gray-600 mb-1 px-1">
+                  {msg.role === 'user' ? 'You' : botName}
+                </p>
                 <div
                   className={`max-w-[70%] rounded-lg px-4 py-2 ${
                     msg.role === 'user'
@@ -134,12 +176,6 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  <p className="text-xs mt-1 opacity-70">
-                    {msg.timestamp.toLocaleTimeString('it-IT', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </p>
                 </div>
               </div>
             ))}
@@ -177,9 +213,10 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+            aria-label="Send message"
           >
-            {loading ? 'Invio...' : 'Invia'}
+            <ArrowUp className="w-5 h-5" />
           </button>
         </form>
       </div>

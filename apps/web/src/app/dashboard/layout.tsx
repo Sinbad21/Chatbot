@@ -15,7 +15,9 @@ import {
   Menu,
   X,
   LogOut,
+  Languages,
 } from 'lucide-react';
+import { useTranslation, LANGUAGES, type Language } from '@/lib/i18n';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
@@ -31,10 +33,12 @@ const navigation = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { t, currentLang, setLanguage } = useTranslation();
   const [userEmail, setUserEmail] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showLangMenu, setShowLangMenu] = useState(false);
 
   useEffect(() => {
     // Auth check
@@ -96,6 +100,47 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span className="text-sm text-gray-900 font-medium hidden sm:block">
                 {userEmail}
               </span>
+
+              {/* Language Selector */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowLangMenu(!showLangMenu)}
+                  className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 font-medium p-2 rounded-lg hover:bg-gray-100"
+                  aria-label="Select Language"
+                >
+                  <Languages size={16} />
+                  <span className="hidden sm:inline">{currentLang.toUpperCase()}</span>
+                </button>
+
+                {showLangMenu && (
+                  <>
+                    {/* Backdrop */}
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setShowLangMenu(false)}
+                    />
+
+                    {/* Dropdown Menu */}
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20 max-h-96 overflow-y-auto">
+                      {Object.entries(LANGUAGES).map(([code, name]) => (
+                        <button
+                          key={code}
+                          onClick={() => {
+                            setLanguage(code as Language);
+                            setShowLangMenu(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
+                            currentLang === code ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700'
+                          }`}
+                        >
+                          {name}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium"

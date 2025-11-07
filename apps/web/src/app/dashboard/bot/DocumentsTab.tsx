@@ -2,12 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { buildAuthHeaders } from '@/lib/authHeaders';
+import { Upload, FileText, File, X, Eye } from 'lucide-react';
 
 interface Document {
   id: string;
-  name: string;
+  title: string;
   content: string;
   status: string;
+  type: string;
+  size: number;
+  source: 'UPLOAD' | 'SCRAPED';
+  excluded: boolean;
   createdAt: string;
 }
 
@@ -21,10 +26,15 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'text' | 'file'>('file');
 
   // Form state
-  const [name, setName] = useState('');
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Modal state
+  const [viewingDocument, setViewingDocument] = useState<Document | null>(null);
 
   useEffect(() => {
     fetchDocuments();
@@ -49,10 +59,79 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['application/pdf', 'text/plain', 'text/markdown'];
+    const allowedExtensions = ['.pdf', '.txt', '.md'];
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+
+    if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+      setError('Only PDF, TXT, and MD files are supported');
+      return;
+    }
+
+    // Validate file size (25MB)
+    const maxSize = 25 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError('File size must be less than 25MB');
+      return;
+    }
+
+    setSelectedFile(file);
+    setError(null);
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedFile) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents/upload`, {
+        method: 'POST',
+        headers: {
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Upload failed (${response.status})`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.message || errorData.error;
+          }
+        } catch {}
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
+      await fetchDocuments(); // Refresh the list
+      setSelectedFile(null);
+      // Reset file input
+      const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+    } catch (err: any) {
+      console.error('Error uploading file:', err);
+      setError(err.message || 'Failed to upload file');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleTextSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim() || !content.trim()) {
+    if (!title.trim() || !content.trim()) {
       return;
     }
 
@@ -67,11 +146,10 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
           'Content-Type': 'application/json',
           ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ name, content }),
+        body: JSON.stringify({ title, content, url: '', type: 'text' }),
       });
 
       if (!response.ok) {
-        // Try to get error details from response
         let errorMessage = `Failed to create document (${response.status})`;
         try {
           const errorData = await response.json();
@@ -80,21 +158,44 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
           } else if (errorData.message) {
             errorMessage = errorData.message;
           }
-        } catch {
-          // If JSON parsing fails, use default message
-        }
+        } catch {}
         throw new Error(errorMessage);
       }
 
-      const newDocument = await response.json();
-      setDocuments([newDocument, ...documents]);
-      setName('');
+      await fetchDocuments(); // Refresh the list
+      setTitle('');
       setContent('');
     } catch (err: any) {
       console.error('Error creating document:', err);
       setError(err.message || 'Failed to create document');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleToggleExclude = async (documentId: string, currentExcluded: boolean) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${apiBaseUrl}/api/v1/documents/${documentId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ excluded: !currentExcluded }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update document');
+      }
+
+      // Update local state
+      setDocuments(documents.map(doc =>
+        doc.id === documentId ? { ...doc, excluded: !currentExcluded } : doc
+      ));
+    } catch (err: any) {
+      console.error('Error toggling exclude:', err);
+      setError(err.message);
     }
   };
 
@@ -119,6 +220,12 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
     }
   };
 
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -132,59 +239,143 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       {/* Add Document Form */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Document</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Document Name
-              <span className="text-xs text-gray-500 ml-2">
-                ({name.length}/200)
-              </span>
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Product Guide, FAQ Document"
-              maxLength={200}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
-              required
-            />
-          </div>
 
-          <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
-              Content
-              <span className="text-xs text-gray-500 ml-2">
-                ({content.length.toLocaleString()}/200,000)
-              </span>
-            </label>
-            <textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Paste your document content here..."
-              rows={8}
-              maxLength={200000}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-gray-900"
-              required
-            />
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
-            </div>
-          )}
-
+        {/* Mode Toggle */}
+        <div className="flex gap-2 mb-6">
           <button
-            type="submit"
-            disabled={submitting}
-            className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            type="button"
+            onClick={() => setUploadMode('file')}
+            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+              uploadMode === 'file'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
           >
-            {submitting ? 'Adding...' : 'Add Document'}
+            <Upload className="inline-block w-4 h-4 mr-2" />
+            Upload File
           </button>
-        </form>
+          <button
+            type="button"
+            onClick={() => setUploadMode('text')}
+            className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+              uploadMode === 'text'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            <FileText className="inline-block w-4 h-4 mr-2" />
+            Paste Text
+          </button>
+        </div>
+
+        {/* File Upload Mode */}
+        {uploadMode === 'file' && (
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2">
+                Select File (PDF, TXT, MD - Max 25MB)
+              </label>
+              <input
+                type="file"
+                id="file-upload"
+                accept=".pdf,.txt,.md"
+                onChange={handleFileSelect}
+                className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+              />
+            </div>
+
+            {selectedFile && (
+              <div className="flex items-center justify-between p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <File className="w-5 h-5 text-indigo-600" />
+                  <div>
+                    <p className="font-medium text-gray-900">{selectedFile.name}</p>
+                    <p className="text-sm text-gray-600">{formatFileSize(selectedFile.size)}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedFile(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleFileUpload}
+              disabled={!selectedFile || submitting}
+              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            >
+              {submitting ? 'Uploading...' : 'Upload Document'}
+            </button>
+          </div>
+        )}
+
+        {/* Text Input Mode */}
+        {uploadMode === 'text' && (
+          <form onSubmit={handleTextSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                Document Title
+                <span className="text-xs text-gray-500 ml-2">
+                  ({title.length}/200)
+                </span>
+              </label>
+              <input
+                type="text"
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Product Guide, FAQ Document"
+                maxLength={200}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
+                Content
+                <span className="text-xs text-gray-500 ml-2">
+                  ({content.length.toLocaleString()}/200,000)
+                </span>
+              </label>
+              <textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Paste your document content here..."
+                rows={8}
+                maxLength={200000}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-gray-900"
+                required
+              />
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            >
+              {submitting ? 'Adding...' : 'Add Document'}
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Documents List */}
@@ -202,37 +393,144 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
             {documents.map((doc) => (
               <div
                 key={doc.id}
-                className="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors"
+                className={`border rounded-lg p-4 transition-colors ${
+                  doc.excluded
+                    ? 'border-gray-300 bg-gray-50'
+                    : 'border-gray-200 hover:border-indigo-300'
+                }`}
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">{doc.name}</h4>
-                    <div className="flex items-center gap-3 mt-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className={`font-medium ${doc.excluded ? 'text-gray-500' : 'text-gray-900'}`}>
+                        {doc.title}
+                      </h4>
+                      {doc.excluded && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
+                          Excluded from training
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 mt-1 flex-wrap">
                       <span className="text-xs text-gray-500">
                         {new Date(doc.createdAt).toLocaleDateString()}
                       </span>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        doc.status === 'active'
+                        doc.status === 'COMPLETED'
                           ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-700'
+                          : doc.status === 'PROCESSING'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-red-100 text-red-700'
                       }`}>
                         {doc.status}
                       </span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                        {doc.type.toUpperCase()}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {formatFileSize(doc.size)}
+                      </span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        doc.source === 'UPLOAD'
+                          ? 'bg-purple-100 text-purple-700'
+                          : 'bg-blue-100 text-blue-700'
+                      }`}>
+                        {doc.source}
+                      </span>
                     </div>
                   </div>
+                </div>
+                <p className={`text-sm mb-3 line-clamp-2 ${doc.excluded ? 'text-gray-500' : 'text-gray-600'}`}>
+                  {doc.content}
+                </p>
+                <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                  <button
+                    onClick={() => setViewingDocument(doc)}
+                    className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+                  >
+                    <Eye className="w-4 h-4" />
+                    View Full Content
+                  </button>
+                  <button
+                    onClick={() => handleToggleExclude(doc.id, doc.excluded)}
+                    className={`text-sm font-medium flex items-center gap-1 ${
+                      doc.excluded
+                        ? 'text-green-600 hover:text-green-700'
+                        : 'text-yellow-600 hover:text-yellow-700'
+                    }`}
+                  >
+                    {doc.excluded ? 'Include in Training' : 'Exclude from Training'}
+                  </button>
                   <button
                     onClick={() => handleDelete(doc.id)}
-                    className="text-red-600 hover:text-red-700 text-sm font-medium"
+                    className="text-sm text-red-600 hover:text-red-700 font-medium ml-auto"
                   >
                     Delete
                   </button>
                 </div>
-                <p className="text-sm text-gray-600 line-clamp-3">{doc.content}</p>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* View Full Content Modal */}
+      {viewingDocument && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-900">{viewingDocument.title}</h3>
+              <button
+                onClick={() => setViewingDocument(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="flex items-center gap-3 mb-4 flex-wrap">
+                <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                  {viewingDocument.type.toUpperCase()}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {formatFileSize(viewingDocument.size)}
+                </span>
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  viewingDocument.source === 'UPLOAD'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {viewingDocument.source}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {new Date(viewingDocument.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono bg-gray-50 p-4 rounded-lg">
+                {viewingDocument.content}
+              </pre>
+            </div>
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+              <button
+                onClick={() => handleToggleExclude(viewingDocument.id, viewingDocument.excluded)}
+                className={`px-4 py-2 rounded-lg font-medium ${
+                  viewingDocument.excluded
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-yellow-600 text-white hover:bg-yellow-700'
+                }`}
+              >
+                {viewingDocument.excluded ? 'Include in Training' : 'Exclude from Training'}
+              </button>
+              <button
+                onClick={() => setViewingDocument(null)}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

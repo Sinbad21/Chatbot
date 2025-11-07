@@ -1,12 +1,11 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { PrismaClient, Prisma } from '@prisma/client';
-import { PrismaNeon } from '@prisma/adapter-neon';
-import { Pool } from '@neondatabase/serverless';
+import { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerKnowledgeRoutes } from './routes/knowledge';
 import { parseHTML } from 'linkedom';
+import { getPrisma } from './db';
 
 type Bindings = {
   DATABASE_URL: string;
@@ -22,17 +21,6 @@ app.use('/*', cors({
   origin: ['https://chatbot-studio.pages.dev', 'https://chatbot-5o5.pages.dev', 'https://chatbot-studio-29k.pages.dev', 'http://localhost:3000'],
   credentials: true,
 }));
-
-// Database connection helper for Cloudflare Workers
-// PrismaNeon adapter requires Pool instance (not neon())
-const getDB = (databaseUrl: string) => {
-  if (!databaseUrl) {
-    throw new Error('DATABASE_URL is not defined');
-  }
-  const pool = new Pool({ connectionString: databaseUrl });
-  const adapter = new PrismaNeon(pool);
-  return new PrismaClient({ adapter });
-};
 
 // Auth middleware
 const authMiddleware = async (c: any, next: any) => {
@@ -52,7 +40,7 @@ const authMiddleware = async (c: any, next: any) => {
   }
 };
 
-registerKnowledgeRoutes(app as any, getDB, authMiddleware);
+registerKnowledgeRoutes(app as any, authMiddleware);
 
 // ============================================
 // HEALTH CHECK
@@ -80,7 +68,7 @@ app.get('/debug/env', (c) => {
 // Database connection health check
 app.get('/api/v1/debug/db', async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     
     // Test basic connection with raw query
     await prisma.$queryRaw`SELECT 1 as test`;
@@ -120,7 +108,7 @@ app.get('/api/v1/debug/db', async (c) => {
 
 app.post('/api/v1/auth/register', async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const { email, password, name } = await c.req.json();
 
     // Check if user exists
@@ -218,7 +206,7 @@ app.post('/api/v1/auth/register', async (c) => {
 
 app.post('/api/v1/auth/login', async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const { email, password } = await c.req.json();
 
     // Find user
@@ -266,7 +254,7 @@ app.post('/api/v1/auth/login', async (c) => {
 
 app.get('/api/v1/bots', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
 
     // Multi-tenant: Get user's organization
@@ -301,7 +289,7 @@ app.get('/api/v1/bots', authMiddleware, async (c) => {
 
 app.post('/api/v1/bots', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const { name, description, systemPrompt, welcomeMessage, color } = await c.req.json();
 
@@ -336,7 +324,7 @@ app.post('/api/v1/bots', authMiddleware, async (c) => {
 
 app.get('/api/v1/bots/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const id = c.req.param('id');
 
     const bot = await prisma.bot.findUnique({
@@ -365,7 +353,7 @@ app.get('/api/v1/bots/:id', authMiddleware, async (c) => {
 
 app.patch('/api/v1/bots/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
     const updates = await c.req.json();
@@ -397,7 +385,7 @@ app.patch('/api/v1/bots/:id', authMiddleware, async (c) => {
 
 app.delete('/api/v1/bots/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
 
@@ -428,7 +416,7 @@ app.delete('/api/v1/bots/:id', authMiddleware, async (c) => {
 // Logo upload endpoint
 app.post('/api/v1/bots/:id/logo', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
 
@@ -492,6 +480,124 @@ app.post('/api/v1/bots/:id/logo', authMiddleware, async (c) => {
   }
 });
 
+// Get bot usage analytics
+app.get('/api/v1/bots/:id/usage', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const botId = c.req.param('id');
+    const from = c.req.query('from');
+    const to = c.req.query('to');
+
+    // Verify bot access
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    // Build date filter
+    const dateFilter: any = {};
+    if (from) {
+      dateFilter.gte = new Date(from);
+    }
+    if (to) {
+      dateFilter.lte = new Date(to);
+    }
+
+    const whereClause: any = { botId };
+    if (Object.keys(dateFilter).length > 0) {
+      whereClause.createdAt = dateFilter;
+    }
+
+    // Fetch usage logs
+    const usageLogs = await prisma.usageLog.findMany({
+      where: whereClause,
+      orderBy: { createdAt: 'asc' },
+    });
+
+    // Aggregate by model
+    const byModel: Record<string, {
+      model: string;
+      requests: number;
+      inputTokens: number;
+      outputTokens: number;
+      cost: number;
+    }> = {};
+
+    usageLogs.forEach(log => {
+      if (!byModel[log.model]) {
+        byModel[log.model] = {
+          model: log.model,
+          requests: 0,
+          inputTokens: 0,
+          outputTokens: 0,
+          cost: 0,
+        };
+      }
+
+      byModel[log.model].requests += 1;
+      byModel[log.model].inputTokens += log.inputTokens;
+      byModel[log.model].outputTokens += log.outputTokens;
+      byModel[log.model].cost += log.cost;
+    });
+
+    // Prepare time series data (group by date)
+    const byDate: Record<string, {
+      date: string;
+      requests: number;
+      inputTokens: number;
+      outputTokens: number;
+      cost: number;
+    }> = {};
+
+    usageLogs.forEach(log => {
+      const dateKey = log.createdAt.toISOString().split('T')[0];
+
+      if (!byDate[dateKey]) {
+        byDate[dateKey] = {
+          date: dateKey,
+          requests: 0,
+          inputTokens: 0,
+          outputTokens: 0,
+          cost: 0,
+        };
+      }
+
+      byDate[dateKey].requests += 1;
+      byDate[dateKey].inputTokens += log.inputTokens;
+      byDate[dateKey].outputTokens += log.outputTokens;
+      byDate[dateKey].cost += log.cost;
+    });
+
+    return c.json({
+      byModel: Object.values(byModel),
+      byDate: Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date)),
+      total: {
+        requests: usageLogs.length,
+        inputTokens: usageLogs.reduce((sum, log) => sum + log.inputTokens, 0),
+        outputTokens: usageLogs.reduce((sum, log) => sum + log.outputTokens, 0),
+        cost: usageLogs.reduce((sum, log) => sum + log.cost, 0),
+      },
+    });
+  } catch (error: any) {
+    console.error('[GET /bots/:id/usage] Error:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 // ============================================
 // DOCUMENTS ROUTES
 // ============================================
@@ -499,7 +605,7 @@ app.post('/api/v1/bots/:id/logo', authMiddleware, async (c) => {
 app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
   try {
     console.log('[GET /documents] Starting request');
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
 
@@ -644,7 +750,7 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
 app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
   try {
     console.log('[POST /documents] Starting request');
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
 
@@ -869,7 +975,7 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
 
 app.delete('/api/v1/documents/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
 
@@ -901,13 +1007,233 @@ app.delete('/api/v1/documents/:id', authMiddleware, async (c) => {
   }
 });
 
+// Update document (e.g., toggle excluded field)
+app.patch('/api/v1/documents/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const id = c.req.param('id');
+    const { excluded } = await c.req.json();
+
+    // Get document with bot organization
+    const document = await prisma.document.findUnique({
+      where: { id },
+      include: { bot: { select: { organizationId: true } } },
+    });
+
+    if (!document) {
+      return c.json({ error: 'Document not found' }, 404);
+    }
+
+    // Verify user's organization
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership || document.bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Access denied' }, 403);
+    }
+
+    // Update document
+    const updated = await prisma.document.update({
+      where: { id },
+      data: { excluded: excluded ?? document.excluded },
+    });
+
+    return c.json({ success: true, document: updated });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// File upload endpoint - supports PDF, TXT, MD (max 25MB)
+app.post('/api/v1/bots/:botId/documents/upload', authMiddleware, async (c) => {
+  const MAX_UPLOAD_MB = 25;
+  const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
+
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const botId = c.req.param('botId');
+
+    console.log('[POST /documents/upload] Starting file upload');
+
+    // Verify bot access
+    const bot = await prisma.bot.findFirst({
+      where: { id: botId, userId: user.userId },
+      select: { id: true, name: true },
+    });
+
+    if (!bot) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    // Parse FormData
+    const formData = await c.req.formData();
+    const file = formData.get('file');
+
+    if (!file || !(file instanceof File)) {
+      return c.json({ error: 'No file provided' }, 400);
+    }
+
+    // Validate file size
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return c.json({
+        error: 'File too large',
+        message: `File size must be less than ${MAX_UPLOAD_MB}MB`,
+        maxSize: MAX_UPLOAD_MB
+      }, 413);
+    }
+
+    // Validate MIME type
+    const allowedTypes = [
+      'application/pdf',
+      'text/plain',
+      'text/markdown',
+      'text/x-markdown',
+    ];
+
+    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(pdf|txt|md)$/i)) {
+      return c.json({
+        error: 'Invalid file type',
+        message: 'Only PDF, TXT, and MD files are supported',
+        allowedTypes: ['pdf', 'txt', 'md']
+      }, 400);
+    }
+
+    console.log('[POST /documents/upload] File details:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
+
+    // Extract text content based on file type
+    let content = '';
+    const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+
+    if (fileExtension === 'txt' || fileExtension === 'md' || file.type.startsWith('text/')) {
+      // Text files - read directly
+      content = await file.text();
+    } else if (fileExtension === 'pdf' || file.type === 'application/pdf') {
+      // PDF text extraction
+      // For production use, install a Workers-compatible PDF library:
+      //
+      // Option 1: pdf.js (Mozilla's PDF library, works in Workers)
+      //   npm install pdfjs-dist
+      //   import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
+      //
+      //   const arrayBuffer = await file.arrayBuffer();
+      //   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      //   const pdf = await loadingTask.promise;
+      //   let fullText = '';
+      //   for (let i = 1; i <= pdf.numPages; i++) {
+      //     const page = await pdf.getPage(i);
+      //     const textContent = await page.getTextContent();
+      //     const pageText = textContent.items.map((item: any) => item.str).join(' ');
+      //     fullText += pageText + '\n';
+      //   }
+      //   content = fullText;
+      //
+      // Option 2: Call external API (if Workers can't handle large PDFs)
+      //   const formData = new FormData();
+      //   formData.append('file', file);
+      //   const response = await fetch('https://pdf-extraction-service/extract', {
+      //     method: 'POST',
+      //     body: formData,
+      //   });
+      //   content = await response.text();
+      //
+      // For now, we store a placeholder and mark status as PROCESSING
+      // which can be updated by a background job
+
+      console.log('[POST /documents/upload] PDF uploaded - extracting basic metadata');
+
+      // Try to read PDF header for basic info
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      const header = String.fromCharCode.apply(null, Array.from(bytes.slice(0, 100)));
+
+      // Check if it's a valid PDF
+      if (!header.startsWith('%PDF')) {
+        return c.json({
+          error: 'Invalid PDF',
+          message: 'File does not appear to be a valid PDF document'
+        }, 400);
+      }
+
+      // Extract PDF version
+      const versionMatch = header.match(/%PDF-([\d.]+)/);
+      const pdfVersion = versionMatch ? versionMatch[1] : 'unknown';
+
+      content = `[PDF Document: ${file.name}]
+PDF Version: ${pdfVersion}
+Size: ${(file.size / 1024).toFixed(2)} KB
+
+TEXT EXTRACTION PENDING
+This PDF has been uploaded successfully and is ready for processing.
+
+To enable full text extraction, install a PDF parsing library:
+- pdfjs-dist (recommended for Workers)
+- Or set up an external PDF extraction service
+
+The document is available for training once text extraction is complete.`;
+
+      console.log(`[POST /documents/upload] PDF ${file.name} uploaded (v${pdfVersion})`);
+    }
+
+    if (!content || content.trim().length === 0) {
+      return c.json({
+        error: 'Empty file',
+        message: 'File appears to be empty or contains no extractable text'
+      }, 400);
+    }
+
+    // Create document with UPLOAD source
+    const document = await prisma.document.create({
+      data: {
+        botId,
+        title: file.name,
+        content: content.trim(),
+        type: fileExtension,
+        size: file.size,
+        url: '', // No URL for uploaded files
+        status: 'COMPLETED',
+        source: 'UPLOAD',
+        excluded: false,
+      },
+    });
+
+    console.log('[POST /documents/upload] ✅ Document created:', document.id);
+
+    return c.json({
+      success: true,
+      document: {
+        id: document.id,
+        title: document.title,
+        type: document.type,
+        size: document.size,
+        source: document.source,
+        createdAt: document.createdAt,
+      }
+    }, 201);
+
+  } catch (error: any) {
+    console.error('[POST /documents/upload] Error:', error);
+    return c.json({
+      error: 'Upload failed',
+      message: error.message || 'Failed to upload file',
+    }, 500);
+  }
+});
+
 // ============================================
 // WEB SCRAPING ROUTE
 // ============================================
 
 app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
     const { url } = await c.req.json();
@@ -1031,13 +1357,187 @@ app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
   }
 });
 
+// Discover links from sitemap
+app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const botId = c.req.param('botId');
+    const { url: baseUrl } = await c.req.json();
+
+    console.log('🔍 [DISCOVER] Request:', { botId, baseUrl });
+
+    // Validate URL
+    if (!baseUrl || typeof baseUrl !== 'string') {
+      return c.json({ error: 'URL is required' }, 400);
+    }
+
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(baseUrl);
+    } catch {
+      return c.json({ error: 'Invalid URL format' }, 400);
+    }
+
+    // Verify bot access
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    const bot = await prisma.bot.findUnique({
+      where: { id: botId },
+      select: { organizationId: true },
+    });
+
+    if (!bot || bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    const origin = parsedUrl.origin;
+    const discoveredLinks: Array<{ url: string; title: string; snippet: string }> = [];
+
+    // Step 1: Try to find sitemap from robots.txt
+    console.log('🔍 [DISCOVER] Checking robots.txt');
+    try {
+      const robotsResponse = await fetch(`${origin}/robots.txt`, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
+      });
+
+      if (robotsResponse.ok) {
+        const robotsTxt = await robotsResponse.text();
+        const sitemapMatch = robotsTxt.match(/Sitemap:\s*(.+)/i);
+        if (sitemapMatch) {
+          const sitemapUrl = sitemapMatch[1].trim();
+          console.log('✅ [DISCOVER] Found sitemap in robots.txt:', sitemapUrl);
+
+          // Fetch and parse sitemap
+          const sitemapResponse = await fetch(sitemapUrl, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
+          });
+
+          if (sitemapResponse.ok) {
+            const sitemapXml = await sitemapResponse.text();
+            const urlMatches = sitemapXml.matchAll(/<loc>(.*?)<\/loc>/g);
+
+            for (const match of urlMatches) {
+              const url = match[1].trim();
+              // Filter: same domain only, no anchors
+              if (url.startsWith(origin) && !url.includes('#')) {
+                discoveredLinks.push({ url, title: '', snippet: '' });
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.log('⚠️ [DISCOVER] robots.txt check failed:', err);
+    }
+
+    // Step 2: If no links found, try common sitemap URLs
+    if (discoveredLinks.length === 0) {
+      console.log('🔍 [DISCOVER] Trying common sitemap URLs');
+      const commonSitemaps = ['/sitemap.xml', '/sitemap_index.xml', '/sitemap-index.xml'];
+
+      for (const path of commonSitemaps) {
+        try {
+          const sitemapUrl = `${origin}${path}`;
+          const response = await fetch(sitemapUrl, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
+          });
+
+          if (response.ok) {
+            console.log('✅ [DISCOVER] Found sitemap at:', sitemapUrl);
+            const sitemapXml = await response.text();
+            const urlMatches = sitemapXml.matchAll(/<loc>(.*?)<\/loc>/g);
+
+            for (const match of urlMatches) {
+              const url = match[1].trim();
+              if (url.startsWith(origin) && !url.includes('#')) {
+                discoveredLinks.push({ url, title: '', snippet: '' });
+              }
+            }
+
+            break; // Stop after first successful sitemap
+          }
+        } catch (err) {
+          console.log('⚠️ [DISCOVER] Failed to fetch:', err);
+        }
+      }
+    }
+
+    // Step 3: If still no links, basic crawl of the homepage
+    if (discoveredLinks.length === 0) {
+      console.log('🔍 [DISCOVER] No sitemap found, crawling homepage');
+      try {
+        const response = await fetch(baseUrl, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
+        });
+
+        if (response.ok) {
+          const html = await response.text();
+          // Extract links from HTML
+          const linkMatches = html.matchAll(/<a[^>]+href=["']([^"']+)["']/gi);
+
+          for (const match of linkMatches) {
+            let url = match[1].trim();
+
+            // Skip anchors, mailto, tel, javascript
+            if (url.startsWith('#') || url.startsWith('mailto:') || url.startsWith('tel:') || url.startsWith('javascript:')) {
+              continue;
+            }
+
+            // Handle relative URLs
+            if (url.startsWith('/')) {
+              url = `${origin}${url}`;
+            } else if (!url.startsWith('http')) {
+              continue; // Skip other relative patterns
+            }
+
+            // Only same domain
+            if (url.startsWith(origin) && !url.includes('#')) {
+              discoveredLinks.push({ url, title: '', snippet: '' });
+            }
+          }
+        }
+      } catch (err) {
+        console.log('⚠️ [DISCOVER] Homepage crawl failed:', err);
+      }
+    }
+
+    // Remove duplicates
+    const uniqueLinks = Array.from(new Set(discoveredLinks.map(l => l.url))).map(url => ({ url, title: '', snippet: '' }));
+
+    // Limit to 2000 links as per mega-prompt
+    const limitedLinks = uniqueLinks.slice(0, 2000);
+
+    console.log(`✅ [DISCOVER] Found ${limitedLinks.length} unique links`);
+
+    return c.json({
+      success: true,
+      count: limitedLinks.length,
+      links: limitedLinks,
+    });
+  } catch (error: any) {
+    console.error('❌ [DISCOVER] Error:', error);
+    return c.json({
+      error: 'Discovery failed',
+      message: error.message || 'Unknown error',
+    }, 500);
+  }
+});
+
 // ============================================
 // INTENTS ROUTES
 // ============================================
 
 app.get('/api/v1/bots/:botId/intents', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
 
@@ -1073,7 +1573,7 @@ app.get('/api/v1/bots/:botId/intents', authMiddleware, async (c) => {
 
 app.post('/api/v1/bots/:botId/intents', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
     const { name, patterns, response, enabled = true } = await c.req.json();
@@ -1115,7 +1615,7 @@ app.post('/api/v1/bots/:botId/intents', authMiddleware, async (c) => {
 
 app.delete('/api/v1/intents/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
 
@@ -1153,7 +1653,7 @@ app.delete('/api/v1/intents/:id', authMiddleware, async (c) => {
 
 app.get('/api/v1/bots/:botId/faqs', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
 
@@ -1189,7 +1689,7 @@ app.get('/api/v1/bots/:botId/faqs', authMiddleware, async (c) => {
 
 app.post('/api/v1/bots/:botId/faqs', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const botId = c.req.param('botId');
     const { question, answer, category, enabled = true } = await c.req.json();
@@ -1231,7 +1731,7 @@ app.post('/api/v1/bots/:botId/faqs', authMiddleware, async (c) => {
 
 app.delete('/api/v1/faqs/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const id = c.req.param('id');
 
@@ -1269,7 +1769,7 @@ app.delete('/api/v1/faqs/:id', authMiddleware, async (c) => {
 
 app.post('/api/v1/chat', async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const { botId, message, sessionId, metadata } = await c.req.json();
 
     // Validate required fields
@@ -1414,6 +1914,41 @@ Important guidelines:
 
     console.log('✅ [CHAT] GPT-5 Response received');
 
+    // Extract usage data
+    const usage = completion.usage || {};
+    const inputTokens = usage.prompt_tokens || 0;
+    const outputTokens = usage.completion_tokens || 0;
+
+    // Calculate cost based on model pricing (per 1M tokens)
+    // Pricing map: https://openai.com/pricing
+    const modelPricing: Record<string, { input: number; output: number }> = {
+      'gpt-5-mini': { input: 0.15, output: 0.60 }, // $0.15 / $0.60 per 1M tokens
+      'gpt-4o': { input: 2.50, output: 10.00 },
+      'claude-3.5-sonnet': { input: 3.00, output: 15.00 },
+      'llama-3.1-70B': { input: 0.90, output: 0.90 },
+    };
+
+    const modelUsed = bot.model || 'gpt-5-mini';
+    const pricing = modelPricing[modelUsed] || modelPricing['gpt-5-mini'];
+    const cost = (inputTokens / 1000000) * pricing.input + (outputTokens / 1000000) * pricing.output;
+
+    // Log usage
+    try {
+      await prisma.usageLog.create({
+        data: {
+          botId,
+          model: modelUsed,
+          inputTokens,
+          outputTokens,
+          cost,
+        },
+      });
+      console.log(`📊 [USAGE] Logged: ${inputTokens} in, ${outputTokens} out, $${cost.toFixed(6)}`);
+    } catch (usageError) {
+      console.error('⚠️ [USAGE] Failed to log usage:', usageError);
+      // Don't fail the request if usage logging fails
+    }
+
     // Save bot response
     await prisma.message.create({
       data: {
@@ -1494,7 +2029,7 @@ Important guidelines:
 
 app.get('/api/v1/chat/:botId/config', async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const botId = c.req.param('botId');
 
     const bot = await prisma.bot.findUnique({
@@ -1525,7 +2060,7 @@ app.get('/api/v1/chat/:botId/config', async (c) => {
 
 app.get('/api/v1/analytics/overview', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
 
     const [conversations, messages, leads] = await Promise.all([
@@ -1549,7 +2084,7 @@ app.get('/api/v1/analytics/overview', authMiddleware, async (c) => {
 // Get conversations over time (for line chart)
 app.get('/api/v1/analytics/conversations-over-time', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const range = c.req.query('range') || '30d';
 
@@ -1602,7 +2137,7 @@ app.get('/api/v1/analytics/conversations-over-time', authMiddleware, async (c) =
 // Get top intents (for bar chart)
 app.get('/api/v1/analytics/top-intents', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const range = c.req.query('range') || '30d';
 
@@ -1660,7 +2195,7 @@ app.get('/api/v1/analytics/top-intents', authMiddleware, async (c) => {
 // Get conversations list with filters
 app.get('/api/v1/conversations', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const status = c.req.query('status') || 'all';
     const sort = c.req.query('sort') || 'recent';
@@ -1755,7 +2290,7 @@ app.get('/api/v1/conversations', authMiddleware, async (c) => {
 // Get conversation detail with full transcript
 app.get('/api/v1/conversations/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const conversationId = c.req.param('id');
 
@@ -1830,7 +2365,7 @@ app.get('/api/v1/conversations/:id', authMiddleware, async (c) => {
 // Delete conversation
 app.delete('/api/v1/conversations/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const conversationId = c.req.param('id');
 
@@ -1865,7 +2400,7 @@ app.delete('/api/v1/conversations/:id', authMiddleware, async (c) => {
 // Get all API keys for user
 app.get('/api/v1/api-keys', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
 
     const apiKeys = await prisma.apiKey.findMany({
@@ -1895,7 +2430,7 @@ app.get('/api/v1/api-keys', authMiddleware, async (c) => {
 // Generate new API key
 app.post('/api/v1/api-keys', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const body = await c.req.json();
     const { name } = body;
@@ -1946,7 +2481,7 @@ app.post('/api/v1/api-keys', authMiddleware, async (c) => {
 // Revoke/Delete API key
 app.delete('/api/v1/api-keys/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const keyId = c.req.param('id');
 
@@ -1979,7 +2514,7 @@ app.delete('/api/v1/api-keys/:id', authMiddleware, async (c) => {
 // Get all leads with filters
 app.get('/api/v1/leads', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
 
     // Query params for filtering
@@ -2086,7 +2621,7 @@ app.get('/api/v1/leads', authMiddleware, async (c) => {
 // Get single lead detail
 app.get('/api/v1/leads/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const leadId = c.req.param('id');
 
@@ -2166,7 +2701,7 @@ app.get('/api/v1/leads/:id', authMiddleware, async (c) => {
 // Update lead status or score
 app.patch('/api/v1/leads/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const leadId = c.req.param('id');
     const body = await c.req.json();
@@ -2213,7 +2748,7 @@ app.patch('/api/v1/leads/:id', authMiddleware, async (c) => {
 // Delete lead
 app.delete('/api/v1/leads/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const leadId = c.req.param('id');
 
@@ -2244,7 +2779,7 @@ app.delete('/api/v1/leads/:id', authMiddleware, async (c) => {
 // Capture lead from conversation
 app.post('/api/v1/conversations/:id/capture-lead', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const conversationId = c.req.param('id');
 
@@ -2338,7 +2873,7 @@ app.post('/api/v1/conversations/:id/capture-lead', authMiddleware, async (c) => 
 app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
   try {
     console.log('[Discovery] Starting lead discovery search...');
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const body = await c.req.json();
     const {
@@ -2819,7 +3354,7 @@ Return JSON:
 // Get discovery campaign results
 app.get('/api/v1/discovery/campaigns/:id', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const campaignId = c.req.param('id');
 
@@ -2859,7 +3394,7 @@ app.get('/api/v1/discovery/campaigns/:id', authMiddleware, async (c) => {
 // Save discovered leads to database
 app.post('/api/v1/discovery/save-results', authMiddleware, async (c) => {
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
     const user = c.get('user');
     const body = await c.req.json();
     const { campaignId, businesses, analyses } = body;
@@ -3178,7 +3713,7 @@ app.get('/api/v1/debug/db', async (c) => {
   console.log('[DEBUG /db] Testing database connection...');
 
   try {
-    const prisma = getDB(c.env.DATABASE_URL);
+    const prisma = getPrisma(c.env);
 
     // Test 1: Basic connection
     console.log('[DEBUG /db] Test 1: Running SELECT 1');

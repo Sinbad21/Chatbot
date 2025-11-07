@@ -47,6 +47,34 @@ const MODELS = [
   { value: "llama-3.1-70B", label: "Llama 3.1 70B" },
 ];
 
+const PROMPT_TEMPLATES = [
+  {
+    name: "Customer Support",
+    systemPrompt: "You are a helpful customer support assistant. Be friendly, patient, and professional. Always aim to resolve customer issues efficiently. If you don't know the answer, offer to escalate to a human agent.",
+    welcomeMessage: "Hi! I'm here to help. What can I assist you with today?"
+  },
+  {
+    name: "Sales Assistant",
+    systemPrompt: "You are a knowledgeable sales assistant. Help customers find the right products, answer questions about features and pricing, and guide them through the purchase process. Be enthusiastic but not pushy.",
+    welcomeMessage: "Welcome! I'd love to help you find exactly what you're looking for. What brings you here today?"
+  },
+  {
+    name: "Technical Support",
+    systemPrompt: "You are a technical support specialist. Provide clear, step-by-step instructions to help users troubleshoot issues. Use simple language and avoid jargon unless necessary. Always be patient and thorough.",
+    welcomeMessage: "Hello! I'm here to help you resolve any technical issues. Please describe what problem you're experiencing."
+  },
+  {
+    name: "FAQ Assistant",
+    systemPrompt: "You are an FAQ assistant. Answer questions based on the knowledge base and documentation provided. Be concise and accurate. If information isn't available, politely let users know.",
+    welcomeMessage: "Hi! Ask me anything about our products, services, or policies."
+  },
+  {
+    name: "General Assistant",
+    systemPrompt: "You are a friendly and helpful assistant. Answer questions clearly and accurately. Be conversational while maintaining professionalism.",
+    welcomeMessage: "Hello! How can I help you today?"
+  }
+];
+
 export default function BotOverviewTab({ botId }: Props) {
   const router = useRouter();
   const [bot, setBot] = useState<Bot | null>(null);
@@ -67,12 +95,14 @@ export default function BotOverviewTab({ botId }: Props) {
     topbarText: "#ffffff",
   });
 
+  // Track if prompts have unsaved changes
+  const [hasPromptChanges, setHasPromptChanges] = useState(false);
+  const [promptsSaving, setPromptsSaving] = useState(false);
+
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
-  // Debounce timers
-  const promptTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const welcomeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Debounce timers (only for theme now)
   const themeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const showToast = (message: string, type: ToastType = "info") => {
@@ -166,30 +196,42 @@ export default function BotOverviewTab({ botId }: Props) {
     }
   };
 
-  // Debounced save for system prompt
+  // Handle prompt changes (no auto-save)
   const handleSystemPromptChange = (value: string) => {
     setSystemPrompt(value);
-
-    if (promptTimerRef.current) {
-      clearTimeout(promptTimerRef.current);
-    }
-
-    promptTimerRef.current = setTimeout(() => {
-      updateBot({ systemPrompt: value });
-    }, 500);
+    setHasPromptChanges(true);
   };
 
-  // Debounced save for welcome message
+  // Handle welcome message changes (no auto-save)
   const handleWelcomeMessageChange = (value: string) => {
     setWelcomeMessage(value);
+    setHasPromptChanges(true);
+  };
 
-    if (welcomeTimerRef.current) {
-      clearTimeout(welcomeTimerRef.current);
+  // Apply prompt changes with explicit save
+  const applyPromptChanges = async () => {
+    setPromptsSaving(true);
+    try {
+      await updateBot({ systemPrompt, welcomeMessage });
+      setHasPromptChanges(false);
+      // Revalidate cache if needed (Next.js will handle this on next load)
+    } catch (err) {
+      // Error already handled by updateBot
+    } finally {
+      setPromptsSaving(false);
     }
+  };
 
-    welcomeTimerRef.current = setTimeout(() => {
-      updateBot({ welcomeMessage: value });
-    }, 500);
+  // Apply prompt template
+  const handleTemplateSelect = (templateName: string) => {
+    if (!templateName) return;
+
+    const template = PROMPT_TEMPLATES.find(t => t.name === templateName);
+    if (template) {
+      setSystemPrompt(template.systemPrompt);
+      setWelcomeMessage(template.welcomeMessage);
+      setHasPromptChanges(true);
+    }
   };
 
   // Immediate save for model
@@ -437,8 +479,52 @@ export default function BotOverviewTab({ botId }: Props) {
 
       {/* Prompts */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Prompts & Messages</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900">Prompts & Messages</h2>
+          {hasPromptChanges && (
+            <button
+              onClick={applyPromptChanges}
+              disabled={promptsSaving}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm flex items-center gap-2"
+            >
+              {promptsSaving ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Applying...
+                </>
+              ) : (
+                <>
+                  <Check size={16} />
+                  Apply Changes
+                </>
+              )}
+            </button>
+          )}
+        </div>
+
         <div className="space-y-4">
+          {/* Prompt Templates Dropdown */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Prompt Template (Optional)
+            </label>
+            <select
+              onChange={(e) => handleTemplateSelect(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              defaultValue=""
+            >
+              <option value="">-- Select a template to get started --</option>
+              {PROMPT_TEMPLATES.map((template) => (
+                <option key={template.name} value={template.name}>
+                  {template.name}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Choose a pre-made template to quickly set up your bot's personality
+            </p>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Welcome Message
@@ -451,7 +537,7 @@ export default function BotOverviewTab({ botId }: Props) {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Auto-saves after 500ms of inactivity
+              {hasPromptChanges ? "Click 'Apply Changes' to save" : "First message users see"}
             </p>
           </div>
 
@@ -467,7 +553,7 @@ export default function BotOverviewTab({ botId }: Props) {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Define the bot's personality and behavior. Auto-saves after 500ms.
+              {hasPromptChanges ? "Click 'Apply Changes' to save" : "Define the bot's personality and behavior"}
             </p>
           </div>
         </div>
