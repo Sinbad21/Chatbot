@@ -56,6 +56,9 @@ export default function LoginPage() {
       localStorage.setItem('refreshToken', data.tokens.refreshToken);
       localStorage.setItem('user', JSON.stringify(data.user));
 
+      // Set auth session cookie for middleware protection
+      document.cookie = `auth_session=true; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (err: any) {

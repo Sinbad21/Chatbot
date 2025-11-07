@@ -46,7 +46,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const userStr = localStorage.getItem('user');
 
     if (!token || !userStr) {
-      // Not authenticated - redirect to login
+      // Not authenticated - clear session cookie and redirect to login
+      document.cookie = 'auth_session=; path=/; max-age=0';
       router.push('/auth/login');
       return;
     }
@@ -56,7 +57,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       setUserEmail(user.email || 'user@example.com');
       setIsAuthenticated(true);
     } catch (e) {
-      // Invalid user data - redirect to login
+      // Invalid user data - clear session cookie and redirect to login
+      document.cookie = 'auth_session=; path=/; max-age=0';
       router.push('/auth/login');
       return;
     } finally {
@@ -68,6 +70,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+
+    // Remove auth session cookie
+    document.cookie = 'auth_session=; path=/; max-age=0';
+
     router.push('/auth/login');
   };
 
