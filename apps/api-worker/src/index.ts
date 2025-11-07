@@ -1309,6 +1309,21 @@ app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
       return c.json({ error: 'Invalid URL format' }, 400);
     }
 
+    // Filter out invalid URLs
+    if (url.includes('#')) {
+      return c.json({ error: 'URLs with anchors (#) are not allowed' }, 400);
+    }
+
+    if (url.startsWith('mailto:') || url.startsWith('tel:') || url.startsWith('javascript:')) {
+      return c.json({ error: 'Invalid URL scheme' }, 400);
+    }
+
+    // Filter out common file extensions
+    const fileExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.gif', '.svg', '.zip', '.rar', '.tar', '.gz', '.mp4', '.avi', '.mov', '.mp3', '.wav', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'];
+    if (fileExtensions.some(ext => url.toLowerCase().endsWith(ext))) {
+      return c.json({ error: 'File downloads are not allowed, only HTML pages' }, 400);
+    }
+
     // Verify bot access
     const membership = await prisma.organizationMember.findFirst({
       where: { userId: user.userId },
@@ -3627,11 +3642,16 @@ app.post('/api/v1/scrape', authMiddleware, async (c) => {
         const href = a.getAttribute('href');
         if (!href) return null;
 
+        // Skip anchors, mailto, tel, javascript
+        if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:')) {
+          return null;
+        }
+
         // Convert relative URLs to absolute
         try {
           const absoluteUrl = new URL(href, targetUrl.href);
-          // Only return http/https URLs
-          if (absoluteUrl.protocol === 'http:' || absoluteUrl.protocol === 'https:') {
+          // Only return http/https URLs without anchors
+          if ((absoluteUrl.protocol === 'http:' || absoluteUrl.protocol === 'https:') && !absoluteUrl.href.includes('#')) {
             return {
               url: absoluteUrl.href,
               text: a.textContent?.trim() || '',
@@ -3681,6 +3701,11 @@ app.get('/api/v1/scrape', authMiddleware, async (c) => {
       new URL(url);
     } catch (e) {
       return c.json({ error: 'Invalid URL format' }, 400);
+    }
+
+    // Filter out invalid URLs
+    if (url.includes('#')) {
+      return c.json({ error: 'URLs with anchors (#) are not allowed' }, 400);
     }
 
     console.log('[Scrape Preview] Fetching:', url);
