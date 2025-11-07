@@ -513,17 +513,28 @@ app.post('/api/v1/bots/:id/logo', authMiddleware, async (c) => {
     const user = c.get('user');
     const id = c.req.param('id');
 
-    // Verify bot belongs to user
+    // Verify user's organization membership
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    // Verify bot belongs to user's organization
     const existingBot = await prisma.bot.findUnique({
       where: { id },
+      select: { id: true, organizationId: true },
     });
 
     if (!existingBot) {
       return c.json({ error: 'Bot not found' }, 404);
     }
 
-    if (existingBot.userId !== user.userId) {
-      return c.json({ error: 'Unauthorized' }, 403);
+    if (existingBot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Access denied' }, 403);
     }
 
     // Parse FormData
