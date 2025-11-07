@@ -889,6 +889,166 @@ app.delete('/api/v1/documents/:id', authMiddleware, async (c) => {
   }
 });
 
+// Update document (e.g., toggle excluded field)
+app.patch('/api/v1/documents/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const id = c.req.param('id');
+    const { excluded } = await c.req.json();
+
+    // Get document with bot organization
+    const document = await prisma.document.findUnique({
+      where: { id },
+      include: { bot: { select: { organizationId: true } } },
+    });
+
+    if (!document) {
+      return c.json({ error: 'Document not found' }, 404);
+    }
+
+    // Verify user's organization
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership || document.bot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Access denied' }, 403);
+    }
+
+    // Update document
+    const updated = await prisma.document.update({
+      where: { id },
+      data: { excluded: excluded ?? document.excluded },
+    });
+
+    return c.json({ success: true, document: updated });
+  } catch (error: any) {
+    return c.json({ error: error.message }, 500);
+  }
+});
+
+// File upload endpoint - supports PDF, TXT, MD (max 25MB)
+app.post('/api/v1/bots/:botId/documents/upload', authMiddleware, async (c) => {
+  const MAX_UPLOAD_MB = 25;
+  const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
+
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const botId = c.req.param('botId');
+
+    console.log('[POST /documents/upload] Starting file upload');
+
+    // Verify bot access
+    const bot = await prisma.bot.findFirst({
+      where: { id: botId, userId: user.userId },
+      select: { id: true, name: true },
+    });
+
+    if (!bot) {
+      return c.json({ error: 'Bot not found or access denied' }, 404);
+    }
+
+    // Parse FormData
+    const formData = await c.req.formData();
+    const file = formData.get('file');
+
+    if (!file || !(file instanceof File)) {
+      return c.json({ error: 'No file provided' }, 400);
+    }
+
+    // Validate file size
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return c.json({
+        error: 'File too large',
+        message: `File size must be less than ${MAX_UPLOAD_MB}MB`,
+        maxSize: MAX_UPLOAD_MB
+      }, 413);
+    }
+
+    // Validate MIME type
+    const allowedTypes = [
+      'application/pdf',
+      'text/plain',
+      'text/markdown',
+      'text/x-markdown',
+    ];
+
+    if (!allowedTypes.includes(file.type) && !file.name.match(/\.(pdf|txt|md)$/i)) {
+      return c.json({
+        error: 'Invalid file type',
+        message: 'Only PDF, TXT, and MD files are supported',
+        allowedTypes: ['pdf', 'txt', 'md']
+      }, 400);
+    }
+
+    console.log('[POST /documents/upload] File details:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
+
+    // Extract text content based on file type
+    let content = '';
+    const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+
+    if (fileExtension === 'txt' || fileExtension === 'md' || file.type.startsWith('text/')) {
+      // Text files - read directly
+      content = await file.text();
+    } else if (fileExtension === 'pdf' || file.type === 'application/pdf') {
+      // PDF - for now, store placeholder and handle extraction separately
+      // TODO: Implement PDF text extraction with pdf-parse or similar
+      content = `[PDF Document: ${file.name}]\n\nPDF text extraction pending. File uploaded successfully.`;
+      console.log('[POST /documents/upload] PDF uploaded - text extraction to be implemented');
+    }
+
+    if (!content || content.trim().length === 0) {
+      return c.json({
+        error: 'Empty file',
+        message: 'File appears to be empty or contains no extractable text'
+      }, 400);
+    }
+
+    // Create document with UPLOAD source
+    const document = await prisma.document.create({
+      data: {
+        botId,
+        title: file.name,
+        content: content.trim(),
+        type: fileExtension,
+        size: file.size,
+        url: '', // No URL for uploaded files
+        status: 'COMPLETED',
+        source: 'UPLOAD',
+        excluded: false,
+      },
+    });
+
+    console.log('[POST /documents/upload] ✅ Document created:', document.id);
+
+    return c.json({
+      success: true,
+      document: {
+        id: document.id,
+        title: document.title,
+        type: document.type,
+        size: document.size,
+        source: document.source,
+        createdAt: document.createdAt,
+      }
+    }, 201);
+
+  } catch (error: any) {
+    console.error('[POST /documents/upload] Error:', error);
+    return c.json({
+      error: 'Upload failed',
+      message: error.message || 'Failed to upload file',
+    }, 500);
+  }
+});
+
 // ============================================
 // WEB SCRAPING ROUTE
 // ============================================
