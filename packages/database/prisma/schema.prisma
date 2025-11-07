@@ -200,10 +200,14 @@ model Document {
   url       String
   content   String          @db.Text
   status    DocumentStatus  @default(PROCESSING)
+  source    DocumentSource  @default(SCRAPED)
+  excluded  Boolean         @default(false)
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 
+  @@unique([url, botId], name: "unique_url_per_bot")
   @@index([botId])
+  @@index([excluded])
   @@map("documents")
 }
 
@@ -211,6 +215,11 @@ enum DocumentStatus {
   PROCESSING
   COMPLETED
   FAILED
+}
+
+enum DocumentSource {
+  UPLOAD
+  SCRAPED
 }
 
 // ============================================
