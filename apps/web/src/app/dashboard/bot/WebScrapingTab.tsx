@@ -183,7 +183,9 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
         snippet: link.snippet,
       }));
       setLinks(transformedLinks);
-      showToast(`Found ${data.count} links via sitemap/robots.txt`, "success");
+
+      const strategy = data.strategy === 'sitemap' ? 'sitemap' : 'full crawl';
+      showToast(`Found ${data.count} links via ${strategy}`, "success");
     } catch (err: any) {
       showToast(err.message || "Failed to discover links with sitemap", "error");
     } finally {
