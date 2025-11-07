@@ -16,11 +16,33 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-// CORS middleware
-app.use('/*', cors({
-  origin: ['https://chatbot-studio.pages.dev', 'https://chatbot-5o5.pages.dev', 'https://chatbot-studio-29k.pages.dev', 'http://localhost:3000'],
+// CORS middleware - robust setup with error handler
+const ALLOWED_ORIGINS = [
+  'https://chatbot-5o5.pages.dev',
+  'https://chatbot-studio.pages.dev',
+  'https://chatbot-studio-29k.pages.dev',
+  'http://localhost:3000'
+];
+
+app.use('*', cors({
+  origin: (origin) => (ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]),
+  allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposeHeaders: ['Content-Length'],
+  maxAge: 86400,
   credentials: true,
 }));
+
+// Global OPTIONS handler
+app.options('*', (c) => c.text('', 204));
+
+// Global error handler - ensures CORS headers are maintained even on 500 errors
+app.onError((err, c) => {
+  console.error('[Global Error Handler]', err);
+  c.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+  c.header('Vary', 'Origin');
+  return c.json({ error: 'Internal server error', message: err.message }, 500);
+});
 
 // Auth middleware
 const authMiddleware = async (c: any, next: any) => {
@@ -245,6 +267,41 @@ app.post('/api/v1/auth/login', async (c) => {
     });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
+  }
+});
+
+// Get current user
+app.get('/api/v1/me', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+
+    // Fetch full user details
+    const userData = await prisma.user.findUnique({
+      where: { id: user.userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        provider: true,
+      },
+    });
+
+    if (!userData) {
+      return c.json({ error: 'User not found' }, 404);
+    }
+
+    return c.json({
+      id: userData.id,
+      email: userData.email,
+      name: userData.name,
+      role: userData.role,
+      provider: userData.provider,
+    });
+  } catch (error: any) {
+    console.error('[GET /api/v1/me] Error:', error);
+    return c.json({ error: 'Failed to fetch user data' }, 500);
   }
 });
 
