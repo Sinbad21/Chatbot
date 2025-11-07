@@ -34,6 +34,41 @@ app.use('*', cors({
   credentials: true,
 }));
 
+// Middleware to ensure CORS headers on ALL responses (including errors)
+app.use('*', async (c, next) => {
+  const origin = c.req.header('Origin') || '';
+
+  // Set CORS headers before processing the request
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    c.header('Access-Control-Allow-Origin', origin);
+  } else {
+    c.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+  }
+  c.header('Access-Control-Allow-Credentials', 'true');
+  c.header('Vary', 'Origin');
+
+  // Wrap in try-catch to ensure errors are caught and CORS headers maintained
+  try {
+    await next();
+  } catch (err: any) {
+    console.error('[Middleware Error Catch]', err);
+
+    // Ensure CORS headers are still set
+    if (ALLOWED_ORIGINS.includes(origin)) {
+      c.header('Access-Control-Allow-Origin', origin);
+    } else {
+      c.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+    }
+    c.header('Access-Control-Allow-Credentials', 'true');
+    c.header('Vary', 'Origin');
+
+    return c.json({
+      error: 'Internal server error',
+      message: err.message || 'An unexpected error occurred'
+    }, 500);
+  }
+});
+
 // Global OPTIONS handler
 app.options('*', (c) => c.text('', 204));
 
