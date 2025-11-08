@@ -387,7 +387,7 @@ export default function BotOverviewTab({ botId }: Props) {
                   <img src={bot.logoUrl} alt={bot.name} className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-2xl font-bold text-gray-600">
-                    {bot.name.charAt(0).toUpperCase()}
+                    {bot.name ? bot.name.charAt(0).toUpperCase() : 'B'}
                   </span>
                 )}
               </div>

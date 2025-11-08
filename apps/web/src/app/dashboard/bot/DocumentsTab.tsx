@@ -425,7 +425,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                         {doc.status}
                       </span>
                       <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
-                        {doc.type.toUpperCase()}
+                        {doc.type ? doc.type.toUpperCase() : 'UNKNOWN'}
                       </span>
                       <span className="text-xs text-gray-500">
                         {formatFileSize(doc.size)}
@@ -490,7 +490,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
             <div className="p-6 overflow-y-auto flex-1">
               <div className="flex items-center gap-3 mb-4 flex-wrap">
                 <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
-                  {viewingDocument.type.toUpperCase()}
+                  {viewingDocument.type ? viewingDocument.type.toUpperCase() : 'UNKNOWN'}
                 </span>
                 <span className="text-xs text-gray-500">
                   {formatFileSize(viewingDocument.size)}
