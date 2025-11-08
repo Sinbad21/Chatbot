@@ -124,7 +124,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   aria-label="Select Language"
                 >
                   <Languages size={16} />
-                  <span className="hidden sm:inline">{currentLang.toUpperCase()}</span>
+                  <span className="hidden sm:inline">{currentLang ? currentLang.toUpperCase() : 'EN'}</span>
                 </button>
 
                 {showLangMenu && (
