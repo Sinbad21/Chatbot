@@ -139,9 +139,13 @@ export function useTranslation() {
   const changeLanguage = (lang: Language) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('language', lang);
-      window.dispatchEvent(new Event('languagechange'));
     }
     setCurrentLang(lang);
+    // Load translations for the new language
+    loadTranslations(lang).then(setTranslations);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('languagechange'));
+    }
   };
 
   return {
