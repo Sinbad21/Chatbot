@@ -9,8 +9,6 @@ type Bindings = {
   OPENAI_API_KEY?: string;
 };
 
-const PRISMA_KEY = Symbol.for('__PRISMA_WORKER_INSTANCE__');
-
 function makePrisma(databaseUrl: string) {
   const pool = new Pool({ connectionString: databaseUrl });
   const adapter = new PrismaNeon(pool);
@@ -19,7 +17,7 @@ function makePrisma(databaseUrl: string) {
 
 /**
  * Get or create Prisma client instance for Cloudflare Workers
- * Uses singleton pattern to avoid creating multiple connections
+ * Creates a NEW instance per request to comply with Workers limitations
  */
 export function getPrisma(env: Bindings): PrismaClient {
   // Validate DATABASE_URL
@@ -27,13 +25,7 @@ export function getPrisma(env: Bindings): PrismaClient {
     throw new Error('DATABASE_URL is missing from environment variables');
   }
 
-  // Use global singleton to avoid recreating instances
-  const g = globalThis as any;
-
-  if (!g[PRISMA_KEY]) {
-    console.log('[Prisma] Creating new Prisma client instance');
-    g[PRISMA_KEY] = makePrisma(env.DATABASE_URL);
-  }
-
-  return g[PRISMA_KEY] as PrismaClient;
+  // Create a NEW Prisma instance for EACH request
+  // This is required by Cloudflare Workers - cannot share I/O between requests
+  return makePrisma(env.DATABASE_URL);
 }
