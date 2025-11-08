@@ -19,21 +19,21 @@ import {
 } from 'lucide-react';
 import { useTranslation, LANGUAGES, type Language } from '@/lib/i18n';
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutGrid },
-  { name: 'Bots', href: '/dashboard/bots', icon: Bot },
-  { name: 'Conversations', href: '/dashboard/conversations', icon: MessageSquare },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-  { name: 'Leads', href: '/dashboard/leads', icon: Users },
-  { name: 'Scraping', href: '/dashboard/scraping', icon: Globe },
-  { name: 'Integrations', href: '/dashboard/integrations', icon: Puzzle },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-];
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { t, currentLang, setLanguage } = useTranslation();
+
+  const navigation = [
+    { nameKey: 'nav.dashboard', href: '/dashboard', icon: LayoutGrid },
+    { nameKey: 'nav.bots', href: '/dashboard/bots', icon: Bot },
+    { nameKey: 'nav.conversations', href: '/dashboard/conversations', icon: MessageSquare },
+    { nameKey: 'nav.analytics', href: '/dashboard/analytics', icon: BarChart3 },
+    { nameKey: 'nav.leads', href: '/dashboard/leads', icon: Users },
+    { nameKey: 'nav.scraping', href: '/dashboard/scraping', icon: Globe },
+    { nameKey: 'nav.integrations', href: '/dashboard/integrations', icon: Puzzle },
+    { nameKey: 'nav.settings', href: '/dashboard/settings', icon: Settings },
+  ];
   const [userEmail, setUserEmail] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -161,7 +161,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium"
               >
                 <LogOut size={16} />
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline">{t('auth.logout')}</span>
               </button>
             </div>
           </div>
@@ -178,7 +178,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                 return (
                   <Link
-                    key={item.name}
+                    key={item.nameKey}
                     href={item.href}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       isActive
@@ -187,7 +187,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     }`}
                   >
                     <Icon size={20} />
-                    <span>{item.name}</span>
+                    <span>{t(item.nameKey)}</span>
                   </Link>
                 );
               })}
@@ -216,7 +216,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                     return (
                       <Link
-                        key={item.name}
+                        key={item.nameKey}
                         href={item.href}
                         onClick={() => setSidebarOpen(false)}
                         className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
@@ -226,7 +226,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         }`}
                       >
                         <Icon size={20} />
-                        <span>{item.name}</span>
+                        <span>{t(item.nameKey)}</span>
                       </Link>
                     );
                   })}
