@@ -136,13 +136,18 @@ export function useTranslation() {
     return value || fallback || key;
   };
 
+  const changeLanguage = (lang: Language) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('language', lang);
+      window.dispatchEvent(new Event('languagechange'));
+    }
+    setCurrentLang(lang);
+  };
+
   return {
     t,
     currentLang,
-    setLanguage: (lang: Language) => {
-      setLanguage(lang);
-      setCurrentLang(lang);
-    },
+    setLanguage: changeLanguage,
     loading,
   };
 }
