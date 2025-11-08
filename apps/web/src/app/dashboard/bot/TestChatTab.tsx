@@ -279,7 +279,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
           ) : (
             <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center">
               <span className="text-white font-bold text-lg">
-                {botName.charAt(0).toUpperCase()}
+                {botName ? botName.charAt(0).toUpperCase() : 'B'}
               </span>
             </div>
           )}
