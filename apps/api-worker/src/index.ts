@@ -3173,13 +3173,23 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
 
     // Create a discovery campaign to track this search
     console.log('[Discovery] Creating campaign...');
-    const campaign = await prisma.campaign.create({
+
+    // Get user's organization
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true }
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User organization not found' }, 404);
+    }
+
+    const campaign = await prisma.leadCampaign.create({
       data: {
-        userId: user.userId,
+        organizationId: membership.organizationId,
         name: `Discovery: ${searchGoal}`,
-        type: 'DISCOVERY',
-        status: 'ACTIVE',
-        config: {
+        description: JSON.stringify({
+          type: 'DISCOVERY',
           searchGoal,
           location,
           radius: radius || 10,
@@ -3189,7 +3199,8 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
           hasWebsite,
           employeeRange,
           sources: sources || ['google_maps', 'yelp'],
-        },
+        }),
+        status: 'ACTIVE',
       },
     });
     console.log('[Discovery] Campaign created:', campaign.id);
@@ -3627,10 +3638,20 @@ app.get('/api/v1/discovery/campaigns/:id', authMiddleware, async (c) => {
     const user = c.get('user');
     const campaignId = c.req.param('id');
 
-    const campaign = await prisma.campaign.findFirst({
+    // Get user's organization
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true }
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User organization not found' }, 404);
+    }
+
+    const campaign = await prisma.leadCampaign.findFirst({
       where: {
         id: campaignId,
-        userId: user.userId,
+        organizationId: membership.organizationId,
       },
     });
 
@@ -3672,11 +3693,21 @@ app.post('/api/v1/discovery/save-results', authMiddleware, async (c) => {
       return c.json({ error: 'Campaign ID and businesses array are required' }, 400);
     }
 
+    // Get user's organization
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true }
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User organization not found' }, 404);
+    }
+
     // Verify campaign ownership
-    const campaign = await prisma.campaign.findFirst({
+    const campaign = await prisma.leadCampaign.findFirst({
       where: {
         id: campaignId,
-        userId: user.userId,
+        organizationId: membership.organizationId,
       },
     });
 
