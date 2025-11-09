@@ -3492,11 +3492,37 @@ async function checkForOnlineBooking(websiteUrl: string): Promise<boolean> {
 app.post('/api/v1/discovery/analyze', authMiddleware, async (c) => {
   try {
     const body = await c.req.json();
-    const { business, searchGoal, userProduct } = body;
+    const { business, searchGoal, userProduct, language = 'en' } = body;
 
     if (!business || !searchGoal) {
       return c.json({ error: 'Business data and search goal are required' }, 400);
     }
+
+    // Language mapping for prompts
+    const languageNames: { [key: string]: string } = {
+      'en': 'English',
+      'it': 'Italian',
+      'de': 'German',
+      'fr': 'French',
+      'es': 'Spanish',
+      'pt': 'Portuguese',
+      'nl': 'Dutch',
+      'pl': 'Polish',
+      'ro': 'Romanian',
+      'el': 'Greek',
+      'cs': 'Czech',
+      'hu': 'Hungarian',
+      'sv': 'Swedish',
+      'da': 'Danish',
+      'no': 'Norwegian',
+      'fi': 'Finnish',
+      'sk': 'Slovak',
+      'sl': 'Slovenian',
+      'bg': 'Bulgarian',
+      'hr': 'Croatian',
+      'lt': 'Lithuanian'
+    };
+    const targetLanguage = languageNames[language] || 'English';
 
     // Debug logging - what env vars do we actually have?
     console.log('[Debug] Available env keys:', Object.keys(c.env));
@@ -3521,6 +3547,8 @@ app.post('/api/v1/discovery/analyze', authMiddleware, async (c) => {
     });
 
     const analysisPrompt = `You are an expert lead qualification analyst. Analyze this business and determine how well it matches the search goal.
+
+IMPORTANT: Provide your entire response in ${targetLanguage}. All text fields (painPoints, opportunity, approachStrategy, bestContactTime, emailHook, reasoning) must be written in ${targetLanguage}.
 
 Search Goal: ${searchGoal}
 User's Product/Service: ${userProduct || 'a solution to help businesses grow'}
@@ -3551,7 +3579,9 @@ Return your analysis as JSON with this exact structure:
   "bestContactTime": string,
   "emailHook": string,
   "reasoning": string
-}`;
+}
+
+Remember: Write all text content in ${targetLanguage}!`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-5-mini',
@@ -3584,11 +3614,37 @@ Return your analysis as JSON with this exact structure:
 app.post('/api/v1/discovery/generate-outreach', authMiddleware, async (c) => {
   try {
     const body = await c.req.json();
-    const { business, analysis, userInfo } = body;
+    const { business, analysis, userInfo, language = 'en' } = body;
 
     if (!business || !analysis) {
       return c.json({ error: 'Business and analysis data are required' }, 400);
     }
+
+    // Language mapping for prompts
+    const languageNames: { [key: string]: string } = {
+      'en': 'English',
+      'it': 'Italian',
+      'de': 'German',
+      'fr': 'French',
+      'es': 'Spanish',
+      'pt': 'Portuguese',
+      'nl': 'Dutch',
+      'pl': 'Polish',
+      'ro': 'Romanian',
+      'el': 'Greek',
+      'cs': 'Czech',
+      'hu': 'Hungarian',
+      'sv': 'Swedish',
+      'da': 'Danish',
+      'no': 'Norwegian',
+      'fi': 'Finnish',
+      'sk': 'Slovak',
+      'sl': 'Slovenian',
+      'bg': 'Bulgarian',
+      'hr': 'Croatian',
+      'lt': 'Lithuanian'
+    };
+    const targetLanguage = languageNames[language] || 'English';
 
     // Debug logging - what env vars do we actually have?
     console.log('[Debug] Available env keys:', Object.keys(c.env));
@@ -3612,6 +3668,8 @@ app.post('/api/v1/discovery/generate-outreach', authMiddleware, async (c) => {
     });
 
     const emailPrompt = `Generate a personalized outreach email for this lead.
+
+IMPORTANT: Write the ENTIRE email in ${targetLanguage}. The subject, body, and follow-up suggestions must all be in ${targetLanguage}.
 
 Business: ${business.name}
 Category: ${business.category}
@@ -3637,7 +3695,9 @@ Return JSON:
   "subject": "email subject line",
   "body": "email body",
   "followUpSuggestions": ["suggestion 1", "suggestion 2"]
-}`;
+}
+
+Remember: Write everything in ${targetLanguage}!`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-5-mini',
