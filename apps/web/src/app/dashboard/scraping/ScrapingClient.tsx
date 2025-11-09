@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTranslation } from '@/lib/i18n';
 
 interface Business {
   id: string;
@@ -46,6 +47,7 @@ interface BusinessWithAnalysis extends Business {
 type ViewMode = 'search' | 'results' | 'detail';
 
 export default function ScrapingClient() {
+  const { t, currentLang } = useTranslation();
   const [viewMode, setViewMode] = useState<ViewMode>('search');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +87,7 @@ export default function ScrapingClient() {
 
   const handleSearch = async () => {
     if (!searchGoal.trim() || !location.trim()) {
-      setError('Please enter both search goal and location');
+      setError(t('leadDiscovery.errors.requiredFields'));
       return;
     }
 
@@ -97,7 +99,7 @@ export default function ScrapingClient() {
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       if (!token) {
-        setError('Authentication token not found');
+        setError(t('leadDiscovery.errors.noToken'));
         return;
       }
 
@@ -141,6 +143,7 @@ export default function ScrapingClient() {
           business,
           searchGoal,
           userProduct: userProduct || 'a solution to help businesses grow',
+          language: currentLang,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -155,7 +158,7 @@ export default function ScrapingClient() {
       );
     } catch (err: any) {
       console.error('Error analyzing business:', err);
-      alert(err.response?.data?.error || 'Analysis failed');
+      alert(err.response?.data?.error || t('leadDiscovery.errors.analysisFailed'));
     } finally {
       setAnalyzingId(null);
     }
@@ -163,7 +166,7 @@ export default function ScrapingClient() {
 
   const handleGenerateEmail = async (business: BusinessWithAnalysis) => {
     if (!business.analysis) {
-      alert('Please analyze this business first');
+      alert(t('leadDiscovery.errors.analyzeFirst'));
       return;
     }
 
@@ -182,6 +185,7 @@ export default function ScrapingClient() {
             company: userCompany,
             product: userProduct,
           },
+          language: currentLang,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -200,7 +204,7 @@ export default function ScrapingClient() {
       setViewMode('detail');
     } catch (err: any) {
       console.error('Error generating email:', err);
-      alert(err.response?.data?.error || 'Email generation failed');
+      alert(err.response?.data?.error || t('leadDiscovery.errors.emailFailed'));
     } finally {
       setLoading(false);
     }
@@ -208,7 +212,7 @@ export default function ScrapingClient() {
 
   const handleSaveResults = async () => {
     if (!campaignId || businesses.length === 0) {
-      alert('No results to save');
+      alert(t('leadDiscovery.errors.noResults'));
       return;
     }
 
@@ -231,10 +235,10 @@ export default function ScrapingClient() {
         }
       );
 
-      alert(`Successfully saved ${businesses.length} lead(s)!`);
+      alert(t('leadDiscovery.success.savedLeads').replace('{count}', businesses.length.toString()));
     } catch (err: any) {
       console.error('Error saving results:', err);
-      alert(err.response?.data?.error || 'Failed to save results');
+      alert(err.response?.data?.error || t('leadDiscovery.errors.saveFailed'));
     } finally {
       setLoading(false);
     }
@@ -249,7 +253,7 @@ export default function ScrapingClient() {
 
   const handleExportCSV = () => {
     if (businesses.length === 0) {
-      alert('No results to export');
+      alert(t('leadDiscovery.errors.noExport'));
       return;
     }
 
@@ -262,18 +266,18 @@ export default function ScrapingClient() {
     };
 
     const header = [
-      'Name',
-      'Address',
-      'Phone',
-      'Email',
-      'Website',
-      'Rating',
-      'Reviews',
-      'Category',
-      'AI Score',
-      'Pain Points',
-      'Opportunity',
-      'Best Contact Time',
+      t('leadDiscovery.csv.name'),
+      t('leadDiscovery.csv.address'),
+      t('leadDiscovery.csv.phone'),
+      t('leadDiscovery.csv.email'),
+      t('leadDiscovery.csv.website'),
+      t('leadDiscovery.csv.rating'),
+      t('leadDiscovery.csv.reviews'),
+      t('leadDiscovery.csv.category'),
+      t('leadDiscovery.csv.aiScore'),
+      t('leadDiscovery.csv.painPoints'),
+      t('leadDiscovery.csv.opportunity'),
+      t('leadDiscovery.csv.bestContactTime'),
     ];
 
     const rows = businesses.map((b) => [
@@ -311,9 +315,9 @@ export default function ScrapingClient() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Lead Discovery & Generation</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('leadDiscovery.title')}</h1>
           <p className="text-sm text-gray-600 mt-1">
-            Find businesses that need your product using AI-powered multi-source discovery
+            {t('leadDiscovery.subtitle')}
           </p>
         </div>
 
@@ -321,34 +325,34 @@ export default function ScrapingClient() {
           {/* Search Goal */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Search Goal *
+              {t('leadDiscovery.form.searchGoalRequired')}
             </label>
             <input
               type="text"
-              placeholder="e.g., restaurants without online booking system"
+              placeholder={t('leadDiscovery.form.searchGoalPlaceholder')}
               value={searchGoal}
               onChange={(e) => setSearchGoal(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Describe what type of business you want to find and what problem they should have
+              {t('leadDiscovery.form.searchGoalHelp')}
             </p>
           </div>
 
           {/* Your Product/Service */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Your Product/Service
+              {t('leadDiscovery.form.yourProduct')}
             </label>
             <input
               type="text"
-              placeholder="e.g., online booking platform for restaurants"
+              placeholder={t('leadDiscovery.form.yourProductPlaceholder')}
               value={userProduct}
               onChange={(e) => setUserProduct(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">
-              This helps AI score leads based on fit with your offering
+              {t('leadDiscovery.form.yourProductHelp')}
             </p>
           </div>
 
@@ -356,11 +360,11 @@ export default function ScrapingClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location *
+                {t('leadDiscovery.form.locationRequired')}
               </label>
               <input
                 type="text"
-                placeholder="e.g., Milan, Italy"
+                placeholder={t('leadDiscovery.form.locationPlaceholder')}
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -369,7 +373,7 @@ export default function ScrapingClient() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Radius (km)
+                {t('leadDiscovery.form.radius')}
               </label>
               <input
                 type="number"
@@ -384,16 +388,16 @@ export default function ScrapingClient() {
 
           {/* Filters */}
           <div className="border-t border-gray-200 pt-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-4">Filters (Optional)</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-4">{t('leadDiscovery.form.filtersOptional')}</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business Type
+                  {t('leadDiscovery.form.businessType')}
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g., restaurant, hotel, retail"
+                  placeholder={t('leadDiscovery.form.businessTypePlaceholder')}
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -402,22 +406,22 @@ export default function ScrapingClient() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Has Website
+                  {t('leadDiscovery.form.hasWebsite')}
                 </label>
                 <select
                   value={hasWebsite}
                   onChange={(e) => setHasWebsite(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 >
-                  <option value="any">Any</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
+                  <option value="any">{t('leadDiscovery.form.hasWebsiteAny')}</option>
+                  <option value="yes">{t('leadDiscovery.form.hasWebsiteYes')}</option>
+                  <option value="no">{t('leadDiscovery.form.hasWebsiteNo')}</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Min Rating
+                  {t('leadDiscovery.form.minRating')}
                 </label>
                 <input
                   type="number"
@@ -432,7 +436,7 @@ export default function ScrapingClient() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Max Rating
+                  {t('leadDiscovery.form.maxRating')}
                 </label>
                 <input
                   type="number"
@@ -449,7 +453,7 @@ export default function ScrapingClient() {
 
           {/* Data Sources */}
           <div className="border-t border-gray-200 pt-4">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Data Sources</h3>
+            <h3 className="text-sm font-medium text-gray-900 mb-3">{t('leadDiscovery.form.dataSources')}</h3>
             <div className="flex flex-wrap gap-3">
               {['google_maps', 'yelp', 'facebook', 'yellow_pages'].map((source) => (
                 <label key={source} className="flex items-center gap-2 cursor-pointer">
@@ -484,7 +488,7 @@ export default function ScrapingClient() {
             disabled={loading}
             className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Searching...' : 'Start Discovery Search'}
+            {loading ? t('leadDiscovery.buttons.searching') : t('leadDiscovery.buttons.startSearch')}
           </button>
         </div>
       </div>
@@ -508,35 +512,35 @@ export default function ScrapingClient() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Discovery Results</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t('leadDiscovery.results.title')}</h1>
             <p className="text-sm text-gray-600 mt-1">
-              Found {businesses.length} businesses matching your criteria
+              {t('leadDiscovery.results.foundBusinesses').replace('{count}', businesses.length.toString())}
             </p>
           </div>
           <button
             onClick={() => setViewMode('search')}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
           >
-            New Search
+            {t('leadDiscovery.buttons.newSearch')}
           </button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm text-gray-600">Total Found</div>
+            <div className="text-sm text-gray-600">{t('leadDiscovery.results.totalFound')}</div>
             <div className="text-2xl font-bold text-gray-900 mt-1">{businesses.length}</div>
           </div>
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm text-gray-600">Analyzed</div>
+            <div className="text-sm text-gray-600">{t('leadDiscovery.results.analyzed')}</div>
             <div className="text-2xl font-bold text-gray-900 mt-1">{analyzedCount}</div>
           </div>
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm text-gray-600">Avg Score</div>
+            <div className="text-sm text-gray-600">{t('leadDiscovery.results.avgScore')}</div>
             <div className="text-2xl font-bold text-gray-900 mt-1">{avgScore}</div>
           </div>
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div className="text-sm text-gray-600">Qualified (70+)</div>
+            <div className="text-sm text-gray-600">{t('leadDiscovery.results.qualifiedLeads')}</div>
             <div className="text-2xl font-bold text-gray-900 mt-1">
               {businesses.filter((b) => (b.analysis?.score || 0) >= 70).length}
             </div>
@@ -545,7 +549,7 @@ export default function ScrapingClient() {
 
         {/* Map Placeholder */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Geographic View</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('leadDiscovery.results.geographicView')}</h2>
           <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
             <div className="text-center text-gray-500">
               <svg
@@ -562,9 +566,9 @@ export default function ScrapingClient() {
                 />
               </svg>
               <p className="text-sm">
-                Map integration available in production
+                {t('leadDiscovery.results.mapPlaceholder')}
                 <br />
-                <span className="text-xs">(Google Maps API with {businesses.length} pins)</span>
+                <span className="text-xs">{t('leadDiscovery.results.mapPins').replace('{count}', businesses.length.toString())}</span>
               </p>
             </div>
           </div>
@@ -576,14 +580,14 @@ export default function ScrapingClient() {
             onClick={handleExportCSV}
             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
           >
-            Export CSV
+            {t('leadDiscovery.buttons.exportCSV')}
           </button>
           <button
             onClick={handleSaveResults}
             disabled={loading}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium disabled:opacity-50"
           >
-            Save All to Leads
+            {t('leadDiscovery.buttons.saveToLeads')}
           </button>
         </div>
 
@@ -594,19 +598,19 @@ export default function ScrapingClient() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                    Business
+                    {t('leadDiscovery.table.business')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                    Contact
+                    {t('leadDiscovery.table.contact')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                    Rating
+                    {t('leadDiscovery.table.rating')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                    AI Score
+                    {t('leadDiscovery.table.aiScore')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                    Actions
+                    {t('leadDiscovery.table.actions')}
                   </th>
                 </tr>
               </thead>
@@ -633,12 +637,12 @@ export default function ScrapingClient() {
                               rel="noopener noreferrer"
                               className="text-indigo-600 hover:underline"
                             >
-                              Website
+                              {t('leadDiscovery.table.website')}
                             </a>
                           </div>
                         )}
                         {!business.phone && !business.email && !business.website && (
-                          <span className="text-gray-400">No contact info</span>
+                          <span className="text-gray-400">{t('leadDiscovery.results.noContactInfo')}</span>
                         )}
                       </div>
                     </td>
@@ -647,7 +651,7 @@ export default function ScrapingClient() {
                         ⭐ {business.rating.toFixed(1)}
                       </div>
                       <div className="text-xs text-gray-500">
-                        ({business.reviewCount} reviews)
+                        ({business.reviewCount} {t('leadDiscovery.table.reviews')})
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -660,7 +664,7 @@ export default function ScrapingClient() {
                           {business.analysis.score}/100
                         </span>
                       ) : (
-                        <span className="text-xs text-gray-400">Not analyzed</span>
+                        <span className="text-xs text-gray-400">{t('leadDiscovery.results.notAnalyzed')}</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -671,7 +675,7 @@ export default function ScrapingClient() {
                             disabled={analyzingId === business.id}
                             className="text-xs text-indigo-600 hover:text-indigo-800 font-medium disabled:opacity-50"
                           >
-                            {analyzingId === business.id ? 'Analyzing...' : 'Analyze'}
+                            {analyzingId === business.id ? t('leadDiscovery.buttons.analyzing') : t('leadDiscovery.buttons.analyze')}
                           </button>
                         ) : (
                           <>
@@ -682,13 +686,13 @@ export default function ScrapingClient() {
                               }}
                               className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
                             >
-                              View
+                              {t('leadDiscovery.buttons.view')}
                             </button>
                             <button
                               onClick={() => handleGenerateEmail(business)}
                               className="text-xs text-green-600 hover:text-green-800 font-medium"
                             >
-                              Generate Email
+                              {t('leadDiscovery.buttons.generateEmail')}
                             </button>
                           </>
                         )}
@@ -718,28 +722,28 @@ export default function ScrapingClient() {
             onClick={() => setViewMode('results')}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
           >
-            ← Back to Results
+            {t('leadDiscovery.buttons.backToResults')}
           </button>
         </div>
 
         {/* Business Info */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Business Information</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('leadDiscovery.detail.businessInfo')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="font-medium text-gray-700">Address:</span>
+              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.address')}</span>
               <span className="ml-2 text-gray-900">{selectedBusiness.address}</span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Phone:</span>
+              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.phone')}</span>
               <span className="ml-2 text-gray-900">{selectedBusiness.phone || 'N/A'}</span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Email:</span>
+              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.email')}</span>
               <span className="ml-2 text-gray-900">{selectedBusiness.email || 'N/A'}</span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Website:</span>
+              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.website')}</span>
               <span className="ml-2 text-gray-900">
                 {selectedBusiness.website ? (
                   <a
@@ -756,13 +760,13 @@ export default function ScrapingClient() {
               </span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Rating:</span>
+              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.rating')}</span>
               <span className="ml-2 text-gray-900">
-                {selectedBusiness.rating.toFixed(1)}/5 ({selectedBusiness.reviewCount} reviews)
+                {selectedBusiness.rating.toFixed(1)}/5 ({selectedBusiness.reviewCount} {t('leadDiscovery.table.reviews')})
               </span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Source:</span>
+              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.source')}</span>
               <span className="ml-2 text-gray-900">{selectedBusiness.source}</span>
             </div>
           </div>
@@ -772,24 +776,24 @@ export default function ScrapingClient() {
         {selectedBusiness.analysis && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">AI Analysis</h2>
+              <h2 className="text-lg font-semibold text-gray-900">{t('leadDiscovery.detail.aiAnalysis')}</h2>
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getScoreColor(
                   selectedBusiness.analysis.score
                 )}`}
               >
-                Score: {selectedBusiness.analysis.score}/100
+                {t('leadDiscovery.detail.score')} {selectedBusiness.analysis.score}/100
               </span>
             </div>
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Why This Lead Is Ideal</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('leadDiscovery.detail.whyIdeal')}</h3>
                 <p className="text-sm text-gray-900">{selectedBusiness.analysis.opportunity}</p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Pain Points</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('leadDiscovery.detail.painPoints')}</h3>
                 <ul className="list-disc list-inside text-sm text-gray-900 space-y-1">
                   {selectedBusiness.analysis.painPoints.map((point, idx) => (
                     <li key={idx}>{point}</li>
@@ -798,21 +802,21 @@ export default function ScrapingClient() {
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">How to Approach</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('leadDiscovery.detail.howToApproach')}</h3>
                 <p className="text-sm text-gray-900">
                   {selectedBusiness.analysis.approachStrategy}
                 </p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Best Contact Time</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('leadDiscovery.detail.bestContactTime')}</h3>
                 <p className="text-sm text-gray-900">
                   {selectedBusiness.analysis.bestContactTime}
                 </p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Email Hook</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('leadDiscovery.detail.emailHook')}</h3>
                 <p className="text-sm text-indigo-600 italic">
                   "{selectedBusiness.analysis.emailHook}"
                 </p>
@@ -825,19 +829,19 @@ export default function ScrapingClient() {
         {selectedBusiness.outreachEmail && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Personalized Outreach Email
+              {t('leadDiscovery.detail.personalizedEmail')}
             </h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Subject:</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('leadDiscovery.detail.subject')}</label>
                 <div className="px-4 py-2 bg-gray-50 border border-gray-200 rounded text-sm text-gray-900">
                   {selectedBusiness.outreachEmail.subject}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Body:</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('leadDiscovery.detail.body')}</label>
                 <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-900 whitespace-pre-wrap">
                   {selectedBusiness.outreachEmail.body}
                 </div>
@@ -847,7 +851,7 @@ export default function ScrapingClient() {
                 selectedBusiness.outreachEmail.followUpSuggestions.length > 0 && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Follow-up Suggestions:
+                      {t('leadDiscovery.detail.followUpSuggestions')}
                     </label>
                     <ul className="list-disc list-inside text-sm text-gray-900 space-y-1">
                       {selectedBusiness.outreachEmail.followUpSuggestions.map((suggestion, idx) => (
@@ -865,17 +869,17 @@ export default function ScrapingClient() {
                         selectedBusiness.outreachEmail!.body
                       }`
                     );
-                    alert('Email copied to clipboard!');
+                    alert(t('leadDiscovery.success.emailCopied'));
                   }}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
                 >
-                  Copy Email
+                  {t('leadDiscovery.buttons.copyEmail')}
                 </button>
                 <button
                   onClick={() => handleGenerateEmail(selectedBusiness)}
                   className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
                 >
-                  Regenerate
+                  {t('leadDiscovery.buttons.regenerate')}
                 </button>
               </div>
             </div>
@@ -889,7 +893,7 @@ export default function ScrapingClient() {
               disabled={loading}
               className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium disabled:opacity-50"
             >
-              {loading ? 'Generating...' : 'Generate Personalized Outreach Email'}
+              {loading ? t('leadDiscovery.buttons.generating') : t('leadDiscovery.buttons.generateOutreachEmail')}
             </button>
           </div>
         )}
