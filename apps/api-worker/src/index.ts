@@ -7,6 +7,7 @@ import { registerKnowledgeRoutes } from './routes/knowledge';
 import { parseHTML } from 'linkedom';
 import { getPrisma } from './db';
 import { extractText } from 'unpdf';
+import OpenAI from 'openai';
 
 type Bindings = {
   DATABASE_URL: string;
