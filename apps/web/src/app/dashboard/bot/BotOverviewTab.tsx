@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Save, Upload, Check, AlertCircle } from "lucide-react";
+import { useTranslation } from '@/lib/i18n';
 
 interface Bot {
   id: string;
@@ -76,6 +77,7 @@ const PROMPT_TEMPLATES = [
 ];
 
 export default function BotOverviewTab({ botId }: Props) {
+  const { t } = useTranslation();
   const router = useRouter();
   const [bot, setBot] = useState<Bot | null>(null);
   const [loading, setLoading] = useState(true);
@@ -188,10 +190,10 @@ export default function BotOverviewTab({ botId }: Props) {
 
       const updated = await response.json();
       setBot(updated);
-      showToast("Saved successfully", "success");
+      showToast(t('bot.overview.savedSuccessfully'), "success");
       return updated;
     } catch (err: any) {
-      showToast(err.message || "Failed to save", "error");
+      showToast(err.message || t('bot.overview.failedToSave'), "error");
       throw err;
     }
   };
@@ -261,13 +263,13 @@ export default function BotOverviewTab({ botId }: Props) {
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      showToast("Please upload an image file", "error");
+      showToast(t('bot.overview.uploadImageFile'), "error");
       return;
     }
 
     // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
-      showToast("Image must be less than 2MB", "error");
+      showToast(t('bot.overview.imageTooLarge'), "error");
       return;
     }
 
@@ -296,9 +298,9 @@ export default function BotOverviewTab({ botId }: Props) {
 
       const { logoUrl } = await response.json();
       setBot(bot ? { ...bot, logoUrl } : null);
-      showToast("Logo uploaded successfully", "success");
+      showToast(t('bot.overview.logoUploadSuccess'), "success");
     } catch (err: any) {
-      showToast(err.message || "Failed to upload logo", "error");
+      showToast(err.message || t('bot.overview.failedToUploadLogo'), "error");
     }
   };
 
@@ -308,7 +310,7 @@ export default function BotOverviewTab({ botId }: Props) {
   };
 
   const handleDelete = async () => {
-    if (!bot || !confirm(`Are you sure you want to delete "${bot.name}"?`)) {
+    if (!bot || !confirm(t('bot.overview.confirmDelete').replace('{name}', bot.name))) {
       return;
     }
 
@@ -333,14 +335,14 @@ export default function BotOverviewTab({ botId }: Props) {
 
       router.push("/dashboard/bots");
     } catch (err: any) {
-      showToast(err.message || "Failed to delete bot", "error");
+      showToast(err.message || t('bot.overview.failedToDelete'), "error");
     }
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[240px]">
-        <div className="text-gray-800 font-medium">Loading bot details...</div>
+        <div className="text-gray-800 font-medium">{t('bot.overview.loadingBotDetails')}</div>
       </div>
     );
   }
@@ -407,11 +409,11 @@ export default function BotOverviewTab({ botId }: Props) {
                 <h1 className="text-2xl font-bold text-gray-900">{bot.name}</h1>
                 {bot.published ? (
                   <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-                    Published
+                    {t('bots.published')}
                   </span>
                 ) : (
                   <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full">
-                    Draft
+                    {t('bots.draft')}
                   </span>
                 )}
               </div>
@@ -426,13 +428,13 @@ export default function BotOverviewTab({ botId }: Props) {
               onClick={handlePublishToggle}
               className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm"
             >
-              {bot.published ? "Unpublish" : "Publish"}
+              {bot.published ? t('bot.overview.unpublish') : t('bot.overview.publish')}
             </button>
             <button
               onClick={handleDelete}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm"
             >
-              Delete
+              {t('common.delete')}
             </button>
           </div>
         </div>
@@ -441,26 +443,26 @@ export default function BotOverviewTab({ botId }: Props) {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-6 rounded-lg shadow">
-          <div className="text-sm text-gray-600 font-medium mb-2">Conversations</div>
+          <div className="text-sm text-gray-600 font-medium mb-2">{t('nav.conversations')}</div>
           <div className="text-3xl font-bold text-indigo-600">{bot._count.conversations}</div>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
-          <div className="text-sm text-gray-600 font-medium mb-2">Documents</div>
+          <div className="text-sm text-gray-600 font-medium mb-2">{t('nav.documents')}</div>
           <div className="text-3xl font-bold text-indigo-600">{bot._count.documents}</div>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
-          <div className="text-sm text-gray-600 font-medium mb-2">Intents</div>
+          <div className="text-sm text-gray-600 font-medium mb-2">{t('bot.overview.intents')}</div>
           <div className="text-3xl font-bold text-indigo-600">{bot._count.intents}</div>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
-          <div className="text-sm text-gray-600 font-medium mb-2">FAQs</div>
+          <div className="text-sm text-gray-600 font-medium mb-2">{t('bot.overview.faqs')}</div>
           <div className="text-3xl font-bold text-indigo-600">{bot._count.faqs}</div>
         </div>
       </div>
 
       {/* Model Selection */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">AI Model</h2>
+        <h2 className="text-lg font-bold text-gray-900 mb-4">{t('bot.overview.model')}</h2>
         <select
           value={model}
           onChange={(e) => handleModelChange(e.target.value)}
@@ -473,14 +475,14 @@ export default function BotOverviewTab({ botId }: Props) {
           ))}
         </select>
         <p className="text-sm text-gray-600 mt-2">
-          Select the AI model that will power your chatbot responses
+          {t('bot.overview.modelHelp')}
         </p>
       </div>
 
       {/* Prompts */}
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900">Prompts & Messages</h2>
+          <h2 className="text-lg font-bold text-gray-900">{t('bot.overview.promptsAndMessages')}</h2>
           {hasPromptChanges && (
             <button
               onClick={applyPromptChanges}
@@ -490,12 +492,12 @@ export default function BotOverviewTab({ botId }: Props) {
               {promptsSaving ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Applying...
+                  {t('bot.overview.applying')}
                 </>
               ) : (
                 <>
                   <Check size={16} />
-                  Apply Changes
+                  {t('bot.overview.applyChanges')}
                 </>
               )}
             </button>
@@ -506,14 +508,14 @@ export default function BotOverviewTab({ botId }: Props) {
           {/* Prompt Templates Dropdown */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Prompt Template (Optional)
+              {t('bot.overview.promptTemplate')}
             </label>
             <select
               onChange={(e) => handleTemplateSelect(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               defaultValue=""
             >
-              <option value="">-- Select a template to get started --</option>
+              <option value="">{t('bot.overview.selectTemplate')}</option>
               {PROMPT_TEMPLATES.map((template) => (
                 <option key={template.name} value={template.name}>
                   {template.name}
@@ -521,13 +523,13 @@ export default function BotOverviewTab({ botId }: Props) {
               ))}
             </select>
             <p className="text-xs text-gray-500 mt-1">
-              Choose a pre-made template to quickly set up your bot's personality
+              {t('bot.overview.promptTemplateHelp')}
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Welcome Message
+              {t('bot.overview.welcomeMessage')}
             </label>
             <input
               type="text"
@@ -537,13 +539,13 @@ export default function BotOverviewTab({ botId }: Props) {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">
-              {hasPromptChanges ? "Click 'Apply Changes' to save" : "First message users see"}
+              {hasPromptChanges ? t('bot.overview.clickToSave') : t('bot.overview.welcomeMessageHelp')}
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              System Prompt
+              {t('bot.overview.systemPrompt')}
             </label>
             <textarea
               value={systemPrompt}
@@ -553,7 +555,7 @@ export default function BotOverviewTab({ botId }: Props) {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm"
             />
             <p className="text-xs text-gray-500 mt-1">
-              {hasPromptChanges ? "Click 'Apply Changes' to save" : "Define the bot's personality and behavior"}
+              {hasPromptChanges ? t('bot.overview.clickToSave') : t('bot.overview.systemPromptHelp')}
             </p>
           </div>
         </div>
@@ -561,16 +563,16 @@ export default function BotOverviewTab({ botId }: Props) {
 
       {/* Theme Customization */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Chat Theme</h2>
+        <h2 className="text-lg font-bold text-gray-900 mb-4">{t('bot.overview.theme')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {Object.entries({
-            bg: "Background",
-            myText: "User Text Color",
-            myBubble: "User Bubble Color",
-            botText: "Bot Text Color",
-            botBubble: "Bot Bubble Color",
-            topbarBg: "Header Background",
-            topbarText: "Header Text Color",
+            bg: t('bot.overview.background'),
+            myText: t('bot.overview.userTextColor'),
+            myBubble: t('bot.overview.userBubbleColor'),
+            botText: t('bot.overview.botTextColor'),
+            botBubble: t('bot.overview.botBubbleColor'),
+            topbarBg: t('bot.overview.headerBackground'),
+            topbarText: t('bot.overview.headerTextColor'),
           }).map(([key, label]) => (
             <div key={key}>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -594,16 +596,16 @@ export default function BotOverviewTab({ botId }: Props) {
           ))}
         </div>
         <p className="text-xs text-gray-500 mt-4">
-          Changes auto-save after 500ms. Preview will be visible in the chat widget.
+          {t('bot.overview.themeAutoSave')}
         </p>
       </div>
 
       {/* Widget Code */}
       {bot.published && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Widget Embed Code</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">{t('bot.overview.widgetEmbedCode')}</h2>
           <p className="text-gray-600 mb-3 text-sm">
-            Copy this code and paste it before the closing &lt;/body&gt; tag on your website:
+            {t('bot.overview.embedInstructions')}
           </p>
           <pre className="bg-gray-900 text-white text-xs p-4 rounded-lg overflow-x-auto">
 {`<script src="https://chatbot-studio.pages.dev/widget.js"></script>

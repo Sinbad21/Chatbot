@@ -18,6 +18,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { TrendingUp, Activity, Zap, DollarSign, Calendar } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 interface AnalyticsTabProps {
   botId: string;
@@ -54,6 +55,7 @@ interface AnalyticsData {
 const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
 
 export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
+  const { t } = useTranslation();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +87,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
       setData(analyticsData);
     } catch (err: any) {
       console.error('Error fetching analytics:', err);
-      setError(err.message || 'Failed to load analytics');
+      setError(err.message || t('analytics.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -102,7 +104,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-gray-600">Loading analytics...</div>
+        <div className="text-gray-600">{t('analytics.loadingAnalytics')}</div>
       </div>
     );
   }
@@ -128,10 +130,10 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-gray-600" />
-            <span className="text-sm font-medium text-gray-900">Date Range:</span>
+            <span className="text-sm font-medium text-gray-900">{t('analytics.dateRange')}</span>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">From:</label>
+            <label className="text-sm text-gray-600">{t('analytics.from')}</label>
             <input
               type="date"
               value={fromDate}
@@ -140,7 +142,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
             />
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm text-gray-600">To:</label>
+            <label className="text-sm text-gray-600">{t('analytics.to')}</label>
             <input
               type="date"
               value={toDate}
@@ -152,7 +154,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
             onClick={handleApplyDateRange}
             className="px-4 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700"
           >
-            Apply
+            {t('analytics.apply')}
           </button>
         </div>
       </div>
@@ -160,7 +162,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
       {!hasData ? (
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
           <Activity className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-600 text-sm">No usage data available for the selected period</p>
+          <p className="text-gray-600 text-sm">{t('analytics.noUsageData')}</p>
         </div>
       ) : (
         <>
@@ -169,7 +171,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Requests</p>
+                  <p className="text-sm text-gray-600">{t('analytics.stats.totalRequests')}</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
                     {data.total.requests.toLocaleString()}
                   </p>
@@ -183,7 +185,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Input Tokens</p>
+                  <p className="text-sm text-gray-600">{t('analytics.stats.inputTokens')}</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
                     {data.total.inputTokens.toLocaleString()}
                   </p>
@@ -197,7 +199,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Output Tokens</p>
+                  <p className="text-sm text-gray-600">{t('analytics.stats.outputTokens')}</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
                     {data.total.outputTokens.toLocaleString()}
                   </p>
@@ -211,7 +213,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Cost</p>
+                  <p className="text-sm text-gray-600">{t('analytics.stats.totalCost')}</p>
                   <p className="text-2xl font-bold text-gray-900 mt-1">
                     ${data.total.cost.toFixed(4)}
                   </p>
@@ -228,7 +230,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Requests Over Time */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Requests Over Time</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('analytics.charts.requestsOverTime')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={data.byDate}>
                     <defs>
@@ -265,7 +267,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
 
               {/* Cost Over Time */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Cost Over Time</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('analytics.charts.costOverTime')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={data.byDate}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -297,7 +299,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
 
               {/* Tokens Over Time */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Tokens Over Time</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('analytics.charts.tokensOverTime')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={data.byDate}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -337,7 +339,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
               {/* Model Distribution */}
               {data.byModel.length > 0 && (
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Usage by Model</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('analytics.charts.usageByModel')}</h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
@@ -374,26 +376,26 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
           {data.byModel.length > 0 && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div className="p-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Model Details</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('analytics.modelDetails')}</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                        Model
+                        {t('analytics.table.model')}
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
-                        Requests
+                        {t('analytics.table.requests')}
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
-                        Input Tokens
+                        {t('analytics.stats.inputTokens')}
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
-                        Output Tokens
+                        {t('analytics.stats.outputTokens')}
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
-                        Total Cost
+                        {t('analytics.stats.totalCost')}
                       </th>
                     </tr>
                   </thead>

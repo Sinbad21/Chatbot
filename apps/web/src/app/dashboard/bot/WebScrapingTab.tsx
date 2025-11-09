@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Globe, Eye, Loader2, Check, X, AlertCircle } from "lucide-react";
+import { useTranslation } from '@/lib/i18n';
 
 interface WebScrapingTabProps {
   botId: string;
@@ -26,6 +27,7 @@ interface LinkPreview {
 type ToastType = "success" | "error" | "info";
 
 export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProps) {
+  const { t } = useTranslation();
   const [url, setUrl] = useState("");
   const [isScrapingLinks, setIsScrapingLinks] = useState(false);
   const [isDiscoveringWithSitemap, setIsDiscoveringWithSitemap] = useState(false);
@@ -58,7 +60,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
         if (response.status === 429 || response.status === 403) {
           if (attempt < maxRetries) {
             const delay = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
-            showToast(`Rate limited. Retrying in ${delay / 1000}s...`, "info");
+            showToast(t('bot.scraping.rateLimited').replace('{delay}', String(delay / 1000)), "info");
             await new Promise(resolve => setTimeout(resolve, delay));
             continue;
           }
@@ -82,7 +84,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
     e.preventDefault();
 
     if (!url.trim()) {
-      showToast("Please enter a URL", "error");
+      showToast(t('bot.scraping.enterUrl'), "error");
       return;
     }
 
@@ -90,7 +92,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
     try {
       new URL(url.trim());
     } catch {
-      showToast("Please enter a valid URL (e.g., https://example.com)", "error");
+      showToast(t('bot.scraping.invalidUrl'), "error");
       return;
     }
 
@@ -113,7 +115,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       );
 
       if (!response.ok) {
-        let errorMessage = `Failed to scrape URL (${response.status})`;
+        let errorMessage = t('bot.scraping.failedToScrape').replace('{status}', String(response.status));
         try {
           const errorData = await response.json();
           if (errorData.error) errorMessage = errorData.error;
@@ -123,9 +125,9 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
 
       const data = await response.json();
       setLinks(data.links || []);
-      showToast(`Found ${data.totalLinks} links on the page`, "success");
+      showToast(t('bot.scraping.foundLinks').replace('{count}', String(data.totalLinks)), "success");
     } catch (err: any) {
-      showToast(err.message || "Failed to scrape website", "error");
+      showToast(err.message || t('bot.scraping.failedToScrape').replace('{status}', ''), "error");
     } finally {
       setIsScrapingLinks(false);
     }
@@ -135,7 +137,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
     e.preventDefault();
 
     if (!url.trim()) {
-      showToast("Please enter a URL", "error");
+      showToast(t('bot.scraping.enterUrl'), "error");
       return;
     }
 
@@ -143,7 +145,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
     try {
       new URL(url.trim());
     } catch {
-      showToast("Please enter a valid URL (e.g., https://example.com)", "error");
+      showToast(t('bot.scraping.invalidUrl'), "error");
       return;
     }
 
@@ -166,7 +168,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       );
 
       if (!response.ok) {
-        let errorMessage = `Failed to discover links (${response.status})`;
+        let errorMessage = t('bot.scraping.failedToDiscover').replace('{status}', String(response.status));
         try {
           const errorData = await response.json();
           if (errorData.error) errorMessage = errorData.error;
@@ -185,9 +187,9 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       setLinks(transformedLinks);
 
       const strategy = data.strategy === 'sitemap' ? 'sitemap' : 'full crawl';
-      showToast(`Found ${data.count} links via ${strategy}`, "success");
+      showToast(t('bot.scraping.foundLinksViaSitemap').replace('{count}', String(data.count)).replace('{strategy}', strategy), "success");
     } catch (err: any) {
-      showToast(err.message || "Failed to discover links with sitemap", "error");
+      showToast(err.message || t('bot.scraping.failedToDiscover').replace('{status}', ''), "error");
     } finally {
       setIsDiscoveringWithSitemap(false);
     }
@@ -217,7 +219,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       const data = await response.json();
       setPreview(data);
     } catch (err: any) {
-      showToast(err.message || "Failed to load preview", "error");
+      showToast(err.message || t('bot.scraping.failedToLoad'), "error");
       setPreviewUrl(null);
     } finally {
       setIsLoadingPreview(false);
@@ -244,7 +246,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
 
   const handleAddToTraining = async () => {
     if (selectedUrls.size === 0) {
-      showToast("Please select at least one link", "error");
+      showToast(t('bot.scraping.selectAtLeastOne'), "error");
       return;
     }
 
@@ -307,8 +309,9 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       }
 
       if (successCount > 0) {
+        const plural = successCount > 1 ? 's' : '';
         showToast(
-          `Successfully added ${successCount} document${successCount > 1 ? 's' : ''} to training`,
+          t('bot.scraping.addedSuccessfully').replace('{count}', String(successCount)).replace('{plural}', plural),
           "success"
         );
         // Clear selection
@@ -316,10 +319,11 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       }
 
       if (failCount > 0) {
-        showToast(`Failed to add ${failCount} document${failCount > 1 ? 's' : ''}`, "error");
+        const plural = failCount > 1 ? 's' : '';
+        showToast(t('bot.scraping.failedToAdd').replace('{count}', String(failCount)).replace('{plural}', plural), "error");
       }
     } catch (err: any) {
-      showToast(err.message || "Failed to add documents", "error");
+      showToast(err.message || t('bot.scraping.failedToAdd').replace('{count}', '0').replace('{plural}', 's'), "error");
     } finally {
       setIsSaving(false);
     }
@@ -347,9 +351,9 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
 
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Web Scraping</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('bot.scraping.title')}</h2>
         <p className="text-sm text-gray-600">
-          Discover links from a website, preview their content, and add them to your bot's training data.
+          {t('bot.scraping.subtitleDetailed')}
         </p>
       </div>
 
@@ -357,7 +361,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       <form onSubmit={handleScrapeLinks} className="bg-white rounded-lg border p-6">
         <div className="flex flex-col gap-4">
           <label htmlFor="url" className="text-sm font-medium text-gray-700">
-            Website URL
+            {t('bot.scraping.url')}
           </label>
           <div className="flex gap-3">
             <input
@@ -365,7 +369,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               id="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com"
+              placeholder={t('bot.scraping.urlPlaceholder')}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               disabled={isScrapingLinks || isDiscoveringWithSitemap}
             />
@@ -377,12 +381,12 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               {isScrapingLinks ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Scraping...
+                  {t('bot.scraping.scraping')}
                 </>
               ) : (
                 <>
                   <Globe size={16} />
-                  Find Links
+                  {t('bot.scraping.findLinks')}
                 </>
               )}
             </button>
@@ -395,18 +399,18 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               {isDiscoveringWithSitemap ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Discovering...
+                  {t('bot.scraping.discovering')}
                 </>
               ) : (
                 <>
                   <Globe size={16} />
-                  Find links with sitemap
+                  {t('bot.scraping.findLinksWithSitemap')}
                 </>
               )}
             </button>
           </div>
           <p className="text-xs text-gray-500">
-            Use "Find Links" to scrape links from a page, or "Find links with sitemap" to discover links via sitemap/robots.txt
+            {t('bot.scraping.instructions')}
           </p>
         </div>
       </form>
@@ -425,11 +429,11 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                   className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
                 />
                 <span className="text-sm font-medium text-gray-700">
-                  Select All ({links.length} links)
+                  {t('bot.scraping.selectAll').replace('{count}', String(links.length))}
                 </span>
               </label>
               <span className="text-sm text-gray-500">
-                {selectedUrls.size} selected
+                {t('bot.scraping.selected').replace('{count}', String(selectedUrls.size))}
               </span>
             </div>
             <button
@@ -440,10 +444,10 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               {isSaving ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Saving...
+                  {t('bot.scraping.saving')}
                 </>
               ) : (
-                <>Add to Training</>
+                <>{t('bot.scraping.addToTraining')}</>
               )}
             </button>
           </div>
@@ -484,7 +488,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                   className="flex-shrink-0 px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-1.5"
                 >
                   <Eye size={14} />
-                  Preview
+                  {t('bot.scraping.preview')}
                 </button>
               </div>
             ))}
@@ -498,7 +502,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
           <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Content Preview</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('bot.scraping.contentPreview')}</h3>
               <button
                 onClick={() => setPreviewUrl(null)}
                 className="p-2 hover:bg-gray-100 rounded-lg"
@@ -537,15 +541,15 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                   )}
 
                   <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">Content Preview</p>
+                    <p className="text-sm font-medium text-gray-700 mb-1">{t('bot.scraping.contentPreview')}</p>
                     <div className="text-sm text-gray-600 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg border">
-                      {preview.contentPreview || "No content available"}
+                      {preview.contentPreview || t('bot.scraping.noContent')}
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="text-center text-gray-600 py-12">
-                  Failed to load preview
+                  {t('bot.scraping.failedToLoad')}
                 </div>
               )}
             </div>
@@ -556,7 +560,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                 onClick={() => setPreviewUrl(null)}
                 className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-300"
               >
-                Close
+                {t('common.close')}
               </button>
             </div>
           </div>
@@ -565,13 +569,13 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
 
       {/* Info Box */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm font-medium text-blue-900 mb-2">How it works:</p>
+        <p className="text-sm font-medium text-blue-900 mb-2">{t('bot.scraping.howItWorks')}</p>
         <ul className="list-disc list-inside space-y-1 text-sm text-blue-800">
-          <li>Enter a URL to discover all links on that page</li>
-          <li>Preview the content of each link before adding</li>
-          <li>Select multiple links to add to your bot's training data</li>
-          <li>The content is saved as documents in your knowledge base</li>
-          <li>Your bot can then answer questions about the content</li>
+          <li>{t('bot.scraping.step1')}</li>
+          <li>{t('bot.scraping.step2')}</li>
+          <li>{t('bot.scraping.step3')}</li>
+          <li>{t('bot.scraping.step4')}</li>
+          <li>{t('bot.scraping.step5')}</li>
         </ul>
       </div>
     </div>

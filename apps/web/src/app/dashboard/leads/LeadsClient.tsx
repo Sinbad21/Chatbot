@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
+import { useTranslation } from '@/lib/i18n';
 
 interface Lead {
   id: string;
@@ -47,6 +48,7 @@ type FilterStatus = 'all' | 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'CONVERTED' | 'L
 type SortBy = 'recent' | 'oldest' | 'score-high' | 'score-low';
 
 export default function LeadsClient() {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const leadId = searchParams.get('id');
@@ -80,7 +82,7 @@ export default function LeadsClient() {
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       if (!token) {
-        setError('Authentication token not found');
+        setError(t('leads.authTokenNotFound'));
         return;
       }
 
@@ -101,7 +103,7 @@ export default function LeadsClient() {
       setLeads(response.data);
     } catch (err: any) {
       console.error('Error loading leads:', err);
-      setError(err.message || 'Failed to load leads');
+      setError(err.message || t('leads.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -116,7 +118,7 @@ export default function LeadsClient() {
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       if (!token) {
-        setError('Authentication token not found');
+        setError(t('leads.authTokenNotFound'));
         return;
       }
 
@@ -130,7 +132,7 @@ export default function LeadsClient() {
       setSelectedLead(response.data);
     } catch (err: any) {
       console.error('Error loading lead:', err);
-      setError(err.message || 'Failed to load lead');
+      setError(err.message || t('leads.failedToLoadLead'));
     } finally {
       setLoading(false);
     }
@@ -147,7 +149,7 @@ export default function LeadsClient() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setMessage({ type: 'success', text: 'Lead status updated!' });
+      setMessage({ type: 'success', text: t('leads.statusUpdated') });
       setTimeout(() => setMessage(null), 3000);
 
       // Reload data
@@ -157,7 +159,7 @@ export default function LeadsClient() {
         loadLeads();
       }
     } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Failed to update status' });
+      setMessage({ type: 'error', text: err.message || t('leads.failedToUpdate') });
     }
   };
 
@@ -231,7 +233,7 @@ export default function LeadsClient() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-600">Loading leads...</div>
+        <div className="text-gray-600">{t('leads.loadingLeads')}</div>
       </div>
     );
   }
@@ -267,7 +269,7 @@ export default function LeadsClient() {
               </svg>
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Lead Details</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{t('leads.leadDetails')}</h1>
               <p className="text-sm text-gray-600 mt-1">{selectedLead.email || 'No email'}</p>
             </div>
           </div>
@@ -277,57 +279,57 @@ export default function LeadsClient() {
               onChange={(e) => handleStatusChange(selectedLead.id, e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="NEW">New</option>
-              <option value="CONTACTED">Contacted</option>
-              <option value="QUALIFIED">Qualified</option>
-              <option value="CONVERTED">Converted</option>
-              <option value="LOST">Lost</option>
+              <option value="NEW">{t('leads.new')}</option>
+              <option value="CONTACTED">{t('leads.contacted')}</option>
+              <option value="QUALIFIED">{t('leads.qualified')}</option>
+              <option value="CONVERTED">{t('leads.converted')}</option>
+              <option value="LOST">{t('leads.lost')}</option>
             </select>
           </div>
         </div>
 
         {/* Lead Info Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('leads.contactInformation')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs font-medium text-gray-600">Name</label>
+              <label className="text-xs font-medium text-gray-600">{t('leads.name')}</label>
               <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.name || 'N/A'}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Email</label>
+              <label className="text-xs font-medium text-gray-600">{t('leads.email')}</label>
               <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.email || 'N/A'}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Phone</label>
+              <label className="text-xs font-medium text-gray-600">{t('leads.phone')}</label>
               <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.phone || 'N/A'}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Company</label>
+              <label className="text-xs font-medium text-gray-600">{t('leads.company')}</label>
               <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.company || 'N/A'}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Lead Score</label>
+              <label className="text-xs font-medium text-gray-600">{t('leads.leadScore')}</label>
               <p className={`text-2xl font-bold mt-1 ${getScoreColor(selectedLead.score)}`}>
                 {selectedLead.score}
               </p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Status</label>
+              <label className="text-xs font-medium text-gray-600">{t('conversations.status')}</label>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${getStatusColor(selectedLead.status)}`}>
                 {selectedLead.status}
               </span>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Bot</label>
+              <label className="text-xs font-medium text-gray-600">{t('leads.bot')}</label>
               <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.conversation.botName}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Campaign</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.campaign?.name || 'None'}</p>
+              <label className="text-xs font-medium text-gray-600">{t('leads.campaign')}</label>
+              <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.campaign?.name || t('leads.none')}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Created</label>
+              <label className="text-xs font-medium text-gray-600">{t('leads.created')}</label>
               <p className="text-sm text-gray-900 font-medium mt-1">{formatDate(selectedLead.createdAt)}</p>
             </div>
           </div>
@@ -336,7 +338,7 @@ export default function LeadsClient() {
         {/* Conversation Transcript */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Conversation ({selectedLead.conversation.messageCount} messages)
+            {t('leads.conversation').replace('{count}', selectedLead.conversation.messageCount.toString())}
           </h2>
           <div className="space-y-3">
             {selectedLead.conversation.messages.map((msg) => (
@@ -373,9 +375,9 @@ export default function LeadsClient() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Leads</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('leads.title')}</h1>
           <p className="text-sm text-gray-600 mt-1">
-            {leads.length} total leads
+            {t('leads.subtitle').replace('{count}', leads.length.toString())}
           </p>
         </div>
         <button
@@ -383,7 +385,7 @@ export default function LeadsClient() {
           disabled={leads.length === 0}
           className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Export CSV
+          {t('leads.exportCSV')}
         </button>
       </div>
 
@@ -392,7 +394,7 @@ export default function LeadsClient() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <input
             type="text"
-            placeholder="Search by name, email..."
+            placeholder={t('leads.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && loadLeads()}
@@ -403,31 +405,31 @@ export default function LeadsClient() {
             onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
             className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           >
-            <option value="all">All Status</option>
-            <option value="NEW">New</option>
-            <option value="CONTACTED">Contacted</option>
-            <option value="QUALIFIED">Qualified</option>
-            <option value="CONVERTED">Converted</option>
-            <option value="LOST">Lost</option>
+            <option value="all">{t('leads.allStatus')}</option>
+            <option value="NEW">{t('leads.new')}</option>
+            <option value="CONTACTED">{t('leads.contacted')}</option>
+            <option value="QUALIFIED">{t('leads.qualified')}</option>
+            <option value="CONVERTED">{t('leads.converted')}</option>
+            <option value="LOST">{t('leads.lost')}</option>
           </select>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortBy)}
             className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           >
-            <option value="recent">Most Recent</option>
-            <option value="oldest">Oldest First</option>
-            <option value="score-high">Highest Score</option>
-            <option value="score-low">Lowest Score</option>
+            <option value="recent">{t('leads.mostRecent')}</option>
+            <option value="oldest">{t('leads.oldestFirst')}</option>
+            <option value="score-high">{t('leads.highestScore')}</option>
+            <option value="score-low">{t('leads.lowestScore')}</option>
           </select>
           <select
             value={minScore}
             onChange={(e) => setMinScore(parseInt(e.target.value))}
             className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           >
-            <option value="0">All Scores</option>
-            <option value="60">Score ≥ 60</option>
-            <option value="80">Score ≥ 80</option>
+            <option value="0">{t('leads.allScores')}</option>
+            <option value="60">{t('leads.scoreGreaterThan60')}</option>
+            <option value="80">{t('leads.scoreGreaterThan80')}</option>
           </select>
         </div>
       </div>
@@ -436,20 +438,20 @@ export default function LeadsClient() {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         {leads.length === 0 ? (
           <div className="p-12 text-center">
-            <p className="text-gray-500">No leads found</p>
+            <p className="text-gray-500">{t('leads.noLeads')}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Name</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Email</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Bot</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Score</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Status</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Created</th>
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">{t('leads.name')}</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">{t('leads.email')}</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">{t('leads.bot')}</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">{t('leads.score')}</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">{t('conversations.status')}</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">{t('leads.created')}</th>
+                  <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase">{t('leads.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -484,7 +486,7 @@ export default function LeadsClient() {
                         onClick={() => router.push(`/dashboard/leads?id=${lead.id}`)}
                         className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
                       >
-                        View
+                        {t('dashboard.view')}
                       </button>
                     </td>
                   </tr>
