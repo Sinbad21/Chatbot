@@ -3497,10 +3497,20 @@ app.post('/api/v1/discovery/analyze', authMiddleware, async (c) => {
       return c.json({ error: 'Business data and search goal are required' }, 400);
     }
 
+    // Debug logging - what env vars do we actually have?
+    console.log('[Debug] Available env keys:', Object.keys(c.env));
+    console.log('[Debug] OPENAI_API_KEY present?', 'OPENAI_API_KEY' in c.env);
+    console.log('[Debug] OPENAI_API_KEY value (first 10 chars):',
+      c.env.OPENAI_API_KEY ? c.env.OPENAI_API_KEY.substring(0, 10) + '...' : 'undefined');
+
     // Check if OpenAI API key is configured
     if (!c.env.OPENAI_API_KEY) {
       return c.json({
-        error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to your Cloudflare Worker environment variables.'
+        error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to your Cloudflare Worker environment variables.',
+        debug: {
+          availableEnvVars: Object.keys(c.env),
+          openaiKeyPresent: 'OPENAI_API_KEY' in c.env
+        }
       }, 500);
     }
 
@@ -3580,10 +3590,20 @@ app.post('/api/v1/discovery/generate-outreach', authMiddleware, async (c) => {
       return c.json({ error: 'Business and analysis data are required' }, 400);
     }
 
+    // Debug logging - what env vars do we actually have?
+    console.log('[Debug] Available env keys:', Object.keys(c.env));
+    console.log('[Debug] OPENAI_API_KEY present?', 'OPENAI_API_KEY' in c.env);
+    console.log('[Debug] OPENAI_API_KEY value (first 10 chars):',
+      c.env.OPENAI_API_KEY ? c.env.OPENAI_API_KEY.substring(0, 10) + '...' : 'undefined');
+
     // Check if OpenAI API key is configured
     if (!c.env.OPENAI_API_KEY) {
       return c.json({
-        error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to your Cloudflare Worker environment variables.'
+        error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to your Cloudflare Worker environment variables.',
+        debug: {
+          availableEnvVars: Object.keys(c.env),
+          openaiKeyPresent: 'OPENAI_API_KEY' in c.env
+        }
       }, 500);
     }
 
