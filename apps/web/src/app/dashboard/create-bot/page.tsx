@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslation } from '@/lib/i18n';
 
 export default function NewBotPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -26,7 +28,7 @@ export default function NewBotPage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
       if (!apiUrl || !token) {
-        throw new Error('Configuration error. Please log in again.');
+        throw new Error(t('createBot.configError'));
       }
 
       const response = await fetch(`${apiUrl}/api/v1/bots`, {
@@ -40,14 +42,14 @@ export default function NewBotPage() {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to create bot');
+        throw new Error(data.error || t('createBot.failedToCreate'));
       }
 
       const bot = await response.json();
       // Redirect to bots list (detail page temporarily disabled due to Next.js static export limitations)
       router.push('/dashboard/bots');
     } catch (err: any) {
-      setError(err.message || 'Failed to create bot');
+      setError(err.message || t('createBot.failedToCreate'));
     } finally {
       setLoading(false);
     }
@@ -60,14 +62,14 @@ export default function NewBotPage() {
           href="/dashboard/bots"
           className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
         >
-          ← Back to Bots
+          {t('createBot.backToBots')}
         </Link>
       </div>
 
       <div className="bg-white rounded-lg shadow p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Bot</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('createBot.title')}</h1>
         <p className="text-gray-700 mb-8">
-          Set up your chatbot with a name, description, and customize its behavior
+          {t('createBot.subtitle')}
         </p>
 
         {error && (
@@ -80,7 +82,7 @@ export default function NewBotPage() {
           {/* Bot Name */}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-900 mb-2">
-              Bot Name *
+              {t('createBot.botName')}
             </label>
             <input
               id="name"
@@ -89,14 +91,14 @@ export default function NewBotPage() {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900 bg-white"
-              placeholder="e.g., Customer Support Bot"
+              placeholder={t('createBot.botNamePlaceholder')}
             />
           </div>
 
           {/* Description */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-900 mb-2">
-              Description
+              {t('createBot.description')}
             </label>
             <textarea
               id="description"
@@ -104,14 +106,14 @@ export default function NewBotPage() {
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900 bg-white"
-              placeholder="Briefly describe what this bot does..."
+              placeholder={t('createBot.descriptionPlaceholder')}
             />
           </div>
 
           {/* Welcome Message */}
           <div>
             <label htmlFor="welcomeMessage" className="block text-sm font-medium text-gray-900 mb-2">
-              Welcome Message
+              {t('createBot.welcomeMessage')}
             </label>
             <textarea
               id="welcomeMessage"
@@ -119,17 +121,17 @@ export default function NewBotPage() {
               value={formData.welcomeMessage}
               onChange={(e) => setFormData({ ...formData, welcomeMessage: e.target.value })}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900 bg-white"
-              placeholder="First message users see..."
+              placeholder={t('createBot.welcomeMessagePlaceholder')}
             />
             <p className="text-sm text-gray-700 mt-1">
-              This is the first message users will see when they start a conversation
+              {t('createBot.welcomeMessageHelp')}
             </p>
           </div>
 
           {/* System Prompt */}
           <div>
             <label htmlFor="systemPrompt" className="block text-sm font-medium text-gray-900 mb-2">
-              System Prompt
+              {t('createBot.systemPrompt')}
             </label>
             <textarea
               id="systemPrompt"
@@ -137,17 +139,17 @@ export default function NewBotPage() {
               value={formData.systemPrompt}
               onChange={(e) => setFormData({ ...formData, systemPrompt: e.target.value })}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900 bg-white"
-              placeholder="Instructions for the AI..."
+              placeholder={t('createBot.systemPromptPlaceholder')}
             />
             <p className="text-sm text-gray-700 mt-1">
-              Define how your bot should behave and respond to users
+              {t('createBot.systemPromptHelp')}
             </p>
           </div>
 
           {/* Bot Color */}
           <div>
             <label htmlFor="color" className="block text-sm font-medium text-gray-900 mb-2">
-              Bot Color
+              {t('createBot.botColor')}
             </label>
             <div className="flex items-center gap-4">
               <input
@@ -160,7 +162,7 @@ export default function NewBotPage() {
               <span className="text-sm text-gray-700">{formData.color}</span>
             </div>
             <p className="text-sm text-gray-700 mt-1">
-              This color will be used for the chat widget
+              {t('createBot.colorWillBeUsed')}
             </p>
           </div>
 
@@ -171,13 +173,13 @@ export default function NewBotPage() {
               disabled={loading}
               className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating...' : 'Create Bot'}
+              {loading ? t('createBot.creating') : t('createBot.createBot')}
             </button>
             <Link
               href="/dashboard/bots"
               className="px-6 py-3 border border-gray-300 text-gray-900 rounded-lg hover:bg-gray-50 font-medium text-center"
             >
-              Cancel
+              {t('common.cancel')}
             </Link>
           </div>
         </form>

@@ -176,3 +176,11 @@ build/
 # Cloudflare
 .wrangler/
 wrangler.toml.local
+
+# Translation helper files (temporary)
+I18N_IMPLEMENTATION_SUMMARY.md
+TRANSLATION_STATUS.md
+apply_translations.py
+component_i18n_helper.py
+italian_translations.json
+translate_helper.py

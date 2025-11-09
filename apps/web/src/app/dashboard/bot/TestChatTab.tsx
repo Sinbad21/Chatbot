@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ArrowUp, Settings, Check, ChevronDown } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -38,6 +39,7 @@ const PROMPT_TEMPLATES = [
 ];
 
 export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -126,7 +128,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
 
       const botMessage: Message = {
         role: 'assistant',
-        content: data.message || 'Nessuna risposta dal bot',
+        content: data.message || t('bot.test.noResponse'),
         timestamp: new Date(),
       };
 
@@ -135,7 +137,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
         role: 'assistant',
-        content: `Errore: ${error.message}. Assicurati che il bot sia pubblicato.`,
+        content: t('bot.test.errorMessage').replace('{message}', error.message),
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -172,7 +174,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
       setIsEditingPrompt(false);
     } catch (error: any) {
       console.error('Error updating prompt:', error);
-      alert(`Failed to update prompt: ${error.message}`);
+      alert(t('bot.test.failedToUpdate').replace('{message}', error.message));
     } finally {
       setIsSavingPrompt(false);
     }
@@ -190,7 +192,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Settings className="w-5 h-5 text-gray-600" />
-            <h3 className="text-sm font-semibold text-gray-900">Bot System Prompt</h3>
+            <h3 className="text-sm font-semibold text-gray-900">{t('bot.test.botSystemPrompt')}</h3>
           </div>
           <button
             onClick={() => {
@@ -201,7 +203,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             }}
             className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
           >
-            {isEditingPrompt ? 'Cancel' : 'Edit'}
+            {isEditingPrompt ? t('bot.test.cancel') : t('bot.test.edit')}
           </button>
         </div>
 
@@ -213,7 +215,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
                 onClick={() => setShowTemplates(!showTemplates)}
                 className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-between"
               >
-                <span className="text-gray-700">Choose a template...</span>
+                <span className="text-gray-700">{t('bot.test.chooseTemplate')}</span>
                 <ChevronDown className="w-4 h-4 text-gray-500" />
               </button>
 
@@ -239,7 +241,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
               onChange={(e) => setEditedPrompt(e.target.value)}
               rows={4}
               className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-gray-900"
-              placeholder="Enter your system prompt..."
+              placeholder={t('bot.test.enterSystemPrompt')}
             />
 
             {/* Apply Button */}
@@ -250,11 +252,11 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
                 className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isSavingPrompt ? (
-                  <>Applying...</>
+                  <>{t('bot.test.applying')}</>
                 ) : (
                   <>
                     <Check className="w-4 h-4" />
-                    Apply
+                    {t('bot.test.apply')}
                   </>
                 )}
               </button>
@@ -284,9 +286,9 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             </div>
           )}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{botLogoUrl ? botName : 'Test Chat'}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{botLogoUrl ? botName : t('bot.test.testChat')}</h3>
             <p className="text-sm text-gray-600">
-              {botLogoUrl ? 'Test your bot in real-time' : 'Prova il tuo bot in tempo reale'}
+              {t('bot.test.subtitle')}
             </p>
           </div>
         </div>
@@ -294,7 +296,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
           onClick={clearChat}
           className="px-3 py-1 text-sm text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
-          Pulisci chat
+          {t('bot.test.clearChat')}
         </button>
       </div>
 
@@ -305,7 +307,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             <svg className="w-16 h-16 mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <p className="text-sm text-gray-600">Inizia una conversazione con il bot</p>
+            <p className="text-sm text-gray-600">{t('bot.test.startConversation')}</p>
           </div>
         ) : (
           <>
@@ -315,7 +317,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
                 className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <p className="text-xs font-medium text-gray-600 mb-1 px-1">
-                  {msg.role === 'user' ? 'You' : botName}
+                  {msg.role === 'user' ? t('bot.test.you') : botName}
                 </p>
                 <div
                   className={`max-w-[70%] rounded-lg px-4 py-2 ${
@@ -337,7 +339,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
                     <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                     <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                     <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                    <span className="text-sm text-gray-900 ml-2">{botName} sta scrivendo...</span>
+                    <span className="text-sm text-gray-900 ml-2">{t('bot.test.isTyping').replace('{botName}', botName)}</span>
                   </div>
                 </div>
               </div>
@@ -355,7 +357,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Scrivi un messaggio..."
+            placeholder={t('bot.test.placeholder')}
             disabled={loading}
             className="flex-1 px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-gray-400"
           />

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslation } from '@/lib/i18n';
 
 interface Bot {
   id: string;
@@ -15,6 +16,7 @@ interface Bot {
 }
 
 export default function BotsListPage() {
+  const { t } = useTranslation();
   const [bots, setBots] = useState<Bot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,7 +31,7 @@ export default function BotsListPage() {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
       if (!apiUrl || !token) {
-        setError('Configuration error. Please log in again.');
+        setError(t('bots.configError'));
         setLoading(false);
         return;
       }
@@ -41,13 +43,13 @@ export default function BotsListPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch bots');
+        throw new Error(t('bots.failedToFetch'));
       }
 
       const data = await response.json();
       setBots(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to load bots');
+      setError(err.message || t('bots.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -56,12 +58,12 @@ export default function BotsListPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">My Bots</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('bots.myBots')}</h1>
         <Link
           href="/dashboard/create-bot"
           className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium"
         >
-          Create New Bot
+          {t('bots.createNew')}
         </Link>
       </div>
 
@@ -73,7 +75,7 @@ export default function BotsListPage() {
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="text-gray-700">Loading bots...</div>
+          <div className="text-gray-700">{t('bots.loadingBots')}</div>
         </div>
       ) : bots.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
@@ -92,15 +94,15 @@ export default function BotsListPage() {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No bots yet</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('bots.noBots')}</h3>
           <p className="text-gray-700 mb-6">
-            Get started by creating your first chatbot
+            {t('bots.getStarted')}
           </p>
           <Link
             href="/dashboard/create-bot"
             className="inline-block px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium"
           >
-            Create Your First Bot
+            {t('bots.createYourFirstBot')}
           </Link>
         </div>
       ) : (
@@ -119,16 +121,16 @@ export default function BotsListPage() {
                       : 'bg-gray-100 text-gray-800'
                   }`}
                 >
-                  {bot.published ? 'Published' : 'Draft'}
+                  {bot.published ? t('bots.published') : t('bots.draft')}
                 </span>
               </div>
 
               <div className="flex items-center gap-4 text-sm text-gray-700 mb-4">
                 <div>
-                  <span className="font-medium">{bot._count?.conversations || 0}</span> conversations
+                  {t('bots.conversationsCount').replace('{count}', (bot._count?.conversations || 0).toString())}
                 </div>
                 <div>
-                  <span className="font-medium">{bot._count?.documents || 0}</span> documents
+                  {t('bots.documentsCount').replace('{count}', (bot._count?.documents || 0).toString())}
                 </div>
               </div>
 
@@ -136,7 +138,7 @@ export default function BotsListPage() {
                 href={`/dashboard/bot?id=${bot.id}`}
                 className="block w-full px-4 py-2 bg-indigo-600 text-white text-center rounded-lg hover:bg-indigo-700 font-medium"
               >
-                View Details
+                {t('bots.viewDetails')}
               </Link>
             </div>
           ))}

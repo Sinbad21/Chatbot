@@ -19,6 +19,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { useTranslation } from '@/lib/i18n';
 
 interface AnalyticsOverview {
   conversations: number;
@@ -81,6 +82,7 @@ interface Bot {
 type DateRange = '7d' | '30d' | '90d' | 'all';
 
 export default function AnalyticsPage() {
+  const { t } = useTranslation();
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
   const [conversationsData, setConversationsData] = useState<ConversationData[]>([]);
   const [intentsData, setIntentsData] = useState<IntentData[]>([]);
@@ -175,7 +177,7 @@ export default function AnalyticsPage() {
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       if (!token) {
-        setError('Authentication token not found');
+        setError(t('analytics.authTokenNotFound'));
         return;
       }
 
@@ -205,7 +207,7 @@ export default function AnalyticsPage() {
       setConversations(conversationsListResponse.data.slice(0, 5)); // Show only top 5
     } catch (err: any) {
       console.error('Error loading analytics:', err);
-      setError(err.message || 'Failed to load analytics');
+      setError(err.message || t('analytics.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -273,7 +275,7 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-600">Loading analytics...</div>
+        <div className="text-gray-600">{t('analytics.loadingAnalytics')}</div>
       </div>
     );
   }
@@ -291,9 +293,9 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('analytics.title')}</h1>
           <p className="text-sm text-gray-600 mt-1">
-            Track your chatbot performance and user interactions
+            {t('analytics.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -302,16 +304,16 @@ export default function AnalyticsPage() {
             onChange={(e) => setDateRange(e.target.value as DateRange)}
             className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="all">All time</option>
+            <option value="7d">{t('analytics.dateRanges.7d')}</option>
+            <option value="30d">{t('analytics.dateRanges.30d')}</option>
+            <option value="90d">{t('analytics.dateRanges.90d')}</option>
+            <option value="all">{t('analytics.dateRanges.all')}</option>
           </select>
           <button
             onClick={handleExportCSV}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
           >
-            Export CSV
+            {t('analytics.exportCSV')}
           </button>
         </div>
       </div>
@@ -320,7 +322,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">Total Conversations</h3>
+            <h3 className="text-sm font-medium text-gray-600">{t('analytics.stats.totalConversations')}</h3>
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
               <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -330,12 +332,12 @@ export default function AnalyticsPage() {
           <div className="text-3xl font-bold text-gray-900">
             {overview?.conversations.toLocaleString() || 0}
           </div>
-          <p className="text-xs text-green-600 mt-2">↑ 12% from last period</p>
+          <p className="text-xs text-green-600 mt-2">{t('analytics.growth.fromLastPeriod').replace('{percent}', '12')}</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">Total Messages</h3>
+            <h3 className="text-sm font-medium text-gray-600">{t('analytics.stats.totalMessages')}</h3>
             <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
               <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
@@ -345,12 +347,12 @@ export default function AnalyticsPage() {
           <div className="text-3xl font-bold text-gray-900">
             {overview?.messages.toLocaleString() || 0}
           </div>
-          <p className="text-xs text-green-600 mt-2">↑ 8% from last period</p>
+          <p className="text-xs text-green-600 mt-2">{t('analytics.growth.fromLastPeriod').replace('{percent}', '8')}</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-600">Total Leads</h3>
+            <h3 className="text-sm font-medium text-gray-600">{t('analytics.stats.totalLeads')}</h3>
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
               <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -360,13 +362,13 @@ export default function AnalyticsPage() {
           <div className="text-3xl font-bold text-gray-900">
             {overview?.leads.toLocaleString() || 0}
           </div>
-          <p className="text-xs text-green-600 mt-2">↑ 24% from last period</p>
+          <p className="text-xs text-green-600 mt-2">{t('analytics.growth.fromLastPeriod').replace('{percent}', '24')}</p>
         </div>
       </div>
 
       {/* Conversations Over Time Chart */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Conversations Over Time</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('analytics.charts.conversationsOverTime')}</h3>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={conversationsData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -402,7 +404,7 @@ export default function AnalyticsPage() {
 
       {/* Top Intents Chart */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Intents</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('analytics.charts.topIntents')}</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={intentsData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -423,10 +425,10 @@ export default function AnalyticsPage() {
       {/* Recent Conversations Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Recent Conversations</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('analytics.table.recentConversations')}</h3>
           <input
             type="text"
-            placeholder="Search by bot or status..."
+            placeholder={t('analytics.searchByBotOrStatus')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -438,19 +440,19 @@ export default function AnalyticsPage() {
             <thead>
               <tr className="border-b border-gray-200">
                 <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Bot Name
+                  {t('analytics.table.botName')}
                 </th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Messages
+                  {t('analytics.table.messages')}
                 </th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Duration
+                  {t('analytics.table.duration')}
                 </th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Status
+                  {t('conversations.status')}
                 </th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Created
+                  {t('analytics.table.created')}
                 </th>
               </tr>
             </thead>
@@ -458,7 +460,7 @@ export default function AnalyticsPage() {
               {filteredConversations.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-gray-500 text-sm">
-                    No conversations found
+                    {t('analytics.noConversationsFound')}
                   </td>
                 </tr>
               ) : (
@@ -505,9 +507,9 @@ export default function AnalyticsPage() {
           {/* Bot Selector + Usage Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Usage & Costs</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t('analytics.usageAndCosts')}</h2>
               <p className="text-sm text-gray-600 mt-1">
-                Token usage and API costs by model
+                {t('analytics.usageSubtitle')}
               </p>
             </div>
             <select
@@ -528,28 +530,28 @@ export default function AnalyticsPage() {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-sm font-medium text-gray-600 mb-2">Total Requests</h3>
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">{t('analytics.stats.totalRequests')}</h3>
                   <div className="text-3xl font-bold text-gray-900">
                     {usageData.total.requests.toLocaleString()}
                   </div>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-sm font-medium text-gray-600 mb-2">Input Tokens</h3>
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">{t('analytics.stats.inputTokens')}</h3>
                   <div className="text-3xl font-bold text-gray-900">
                     {usageData.total.inputTokens.toLocaleString()}
                   </div>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-sm font-medium text-gray-600 mb-2">Output Tokens</h3>
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">{t('analytics.stats.outputTokens')}</h3>
                   <div className="text-3xl font-bold text-gray-900">
                     {usageData.total.outputTokens.toLocaleString()}
                   </div>
                 </div>
 
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-sm font-medium text-gray-600 mb-2">Total Cost</h3>
+                  <h3 className="text-sm font-medium text-gray-600 mb-2">{t('analytics.stats.totalCost')}</h3>
                   <div className="text-3xl font-bold text-green-600">
                     ${usageData.total.cost.toFixed(4)}
                   </div>
@@ -558,7 +560,7 @@ export default function AnalyticsPage() {
 
               {/* Usage Over Time Chart */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Usage Over Time</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('analytics.charts.usageOverTime')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={usageData.byDate}>
                     <defs>
@@ -615,7 +617,7 @@ export default function AnalyticsPage() {
               {/* Model Distribution Pie Chart */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Usage by Model</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('analytics.charts.usageByModel')}</h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
@@ -639,7 +641,7 @@ export default function AnalyticsPage() {
 
                 {/* Model Stats Table */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Model Breakdown</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('analytics.charts.modelBreakdown')}</h3>
                   <div className="space-y-4">
                     {usageData.byModel.map((model, index) => (
                       <div key={model.model} className="border-b border-gray-100 pb-3 last:border-0">
@@ -649,15 +651,15 @@ export default function AnalyticsPage() {
                         </div>
                         <div className="text-xs text-gray-600 space-y-1">
                           <div className="flex justify-between">
-                            <span>Requests:</span>
+                            <span>{t('analytics.requestsLabel')}</span>
                             <span className="font-medium">{model.requests.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Input Tokens:</span>
+                            <span>{t('analytics.inputTokensLabel')}</span>
                             <span className="font-medium">{model.inputTokens.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span>Output Tokens:</span>
+                            <span>{t('analytics.outputTokensLabel')}</span>
                             <span className="font-medium">{model.outputTokens.toLocaleString()}</span>
                           </div>
                         </div>

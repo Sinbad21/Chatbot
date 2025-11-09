@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { buildAuthHeaders } from '@/lib/authHeaders';
 import { Upload, FileText, File, X, Eye } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 interface Document {
   id: string;
@@ -22,6 +23,7 @@ interface DocumentsTabProps {
 }
 
 export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
+  const { t } = useTranslation();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +49,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch documents');
+        throw new Error(t('bot.documents.failedToLoad'));
       }
 
       const data = await response.json();
@@ -69,14 +71,14 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
 
     if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
-      setError('Only PDF, TXT, and MD files are supported');
+      setError(t('bot.documents.onlyPdfTxtMd'));
       return;
     }
 
     // Validate file size (25MB)
     const maxSize = 25 * 1024 * 1024;
     if (file.size > maxSize) {
-      setError('File size must be less than 25MB');
+      setError(t('bot.documents.fileTooLarge'));
       return;
     }
 
@@ -104,7 +106,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       });
 
       if (!response.ok) {
-        let errorMessage = `Upload failed (${response.status})`;
+        let errorMessage = t('bot.documents.uploadFailed').replace('{status}', response.status.toString());
         try {
           const errorData = await response.json();
           if (errorData.error) {
@@ -122,7 +124,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       if (fileInput) fileInput.value = '';
     } catch (err: any) {
       console.error('Error uploading file:', err);
-      setError(err.message || 'Failed to upload file');
+      setError(err.message || t('bot.documents.uploadFailed').replace('{status}', ''));
     } finally {
       setSubmitting(false);
     }
@@ -150,7 +152,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       });
 
       if (!response.ok) {
-        let errorMessage = `Failed to create document (${response.status})`;
+        let errorMessage = t('bot.documents.failedToCreate').replace('{status}', response.status.toString());
         try {
           const errorData = await response.json();
           if (errorData.error) {
@@ -167,7 +169,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       setContent('');
     } catch (err: any) {
       console.error('Error creating document:', err);
-      setError(err.message || 'Failed to create document');
+      setError(err.message || t('bot.documents.failedToCreate').replace('{status}', ''));
     } finally {
       setSubmitting(false);
     }
@@ -186,7 +188,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update document');
+        throw new Error(t('bot.documents.failedToUpdate'));
       }
 
       // Update local state
@@ -200,7 +202,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
   };
 
   const handleDelete = async (documentId: string) => {
-    if (!confirm('Are you sure you want to delete this document?')) {
+    if (!confirm(t('bot.documents.confirmDeleteDocument'))) {
       return;
     }
 
@@ -211,7 +213,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete document');
+        throw new Error(t('bot.documents.failedToDelete'));
       }
 
       setDocuments(documents.filter(doc => doc.id !== documentId));
@@ -229,7 +231,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-gray-600">Loading documents...</div>
+        <div className="text-gray-600">{t('bot.documents.loadingDocuments')}</div>
       </div>
     );
   }
@@ -238,7 +240,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
     <div className="space-y-6">
       {/* Add Document Form */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Document</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('bot.documents.addNew')}</h3>
 
         {/* Mode Toggle */}
         <div className="flex gap-2 mb-6">
@@ -252,7 +254,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
             }`}
           >
             <Upload className="inline-block w-4 h-4 mr-2" />
-            Upload File
+            {t('bot.documents.uploadFile')}
           </button>
           <button
             type="button"
@@ -264,7 +266,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
             }`}
           >
             <FileText className="inline-block w-4 h-4 mr-2" />
-            Paste Text
+            {t('bot.documents.pasteText')}
           </button>
         </div>
 
@@ -273,7 +275,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
           <div className="space-y-4">
             <div>
               <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2">
-                Select File (PDF, TXT, MD - Max 25MB)
+                {t('bot.documents.selectFile')}
               </label>
               <input
                 type="file"
@@ -315,7 +317,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
               disabled={!selectedFile || submitting}
               className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
-              {submitting ? 'Uploading...' : 'Upload Document'}
+              {submitting ? t('bot.documents.uploading') : t('bot.documents.uploadDocument')}
             </button>
           </div>
         )}
@@ -325,7 +327,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
           <form onSubmit={handleTextSubmit} className="space-y-4">
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                Document Title
+                {t('bot.documents.documentTitle')}
                 <span className="text-xs text-gray-500 ml-2">
                   ({title.length}/200)
                 </span>
@@ -335,7 +337,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., Product Guide, FAQ Document"
+                placeholder={t('bot.documents.titlePlaceholder')}
                 maxLength={200}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
                 required
@@ -344,7 +346,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
 
             <div>
               <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">
-                Content
+                {t('bot.documents.content')}
                 <span className="text-xs text-gray-500 ml-2">
                   ({content.length.toLocaleString()}/200,000)
                 </span>
@@ -353,7 +355,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                 id="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Paste your document content here..."
+                placeholder={t('bot.documents.contentPlaceholder')}
                 rows={8}
                 maxLength={200000}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-gray-900"
@@ -372,7 +374,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
               disabled={submitting}
               className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
-              {submitting ? 'Adding...' : 'Add Document'}
+              {submitting ? t('bot.documents.adding') : t('bot.documents.addDocument')}
             </button>
           </form>
         )}
@@ -381,12 +383,12 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       {/* Documents List */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Documents ({documents.length})
+          {t('bot.documents.documentsCount').replace('{count}', documents.length.toString())}
         </h3>
 
         {documents.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
-            No documents yet. Add your first document above to train your bot.
+            {t('bot.documents.noDocuments')}
           </p>
         ) : (
           <div className="space-y-4">
@@ -407,7 +409,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                       </h4>
                       {doc.excluded && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">
-                          Excluded from training
+                          {t('bot.documents.excluded')}
                         </span>
                       )}
                     </div>
@@ -449,7 +451,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                     className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
                   >
                     <Eye className="w-4 h-4" />
-                    View Full Content
+                    {t('bot.documents.viewFullContent')}
                   </button>
                   <button
                     onClick={() => handleToggleExclude(doc.id, doc.excluded)}
@@ -459,13 +461,13 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                         : 'text-yellow-600 hover:text-yellow-700'
                     }`}
                   >
-                    {doc.excluded ? 'Include in Training' : 'Exclude from Training'}
+                    {doc.excluded ? t('bot.documents.includeInTraining') : t('bot.documents.excludeFromTraining')}
                   </button>
                   <button
                     onClick={() => handleDelete(doc.id)}
                     className="text-sm text-red-600 hover:text-red-700 font-medium ml-auto"
                   >
-                    Delete
+                    {t('common.delete')}
                   </button>
                 </div>
               </div>
@@ -519,13 +521,13 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                     : 'bg-yellow-600 text-white hover:bg-yellow-700'
                 }`}
               >
-                {viewingDocument.excluded ? 'Include in Training' : 'Exclude from Training'}
+                {viewingDocument.excluded ? t('bot.documents.includeInTraining') : t('bot.documents.excludeFromTraining')}
               </button>
               <button
                 onClick={() => setViewingDocument(null)}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
               >
-                Close
+                {t('common.close')}
               </button>
             </div>
           </div>

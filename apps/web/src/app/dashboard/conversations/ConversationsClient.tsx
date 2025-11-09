@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { Trash2, BookOpen, X, Loader2 } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n';
 
 interface Message {
   id: string;
@@ -41,6 +42,7 @@ type FilterStatus = 'all' | 'active' | 'completed' | 'abandoned';
 type SortBy = 'recent' | 'oldest' | 'messages';
 
 export default function ConversationsClient() {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const conversationId = searchParams.get('id');
@@ -78,7 +80,7 @@ export default function ConversationsClient() {
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       if (!token) {
-        setError('Authentication token not found');
+        setError(t('conversations.authTokenNotFound'));
         return;
       }
 
@@ -93,7 +95,7 @@ export default function ConversationsClient() {
       setConversations(response.data);
     } catch (err: any) {
       console.error('Error loading conversations:', err);
-      setError(err.message || 'Failed to load conversations');
+      setError(err.message || t('conversations.failedToLoad'));
     } finally {
       setLoading(false);
     }
@@ -108,7 +110,7 @@ export default function ConversationsClient() {
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       if (!token) {
-        setError('Authentication token not found');
+        setError(t('conversations.authTokenNotFound'));
         return;
       }
 
@@ -123,7 +125,7 @@ export default function ConversationsClient() {
       setSelectedConversation(response.data);
     } catch (err: any) {
       console.error('Error loading conversation:', err);
-      setError(err.message || 'Failed to load conversation');
+      setError(err.message || t('conversations.failedToLoadConversation'));
     } finally {
       setLoading(false);
     }
@@ -168,7 +170,7 @@ ${transcript}
   };
 
   const handleDeleteConversation = async (conversationId: string) => {
-    if (!confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
+    if (!confirm(t('conversations.confirmDelete'))) {
       return;
     }
 
@@ -186,7 +188,7 @@ ${transcript}
       loadConversations();
     } catch (err: any) {
       console.error('Error deleting conversation:', err);
-      alert('Failed to delete conversation');
+      alert(t('conversations.failedToDelete'));
     }
   };
 
@@ -262,7 +264,7 @@ ${transcript}
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-gray-600">Loading conversations...</div>
+        <div className="text-gray-600">{t('conversations.loadingConversations')}</div>
       </div>
     );
   }
@@ -291,8 +293,8 @@ ${transcript}
               </svg>
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Conversation Details</h1>
-              <p className="text-sm text-gray-600 mt-1">View full transcript and metadata</p>
+              <h1 className="text-2xl font-bold text-gray-900">{t('conversations.conversationDetails')}</h1>
+              <p className="text-sm text-gray-600 mt-1">{t('conversations.viewFullTranscript')}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -300,28 +302,28 @@ ${transcript}
               onClick={() => handleExportConversation(selectedConversation)}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
             >
-              Export Transcript
+              {t('conversations.exportTranscript')}
             </button>
             <button
               onClick={() => handleDeleteConversation(selectedConversation.id)}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium flex items-center gap-2"
             >
               <Trash2 size={16} />
-              Delete
+              {t('common.delete')}
             </button>
           </div>
         </div>
 
         {/* Metadata Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Metadata</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('conversations.metadata')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs font-medium text-gray-600">Bot Name</label>
+              <label className="text-xs font-medium text-gray-600">{t('conversations.botName')}</label>
               <p className="text-sm text-gray-900 font-medium mt-1">{selectedConversation.botName}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Status</label>
+              <label className="text-xs font-medium text-gray-600">{t('conversations.status')}</label>
               <span
                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
                   selectedConversation.status === 'completed'
@@ -335,30 +337,30 @@ ${transcript}
               </span>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Duration</label>
+              <label className="text-xs font-medium text-gray-600">{t('conversations.duration')}</label>
               <p className="text-sm text-gray-900 font-medium mt-1">
                 {selectedConversation.metadata?.duration || 'N/A'}
               </p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Messages</label>
+              <label className="text-xs font-medium text-gray-600">{t('conversations.messages').replace('{count}', '')}</label>
               <p className="text-sm text-gray-900 font-medium mt-1">{selectedConversation.messages.length}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Started</label>
+              <label className="text-xs font-medium text-gray-600">{t('conversations.started')}</label>
               <p className="text-sm text-gray-900 font-medium mt-1">
                 {new Date(selectedConversation.createdAt).toLocaleString()}
               </p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">Ended</label>
+              <label className="text-xs font-medium text-gray-600">{t('conversations.ended')}</label>
               <p className="text-sm text-gray-900 font-medium mt-1">
                 {new Date(selectedConversation.updatedAt).toLocaleString()}
               </p>
             </div>
             {selectedConversation.metadata?.leadCaptured !== undefined && (
               <div>
-                <label className="text-xs font-medium text-gray-600">Lead Captured</label>
+                <label className="text-xs font-medium text-gray-600">{t('conversations.leadCaptured')}</label>
                 <p className="text-sm text-gray-900 font-medium mt-1">
                   {selectedConversation.metadata.leadCaptured ? '✓ Yes' : '✗ No'}
                 </p>
@@ -369,7 +371,7 @@ ${transcript}
 
         {/* Transcript */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Transcript</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('conversations.transcript')}</h2>
           <div className="space-y-4">
             {selectedConversation.messages.map((message, index) => {
               const prevMessage = index > 0 ? selectedConversation.messages[index - 1] : null;
@@ -383,7 +385,7 @@ ${transcript}
                   <div className={`max-w-[75%] ${message.role === 'user' ? 'order-2' : 'order-1'}`}>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-medium text-gray-600">
-                        {message.role === 'user' ? 'User' : selectedConversation.botName}
+                        {message.role === 'user' ? t('conversations.user') : selectedConversation.botName}
                       </span>
                       <span className="text-xs text-gray-500">
                         {new Date(message.createdAt).toLocaleTimeString()}
@@ -404,7 +406,7 @@ ${transcript}
                         className="mt-2 flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-medium"
                       >
                         <BookOpen size={14} />
-                        Use as Training
+                        {t('conversations.useAsTraining')}
                       </button>
                     )}
                   </div>
@@ -420,7 +422,7 @@ ${transcript}
             <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
               {/* Modal Header */}
               <div className="px-6 py-4 border-b flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Add to Training Data</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('conversations.addToTrainingData')}</h3>
                 <button
                   onClick={() => setTrainingModalOpen(false)}
                   className="p-2 hover:bg-gray-100 rounded-lg"
@@ -432,7 +434,7 @@ ${transcript}
               {/* Modal Body */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Type</label>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">{t('conversations.type')}</label>
                   <div className="flex gap-4">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -443,7 +445,7 @@ ${transcript}
                         onChange={(e) => setTrainingType(e.target.value as 'faq' | 'intent')}
                         className="w-4 h-4 text-indigo-600"
                       />
-                      <span className="text-sm text-gray-900">FAQ (Question & Answer)</span>
+                      <span className="text-sm text-gray-900">{t('conversations.faq')}</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -454,14 +456,14 @@ ${transcript}
                         onChange={(e) => setTrainingType(e.target.value as 'faq' | 'intent')}
                         className="w-4 h-4 text-indigo-600"
                       />
-                      <span className="text-sm text-gray-900">Intent (Trigger & Response)</span>
+                      <span className="text-sm text-gray-900">{t('conversations.intent')}</span>
                     </label>
                   </div>
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    {trainingType === 'faq' ? 'Question' : 'Trigger'}
+                    {trainingType === 'faq' ? t('conversations.question') : t('conversations.trigger')}
                   </label>
                   <div className="bg-gray-50 rounded-lg p-4 border">
                     <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedMessage.user}</p>
@@ -470,7 +472,7 @@ ${transcript}
 
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    {trainingType === 'faq' ? 'Answer' : 'Response'}
+                    {trainingType === 'faq' ? t('conversations.answer') : t('conversations.response')}
                   </label>
                   <div className="bg-gray-50 rounded-lg p-4 border">
                     <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedMessage.bot}</p>
@@ -484,7 +486,7 @@ ${transcript}
                   onClick={() => setTrainingModalOpen(false)}
                   className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-300"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleSaveTraining}
@@ -494,10 +496,10 @@ ${transcript}
                   {isSavingTraining ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      Saving...
+                      {t('common.save')}...
                     </>
                   ) : (
-                    'Save to Training'
+                    t('conversations.saveToTraining')
                   )}
                 </button>
               </div>
@@ -513,9 +515,9 @@ ${transcript}
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Conversations</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('conversations.title')}</h1>
         <p className="text-sm text-gray-600 mt-1">
-          View and manage all bot conversations
+          {t('conversations.subtitle')}
         </p>
       </div>
 
@@ -524,7 +526,7 @@ ${transcript}
         <div className="flex flex-col sm:flex-row gap-4">
           <input
             type="text"
-            placeholder="Search conversations..."
+            placeholder={t('conversations.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -534,19 +536,19 @@ ${transcript}
             onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
             className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="completed">Completed</option>
-            <option value="abandoned">Abandoned</option>
+            <option value="all">{t('conversations.allStatus')}</option>
+            <option value="active">{t('conversations.active')}</option>
+            <option value="completed">{t('conversations.completed')}</option>
+            <option value="abandoned">{t('conversations.abandoned')}</option>
           </select>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortBy)}
             className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           >
-            <option value="recent">Most Recent</option>
-            <option value="oldest">Oldest First</option>
-            <option value="messages">Most Messages</option>
+            <option value="recent">{t('conversations.mostRecent')}</option>
+            <option value="oldest">{t('conversations.oldestFirst')}</option>
+            <option value="messages">{t('conversations.mostMessages')}</option>
           </select>
         </div>
       </div>
@@ -555,7 +557,7 @@ ${transcript}
       <div className="space-y-3">
         {filteredConversations.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-            <p className="text-gray-500">No conversations found</p>
+            <p className="text-gray-500">{t('conversations.noConversations')}</p>
           </div>
         ) : (
           filteredConversations.map((conv) => (
@@ -582,7 +584,7 @@ ${transcript}
                   </div>
                   <p className="text-sm text-gray-600 mb-2 truncate">{conv.lastMessage}</p>
                   <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <span>{conv.messageCount} messages</span>
+                    <span>{t('conversations.messages').replace('{count}', conv.messageCount.toString())}</span>
                     <span>•</span>
                     <span>{formatDate(conv.createdAt)}</span>
                   </div>
