@@ -3497,6 +3497,13 @@ app.post('/api/v1/discovery/analyze', authMiddleware, async (c) => {
       return c.json({ error: 'Business data and search goal are required' }, 400);
     }
 
+    // Check if OpenAI API key is configured
+    if (!c.env.OPENAI_API_KEY) {
+      return c.json({
+        error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to your Cloudflare Worker environment variables.'
+      }, 500);
+    }
+
     // Use OpenAI to analyze the lead
     const openai = new OpenAI({
       apiKey: c.env.OPENAI_API_KEY,
@@ -3571,6 +3578,13 @@ app.post('/api/v1/discovery/generate-outreach', authMiddleware, async (c) => {
 
     if (!business || !analysis) {
       return c.json({ error: 'Business and analysis data are required' }, 400);
+    }
+
+    // Check if OpenAI API key is configured
+    if (!c.env.OPENAI_API_KEY) {
+      return c.json({
+        error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to your Cloudflare Worker environment variables.'
+      }, 500);
     }
 
     const openai = new OpenAI({
