@@ -3267,71 +3267,25 @@ async function performMultiSourceScraping(params: any) {
     }
   }
 
-  // FALLBACK: If no API keys configured or no results, return demo data
+  // If no results found, return empty array with helpful message
   if (allBusinesses.length === 0) {
-    console.warn('⚠️ No API keys configured or no results found. Using demo data.');
-    console.warn('📝 Configure GOOGLE_PLACES_API_KEY and YELP_API_KEY for real data.');
+    const missingKeys = [];
+    if (!googleApiKey && sources.includes('google_maps')) {
+      missingKeys.push('GOOGLE_PLACES_API_KEY');
+    }
+    if (!yelpApiKey && sources.includes('yelp')) {
+      missingKeys.push('YELP_API_KEY');
+    }
 
-    return generateDemoBusinesses(location, searchGoal, businessType);
+    if (missingKeys.length > 0) {
+      throw new Error(
+        `No API keys configured for the selected sources. Please configure: ${missingKeys.join(', ')}. ` +
+        `Visit your Cloudflare Worker settings to add these environment variables.`
+      );
+    }
   }
 
   return allBusinesses;
-}
-
-// Generate demo businesses for testing without API keys
-function generateDemoBusinesses(location: string, searchGoal: string, businessType: string) {
-  const category = businessType || 'Restaurant';
-
-  return [
-    {
-      id: crypto.randomUUID(),
-      name: `${category} Demo 1`,
-      address: `Via Roma 123, ${location}`,
-      phone: '+39-06-1234567',
-      email: null,
-      website: null,
-      rating: 4.2,
-      reviewCount: 87,
-      category: category,
-      source: 'Demo Data (Configure API keys for real data)',
-      coordinates: { lat: 41.9028, lng: 12.4964 },
-      technologies: [],
-      hasOnlineBooking: false,
-      socialPresence: { facebook: true, instagram: false, linkedin: false },
-    },
-    {
-      id: crypto.randomUUID(),
-      name: `${category} Demo 2`,
-      address: `Corso Italia 456, ${location}`,
-      phone: '+39-06-7654321',
-      email: 'info@demo2.it',
-      website: 'https://demo2.example.com',
-      rating: 3.8,
-      reviewCount: 143,
-      category: category,
-      source: 'Demo Data (Configure API keys for real data)',
-      coordinates: { lat: 41.9029, lng: 12.4965 },
-      technologies: ['WordPress'],
-      hasOnlineBooking: false,
-      socialPresence: { facebook: true, instagram: true, linkedin: false },
-    },
-    {
-      id: crypto.randomUUID(),
-      name: `${category} Demo 3`,
-      address: `Piazza Navona 789, ${location}`,
-      phone: '+39-06-9876543',
-      email: null,
-      website: null,
-      rating: 4.5,
-      reviewCount: 234,
-      category: category,
-      source: 'Demo Data (Configure API keys for real data)',
-      coordinates: { lat: 41.9030, lng: 12.4966 },
-      technologies: [],
-      hasOnlineBooking: false,
-      socialPresence: { facebook: false, instagram: false, linkedin: false },
-    },
-  ];
 }
 
 // Search Google Places API
