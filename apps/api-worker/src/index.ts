@@ -3565,7 +3565,6 @@ Return your analysis as JSON with this exact structure:
           content: analysisPrompt,
         },
       ],
-      temperature: 0.7,
       response_format: { type: 'json_object' },
     });
 
@@ -3652,7 +3651,6 @@ Return JSON:
           content: emailPrompt,
         },
       ],
-      temperature: 0.8,
       response_format: { type: 'json_object' },
     });
 
