@@ -3207,7 +3207,7 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
 
     // Real multi-source scraping with external APIs
     console.log('[Discovery] Starting multi-source scraping...');
-    const results = await performMultiSourceScraping({
+    const { businesses, errors } = await performMultiSourceScraping({
       searchGoal,
       location,
       radius: radius || 10,
@@ -3219,14 +3219,20 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
       googleApiKey: c.env.GOOGLE_PLACES_API_KEY,
       yelpApiKey: c.env.YELP_API_KEY,
     });
-    console.log('[Discovery] Found', results.length, 'businesses');
+    console.log('[Discovery] Found', businesses.length, 'businesses');
+    if (errors.length > 0) {
+      console.warn('[Discovery] Errors occurred:', errors);
+    }
 
     // Return campaign ID and initial results
     return c.json({
       campaignId: campaign.id,
       status: 'processing',
-      initialResults: results,
-      message: 'Discovery search started. Results will be analyzed and scored by AI.',
+      initialResults: businesses,
+      errors: errors.length > 0 ? errors : undefined,
+      message: businesses.length > 0
+        ? 'Discovery search started. Results will be analyzed and scored by AI.'
+        : 'No results found. Check the errors for details.',
     });
   } catch (error: any) {
     console.error('[Discovery] ERROR:', error);
@@ -3243,6 +3249,7 @@ async function performMultiSourceScraping(params: any) {
   const { searchGoal, location, radius, businessType, minRating, sources, googleApiKey, yelpApiKey } = params;
 
   const allBusinesses: any[] = [];
+  const errors: string[] = [];
 
   // Check if API keys are configured
   const hasApiKeys = googleApiKey || yelpApiKey;
@@ -3250,24 +3257,32 @@ async function performMultiSourceScraping(params: any) {
   // Google Places API
   if (sources.includes('google_maps') && googleApiKey) {
     try {
+      console.log('[Discovery] Attempting Google Places search...');
       const googleResults = await searchGooglePlaces(location, searchGoal, businessType, radius, minRating, googleApiKey);
       allBusinesses.push(...googleResults);
-    } catch (error) {
-      console.error('Error searching Google Places:', error);
+      console.log('[Discovery] Google Places returned', googleResults.length, 'results');
+    } catch (error: any) {
+      const errorMsg = `Google Places: ${error.message}`;
+      console.error('[Discovery] Google Places error:', error);
+      errors.push(errorMsg);
     }
   }
 
   // Yelp API
   if (sources.includes('yelp') && yelpApiKey) {
     try {
+      console.log('[Discovery] Attempting Yelp search...');
       const yelpResults = await searchYelp(location, searchGoal, businessType, radius, minRating, yelpApiKey);
       allBusinesses.push(...yelpResults);
-    } catch (error) {
-      console.error('Error searching Yelp:', error);
+      console.log('[Discovery] Yelp returned', yelpResults.length, 'results');
+    } catch (error: any) {
+      const errorMsg = `Yelp: ${error.message}`;
+      console.error('[Discovery] Yelp error:', error);
+      errors.push(errorMsg);
     }
   }
 
-  // If no results found, return empty array with helpful message
+  // If no results found, provide helpful error message
   if (allBusinesses.length === 0) {
     const missingKeys = [];
     if (!googleApiKey && sources.includes('google_maps')) {
@@ -3283,32 +3298,62 @@ async function performMultiSourceScraping(params: any) {
         `Visit your Cloudflare Worker settings to add these environment variables.`
       );
     }
+
+    // If API keys were configured but no results, throw error with details
+    if (errors.length > 0) {
+      throw new Error(`Search failed: ${errors.join('; ')}`);
+    }
+
+    // No errors but no results - legitimate empty result
+    console.warn('[Discovery] No results found, but no errors occurred');
   }
 
-  return allBusinesses;
+  return { businesses: allBusinesses, errors };
 }
 
 // Search Google Places API
 async function searchGooglePlaces(location: string, searchGoal: string, businessType: string, radius: number, minRating: number, apiKey: string) {
+  console.log('[Google Places] Starting search:', { location, searchGoal, businessType, radius });
 
   // Step 1: Geocode location to get coordinates
   const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${apiKey}`;
+  console.log('[Google Places] Geocoding:', location);
   const geocodeResponse = await fetch(geocodeUrl);
   const geocodeData = await geocodeResponse.json();
 
+  console.log('[Google Places] Geocode response status:', geocodeData.status);
+
+  if (geocodeData.status !== 'OK') {
+    throw new Error(`Google Geocoding failed: ${geocodeData.status}. ${geocodeData.error_message || ''}`);
+  }
+
   if (!geocodeData.results || geocodeData.results.length === 0) {
-    throw new Error('Location not found');
+    throw new Error(`Location not found: ${location}`);
   }
 
   const { lat, lng } = geocodeData.results[0].geometry.location;
+  console.log('[Google Places] Coordinates:', { lat, lng });
 
   // Step 2: Search for places nearby
   const query = businessType || searchGoal;
   const searchUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius * 1000}&keyword=${encodeURIComponent(query)}&key=${apiKey}`;
+  console.log('[Google Places] Searching nearby:', query);
   const searchResponse = await fetch(searchUrl);
   const searchData = await searchResponse.json();
 
-  if (!searchData.results) {
+  console.log('[Google Places] Search response status:', searchData.status);
+  console.log('[Google Places] Found results:', searchData.results?.length || 0);
+
+  if (searchData.status === 'REQUEST_DENIED') {
+    throw new Error(`Google Places API access denied: ${searchData.error_message || 'Check API key and enabled APIs'}`);
+  }
+
+  if (searchData.status === 'INVALID_REQUEST') {
+    throw new Error(`Invalid request to Google Places API: ${searchData.error_message || ''}`);
+  }
+
+  if (!searchData.results || searchData.results.length === 0) {
+    console.warn('[Google Places] No results found for query:', query);
     return [];
   }
 
