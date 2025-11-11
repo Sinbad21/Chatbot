@@ -2144,24 +2144,35 @@ Important guidelines:
 - If the information is not in the knowledge base, use your general knowledge but indicate that
 - Be conversational and helpful`;
 
-    console.log('🤖 [CHAT] Calling OpenAI GPT-5 Mini...');
+    // Use bot's configured model, fallback to gpt-5-mini
+    const modelToUse = bot.model || 'gpt-5-mini';
+    console.log(`🤖 [CHAT] Calling OpenAI with model: ${modelToUse}`);
 
-    // Call OpenAI GPT-5 Mini API directly using fetch (Workers-compatible)
-    // Using gpt-5-mini for faster responses
+    // Prepare request body
+    const requestBody: any = {
+      model: modelToUse,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...conversationHistory,
+        { role: 'user', content: message }
+      ],
+    };
+
+    // For GPT-5 models, use max_completion_tokens instead of max_tokens
+    if (modelToUse.startsWith('gpt-5')) {
+      requestBody.max_completion_tokens = 2048;
+    } else if (modelToUse.startsWith('gpt-4')) {
+      requestBody.max_tokens = 2048;
+    }
+
+    // Call OpenAI API directly using fetch (Workers-compatible)
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${c.env.OPENAI_API_KEY}`,
       },
-      body: JSON.stringify({
-        model: 'gpt-5-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...conversationHistory,
-          { role: 'user', content: message }
-        ],
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!openaiResponse.ok) {
