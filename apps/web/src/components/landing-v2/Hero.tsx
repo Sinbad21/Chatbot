@@ -44,7 +44,7 @@ export function Hero() {
                   Prova gratis 14 giorni
                 </Button>
               </Link>
-              <Link href="#demo">
+              <Link href="#features">
                 <Button
                   size="lg"
                   variant="outline"

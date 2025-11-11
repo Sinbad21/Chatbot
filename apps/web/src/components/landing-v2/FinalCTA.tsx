@@ -35,11 +35,11 @@ export function FinalCTA() {
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
-              <Link href="#demo">
+              <a href="mailto:sales@chatbotstudio.com?subject=Richiesta Demo">
                 <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 px-8 h-12">
                   Prenota una demo
                 </Button>
-              </Link>
+              </a>
             </div>
 
             <p className="text-sm text-slate-400 mt-6">
