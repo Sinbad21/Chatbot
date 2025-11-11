@@ -523,3 +523,22 @@ export function Footer() {
     </footer>
   );
 }
+
+// Main Landing Page Component
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-background">
+      <Hero />
+      <TrustBadges />
+      <ValueProps />
+      <DemoChat />
+      <Features />
+      <Integrations />
+      <Pricing />
+      <Testimonials />
+      <FAQ />
+      <FinalCTA />
+      <Footer />
+    </div>
+  );
+}
