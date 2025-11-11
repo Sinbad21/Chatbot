@@ -1,28 +1,21 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import enTranslations from '@/translations/landing-en.json';
+import itTranslations from '@/translations/landing-it.json';
 
 type Language = 'en' | 'it';
 
 const TRANSLATIONS: Record<Language, any> = {
-  en: null,
-  it: null,
+  en: enTranslations,
+  it: itTranslations,
 };
 
 let currentLang: Language = 'en';
 let listeners: Set<() => void> = new Set();
 
-async function loadTranslation(lang: Language) {
-  if (TRANSLATIONS[lang]) return TRANSLATIONS[lang];
-
-  try {
-    const module = await import(`@/translations/landing-${lang}.json`);
-    TRANSLATIONS[lang] = module.default;
-    return TRANSLATIONS[lang];
-  } catch (error) {
-    console.error(`Failed to load translation for ${lang}`, error);
-    return null;
-  }
+function loadTranslation(lang: Language) {
+  return TRANSLATIONS[lang];
 }
 
 function notifyListeners() {
@@ -30,21 +23,17 @@ function notifyListeners() {
 }
 
 export function useLandingTranslation() {
-  const [translations, setTranslations] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [translations, setTranslations] = useState<any>(() => loadTranslation(currentLang));
+  const [loading, setLoading] = useState(false);
   const [lang, setLangState] = useState<Language>(currentLang);
 
-  const loadCurrentTranslation = useCallback(async () => {
-    setLoading(true);
-    const trans = await loadTranslation(currentLang);
+  const loadCurrentTranslation = useCallback(() => {
+    const trans = loadTranslation(currentLang);
     setTranslations(trans);
     setLangState(currentLang);
-    setLoading(false);
   }, []);
 
   useEffect(() => {
-    loadCurrentTranslation();
-
     const listener = () => {
       loadCurrentTranslation();
     };
@@ -55,7 +44,7 @@ export function useLandingTranslation() {
     };
   }, [loadCurrentTranslation]);
 
-  const setLanguage = useCallback(async (newLang: Language) => {
+  const setLanguage = useCallback((newLang: Language) => {
     if (newLang === currentLang) return;
 
     currentLang = newLang;
@@ -64,7 +53,6 @@ export function useLandingTranslation() {
       localStorage.setItem('landing_language', newLang);
     }
 
-    await loadTranslation(newLang);
     notifyListeners();
   }, []);
 
