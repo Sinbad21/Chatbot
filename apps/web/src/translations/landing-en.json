@@ -1,0 +1,286 @@
+{
+  "meta": {
+    "title": "Chatbot Studio - Add a Smart AI Chatbot to Your Website in Minutes",
+    "description": "Create custom AI chatbots trained on your data. No code required. Integrate with your website, WhatsApp, Telegram, and more. Start free today."
+  },
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "docs": "Docs",
+    "login": "Login",
+    "startFree": "Start Free"
+  },
+  "hero": {
+    "badge": "Try Live Demo",
+    "headline": "Add a smart chatbot to your site in minutes",
+    "subheadline": "Create AI-powered chatbots trained on your content. Deploy to your website, WhatsApp, Telegram, and more. No coding required.",
+    "ctaPrimary": "Start Free",
+    "ctaSecondary": "Watch Demo",
+    "microCopy": "No credit card • Cancel anytime"
+  },
+  "trust": {
+    "title": "Trusted by forward-thinking companies"
+  },
+  "valueProps": {
+    "title": "Everything you need to build intelligent chatbots",
+    "items": [
+      {
+        "title": "Train on Your Data",
+        "description": "Upload documents, scrape websites, or paste content. Your bot learns from your knowledge base."
+      },
+      {
+        "title": "Multi-Model Support",
+        "description": "Choose from OpenAI GPT-5, Claude 3.5, Google Gemini, or Llama. Switch anytime."
+      },
+      {
+        "title": "No-Code Widgets",
+        "description": "Embed beautiful chat widgets on your site with one line of code. Fully customizable."
+      },
+      {
+        "title": "Analytics & Costs",
+        "description": "Track conversations, tokens, costs by model. Export data and optimize spending."
+      },
+      {
+        "title": "22 Languages",
+        "description": "Auto-detect user language or set manually. Full i18n support for global reach."
+      },
+      {
+        "title": "Enterprise Security",
+        "description": "GDPR compliant, encrypted at rest, SOC 2 ready. Your data stays secure."
+      }
+    ]
+  },
+  "demo": {
+    "title": "Try it yourself",
+    "subtitle": "Chat with our demo bot trained on Chatbot Studio documentation",
+    "placeholder": "Ask me anything about Chatbot Studio...",
+    "themeToggle": "Switch theme"
+  },
+  "features": {
+    "title": "Powerful features for modern chatbots",
+    "subtitle": "Everything you need to create, train, and deploy intelligent conversational AI",
+    "items": [
+      {
+        "title": "Chat & History",
+        "description": "Full conversation history with filters, search, and export. Train on replies to improve your bot."
+      },
+      {
+        "title": "Document Training",
+        "description": "Upload PDF, DOCX, TXT, CSV up to 25MB. Preview, toggle inclusion, and manage your knowledge base."
+      },
+      {
+        "title": "Web Scraping",
+        "description": "Auto-discover sitemaps or crawl websites. Preview content before adding to training data."
+      },
+      {
+        "title": "Custom Branding",
+        "description": "Upload logo, customize colors (7 theme options), match your brand identity perfectly."
+      },
+      {
+        "title": "Multi-Channel Ready",
+        "description": "Deploy to WhatsApp, Telegram, Slack, Discord. One bot, multiple channels. (Coming soon)"
+      },
+      {
+        "title": "Prompt Templates",
+        "description": "Pre-built templates for customer support, sales, technical help. Or write your own."
+      },
+      {
+        "title": "Usage Analytics",
+        "description": "Daily charts for calls, tokens, costs. Break down by model and provider. CSV export included."
+      },
+      {
+        "title": "FAQs & Intents",
+        "description": "Create pattern-based responses. Train from conversation history with one click."
+      }
+    ]
+  },
+  "integrations": {
+    "title": "Integrates with your favorite tools",
+    "comingSoon": "Coming Soon"
+  },
+  "pricing": {
+    "title": "Simple, transparent pricing",
+    "subtitle": "Choose the plan that fits your needs. Upgrade or downgrade anytime.",
+    "monthly": "Monthly",
+    "annually": "Annually",
+    "annualDiscount": "Save 20%",
+    "plans": [
+      {
+        "name": "Starter",
+        "price": 29,
+        "priceAnnual": 23,
+        "description": "Perfect for small websites and blogs",
+        "features": [
+          "1 chatbot",
+          "1,000 messages/month",
+          "10 MB document storage",
+          "GPT-5 Mini only",
+          "Email support",
+          "Widget embed",
+          "Basic analytics"
+        ],
+        "cta": "Start Free Trial",
+        "popular": false
+      },
+      {
+        "name": "Pro",
+        "price": 99,
+        "priceAnnual": 79,
+        "description": "For growing businesses and teams",
+        "features": [
+          "5 chatbots",
+          "10,000 messages/month",
+          "100 MB document storage",
+          "All AI models (GPT-5, Claude, Gemini)",
+          "Priority support",
+          "Custom branding",
+          "Advanced analytics",
+          "API access"
+        ],
+        "cta": "Start Free Trial",
+        "popular": true
+      },
+      {
+        "name": "Scale",
+        "price": 299,
+        "priceAnnual": 239,
+        "description": "For enterprises with high volume",
+        "features": [
+          "Unlimited chatbots",
+          "100,000 messages/month",
+          "1 GB document storage",
+          "All AI models",
+          "Dedicated support",
+          "Custom branding",
+          "Advanced analytics",
+          "API access",
+          "Multi-channel (WhatsApp, Telegram)",
+          "SSO & SAML",
+          "SLA guarantee"
+        ],
+        "cta": "Contact Sales",
+        "popular": false
+      }
+    ],
+    "perMonth": "/month",
+    "billedAnnually": "billed annually",
+    "billedMonthly": "billed monthly"
+  },
+  "testimonials": {
+    "title": "Loved by teams worldwide",
+    "items": [
+      {
+        "name": "Sarah Chen",
+        "role": "Head of Support, TechCorp",
+        "avatar": "SC",
+        "rating": 5,
+        "text": "Chatbot Studio cut our support tickets by 60% in the first month. The training on our docs was seamless."
+      },
+      {
+        "name": "Marcus Weber",
+        "role": "Founder, StartupXYZ",
+        "avatar": "MW",
+        "rating": 5,
+        "text": "We deployed a chatbot in under 10 minutes. The ROI was immediate. Highly recommend for any SaaS."
+      },
+      {
+        "name": "Lisa Park",
+        "role": "Marketing Director, Acme Inc",
+        "avatar": "LP",
+        "rating": 5,
+        "text": "The analytics are fantastic. We can see exactly what users ask and improve our content strategy."
+      },
+      {
+        "name": "Ahmed Hassan",
+        "role": "CTO, CloudSystems",
+        "avatar": "AH",
+        "rating": 5,
+        "text": "Security was our top concern. Chatbot Studio's GDPR compliance and encryption gave us peace of mind."
+      },
+      {
+        "name": "Emma Thompson",
+        "role": "Product Manager, DataCo",
+        "avatar": "ET",
+        "rating": 5,
+        "text": "The multi-model support is a game changer. We can test GPT vs Claude and choose what works best."
+      }
+    ]
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "items": [
+      {
+        "question": "How does the free trial work?",
+        "answer": "You get 7 days free access to all Pro features. No credit card required. Cancel anytime before the trial ends and you won't be charged."
+      },
+      {
+        "question": "Can I change plans later?",
+        "answer": "Yes, you can upgrade or downgrade at any time. If you upgrade, you'll be charged the prorated difference. If you downgrade, the credit applies to your next billing cycle."
+      },
+      {
+        "question": "What AI models do you support?",
+        "answer": "We support OpenAI GPT-5 and GPT-4, Anthropic Claude 3.5, Google Gemini, and Llama 3.1. You can switch models anytime from your dashboard."
+      },
+      {
+        "question": "How is pricing calculated?",
+        "answer": "Pricing is based on the number of messages per month. Each message (user input + bot response) counts as one message. Unused messages don't roll over."
+      },
+      {
+        "question": "Can I train the bot on my private documents?",
+        "answer": "Absolutely. Upload PDFs, Word docs, spreadsheets, or paste text. You can also scrape your website automatically. All data is encrypted and never shared."
+      },
+      {
+        "question": "Do you offer refunds?",
+        "answer": "Yes, we offer a 30-day money-back guarantee if you're not satisfied. Just email us and we'll process your refund within 5 business days."
+      },
+      {
+        "question": "Is my data secure and GDPR compliant?",
+        "answer": "Yes. All data is encrypted at rest and in transit. We're GDPR compliant and SOC 2 Type II certified. You can export or delete your data anytime."
+      },
+      {
+        "question": "Can I use my own OpenAI API key?",
+        "answer": "On the Scale plan, yes. You can bring your own API keys for OpenAI, Anthropic, or Google to control costs directly."
+      },
+      {
+        "question": "What languages does the chatbot support?",
+        "answer": "The chatbot can respond in 22 languages including English, Spanish, French, German, Italian, Portuguese, Chinese, Japanese, and more. It auto-detects the user's language."
+      },
+      {
+        "question": "How do I embed the chatbot on my website?",
+        "answer": "Copy a single line of JavaScript code from your dashboard and paste it before the closing </body> tag. That's it. Fully customizable styling available."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Build your AI chatbot in minutes",
+    "subtitle": "Join thousands of companies using Chatbot Studio to automate support and boost engagement.",
+    "cta": "Start Free Trial",
+    "microCopy": "No credit card required"
+  },
+  "footer": {
+    "tagline": "Intelligent chatbots for modern websites",
+    "product": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "docs": "Documentation",
+    "changelog": "Changelog",
+    "company": "Company",
+    "about": "About Us",
+    "blog": "Blog",
+    "careers": "Careers",
+    "contact": "Contact",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "gdpr": "GDPR",
+    "social": "Social",
+    "rights": "© 2025 Chatbot Studio. All rights reserved.",
+    "poweredBy": "Powered by",
+    "newsletter": {
+      "title": "Stay updated",
+      "subtitle": "Get the latest features and tips",
+      "placeholder": "Enter your email",
+      "cta": "Subscribe"
+    }
+  }
+}
