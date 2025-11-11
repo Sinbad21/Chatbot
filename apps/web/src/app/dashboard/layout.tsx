@@ -18,11 +18,15 @@ import {
   Languages,
 } from 'lucide-react';
 import { useTranslation, LANGUAGES, type Language } from '@/lib/i18n';
+import { useSessionActivity } from '@/hooks/useSessionActivity';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { t, currentLang, setLanguage } = useTranslation();
+
+  // Monitora l'attività dell'utente per mantenere la sessione attiva
+  useSessionActivity();
 
   const navigation = [
     { nameKey: 'nav.dashboard', href: '/dashboard', icon: LayoutGrid },
@@ -80,8 +84,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
 
-    // Remove auth session cookie
+    // Remove auth session cookies
     document.cookie = 'auth_session=; path=/; max-age=0';
+    document.cookie = 'last_activity=; path=/; max-age=0';
 
     router.push('/auth/login');
   };

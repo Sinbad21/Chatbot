@@ -105,7 +105,13 @@ export default function RegisterPage() {
       // Set auth session cookie for middleware protection
       // Use Secure flag for HTTPS (CF Pages), SameSite=Lax for CSRF protection
       const isSecure = window.location.protocol === 'https:';
-      document.cookie = `auth_session=true; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+      const cookieOptions = `path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+
+      document.cookie = `auth_session=true; ${cookieOptions}`;
+
+      // Imposta il timestamp dell'ultima attività
+      const now = Date.now();
+      document.cookie = `last_activity=${now}; ${cookieOptions}`;
 
       // Hard redirect to ensure cookie is set and page fully reloads
       window.location.href = '/dashboard';

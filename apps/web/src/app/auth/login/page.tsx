@@ -1,17 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
+
+  useEffect(() => {
+    // Controlla se la sessione è scaduta per timeout
+    const timeout = searchParams.get('timeout');
+    if (timeout === 'true') {
+      setSessionExpired(true);
+    }
+  }, [searchParams]);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
@@ -59,7 +69,13 @@ export default function LoginPage() {
       // Set auth session cookie for middleware protection
       // Use Secure flag for HTTPS (CF Pages), SameSite=Lax for CSRF protection
       const isSecure = window.location.protocol === 'https:';
-      document.cookie = `auth_session=true; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+      const cookieOptions = `path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+
+      document.cookie = `auth_session=true; ${cookieOptions}`;
+
+      // Imposta il timestamp dell'ultima attività
+      const now = Date.now();
+      document.cookie = `last_activity=${now}; ${cookieOptions}`;
 
       // Hard redirect to ensure cookie is set and page fully reloads
       window.location.href = '/dashboard';
@@ -81,6 +97,12 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-600">Sign in to your Chatbot Studio account</p>
         </div>
+
+        {sessionExpired && (
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-6">
+            La tua sessione è scaduta dopo 30 minuti di inattività. Effettua nuovamente il login.
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
