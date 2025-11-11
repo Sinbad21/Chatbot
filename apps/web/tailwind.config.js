@@ -8,8 +8,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Legacy colors (kept for compatibility)
         primary: '#6366f1',
         secondary: '#8b5cf6',
+        // New Charcoal/Emerald palette
+        charcoal: '#0F172A',
+        'off-white': '#F8FAFC',
+        emerald: '#10B981',
+        'muted-gray': '#94A3B8',
       },
     },
   },
