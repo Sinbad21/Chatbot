@@ -123,8 +123,12 @@ export function ChatWidget({ botId, apiUrl = 'http://localhost:3001' }: WidgetPr
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
               >
+                {/* Author name above message */}
+                <div className="text-xs text-gray-500 mb-1 px-1">
+                  {msg.role === 'user' ? 'You' : config.name}
+                </div>
                 <div
                   className={`max-w-[80%] px-4 py-2 rounded-lg ${
                     msg.role === 'user'
@@ -137,7 +141,11 @@ export function ChatWidget({ botId, apiUrl = 'http://localhost:3001' }: WidgetPr
               </div>
             ))}
             {loading && (
-              <div className="flex justify-start">
+              <div className="flex flex-col items-start">
+                {/* Bot name above typing indicator */}
+                <div className="text-xs text-gray-500 mb-1 px-1">
+                  {config.name}
+                </div>
                 <div className="bg-gray-100 px-4 py-2 rounded-lg">
                   <div className="flex gap-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
@@ -159,15 +167,28 @@ export function ChatWidget({ botId, apiUrl = 'http://localhost:3001' }: WidgetPr
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                 placeholder="Type a message..."
-                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
               <button
                 onClick={sendMessage}
                 disabled={loading || !input.trim()}
                 style={{ backgroundColor: config.color || '#6366f1' }}
-                className="px-6 py-2 text-white rounded-lg hover:opacity-90 disabled:opacity-50"
+                className="w-12 h-12 flex items-center justify-center text-white rounded-lg hover:opacity-90 disabled:opacity-50 transition-all"
+                aria-label="Send message"
               >
-                Send
+                {/* Arrow Up Icon */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-6 h-6"
+                >
+                  <path d="M12 19V5M5 12l7-7 7 7" />
+                </svg>
               </button>
             </div>
           </div>
