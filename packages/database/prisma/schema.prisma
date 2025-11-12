@@ -82,6 +82,7 @@ model Organization {
   integrations   IntegrationConfig[]
   apiKeys        ApiKey[]
   auditLogs      AuditLog[]
+  calendarConnections CalendarConnection[]
 
   @@index([slug])
   @@map("organizations")
@@ -139,6 +140,8 @@ model Bot {
   faqs          FAQ[]
   analytics     Analytics[]
   usageLogs     UsageLog[]
+  calendarConnections CalendarConnection[]
+  mediaUploads  MediaUpload[]
 
   @@index([organizationId])
   @@index([userId])
@@ -573,4 +576,219 @@ model ApiKey {
   @@index([organizationId])
   @@index([key])
   @@map("api_keys")
+}
+
+// ============================================
+// 14. CALENDAR INTEGRATION
+// ============================================
+
+model CalendarConnection {
+  id               String    @id @default(cuid())
+  organizationId   String
+  botId            String?
+  provider         CalendarProvider @default(GOOGLE)
+
+  // OAuth tokens (encrypted)
+  accessToken      String
+  refreshToken     String?
+  tokenExpiresAt   DateTime?
+
+  // Calendar settings
+  calendarId       String
+  calendarName     String?
+  timeZone         String    @default("Europe/Rome")
+
+  // Availability settings
+  slotDuration     Int       @default(30) // minutes
+  bufferTime       Int       @default(0)  // minutes between slots
+  maxDailyBookings Int       @default(10)
+
+  // Working hours (JSON: [{day: 1, start: "09:00", end: "18:00"}])
+  workingHours     Json?
+
+  // Status
+  isActive         Boolean   @default(true)
+  lastSyncAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bot          Bot?         @relation(fields: [botId], references: [id], onDelete: Cascade)
+  events       CalendarEvent[]
+
+  @@index([organizationId])
+  @@index([botId])
+  @@index([provider])
+  @@map("calendar_connections")
+}
+
+model CalendarEvent {
+  id                   String    @id @default(cuid())
+  calendarConnectionId String
+  conversationId       String?
+
+  // Event details
+  externalEventId      String    // ID from provider (Google, etc.)
+  title                String
+  description          String?
+  startTime            DateTime
+  endTime              DateTime
+  timeZone             String
+
+  // Participants
+  attendeeEmail        String?
+  attendeeName         String?
+  organizerEmail       String
+
+  // Meeting link
+  meetingUrl           String?
+
+  // Status
+  status               EventStatus @default(CONFIRMED)
+
+  // Idempotency
+  idempotencyKey       String?   @unique
+
+  // Metadata
+  metadata             Json?
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // Relations
+  connection    CalendarConnection @relation(fields: [calendarConnectionId], references: [id], onDelete: Cascade)
+  conversation  Conversation?      @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  @@index([calendarConnectionId])
+  @@index([conversationId])
+  @@index([externalEventId])
+  @@index([startTime])
+  @@index([status])
+  @@map("calendar_events")
+}
+
+enum CalendarProvider {
+  GOOGLE
+  OUTLOOK
+  CALDAV
+}
+
+enum EventStatus {
+  CONFIRMED
+  TENTATIVE
+  CANCELLED
+  RESCHEDULED
+}
+
+// ============================================
+// 15. OCR & IMAGE PROCESSING
+// ============================================
+
+model MediaUpload {
+  id             String    @id @default(cuid())
+  conversationId String
+  messageId      String?
+  organizationId String
+  botId          String
+
+  // File details
+  url            String
+  fileName       String
+  mimeType       String
+  fileSize       Int       // bytes
+  width          Int?
+  height         Int?
+
+  // Processing
+  status         MediaStatus @default(PENDING)
+  errorMessage   String?
+
+  // Security
+  virusScanned   Boolean   @default(false)
+  virusScanResult String?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  bot          Bot          @relation(fields: [botId], references: [id], onDelete: Cascade)
+  ocrResult    OCRResult?
+
+  @@index([conversationId])
+  @@index([botId])
+  @@index([organizationId])
+  @@index([status])
+  @@map("media_uploads")
+}
+
+model OCRResult {
+  id             String    @id @default(cuid())
+  mediaUploadId  String    @unique
+
+  // OCR output
+  text           String    @db.Text
+  confidence     Float?
+
+  // Normalized text
+  normalizedText String    @db.Text
+  textNoSpaces   String    @db.Text
+
+  // Provider info
+  provider       String    // tesseract, google-vision, etc.
+  processingTime Int?      // milliseconds
+
+  // Language detection
+  detectedLang   String?
+
+  createdAt      DateTime  @default(now())
+
+  // Relations
+  mediaUpload MediaUpload @relation(fields: [mediaUploadId], references: [id], onDelete: Cascade)
+  matches     OCRMatch[]
+
+  @@index([mediaUploadId])
+  @@map("ocr_results")
+}
+
+model OCRMatch {
+  id            String    @id @default(cuid())
+  ocrResultId   String
+  knowledgeId   String?
+
+  // Match details
+  matchedText   String
+  score         Float     // 0-1
+  matchType     String    // title, slug, content, tag
+
+  // Source data
+  sourceUrl     String?
+  sourceTitle   String?
+  sourceExcerpt String?   @db.Text
+
+  // Ranking
+  rank          Int       @default(0)
+
+  // User feedback
+  clicked       Boolean   @default(false)
+  addedToDocs   Boolean   @default(false)
+
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  ocrResult  OCRResult   @relation(fields: [ocrResultId], references: [id], onDelete: Cascade)
+  knowledge  Knowledge?  @relation(fields: [knowledgeId], references: [id], onDelete: SetNull)
+
+  @@index([ocrResultId])
+  @@index([knowledgeId])
+  @@index([score])
+  @@map("ocr_matches")
+}
+
+enum MediaStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
