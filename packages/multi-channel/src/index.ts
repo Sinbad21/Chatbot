@@ -55,31 +55,100 @@ export class WhatsAppAdapter implements ChannelAdapter {
   }
 
   async sendMessage(recipient: string, response: ChannelResponse): Promise<void> {
-    // TODO: Implement WhatsApp Business API integration
-    // https://developers.facebook.com/docs/whatsapp/cloud-api/messages/text-messages
-    console.log('[WhatsApp] Sending message to:', recipient, response);
-    throw new Error('WhatsApp adapter not yet implemented. Configure WhatsApp Business API.');
+    if (!this.isEnabled()) {
+      throw new Error('WhatsApp adapter is not enabled. Check configuration.');
+    }
+
+    const url = `https://graph.facebook.com/v18.0/${this.config.phoneNumberId}/messages`;
+
+    const payload: any = {
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to: recipient,
+      type: 'text',
+      text: {
+        preview_url: false,
+        body: response.content,
+      },
+    };
+
+    // Add interactive buttons if provided
+    if (response.buttons && response.buttons.length > 0) {
+      payload.type = 'interactive';
+      payload.interactive = {
+        type: 'button',
+        body: { text: response.content },
+        action: {
+          buttons: response.buttons.slice(0, 3).map((btn, idx) => ({
+            type: 'reply',
+            reply: {
+              id: `btn_${idx}`,
+              title: btn.text.slice(0, 20),
+            },
+          })),
+        },
+      };
+      delete payload.text;
+    }
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.config.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(`WhatsApp API error: ${JSON.stringify(error)}`);
+    }
   }
 
   async receiveMessage(payload: any): Promise<ChannelMessage> {
-    // TODO: Parse WhatsApp webhook payload
+    // Parse WhatsApp webhook payload
     // https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples
+    const entry = payload.entry?.[0];
+    const change = entry?.changes?.[0];
+    const message = change?.value?.messages?.[0];
+    const contact = change?.value?.contacts?.[0];
+
+    if (!message) {
+      throw new Error('Invalid WhatsApp webhook payload: no message found');
+    }
+
     return {
-      id: payload.id || '',
-      content: payload.text?.body || '',
+      id: message.id,
+      content: message.text?.body || message.button?.text || '',
       sender: {
-        id: payload.from || '',
-        name: payload.profile?.name,
+        id: message.from,
+        name: contact?.profile?.name,
       },
-      timestamp: new Date(payload.timestamp * 1000),
-      metadata: { channel: 'whatsapp', raw: payload },
+      timestamp: new Date(parseInt(message.timestamp) * 1000),
+      metadata: {
+        channel: 'whatsapp',
+        messageType: message.type,
+        raw: payload
+      },
     };
   }
 
   verifyWebhook(payload: any): boolean {
-    // TODO: Implement webhook verification
+    // WhatsApp webhook verification (GET request during setup)
     // https://developers.facebook.com/docs/graph-api/webhooks/getting-started#verification-requests
-    return payload['hub.verify_token'] === this.config.webhookToken;
+    const mode = payload['hub.mode'];
+    const token = payload['hub.verify_token'];
+    const challenge = payload['hub.challenge'];
+
+    if (mode === 'subscribe' && token === this.config.webhookToken) {
+      return true;
+    }
+    return false;
+  }
+
+  getWebhookChallenge(payload: any): string | null {
+    return payload['hub.challenge'] || null;
   }
 }
 
@@ -101,18 +170,76 @@ export class TelegramAdapter implements ChannelAdapter {
   }
 
   async sendMessage(recipient: string, response: ChannelResponse): Promise<void> {
-    // TODO: Implement Telegram Bot API
-    // https://core.telegram.org/bots/api#sendmessage
-    console.log('[Telegram] Sending message to:', recipient, response);
-    throw new Error('Telegram adapter not yet implemented. Configure Telegram Bot Token.');
+    if (!this.isEnabled()) {
+      throw new Error('Telegram adapter is not enabled. Check bot token.');
+    }
+
+    const url = `https://api.telegram.org/bot${this.config.botToken}/sendMessage`;
+
+    const payload: any = {
+      chat_id: recipient,
+      text: response.content,
+      parse_mode: 'Markdown',
+    };
+
+    // Add inline keyboard with buttons
+    if (response.buttons && response.buttons.length > 0) {
+      payload.reply_markup = {
+        inline_keyboard: [
+          response.buttons.map(btn => ({
+            text: btn.text,
+            url: btn.action === 'url' ? btn.value : undefined,
+            callback_data: btn.action === 'postback' ? btn.value : undefined,
+          })),
+        ],
+      };
+    }
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(`Telegram API error: ${JSON.stringify(error)}`);
+    }
   }
 
   async receiveMessage(payload: any): Promise<ChannelMessage> {
-    // TODO: Parse Telegram webhook payload
+    // Parse Telegram webhook payload - supports messages and callback queries
     const message = payload.message || payload.edited_message;
+    const callbackQuery = payload.callback_query;
+
+    if (callbackQuery) {
+      // Handle button clicks
+      return {
+        id: callbackQuery.id,
+        content: callbackQuery.data || '',
+        sender: {
+          id: callbackQuery.from.id.toString(),
+          name: callbackQuery.from.username || callbackQuery.from.first_name,
+        },
+        timestamp: new Date(),
+        metadata: {
+          channel: 'telegram',
+          chatId: callbackQuery.message.chat.id,
+          isCallback: true,
+          raw: payload
+        },
+      };
+    }
+
+    if (!message) {
+      throw new Error('Invalid Telegram webhook payload: no message found');
+    }
+
     return {
       id: message.message_id.toString(),
-      content: message.text || '',
+      content: message.text || message.caption || '',
       sender: {
         id: message.from.id.toString(),
         name: message.from.username || message.from.first_name,
@@ -122,10 +249,13 @@ export class TelegramAdapter implements ChannelAdapter {
     };
   }
 
-  verifyWebhook(payload: any): boolean {
-    // TODO: Implement webhook verification
+  verifyWebhook(secretToken?: string): boolean {
+    // Telegram webhook verification using X-Telegram-Bot-Api-Secret-Token header
     // https://core.telegram.org/bots/api#setwebhook
-    return true; // Telegram uses secret token in URL
+    if (!this.config.webhookSecret) {
+      return true; // If no secret configured, accept all (not recommended for production)
+    }
+    return secretToken === this.config.webhookSecret;
   }
 }
 
@@ -148,31 +278,118 @@ export class SlackAdapter implements ChannelAdapter {
   }
 
   async sendMessage(recipient: string, response: ChannelResponse): Promise<void> {
-    // TODO: Implement Slack Web API
-    // https://api.slack.com/methods/chat.postMessage
-    console.log('[Slack] Sending message to:', recipient, response);
-    throw new Error('Slack adapter not yet implemented. Configure Slack App.');
+    if (!this.isEnabled()) {
+      throw new Error('Slack adapter is not enabled. Check configuration.');
+    }
+
+    const url = 'https://slack.com/api/chat.postMessage';
+
+    const payload: any = {
+      channel: recipient,
+      text: response.content,
+    };
+
+    // Add blocks with buttons if provided
+    if (response.buttons && response.buttons.length > 0) {
+      payload.blocks = [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: response.content,
+          },
+        },
+        {
+          type: 'actions',
+          elements: response.buttons.map(btn => ({
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: btn.text,
+            },
+            url: btn.action === 'url' ? btn.value : undefined,
+            value: btn.action === 'postback' ? btn.value : undefined,
+            action_id: btn.action === 'postback' ? btn.value : undefined,
+          })),
+        },
+      ];
+    }
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.config.botToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (!data.ok) {
+      throw new Error(`Slack API error: ${data.error}`);
+    }
   }
 
   async receiveMessage(payload: any): Promise<ChannelMessage> {
-    // TODO: Parse Slack event payload
+    // Parse Slack event payload
     const event = payload.event;
-    return {
-      id: event.client_msg_id || event.ts,
-      content: event.text || '',
-      sender: {
-        id: event.user,
-        name: event.username,
-      },
-      timestamp: new Date(parseFloat(event.ts) * 1000),
-      metadata: { channel: 'slack', channelId: event.channel, raw: payload },
-    };
+
+    if (!event) {
+      throw new Error('Invalid Slack webhook payload: no event found');
+    }
+
+    // Handle message events
+    if (event.type === 'message' && !event.bot_id) {
+      return {
+        id: event.client_msg_id || event.ts,
+        content: event.text || '',
+        sender: {
+          id: event.user,
+          name: event.username,
+        },
+        timestamp: new Date(parseFloat(event.ts) * 1000),
+        metadata: { channel: 'slack', channelId: event.channel, raw: payload },
+      };
+    }
+
+    // Handle app_mention events
+    if (event.type === 'app_mention') {
+      return {
+        id: event.client_msg_id || event.ts,
+        content: event.text.replace(/<@[A-Z0-9]+>/g, '').trim(), // Remove bot mention
+        sender: {
+          id: event.user,
+          name: event.username,
+        },
+        timestamp: new Date(parseFloat(event.ts) * 1000),
+        metadata: { channel: 'slack', channelId: event.channel, isMention: true, raw: payload },
+      };
+    }
+
+    throw new Error(`Unsupported Slack event type: ${event.type}`);
   }
 
-  verifyWebhook(payload: any): boolean {
-    // TODO: Implement Slack request signing verification
+  verifyWebhook(signature: string, timestamp: string, body: string): boolean {
+    // Slack request signing verification
     // https://api.slack.com/authentication/verifying-requests-from-slack
-    return true;
+    const crypto = require('crypto');
+
+    // Check timestamp to prevent replay attacks (within 5 minutes)
+    const currentTime = Math.floor(Date.now() / 1000);
+    if (Math.abs(currentTime - parseInt(timestamp)) > 300) {
+      return false;
+    }
+
+    const sigBasestring = `v0:${timestamp}:${body}`;
+    const mySignature = 'v0=' + crypto
+      .createHmac('sha256', this.config.signingSecret)
+      .update(sigBasestring)
+      .digest('hex');
+
+    return crypto.timingSafeEqual(
+      Buffer.from(mySignature),
+      Buffer.from(signature)
+    );
   }
 }
 
