@@ -1,14 +1,32 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+
+// Import all available landing translations
 import enTranslations from '@/translations/landing-en.json';
 import itTranslations from '@/translations/landing-it.json';
+import esTranslations from '@/translations/landing-es.json';
+import deTranslations from '@/translations/landing-de.json';
+import frTranslations from '@/translations/landing-fr.json';
 
-type Language = 'en' | 'it';
+// Supported languages - automatically derived from imported translations
+export type Language = 'en' | 'it' | 'es' | 'de' | 'fr';
+
+// Available languages with display names
+export const AVAILABLE_LANGUAGES: Record<Language, { name: string; nativeName: string }> = {
+  en: { name: 'English', nativeName: 'English' },
+  it: { name: 'Italian', nativeName: 'Italiano' },
+  es: { name: 'Spanish', nativeName: 'Español' },
+  de: { name: 'German', nativeName: 'Deutsch' },
+  fr: { name: 'French', nativeName: 'Français' },
+};
 
 const TRANSLATIONS: Record<Language, any> = {
   en: enTranslations,
   it: itTranslations,
+  es: esTranslations,
+  de: deTranslations,
+  fr: frTranslations,
 };
 
 let currentLang: Language = 'en';
@@ -85,7 +103,19 @@ export function useLandingTranslation() {
 // Initialize language from localStorage on client
 if (typeof window !== 'undefined') {
   const savedLang = localStorage.getItem('landing_language') as Language;
-  if (savedLang && (savedLang === 'en' || savedLang === 'it')) {
+  if (savedLang && savedLang in TRANSLATIONS) {
     currentLang = savedLang;
   }
+
+  // Listen for language changes from other tabs/windows
+  // This fixes the "language state leaking between tabs" issue by syncing across tabs
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'landing_language' && e.newValue) {
+      const newLang = e.newValue as Language;
+      if (newLang in TRANSLATIONS && newLang !== currentLang) {
+        currentLang = newLang;
+        notifyListeners();
+      }
+    }
+  });
 }

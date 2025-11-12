@@ -44,6 +44,7 @@ model User {
 model RefreshToken {
   id        String   @id @default(cuid())
   token     String   @unique
+  tokenId   String   @unique // Unique identifier for this specific token session
   userId    String
   expiresAt DateTime
   createdAt DateTime @default(now())
@@ -52,6 +53,7 @@ model RefreshToken {
 
   @@index([userId])
   @@index([token])
+  @@index([tokenId])
   @@map("refresh_tokens")
 }
 

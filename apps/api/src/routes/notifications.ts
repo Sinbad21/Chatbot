@@ -25,11 +25,25 @@ router.get('/unread', asyncHandler(async (req: AuthRequest, res: Response) => {
 }));
 
 router.put('/:id/read', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const notification = await prisma.notification.update({
+  // Security: Verify notification belongs to the current user
+  const notification = await prisma.notification.findFirst({
+    where: {
+      id: req.params.id,
+      userId: req.user!.userId, // Ensure user owns the notification
+    },
+  });
+
+  if (!notification) {
+    const { AppError } = await import('../middleware/error-handler');
+    throw new AppError('Notification not found', 404);
+  }
+
+  const updatedNotification = await prisma.notification.update({
     where: { id: req.params.id },
     data: { read: true },
   });
-  res.json(notification);
+
+  res.json(updatedNotification);
 }));
 
 router.post('/mark-all-read', asyncHandler(async (req: AuthRequest, res: Response) => {

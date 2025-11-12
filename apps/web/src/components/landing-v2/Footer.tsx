@@ -47,9 +47,9 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4 text-sm">Azienda</h4>
             <ul className="space-y-2 text-sm text-slate-400">
-              <li><Link href="#" className="hover:text-white transition-colors">Chi siamo</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Contatti</Link></li>
+              <li><Link href="/about" className="hover:text-white transition-colors">Chi siamo</Link></li>
+              <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+              <li><Link href="/contact" className="hover:text-white transition-colors">Contatti</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">Lavora con noi</Link></li>
             </ul>
           </div>
@@ -60,7 +60,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-slate-400">
               <li><Link href="/legal/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
               <li><Link href="/legal/terms" className="hover:text-white transition-colors">Termini di Servizio</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">GDPR</Link></li>
+              <li><Link href="/legal/gdpr" className="hover:text-white transition-colors">GDPR</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">Cookie Policy</Link></li>
             </ul>
           </div>
