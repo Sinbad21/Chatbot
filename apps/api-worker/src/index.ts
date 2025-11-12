@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerKnowledgeRoutes } from './routes/knowledge';
+import { registerWebhookRoutes } from './routes/webhooks';
 import { parseHTML } from 'linkedom';
 import { getPrisma } from './db';
 import { extractText } from 'unpdf';
@@ -14,6 +15,17 @@ type Bindings = {
   JWT_SECRET: string;
   JWT_REFRESH_SECRET: string;
   OPENAI_API_KEY: string;
+  // WhatsApp
+  WHATSAPP_API_KEY?: string;
+  WHATSAPP_PHONE_NUMBER_ID?: string;
+  WHATSAPP_WEBHOOK_TOKEN?: string;
+  // Telegram
+  TELEGRAM_BOT_TOKEN?: string;
+  TELEGRAM_WEBHOOK_SECRET?: string;
+  // Slack
+  SLACK_BOT_TOKEN?: string;
+  SLACK_SIGNING_SECRET?: string;
+  SLACK_APP_ID?: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -113,6 +125,7 @@ const authMiddleware = async (c: any, next: any) => {
 };
 
 registerKnowledgeRoutes(app as any, authMiddleware);
+registerWebhookRoutes(app as any);
 
 // ============================================
 // HEALTH CHECK
