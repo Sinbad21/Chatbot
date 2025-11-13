@@ -33,6 +33,7 @@ const plans = [
       '5 chatbot',
       '5.000 messaggi/mese',
       'Tutte le integrazioni',
+      'Widget prenotazioni integrato',
       'Analytics avanzate',
       'API access',
       'Supporto prioritario',

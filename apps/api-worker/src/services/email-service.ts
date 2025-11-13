@@ -1,7 +1,15 @@
 /**
  * Email Notification Service
- * Sends booking confirmation and notification emails
+ * Sends booking confirmation and notification emails using Resend
  */
+
+import { Resend } from 'resend';
+
+// Initialize Resend (will use RESEND_API_KEY from environment)
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+// Email sender address (must be verified in Resend dashboard)
+const FROM_EMAIL = process.env.EMAIL_FROM_ADDRESS || 'bookings@yourdomain.com';
 
 interface BookingEmailData {
   ownerEmail?: string;
@@ -101,27 +109,28 @@ Se hai bisogno di modificare o cancellare l'appuntamento, contattaci.
 © ${new Date().getFullYear()} Chatbot Studio
   `;
 
-  // TODO: Integrate with actual email service (SendGrid, Resend, etc.)
-  console.log('📧 Sending attendee confirmation email to:', data.attendeeEmail);
-  console.log('Subject: Conferma Prenotazione');
-  console.log('HTML Body:', emailHtml);
-  console.log('Text Body:', emailText);
+  // Send email using Resend
+  if (resend) {
+    try {
+      const result = await resend.emails.send({
+        from: FROM_EMAIL,
+        to: data.attendeeEmail,
+        subject: 'Conferma Prenotazione / Booking Confirmation',
+        html: emailHtml,
+        text: emailText,
+      });
 
-  // Example integration with Resend:
-  // await fetch('https://api.resend.com/emails', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({
-  //     from: 'bookings@yourdomain.com',
-  //     to: data.attendeeEmail,
-  //     subject: 'Conferma Prenotazione',
-  //     html: emailHtml,
-  //     text: emailText,
-  //   }),
-  // });
+      console.log('✅ Attendee confirmation email sent:', result);
+    } catch (error) {
+      console.error('❌ Failed to send attendee confirmation email:', error);
+      throw error;
+    }
+  } else {
+    // Fallback to logging if Resend not configured
+    console.log('⚠️ RESEND_API_KEY not configured. Email would be sent to:', data.attendeeEmail);
+    console.log('Subject: Conferma Prenotazione');
+    console.log('Preview:', emailText.substring(0, 200));
+  }
 }
 
 /**
@@ -204,27 +213,28 @@ Questo è un messaggio automatico. L'appuntamento è stato aggiunto al tuo calen
 © ${new Date().getFullYear()} Chatbot Studio
   `;
 
-  // TODO: Integrate with actual email service
-  console.log('📧 Sending owner notification email to:', data.ownerEmail);
-  console.log('Subject: Nuova Prenotazione Ricevuta');
-  console.log('HTML Body:', emailHtml);
-  console.log('Text Body:', emailText);
+  // Send email using Resend
+  if (resend) {
+    try {
+      const result = await resend.emails.send({
+        from: FROM_EMAIL,
+        to: data.ownerEmail,
+        subject: 'Nuova Prenotazione Ricevuta / New Booking Received',
+        html: emailHtml,
+        text: emailText,
+      });
 
-  // Example integration with Resend:
-  // await fetch('https://api.resend.com/emails', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({
-  //     from: 'system@yourdomain.com',
-  //     to: data.ownerEmail,
-  //     subject: 'Nuova Prenotazione Ricevuta',
-  //     html: emailHtml,
-  //     text: emailText,
-  //   }),
-  // });
+      console.log('✅ Owner notification email sent:', result);
+    } catch (error) {
+      console.error('❌ Failed to send owner notification email:', error);
+      throw error;
+    }
+  } else {
+    // Fallback to logging if Resend not configured
+    console.log('⚠️ RESEND_API_KEY not configured. Email would be sent to:', data.ownerEmail);
+    console.log('Subject: Nuova Prenotazione Ricevuta');
+    console.log('Preview:', emailText.substring(0, 200));
+  }
 }
 
 /**
@@ -277,7 +287,42 @@ export async function sendCancellationEmail(data: BookingEmailData): Promise<voi
 </html>
   `;
 
-  console.log('📧 Sending cancellation email to:', data.attendeeEmail);
-  console.log('Subject: Prenotazione Cancellata');
-  console.log('HTML Body:', emailHtml);
+  const emailText = `
+Prenotazione Cancellata
+
+Ciao ${data.attendeeFirstName || data.attendeeName},
+
+La tua prenotazione è stata cancellata.
+
+APPUNTAMENTO CANCELLATO:
+Data: ${startDate.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+Orario: ${startDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+
+Se desideri prenotare un nuovo appuntamento, contattaci.
+
+© ${new Date().getFullYear()} Chatbot Studio
+  `;
+
+  // Send email using Resend
+  if (resend) {
+    try {
+      const result = await resend.emails.send({
+        from: FROM_EMAIL,
+        to: data.attendeeEmail,
+        subject: 'Prenotazione Cancellata / Booking Cancelled',
+        html: emailHtml,
+        text: emailText,
+      });
+
+      console.log('✅ Cancellation email sent:', result);
+    } catch (error) {
+      console.error('❌ Failed to send cancellation email:', error);
+      throw error;
+    }
+  } else {
+    // Fallback to logging if Resend not configured
+    console.log('⚠️ RESEND_API_KEY not configured. Email would be sent to:', data.attendeeEmail);
+    console.log('Subject: Prenotazione Cancellata');
+    console.log('Preview:', emailText.substring(0, 200));
+  }
 }

@@ -256,13 +256,17 @@ export class GoogleCalendarService {
       timeZone: connection.timeZone,
     });
 
+    // Get blocked dates (stored as JSON array of YYYY-MM-DD strings)
+    const blockedDates: string[] = (connection.blockedDates as any) || [];
+
     // Generate all possible slots based on working hours
     const allSlots = this.generateTimeSlots(
       startDate,
       endDate,
       connection.slotDuration,
       connection.bufferTime,
-      connection.workingHours as any
+      connection.workingHours as any,
+      blockedDates
     );
 
     // Filter out busy slots
@@ -283,7 +287,7 @@ export class GoogleCalendarService {
   }
 
   /**
-   * Generate time slots based on working hours
+   * Generate time slots based on working hours and blocked dates
    */
   private generateTimeSlots(
     startDate: Date,
@@ -291,54 +295,73 @@ export class GoogleCalendarService {
     slotDuration: number,
     bufferTime: number,
     workingHours?: {
-      monday?: { start: string; end: string };
-      tuesday?: { start: string; end: string };
-      wednesday?: { start: string; end: string };
-      thursday?: { start: string; end: string };
-      friday?: { start: string; end: string };
-      saturday?: { start: string; end: string };
-      sunday?: { start: string; end: string };
-    }
+      monday?: { start: string; end: string; enabled?: boolean };
+      tuesday?: { start: string; end: string; enabled?: boolean };
+      wednesday?: { start: string; end: string; enabled?: boolean };
+      thursday?: { start: string; end: string; enabled?: boolean };
+      friday?: { start: string; end: string; enabled?: boolean };
+      saturday?: { start: string; end: string; enabled?: boolean };
+      sunday?: { start: string; end: string; enabled?: boolean };
+    },
+    blockedDates: string[] = []
   ): TimeSlot[] {
     const slots: TimeSlot[] = [];
     const current = new Date(startDate);
 
     // Default working hours if not provided
-    const defaultHours = { start: '09:00', end: '17:00' };
+    const defaultHours = { start: '09:00', end: '17:00', enabled: true };
+
+    // Convert blocked dates to Set for O(1) lookup
+    const blockedDatesSet = new Set(blockedDates);
 
     while (current < endDate) {
+      // Format current date as YYYY-MM-DD for comparison with blocked dates
+      const currentDateStr = current.toISOString().split('T')[0];
+
+      // Skip if this date is in blocked dates
+      if (blockedDatesSet.has(currentDateStr)) {
+        current.setDate(current.getDate() + 1);
+        current.setHours(0, 0, 0, 0);
+        continue;
+      }
+
       const dayName = current
         .toLocaleDateString('en-US', { weekday: 'long' })
         .toLowerCase() as keyof typeof workingHours;
 
       const dayHours = workingHours?.[dayName] || defaultHours;
 
-      if (dayHours) {
-        const [startHour, startMinute] = dayHours.start.split(':').map(Number);
-        const [endHour, endMinute] = dayHours.end.split(':').map(Number);
+      // Skip if day is explicitly disabled or no hours configured
+      if (!dayHours || dayHours.enabled === false) {
+        current.setDate(current.getDate() + 1);
+        current.setHours(0, 0, 0, 0);
+        continue;
+      }
 
-        const dayStart = new Date(current);
-        dayStart.setHours(startHour, startMinute, 0, 0);
+      const [startHour, startMinute] = dayHours.start.split(':').map(Number);
+      const [endHour, endMinute] = dayHours.end.split(':').map(Number);
 
-        const dayEnd = new Date(current);
-        dayEnd.setHours(endHour, endMinute, 0, 0);
+      const dayStart = new Date(current);
+      dayStart.setHours(startHour, startMinute, 0, 0);
 
-        const slotStart = new Date(dayStart);
+      const dayEnd = new Date(current);
+      dayEnd.setHours(endHour, endMinute, 0, 0);
 
-        while (slotStart < dayEnd) {
-          const slotEnd = new Date(slotStart.getTime() + slotDuration * 60 * 1000);
+      const slotStart = new Date(dayStart);
 
-          if (slotEnd <= dayEnd) {
-            slots.push({
-              start: slotStart.toISOString(),
-              end: slotEnd.toISOString(),
-            });
-          }
+      while (slotStart < dayEnd) {
+        const slotEnd = new Date(slotStart.getTime() + slotDuration * 60 * 1000);
 
-          slotStart.setTime(
-            slotStart.getTime() + (slotDuration + bufferTime) * 60 * 1000
-          );
+        if (slotEnd <= dayEnd) {
+          slots.push({
+            start: slotStart.toISOString(),
+            end: slotEnd.toISOString(),
+          });
         }
+
+        slotStart.setTime(
+          slotStart.getTime() + (slotDuration + bufferTime) * 60 * 1000
+        );
       }
 
       // Move to next day

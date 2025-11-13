@@ -18,6 +18,7 @@
   const buttonText = script.getAttribute('data-button-text') || 'Prenota Appuntamento';
   const buttonColor = script.getAttribute('data-button-color') || '#10b981';
   const buttonPosition = script.getAttribute('data-button-position') || 'bottom-right';
+  const locale = script.getAttribute('data-locale') || 'it'; // Default to Italian
   const inline = script.getAttribute('data-inline') === 'true';
 
   if (!connectionId) {
@@ -27,7 +28,7 @@
 
   // Configuration
   const baseUrl = script.src.replace('/booking-widget.js', '');
-  const widgetUrl = `${baseUrl}/booking/${connectionId}`;
+  const widgetUrl = `${baseUrl}/booking/${connectionId}?locale=${locale}`;
 
   // Create widget container
   function createWidget() {

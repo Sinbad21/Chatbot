@@ -1,12 +1,20 @@
 /**
  * Rate Limiting Middleware
  * Prevents spam bookings from the same IP address
+ * Supports both in-memory (dev) and Cloudflare KV (production) storage
  */
 
 import type { Context, Next } from 'hono';
 
-// In-memory store for rate limiting (in production, use Redis)
+// In-memory store for rate limiting (fallback when KV not available)
 const ipBookingAttempts = new Map<string, { count: number; resetAt: number }>();
+
+// Cloudflare KV namespace interface
+interface KVNamespace {
+  get(key: string): Promise<string | null>;
+  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
+  delete(key: string): Promise<void>;
+}
 
 // Clean up old entries every 5 minutes
 setInterval(() => {
@@ -56,6 +64,45 @@ function getClientIP(c: Context): string {
 }
 
 /**
+ * Storage abstraction layer - uses KV if available, falls back to in-memory
+ */
+async function getRateLimitData(
+  ip: string,
+  kv?: KVNamespace
+): Promise<{ count: number; resetAt: number } | null> {
+  if (kv) {
+    try {
+      const data = await kv.get(`rate_limit:${ip}`);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error('KV get error:', error);
+      // Fall back to in-memory
+      return ipBookingAttempts.get(ip) || null;
+    }
+  }
+  return ipBookingAttempts.get(ip) || null;
+}
+
+async function setRateLimitData(
+  ip: string,
+  data: { count: number; resetAt: number },
+  kv?: KVNamespace
+): Promise<void> {
+  if (kv) {
+    try {
+      const ttl = Math.ceil((data.resetAt - Date.now()) / 1000);
+      await kv.put(`rate_limit:${ip}`, JSON.stringify(data), { expirationTtl: ttl });
+    } catch (error) {
+      console.error('KV put error:', error);
+      // Fall back to in-memory
+      ipBookingAttempts.set(ip, data);
+    }
+  } else {
+    ipBookingAttempts.set(ip, data);
+  }
+}
+
+/**
  * Rate limit middleware for booking endpoints
  */
 export function rateLimitBooking(config: Partial<RateLimitConfig> = {}) {
@@ -64,6 +111,9 @@ export function rateLimitBooking(config: Partial<RateLimitConfig> = {}) {
   return async (c: Context, next: Next) => {
     const ip = getClientIP(c);
 
+    // Try to get Cloudflare KV namespace from context (if bound in wrangler.toml)
+    const kv = (c.env as any)?.RATE_LIMIT_KV as KVNamespace | undefined;
+
     if (ip === 'unknown') {
       // If we can't determine IP, allow the request but log it
       console.warn('Rate limit: Unable to determine client IP');
@@ -71,15 +121,15 @@ export function rateLimitBooking(config: Partial<RateLimitConfig> = {}) {
     }
 
     const now = Date.now();
-    const existing = ipBookingAttempts.get(ip);
+    const existing = await getRateLimitData(ip, kv);
 
     if (existing) {
       if (now > existing.resetAt) {
         // Window has expired, reset counter
-        ipBookingAttempts.set(ip, {
+        await setRateLimitData(ip, {
           count: 1,
           resetAt: now + finalConfig.windowMs,
-        });
+        }, kv);
         return next();
       } else {
         // Window is still active
@@ -103,6 +153,7 @@ export function rateLimitBooking(config: Partial<RateLimitConfig> = {}) {
         } else {
           // Increment counter
           existing.count++;
+          await setRateLimitData(ip, existing, kv);
           const remaining = finalConfig.maxAttempts - existing.count;
 
           // Add rate limit headers
@@ -115,10 +166,10 @@ export function rateLimitBooking(config: Partial<RateLimitConfig> = {}) {
       }
     } else {
       // First attempt from this IP
-      ipBookingAttempts.set(ip, {
+      await setRateLimitData(ip, {
         count: 1,
         resetAt: now + finalConfig.windowMs,
-      });
+      }, kv);
 
       // Add rate limit headers
       c.header('X-RateLimit-Limit', finalConfig.maxAttempts.toString());

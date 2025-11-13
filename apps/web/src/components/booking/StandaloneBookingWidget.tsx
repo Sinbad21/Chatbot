@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Calendar, Clock, User, Check, ChevronRight, ChevronLeft, X } from 'lucide-react';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 interface TimeSlot {
   start: string;
@@ -16,14 +17,15 @@ interface StandaloneBookingWidgetProps {
 }
 
 export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBookingWidgetProps) {
+  const { t, locale } = useI18n();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [configLoading, setConfigLoading] = useState(true);
 
   // Widget configuration
-  const [widgetTitle, setWidgetTitle] = useState('Prenota un Appuntamento');
-  const [widgetSubtitle, setWidgetSubtitle] = useState('Scegli data e ora che preferisci');
-  const [confirmMessage, setConfirmMessage] = useState('Appuntamento confermato! Riceverai una email di conferma.');
+  const [widgetTitle, setWidgetTitle] = useState(t('booking.title'));
+  const [widgetSubtitle, setWidgetSubtitle] = useState(t('booking.subtitle'));
+  const [confirmMessage, setConfirmMessage] = useState(t('booking.confirmationMessage'));
 
   // Step 1: Personal Information
   const [firstName, setFirstName] = useState('');
@@ -163,7 +165,8 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
   };
 
   const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('it-IT', {
+    const localeStr = locale === 'it' ? 'it-IT' : 'en-US';
+    return date.toLocaleDateString(localeStr, {
       weekday: 'long',
       day: 'numeric',
       month: 'long',
@@ -172,7 +175,8 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
 
   const formatTime = (isoString: string): string => {
     const date = new Date(isoString);
-    return date.toLocaleTimeString('it-IT', {
+    const localeStr = locale === 'it' ? 'it-IT' : 'en-US';
+    return date.toLocaleTimeString(localeStr, {
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -183,7 +187,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
       <Card className="max-w-lg w-full bg-white shadow-xl p-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald mx-auto mb-4"></div>
-          <p className="text-muted-gray">Caricamento...</p>
+          <p className="text-muted-gray">{t('booking.loading')}</p>
         </div>
       </Card>
     );
@@ -195,21 +199,21 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
         <div className="w-16 h-16 bg-emerald/10 rounded-full flex items-center justify-center mx-auto mb-4">
           <Check className="w-8 h-8 text-emerald" />
         </div>
-        <h3 className="text-2xl font-bold text-charcoal mb-3">Prenotazione Confermata!</h3>
+        <h3 className="text-2xl font-bold text-charcoal mb-3">{t('booking.confirmationTitle')}</h3>
         <p className="text-muted-gray mb-6">{confirmMessage}</p>
         <div className="bg-slate-50 rounded-lg p-4 mb-6 text-left">
-          <h4 className="font-semibold text-charcoal mb-2">Dettagli Appuntamento</h4>
+          <h4 className="font-semibold text-charcoal mb-2">{t('booking.bookingDetails')}</h4>
           <div className="space-y-1 text-sm text-charcoal">
-            <p><strong>Nome:</strong> {firstName} {lastName}</p>
-            <p><strong>Email:</strong> {email}</p>
-            <p><strong>Telefono:</strong> {phone}</p>
-            <p><strong>Data:</strong> {selectedDate && formatDate(selectedDate)}</p>
-            <p><strong>Orario:</strong> {selectedSlot && `${formatTime(selectedSlot.start)} - ${formatTime(selectedSlot.end)}`}</p>
+            <p><strong>{t('booking.firstName')}:</strong> {firstName} {lastName}</p>
+            <p><strong>{t('booking.email')}:</strong> {email}</p>
+            <p><strong>{t('booking.phone')}:</strong> {phone}</p>
+            <p><strong>{t('booking.dateTime')}:</strong> {selectedDate && formatDate(selectedDate)}</p>
+            <p><strong>{t('booking.selectTime')}:</strong> {selectedSlot && `${formatTime(selectedSlot.start)} - ${formatTime(selectedSlot.end)}`}</p>
           </div>
         </div>
         {onClose && (
           <Button onClick={onClose} className="bg-emerald hover:bg-emerald/90 text-white">
-            Chiudi
+            {t('common.close')}
           </Button>
         )}
       </Card>
@@ -229,7 +233,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
             <button
               onClick={onClose}
               className="text-muted-gray hover:text-charcoal transition-colors"
-              aria-label="Chiudi"
+              aria-label={t('common.close')}
             >
               <X className="w-5 h-5" />
             </button>
@@ -254,14 +258,14 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
         <div className="p-5">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-emerald" />
-            <h4 className="font-semibold text-charcoal">I Tuoi Dati</h4>
+            <h4 className="font-semibold text-charcoal">{t('booking.step1')}</h4>
           </div>
 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-1.5">
-                  Nome *
+                  {t('booking.firstName')} *
                 </label>
                 <input
                   type="text"
@@ -269,7 +273,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
                   autoComplete="given-name"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="Mario"
+                  placeholder={t('booking.firstNamePlaceholder')}
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald transition-all"
                   required
                 />
@@ -277,7 +281,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
 
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-1.5">
-                  Cognome *
+                  {t('booking.lastName')} *
                 </label>
                 <input
                   type="text"
@@ -285,7 +289,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
                   autoComplete="family-name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Rossi"
+                  placeholder={t('booking.lastNamePlaceholder')}
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald transition-all"
                   required
                 />
@@ -294,7 +298,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
 
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1.5">
-                Numero di Telefono *
+                {t('booking.phone')} *
               </label>
               <input
                 type="tel"
@@ -302,7 +306,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
                 autoComplete="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+39 333 123 4567"
+                placeholder={t('booking.phonePlaceholder')}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald transition-all"
                 required
               />
@@ -310,7 +314,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
 
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1.5">
-                Email *
+                {t('booking.email')} *
               </label>
               <input
                 type="email"
@@ -318,7 +322,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="mario.rossi@example.com"
+                placeholder={t('booking.emailPlaceholder')}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald transition-all"
                 required
               />
@@ -326,12 +330,12 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
 
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1.5">
-                Note (opzionale)
+                {t('booking.notes')}
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Argomenti da discutere..."
+                placeholder={t('booking.notesPlaceholder')}
                 rows={3}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald resize-none transition-all"
               />
@@ -341,7 +345,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
           <div className="flex justify-end gap-3 mt-6 pt-5 border-t border-slate-200">
             {onClose && (
               <Button variant="outline" onClick={onClose}>
-                Annulla
+                {t('common.cancel')}
               </Button>
             )}
             <Button
@@ -349,7 +353,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
               disabled={!firstName || !lastName || !phone || !email}
               className="bg-emerald hover:bg-emerald/90 text-white"
             >
-              Avanti <ChevronRight className="w-4 h-4 ml-1" />
+              {t('booking.continue')} <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </div>
@@ -360,37 +364,40 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
         <div className="p-5">
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="w-5 h-5 text-emerald" />
-            <h4 className="font-semibold text-charcoal">Scegli il Giorno</h4>
+            <h4 className="font-semibold text-charcoal">{t('booking.step2')}</h4>
           </div>
 
           <div className="grid grid-cols-3 gap-2 max-h-96 overflow-y-auto">
-            {availableDates.map((date, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedDate(date)}
-                className={`p-3 rounded-lg border text-center transition-all ${
-                  selectedDate?.toDateString() === date.toDateString()
-                    ? 'border-emerald bg-emerald/10 text-emerald font-semibold shadow-sm'
-                    : 'border-slate-200 hover:border-emerald/50 hover:bg-emerald/5 text-charcoal'
-                }`}
-              >
-                <div className="text-xs text-muted-gray mb-0.5">{date.toLocaleDateString('it-IT', { weekday: 'short' })}</div>
-                <div className="text-xl font-bold">{date.getDate()}</div>
-                <div className="text-xs text-muted-gray mt-0.5">{date.toLocaleDateString('it-IT', { month: 'short' })}</div>
-              </button>
-            ))}
+            {availableDates.map((date, index) => {
+              const localeStr = locale === 'it' ? 'it-IT' : 'en-US';
+              return (
+                <button
+                  key={index}
+                  onClick={() => setSelectedDate(date)}
+                  className={`p-3 rounded-lg border text-center transition-all ${
+                    selectedDate?.toDateString() === date.toDateString()
+                      ? 'border-emerald bg-emerald/10 text-emerald font-semibold shadow-sm'
+                      : 'border-slate-200 hover:border-emerald/50 hover:bg-emerald/5 text-charcoal'
+                  }`}
+                >
+                  <div className="text-xs text-muted-gray mb-0.5">{date.toLocaleDateString(localeStr, { weekday: 'short' })}</div>
+                  <div className="text-xl font-bold">{date.getDate()}</div>
+                  <div className="text-xs text-muted-gray mt-0.5">{date.toLocaleDateString(localeStr, { month: 'short' })}</div>
+                </button>
+              );
+            })}
           </div>
 
           <div className="flex justify-between gap-3 mt-6 pt-5 border-t border-slate-200">
             <Button variant="outline" onClick={() => setStep(1)}>
-              <ChevronLeft className="w-4 h-4 mr-1" /> Indietro
+              <ChevronLeft className="w-4 h-4 mr-1" /> {t('booking.back')}
             </Button>
             <Button
               onClick={() => setStep(3)}
               disabled={!selectedDate}
               className="bg-emerald hover:bg-emerald/90 text-white"
             >
-              Avanti <ChevronRight className="w-4 h-4 ml-1" />
+              {t('booking.continue')} <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </div>
@@ -401,7 +408,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
         <div className="p-5">
           <div className="flex items-center gap-2 mb-4">
             <Clock className="w-5 h-5 text-emerald" />
-            <h4 className="font-semibold text-charcoal">Scegli l'Orario</h4>
+            <h4 className="font-semibold text-charcoal">{t('booking.step3')}</h4>
           </div>
 
           <div className="mb-4 p-3 bg-emerald/5 border border-emerald/20 rounded-lg">
@@ -413,11 +420,11 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
           {loadingSlots ? (
             <div className="text-center py-12">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald mx-auto mb-3"></div>
-              <p className="text-sm text-muted-gray">Caricamento orari...</p>
+              <p className="text-sm text-muted-gray">{t('booking.loading')}</p>
             </div>
           ) : availableSlots.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-gray mb-4">Nessuno slot disponibile</p>
+              <p className="text-muted-gray mb-4">{t('booking.noSlotsAvailable')}</p>
               <Button
                 variant="outline"
                 onClick={() => {
@@ -425,7 +432,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
                   setStep(2);
                 }}
               >
-                Cambia Data
+                {t('booking.back')}
               </Button>
             </div>
           ) : (
@@ -449,21 +456,21 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
               {/* Summary */}
               {selectedSlot && (
                 <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                  <h5 className="font-semibold text-charcoal mb-3">Riepilogo</h5>
+                  <h5 className="font-semibold text-charcoal mb-3">{t('booking.summary')}</h5>
                   <div className="text-sm space-y-1.5 text-charcoal">
-                    <p><strong>Nome:</strong> {firstName} {lastName}</p>
-                    <p><strong>Telefono:</strong> {phone}</p>
-                    <p><strong>Email:</strong> {email}</p>
-                    <p><strong>Data:</strong> {selectedDate && formatDate(selectedDate)}</p>
-                    <p><strong>Orario:</strong> {`${formatTime(selectedSlot.start)} - ${formatTime(selectedSlot.end)}`}</p>
-                    {notes && <p><strong>Note:</strong> {notes}</p>}
+                    <p><strong>{t('booking.firstName')}:</strong> {firstName} {lastName}</p>
+                    <p><strong>{t('booking.phone')}:</strong> {phone}</p>
+                    <p><strong>{t('booking.email')}:</strong> {email}</p>
+                    <p><strong>{t('booking.dateTime')}:</strong> {selectedDate && formatDate(selectedDate)}</p>
+                    <p><strong>{t('booking.selectTime')}:</strong> {`${formatTime(selectedSlot.start)} - ${formatTime(selectedSlot.end)}`}</p>
+                    {notes && <p><strong>{t('booking.notes')}:</strong> {notes}</p>}
                   </div>
                 </div>
               )}
 
               <div className="flex justify-between gap-3 mt-6 pt-5 border-t border-slate-200">
                 <Button variant="outline" onClick={() => setStep(2)}>
-                  <ChevronLeft className="w-4 h-4 mr-1" /> Indietro
+                  <ChevronLeft className="w-4 h-4 mr-1" /> {t('booking.back')}
                 </Button>
                 <Button
                   onClick={handleBookAppointment}
@@ -473,12 +480,12 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
                   {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Prenotazione...
+                      {t('booking.loading')}...
                     </>
                   ) : (
                     <>
                       <Check className="w-4 h-4 mr-2" />
-                      Conferma
+                      {t('booking.confirm')}
                     </>
                   )}
                 </Button>
