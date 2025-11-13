@@ -161,10 +161,12 @@ model Conversation {
   updatedAt DateTime @updatedAt
 
   // Relations
-  bot      Bot       @relation(fields: [botId], references: [id], onDelete: Cascade)
-  user     User?     @relation(fields: [userId], references: [id])
-  messages Message[]
-  lead     Lead?
+  bot            Bot             @relation(fields: [botId], references: [id], onDelete: Cascade)
+  user           User?           @relation(fields: [userId], references: [id])
+  messages       Message[]
+  lead           Lead?
+  calendarEvents CalendarEvent[]
+  mediaUploads   MediaUpload[]
 
   @@index([botId])
   @@index([sessionId])
@@ -757,7 +759,6 @@ model OCRResult {
 model OCRMatch {
   id            String    @id @default(cuid())
   ocrResultId   String
-  knowledgeId   String?
 
   // Match details
   matchedText   String
@@ -780,10 +781,8 @@ model OCRMatch {
 
   // Relations
   ocrResult  OCRResult   @relation(fields: [ocrResultId], references: [id], onDelete: Cascade)
-  knowledge  Knowledge?  @relation(fields: [knowledgeId], references: [id], onDelete: SetNull)
 
   @@index([ocrResultId])
-  @@index([knowledgeId])
   @@index([score])
   @@map("ocr_matches")
 }
