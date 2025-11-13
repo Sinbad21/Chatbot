@@ -1,7 +1,7 @@
 'use client';
 
-import { Navbar } from '@/components/landing/Navbar';
-import { Footer } from '@/components/landing';
+import { Navbar } from '@/components/landing-v2/Navbar';
+import { Footer } from '@/components/landing-v2/Footer';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, Clock, ArrowRight } from 'lucide-react';
