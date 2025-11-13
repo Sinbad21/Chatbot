@@ -3,27 +3,29 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Calendar, Clock, User, Mail, Phone, Check, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Calendar, Clock, User, Check, ChevronRight, ChevronLeft, X } from 'lucide-react';
 
 interface TimeSlot {
   start: string;
   end: string;
 }
 
-interface BookingWizardProps {
-  botId?: string;
-  connectionId?: string;
-  conversationId?: string;
-  onComplete: (eventId: string) => void;
-  onCancel: () => void;
+interface StandaloneBookingWidgetProps {
+  connectionId: string;
+  onClose?: () => void;
 }
 
-export function BookingWizard({ botId, connectionId: propConnectionId, conversationId, onComplete, onCancel }: BookingWizardProps) {
+export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBookingWidgetProps) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [connectionId, setConnectionId] = useState<string | null>(propConnectionId || null);
+  const [configLoading, setConfigLoading] = useState(true);
 
-  // Step 1: Personal Information (NEW ORDER)
+  // Widget configuration
+  const [widgetTitle, setWidgetTitle] = useState('Prenota un Appuntamento');
+  const [widgetSubtitle, setWidgetSubtitle] = useState('Scegli data e ora che preferisci');
+  const [confirmMessage, setConfirmMessage] = useState('Appuntamento confermato! Riceverai una email di conferma.');
+
+  // Step 1: Personal Information
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -39,31 +41,35 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
-  useEffect(() => {
-    if (!connectionId && botId) {
-      fetchCalendarConnection();
-    }
-    generateAvailableDates();
-  }, [botId, connectionId]);
+  // Success state
+  const [bookingSuccess, setBookingSuccess] = useState(false);
 
   useEffect(() => {
-    if (selectedDate && connectionId) {
+    fetchWidgetConfig();
+    generateAvailableDates();
+  }, [connectionId]);
+
+  useEffect(() => {
+    if (selectedDate) {
       fetchAvailableSlots();
     }
-  }, [selectedDate, connectionId]);
+  }, [selectedDate]);
 
-  const fetchCalendarConnection = async () => {
+  const fetchWidgetConfig = async () => {
     try {
-      // Get the active calendar connection for this bot
-      const response = await fetch(`/api/calendar/connections?botId=${botId}`);
+      setConfigLoading(true);
+      const response = await fetch(`/api/calendar/connections/${connectionId}`);
       const data = await response.json();
 
-      const activeConnection = data.connections?.find((c: any) => c.isActive && c.botId === botId);
-      if (activeConnection) {
-        setConnectionId(activeConnection.id);
+      if (data.connection) {
+        setWidgetTitle(data.connection.widgetTitle || widgetTitle);
+        setWidgetSubtitle(data.connection.widgetSubtitle || widgetSubtitle);
+        setConfirmMessage(data.connection.confirmMessage || confirmMessage);
       }
     } catch (error) {
-      console.error('Failed to fetch calendar connection:', error);
+      console.error('Failed to fetch widget config:', error);
+    } finally {
+      setConfigLoading(false);
     }
   };
 
@@ -77,7 +83,7 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
       const date = new Date(today);
       date.setDate(today.getDate() + i);
 
-      // Skip Sundays (optional - this should come from workingHours config)
+      // Skip Sundays by default (should be based on workingHours)
       if (date.getDay() !== 0) {
         dates.push(date);
       }
@@ -118,7 +124,7 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
   };
 
   const handleBookAppointment = async () => {
-    if (!selectedSlot || !firstName || !email || !connectionId) return;
+    if (!selectedSlot || !firstName || !email || !phone) return;
 
     setLoading(true);
     try {
@@ -127,9 +133,8 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           connectionId,
-          conversationId,
-          summary: `Appointment with ${firstName} ${lastName}`,
-          description: notes || 'Booked via widget',
+          summary: `Appuntamento con ${firstName} ${lastName}`,
+          description: notes || 'Prenotato tramite widget',
           startTime: selectedSlot.start,
           endTime: selectedSlot.end,
           timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -138,21 +143,20 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
           attendeeFirstName: firstName,
           attendeeLastName: lastName,
           attendeePhone: phone,
-          organizerEmail: 'your-email@example.com', // TODO: Get from connection config
-          idempotencyKey: `${conversationId || connectionId}-${Date.now()}`,
+          organizerEmail: 'booking@example.com', // Will be set from connection config
+          idempotencyKey: `${connectionId}-${Date.now()}`,
         }),
       });
 
       if (response.ok) {
-        const data = await response.json();
-        onComplete(data.event.id);
+        setBookingSuccess(true);
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to book appointment');
+        alert(error.error || 'Impossibile completare la prenotazione');
       }
     } catch (error) {
       console.error('Failed to book appointment:', error);
-      alert('Failed to book appointment. Please try again.');
+      alert('Errore durante la prenotazione. Riprova.');
     } finally {
       setLoading(false);
     }
@@ -160,9 +164,9 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
 
   const formatDate = (date: Date): string => {
     return date.toLocaleDateString('it-IT', {
-      weekday: 'short',
+      weekday: 'long',
       day: 'numeric',
-      month: 'short',
+      month: 'long',
     });
   };
 
@@ -174,27 +178,62 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
     });
   };
 
-  if (!connectionId) {
+  if (configLoading) {
     return (
-      <Card className="p-6 text-center">
-        <Calendar className="w-12 h-12 text-muted-gray mx-auto mb-3" />
-        <p className="text-charcoal/70">Calendar not configured</p>
-        <Button variant="outline" onClick={onCancel} className="mt-4">
-          Close
-        </Button>
+      <Card className="max-w-lg w-full bg-white shadow-xl p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald mx-auto mb-4"></div>
+          <p className="text-muted-gray">Caricamento...</p>
+        </div>
+      </Card>
+    );
+  }
+
+  if (bookingSuccess) {
+    return (
+      <Card className="max-w-lg w-full bg-white shadow-xl p-8 text-center">
+        <div className="w-16 h-16 bg-emerald/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Check className="w-8 h-8 text-emerald" />
+        </div>
+        <h3 className="text-2xl font-bold text-charcoal mb-3">Prenotazione Confermata!</h3>
+        <p className="text-muted-gray mb-6">{confirmMessage}</p>
+        <div className="bg-slate-50 rounded-lg p-4 mb-6 text-left">
+          <h4 className="font-semibold text-charcoal mb-2">Dettagli Appuntamento</h4>
+          <div className="space-y-1 text-sm text-charcoal">
+            <p><strong>Nome:</strong> {firstName} {lastName}</p>
+            <p><strong>Email:</strong> {email}</p>
+            <p><strong>Telefono:</strong> {phone}</p>
+            <p><strong>Data:</strong> {selectedDate && formatDate(selectedDate)}</p>
+            <p><strong>Orario:</strong> {selectedSlot && `${formatTime(selectedSlot.start)} - ${formatTime(selectedSlot.end)}`}</p>
+          </div>
+        </div>
+        {onClose && (
+          <Button onClick={onClose} className="bg-emerald hover:bg-emerald/90 text-white">
+            Chiudi
+          </Button>
+        )}
       </Card>
     );
   }
 
   return (
-    <Card className="max-w-lg w-full bg-white shadow-lg">
+    <Card className="max-w-lg w-full bg-white shadow-xl relative">
       {/* Header */}
-      <div className="border-b border-slate-200 p-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold text-charcoal">Prenota un Appuntamento</h3>
-          <button onClick={onCancel} className="text-muted-gray hover:text-charcoal">
-            ✕
-          </button>
+      <div className="border-b border-slate-200 p-5">
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <h3 className="text-xl font-bold text-charcoal mb-1">{widgetTitle}</h3>
+            <p className="text-sm text-muted-gray">{widgetSubtitle}</p>
+          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-muted-gray hover:text-charcoal transition-colors"
+              aria-label="Chiudi"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Progress */}
@@ -202,7 +241,7 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
           {[1, 2, 3].map((s) => (
             <div
               key={s}
-              className={`h-1 flex-1 rounded-full ${
+              className={`h-1.5 flex-1 rounded-full transition-colors ${
                 s <= step ? 'bg-emerald' : 'bg-slate-200'
               }`}
             />
@@ -210,18 +249,18 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
         </div>
       </div>
 
-      {/* Step 1: Personal Information (REVERSED ORDER) */}
+      {/* Step 1: Personal Information */}
       {step === 1 && (
-        <div className="p-4">
+        <div className="p-5">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-emerald" />
-            <h4 className="font-medium text-charcoal">I Tuoi Dati</h4>
+            <h4 className="font-semibold text-charcoal">I Tuoi Dati</h4>
           </div>
 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">
+                <label className="block text-sm font-medium text-charcoal mb-1.5">
                   Nome *
                 </label>
                 <input
@@ -231,13 +270,13 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="Mario"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">
+                <label className="block text-sm font-medium text-charcoal mb-1.5">
                   Cognome *
                 </label>
                 <input
@@ -247,14 +286,14 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Rossi"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald transition-all"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">
+              <label className="block text-sm font-medium text-charcoal mb-1.5">
                 Numero di Telefono *
               </label>
               <input
@@ -264,16 +303,13 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+39 333 123 4567"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald transition-all"
                 required
               />
-              <p className="text-xs text-muted-gray mt-1">
-                Formato: +39 seguito dal numero
-              </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">
+              <label className="block text-sm font-medium text-charcoal mb-1.5">
                 Email *
               </label>
               <input
@@ -283,32 +319,31 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="mario.rossi@example.com"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald transition-all"
                 required
               />
-              <p className="text-xs text-muted-gray mt-1">
-                Riceverai una conferma via email
-              </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">
+              <label className="block text-sm font-medium text-charcoal mb-1.5">
                 Note (opzionale)
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Argomenti specifici da discutere..."
+                placeholder="Argomenti da discutere..."
                 rows={3}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald resize-none"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald/20 focus:border-emerald resize-none transition-all"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-200">
-            <Button variant="outline" onClick={onCancel}>
-              Annulla
-            </Button>
+          <div className="flex justify-end gap-3 mt-6 pt-5 border-t border-slate-200">
+            {onClose && (
+              <Button variant="outline" onClick={onClose}>
+                Annulla
+              </Button>
+            )}
             <Button
               onClick={() => setStep(2)}
               disabled={!firstName || !lastName || !phone || !email}
@@ -320,33 +355,33 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
         </div>
       )}
 
-      {/* Step 2: Date Selection (REVERSED ORDER) */}
+      {/* Step 2: Date Selection */}
       {step === 2 && (
-        <div className="p-4">
+        <div className="p-5">
           <div className="flex items-center gap-2 mb-4">
             <Calendar className="w-5 h-5 text-emerald" />
-            <h4 className="font-medium text-charcoal">Scegli il Giorno</h4>
+            <h4 className="font-semibold text-charcoal">Scegli il Giorno</h4>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 max-h-80 overflow-y-auto">
+          <div className="grid grid-cols-3 gap-2 max-h-96 overflow-y-auto">
             {availableDates.map((date, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedDate(date)}
-                className={`p-3 rounded-lg border text-center transition-colors ${
+                className={`p-3 rounded-lg border text-center transition-all ${
                   selectedDate?.toDateString() === date.toDateString()
-                    ? 'border-emerald bg-emerald/10 text-emerald font-medium'
-                    : 'border-slate-200 hover:border-emerald/50 text-charcoal'
+                    ? 'border-emerald bg-emerald/10 text-emerald font-semibold shadow-sm'
+                    : 'border-slate-200 hover:border-emerald/50 hover:bg-emerald/5 text-charcoal'
                 }`}
               >
-                <div className="text-xs text-muted-gray">{date.toLocaleDateString('it-IT', { weekday: 'short' })}</div>
-                <div className="text-lg font-semibold">{date.getDate()}</div>
-                <div className="text-xs text-muted-gray">{date.toLocaleDateString('it-IT', { month: 'short' })}</div>
+                <div className="text-xs text-muted-gray mb-0.5">{date.toLocaleDateString('it-IT', { weekday: 'short' })}</div>
+                <div className="text-xl font-bold">{date.getDate()}</div>
+                <div className="text-xs text-muted-gray mt-0.5">{date.toLocaleDateString('it-IT', { month: 'short' })}</div>
               </button>
             ))}
           </div>
 
-          <div className="flex justify-between gap-2 mt-4 pt-4 border-t border-slate-200">
+          <div className="flex justify-between gap-3 mt-6 pt-5 border-t border-slate-200">
             <Button variant="outline" onClick={() => setStep(1)}>
               <ChevronLeft className="w-4 h-4 mr-1" /> Indietro
             </Button>
@@ -361,65 +396,61 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
         </div>
       )}
 
-      {/* Step 3: Time Slot Selection (REVERSED ORDER) */}
+      {/* Step 3: Time Slot Selection */}
       {step === 3 && (
-        <div className="p-4">
+        <div className="p-5">
           <div className="flex items-center gap-2 mb-4">
             <Clock className="w-5 h-5 text-emerald" />
-            <h4 className="font-medium text-charcoal">Scegli l'Orario</h4>
+            <h4 className="font-semibold text-charcoal">Scegli l'Orario</h4>
           </div>
 
-          <div className="mb-4 p-3 bg-emerald/10 rounded-lg space-y-1">
+          <div className="mb-4 p-3 bg-emerald/5 border border-emerald/20 rounded-lg">
             <p className="text-sm text-charcoal">
-              <strong>{firstName} {lastName}</strong>
-            </p>
-            <p className="text-sm text-charcoal">
-              {selectedDate && formatDate(selectedDate)}
+              <strong>{selectedDate && formatDate(selectedDate)}</strong>
             </p>
           </div>
 
           {loadingSlots ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald mx-auto mb-2"></div>
-              <p className="text-sm text-muted-gray">Caricamento orari disponibili...</p>
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald mx-auto mb-3"></div>
+              <p className="text-sm text-muted-gray">Caricamento orari...</p>
             </div>
           ) : availableSlots.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-gray">Nessuno slot disponibile per questa data</p>
+            <div className="text-center py-12">
+              <p className="text-muted-gray mb-4">Nessuno slot disponibile</p>
               <Button
                 variant="outline"
                 onClick={() => {
                   setSelectedDate(null);
                   setStep(2);
                 }}
-                className="mt-4"
               >
-                Scegli un'Altra Data
+                Cambia Data
               </Button>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-3 gap-2 max-h-80 overflow-y-auto">
+              <div className="grid grid-cols-3 gap-2 max-h-80 overflow-y-auto mb-4">
                 {availableSlots.map((slot, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedSlot(slot)}
-                    className={`p-3 rounded-lg border text-center transition-colors ${
+                    className={`p-3 rounded-lg border text-center transition-all ${
                       selectedSlot === slot
-                        ? 'border-emerald bg-emerald/10 text-emerald font-medium'
-                        : 'border-slate-200 hover:border-emerald/50 text-charcoal'
+                        ? 'border-emerald bg-emerald/10 text-emerald font-semibold shadow-sm'
+                        : 'border-slate-200 hover:border-emerald/50 hover:bg-emerald/5 text-charcoal'
                     }`}
                   >
-                    {formatTime(slot.start)}
+                    <div className="text-sm font-medium">{formatTime(slot.start)}</div>
                   </button>
                 ))}
               </div>
 
-              {/* Summary before confirmation */}
+              {/* Summary */}
               {selectedSlot && (
-                <div className="mt-4 p-4 bg-slate-50 rounded-lg space-y-2">
-                  <h5 className="font-semibold text-charcoal mb-2">Riepilogo Prenotazione</h5>
-                  <div className="text-sm space-y-1">
+                <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                  <h5 className="font-semibold text-charcoal mb-3">Riepilogo</h5>
+                  <div className="text-sm space-y-1.5 text-charcoal">
                     <p><strong>Nome:</strong> {firstName} {lastName}</p>
                     <p><strong>Telefono:</strong> {phone}</p>
                     <p><strong>Email:</strong> {email}</p>
@@ -430,7 +461,7 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
                 </div>
               )}
 
-              <div className="flex justify-between gap-2 mt-4 pt-4 border-t border-slate-200">
+              <div className="flex justify-between gap-3 mt-6 pt-5 border-t border-slate-200">
                 <Button variant="outline" onClick={() => setStep(2)}>
                   <ChevronLeft className="w-4 h-4 mr-1" /> Indietro
                 </Button>
@@ -447,7 +478,7 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
                   ) : (
                     <>
                       <Check className="w-4 h-4 mr-2" />
-                      Conferma Prenotazione
+                      Conferma
                     </>
                   )}
                 </Button>

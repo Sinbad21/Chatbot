@@ -37,6 +37,9 @@ const createEventSchema = z.object({
   timeZone: z.string().default('Europe/Rome'),
   attendeeEmail: z.string().email().optional(),
   attendeeName: z.string().max(255).optional(),
+  attendeeFirstName: z.string().max(100).optional(),
+  attendeeLastName: z.string().max(100).optional(),
+  attendeePhone: z.string().max(50).optional(),
   organizerEmail: z.string().email(),
   idempotencyKey: z.string().optional(),
 });
@@ -290,6 +293,12 @@ app.patch('/connections/:id', async (c) => {
       bufferTime,
       maxDailyBookings,
       workingHours,
+      blockedDates,
+      widgetTitle,
+      widgetSubtitle,
+      confirmMessage,
+      ownerEmail,
+      notifyOwner,
       isActive,
     } = body;
 
@@ -301,6 +310,12 @@ app.patch('/connections/:id', async (c) => {
         bufferTime,
         maxDailyBookings,
         workingHours,
+        blockedDates,
+        widgetTitle,
+        widgetSubtitle,
+        confirmMessage,
+        ownerEmail,
+        notifyOwner,
         isActive,
       },
     });

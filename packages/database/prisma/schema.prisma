@@ -610,6 +610,18 @@ model CalendarConnection {
   // Working hours (JSON: [{day: 1, start: "09:00", end: "18:00"}])
   workingHours     Json?
 
+  // Blocked dates (JSON: ["2024-12-25", "2024-01-01"])
+  blockedDates     Json?
+
+  // Widget customization
+  widgetTitle      String?   @default("Book an Appointment")
+  widgetSubtitle   String?   @default("Choose a date and time that works for you")
+  confirmMessage   String?   @default("Your appointment has been confirmed! Check your email for details.")
+
+  // Email notifications
+  ownerEmail       String?
+  notifyOwner      Boolean   @default(true)
+
   // Status
   isActive         Boolean   @default(true)
   lastSyncAt       DateTime?
@@ -643,6 +655,9 @@ model CalendarEvent {
   // Participants
   attendeeEmail        String?
   attendeeName         String?
+  attendeeFirstName    String?
+  attendeeLastName     String?
+  attendeePhone        String?
   organizerEmail       String
 
   // Meeting link
