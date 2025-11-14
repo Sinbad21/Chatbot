@@ -327,7 +327,7 @@ export function BookingWidget({
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="Mario"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
-                  style={{ focusRingColor: primaryColor }}
+                  style={{ '--tw-ring-color': primaryColor } as React.CSSProperties}
                   required
                 />
               </div>
@@ -345,7 +345,7 @@ export function BookingWidget({
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Rossi"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
-                  style={{ focusRingColor: primaryColor }}
+                  style={{ '--tw-ring-color': primaryColor } as React.CSSProperties}
                   required
                 />
               </div>
@@ -363,7 +363,7 @@ export function BookingWidget({
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+39 123 456 7890"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
-                  style={{ focusRingColor: primaryColor }}
+                  style={{ '--tw-ring-color': primaryColor } as React.CSSProperties}
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
