@@ -12,15 +12,20 @@ interface TimeSlot {
 }
 
 interface StandaloneBookingWidgetProps {
-  connectionId: string;
+  connectionId?: string; // For authenticated bot users
+  widgetId?: string;     // For public widget embedding (standalone customers)
   onClose?: () => void;
 }
 
-export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBookingWidgetProps) {
+export function StandaloneBookingWidget({ connectionId, widgetId, onClose }: StandaloneBookingWidgetProps) {
   const { t, locale } = useI18n();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [configLoading, setConfigLoading] = useState(true);
+
+  // Determine which identifier to use (prefer widgetId for public access)
+  const identifier = widgetId || connectionId;
+  const isPublicWidget = !!widgetId;
 
   // Widget configuration
   const [widgetTitle, setWidgetTitle] = useState(t('booking.title'));
@@ -49,7 +54,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
   useEffect(() => {
     fetchWidgetConfig();
     generateAvailableDates();
-  }, [connectionId]);
+  }, [identifier]);
 
   useEffect(() => {
     if (selectedDate) {
@@ -60,13 +65,21 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
   const fetchWidgetConfig = async () => {
     try {
       setConfigLoading(true);
-      const response = await fetch(`/api/calendar/connections/${connectionId}`);
+
+      // Use public widget endpoint if widgetId is provided, otherwise use authenticated endpoint
+      const url = isPublicWidget
+        ? `/api/calendar/widget/${identifier}/config`
+        : `/api/calendar/connections/${identifier}`;
+
+      const response = await fetch(url);
       const data = await response.json();
 
-      if (data.connection) {
-        setWidgetTitle(data.connection.widgetTitle || widgetTitle);
-        setWidgetSubtitle(data.connection.widgetSubtitle || widgetSubtitle);
-        setConfirmMessage(data.connection.confirmMessage || confirmMessage);
+      const config = isPublicWidget ? data.config : data.connection;
+
+      if (config) {
+        setWidgetTitle(config.widgetTitle || widgetTitle);
+        setWidgetSubtitle(config.widgetSubtitle || widgetSubtitle);
+        setConfirmMessage(config.confirmMessage || confirmMessage);
       }
     } catch (error) {
       console.error('Failed to fetch widget config:', error);
@@ -95,7 +108,7 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
   };
 
   const fetchAvailableSlots = async () => {
-    if (!selectedDate || !connectionId) return;
+    if (!selectedDate || !identifier) return;
 
     setLoadingSlots(true);
     try {
@@ -105,14 +118,26 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
       const endOfDay = new Date(selectedDate);
       endOfDay.setHours(23, 59, 59, 999);
 
-      const response = await fetch('/api/calendar/availability', {
+      // Use public widget endpoint if widgetId is provided
+      const url = isPublicWidget
+        ? `/api/calendar/widget/${identifier}/availability`
+        : '/api/calendar/availability';
+
+      const body = isPublicWidget
+        ? {
+            startDate: startOfDay.toISOString(),
+            endDate: endOfDay.toISOString(),
+          }
+        : {
+            connectionId: identifier,
+            startDate: startOfDay.toISOString(),
+            endDate: endOfDay.toISOString(),
+          };
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          connectionId,
-          startDate: startOfDay.toISOString(),
-          endDate: endOfDay.toISOString(),
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -130,24 +155,45 @@ export function StandaloneBookingWidget({ connectionId, onClose }: StandaloneBoo
 
     setLoading(true);
     try {
-      const response = await fetch('/api/calendar/events', {
+      // Use public widget endpoint if widgetId is provided
+      const url = isPublicWidget
+        ? `/api/calendar/widget/${identifier}/events`
+        : '/api/calendar/events';
+
+      const body = isPublicWidget
+        ? {
+            summary: `Appuntamento con ${firstName} ${lastName}`,
+            description: notes || 'Prenotato tramite widget',
+            startTime: selectedSlot.start,
+            endTime: selectedSlot.end,
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            attendeeEmail: email,
+            attendeeName: `${firstName} ${lastName}`,
+            attendeeFirstName: firstName,
+            attendeeLastName: lastName,
+            attendeePhone: phone,
+            notes: notes,
+          }
+        : {
+            connectionId: identifier,
+            summary: `Appuntamento con ${firstName} ${lastName}`,
+            description: notes || 'Prenotato tramite widget',
+            startTime: selectedSlot.start,
+            endTime: selectedSlot.end,
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            attendeeEmail: email,
+            attendeeName: `${firstName} ${lastName}`,
+            attendeeFirstName: firstName,
+            attendeeLastName: lastName,
+            attendeePhone: phone,
+            organizerEmail: 'booking@example.com', // Will be set from connection config
+            idempotencyKey: `${identifier}-${Date.now()}`,
+          };
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          connectionId,
-          summary: `Appuntamento con ${firstName} ${lastName}`,
-          description: notes || 'Prenotato tramite widget',
-          startTime: selectedSlot.start,
-          endTime: selectedSlot.end,
-          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          attendeeEmail: email,
-          attendeeName: `${firstName} ${lastName}`,
-          attendeeFirstName: firstName,
-          attendeeLastName: lastName,
-          attendeePhone: phone,
-          organizerEmail: 'booking@example.com', // Will be set from connection config
-          idempotencyKey: `${connectionId}-${Date.now()}`,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (response.ok) {
