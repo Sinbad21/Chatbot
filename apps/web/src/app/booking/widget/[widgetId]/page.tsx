@@ -18,7 +18,7 @@ export default function WidgetBookingPage({ params, searchParams }: WidgetBookin
   const { locale } = use(searchParams);
 
   return (
-    <I18nProvider defaultLocale={locale}>
+    <I18nProvider initialLocale={locale as any}>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
         {/* Language Selector */}
         <div className="absolute top-4 right-4">
