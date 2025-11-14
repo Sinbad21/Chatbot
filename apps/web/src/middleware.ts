@@ -9,11 +9,13 @@ export function middleware(request: NextRequest) {
 
   // Only protect dashboard routes (excluding API calls and static files)
   if (pathname.startsWith('/dashboard')) {
-    // Check for auth cookie (set during login)
+    // Check for auth cookie (set by backend during login)
+    // SECURITY NOTE: This is a UX gate only. Real authentication happens via
+    // httpOnly cookies verified by the API backend on every request.
     const authCookie = request.cookies.get('auth_session');
     const lastActivityCookie = request.cookies.get('last_activity');
 
-    // Se la sessione non esiste, redirect a login
+    // If session doesn't exist, redirect to login
     if (!authCookie || authCookie.value !== 'true') {
       const loginUrl = new URL('/auth/login', request.url);
       // Prevent redirect loops

@@ -76,6 +76,34 @@ class AuthController {
       console.error('Failed to send welcome email:', error);
     }
 
+    // Set httpOnly cookies for security (protection against XSS)
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 15 * 60 * 1000, // 15 minutes
+      path: '/',
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    });
+
+    // Set auth_session cookie for client-side checks
+    res.cookie('auth_session', 'true', {
+      httpOnly: false, // Client needs to read this
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    });
+
     res.status(201).json({
       user: {
         id: user.id,
@@ -83,10 +111,7 @@ class AuthController {
         name: user.name,
         role: user.role,
       },
-      tokens: {
-        accessToken,
-        refreshToken,
-      },
+      // Don't send tokens in response - they're in httpOnly cookies
     });
   }
 
@@ -135,6 +160,34 @@ class AuthController {
       },
     });
 
+    // Set httpOnly cookies for security (protection against XSS)
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 15 * 60 * 1000, // 15 minutes
+      path: '/',
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    });
+
+    // Set auth_session cookie for client-side checks
+    res.cookie('auth_session', 'true', {
+      httpOnly: false, // Client needs to read this
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    });
+
     res.json({
       user: {
         id: user.id,
@@ -142,15 +195,13 @@ class AuthController {
         name: user.name,
         role: user.role,
       },
-      tokens: {
-        accessToken,
-        refreshToken,
-      },
+      // Don't send tokens in response - they're in httpOnly cookies
     });
   }
 
   async refresh(req: AuthRequest, res: Response) {
-    const { refreshToken } = req.body;
+    // Get refresh token from httpOnly cookie
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
       throw new AppError('Refresh token required', 400);
@@ -189,18 +240,36 @@ class AuthController {
       role: user.role,
     });
 
-    res.json({ accessToken });
+    // Update access token cookie
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      maxAge: 15 * 60 * 1000, // 15 minutes
+      path: '/',
+    });
+
+    res.json({ success: true });
   }
 
   async logout(req: AuthRequest, res: Response) {
-    const { refreshToken } = req.body;
+    // Get refresh token from httpOnly cookie
+    const refreshToken = req.cookies.refreshToken;
 
     if (refreshToken) {
-      // Delete refresh token
+      // Delete refresh token from database
       await prisma.refreshToken.deleteMany({
         where: { token: refreshToken },
       });
     }
+
+    // Clear all auth cookies
+    res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/' });
+    res.clearCookie('auth_session', { path: '/' });
+    res.clearCookie('last_activity', { path: '/' });
 
     res.json({ message: 'Logged out successfully' });
   }
