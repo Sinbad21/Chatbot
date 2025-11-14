@@ -3,6 +3,8 @@
 
 # Next.js cache (can be huge and not needed for deployment)
 .next/cache/
+**/cache/webpack/
+cache/
 
 # Node modules (dependencies are installed during build)
 node_modules/
