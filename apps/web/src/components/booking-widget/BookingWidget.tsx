@@ -120,7 +120,9 @@ export function BookingWidget({
       const data = await response.json();
 
       // Extract unique dates from slots
-      const dates = [...new Set(data.slots.map((slot: TimeSlot) => slot.date))];
+      const dates = Array.from(
+        new Set(data.slots.map((slot: TimeSlot) => slot.date as string))
+      ) as string[];
       setAvailableDates(dates);
     } catch (err) {
       console.error('Failed to load available dates:', err);
