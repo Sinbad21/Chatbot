@@ -584,9 +584,26 @@ model ApiKey {
 
 model CalendarConnection {
   id               String    @id @default(cuid())
-  organizationId   String
+  organizationId   String?   // Optional for standalone
   botId            String?
   provider         CalendarProvider @default(GOOGLE)
+
+  // Standalone account info (for customers without bot)
+  standaloneAccountEmail String?
+  standaloneAccountName  String?
+  standaloneAccountPhone String?
+
+  // Widget ID for public embedding
+  widgetId         String    @unique @default(cuid())
+
+  // Subscription source
+  subscriptionSource String  @default("BOT_PRO") // BOT_PRO, BOT_ENTERPRISE, STANDALONE
+
+  // Stripe subscription (for standalone only)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionStatus   String  @default("active") // active, cancelled, past_due
+  subscriptionEndsAt   DateTime?
 
   // OAuth tokens (encrypted)
   accessToken      String
@@ -601,10 +618,31 @@ model CalendarConnection {
   // Availability settings
   slotDuration     Int       @default(30) // minutes
   bufferTime       Int       @default(0)  // minutes between slots
-  maxDailyBookings Int       @default(10)
+  maxDailyBookings Int       @default(20)
+  minAdvanceBooking Int      @default(60) // minutes - minimum notice
+  maxAdvanceBooking Int      @default(90) // days - max booking in advance
 
-  // Working hours (JSON: [{day: 1, start: "09:00", end: "18:00"}])
+  // Working hours (JSON: {"monday": {"enabled": true, "slots": [{"start": "09:00", "end": "18:00"}]}})
   workingHours     Json?
+
+  // Blocked dates (holidays, vacations) - JSON array of ISO dates
+  blockedDates     Json      @default("[]")
+
+  // Widget customization
+  widgetTitle       String   @default("Book an Appointment")
+  widgetSubtitle    String   @default("Choose your preferred date and time")
+  widgetPrimaryColor String  @default("#10B981")
+  widgetFontFamily  String   @default("system-ui")
+  confirmationMessage String @default("Thank you! Your appointment has been confirmed.")
+
+  // Notifications
+  notificationEmail String?
+  sendOwnerNotifications Boolean @default(true)
+  sendCustomerNotifications Boolean @default(true)
+
+  // Terms and privacy
+  termsUrl   String?
+  privacyUrl String?
 
   // Status
   isActive         Boolean   @default(true)
@@ -613,13 +651,15 @@ model CalendarConnection {
   updatedAt        DateTime  @updatedAt
 
   // Relations
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  bot          Bot?         @relation(fields: [botId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bot          Bot?          @relation(fields: [botId], references: [id], onDelete: Cascade)
   events       CalendarEvent[]
 
   @@index([organizationId])
   @@index([botId])
+  @@index([widgetId])
   @@index([provider])
+  @@index([standaloneAccountEmail])
   @@map("calendar_connections")
 }
 
@@ -636,10 +676,18 @@ model CalendarEvent {
   endTime              DateTime
   timeZone             String
 
-  // Participants
+  // Booking reference for public widget bookings
+  bookingReference     String?   @unique
+
+  // Participants (bot/chatbot integration)
   attendeeEmail        String?
   attendeeName         String?
   organizerEmail       String
+
+  // Customer info (widget public bookings)
+  customerFirstName    String?
+  customerLastName     String?
+  customerPhone        String?
 
   // Meeting link
   meetingUrl           String?
@@ -647,11 +695,21 @@ model CalendarEvent {
   // Status
   status               EventStatus @default(CONFIRMED)
 
+  // Notes
+  customerNotes        String?   @db.Text
+  ownerNotes           String?   @db.Text
+
   // Idempotency
   idempotencyKey       String?   @unique
 
-  // Metadata
+  // Metadata for tracking
+  customerIp           String?
+  customerAgent        String?
   metadata             Json?
+
+  // Cancellation
+  cancelledAt          DateTime?
+  cancellationReason   String?
 
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
@@ -662,6 +720,7 @@ model CalendarEvent {
 
   @@index([calendarConnectionId])
   @@index([conversationId])
+  @@index([bookingReference])
   @@index([externalEventId])
   @@index([startTime])
   @@index([status])
@@ -791,173 +850,4 @@ enum MediaStatus {
   PROCESSING
   COMPLETED
   FAILED
-}
-
-// ============================================
-// 15. BOOKING PLUGIN (STANDALONE)
-// ============================================
-
-enum BookingPlan {
-  FREE
-  BASIC
-  PRO
-  ENTERPRISE
-}
-
-enum BookingStatus {
-  ACTIVE
-  CANCELLED
-  COMPLETED
-  NO_SHOW
-}
-
-model BookingAccount {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Account info
-  ownerName   String
-  ownerEmail  String   @unique
-  ownerPhone  String?
-
-  // Widget identifier (for embedding)
-  widgetId    String   @unique @default(cuid())
-
-  // Subscription
-  plan        BookingPlan @default(FREE)
-  subscriptionStatus String @default("active") // active, suspended, cancelled
-  subscriptionEndsAt DateTime?
-
-  // Limits based on plan
-  maxBookingsPerMonth Int @default(100) // FREE: 100, BASIC: 1000, PRO: unlimited
-
-  // Relations
-  configuration BookingConfiguration?
-  bookings      BookingSlot[]
-  subscription  BookingSubscription?
-
-  @@index([widgetId])
-  @@index([ownerEmail])
-  @@map("booking_accounts")
-}
-
-model BookingConfiguration {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  accountId String @unique
-  account   BookingAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
-
-  // Timezone and locale
-  timezone  String @default("Europe/Rome")
-  locale    String @default("it")
-
-  // Working hours (JSON structure per day)
-  // Example: {"monday": {"enabled": true, "slots": [{"start": "09:00", "end": "13:00"}, {"start": "14:00", "end": "18:00"}]}}
-  workingHours Json @default("{}")
-
-  // Slot settings
-  slotDuration Int @default(30) // minutes
-  bufferTime   Int @default(0)  // minutes between appointments
-
-  // Booking limits
-  maxDailyBookings Int @default(20)
-  minAdvanceBooking Int @default(60) // minutes - minimum notice before booking
-  maxAdvanceBooking Int @default(90) // days - how far in advance can book
-
-  // Blocked dates (holidays, vacations)
-  // Array of ISO date strings: ["2025-12-25", "2025-01-01"]
-  blockedDates Json @default("[]")
-
-  // Widget customization
-  widgetTitle       String @default("Prenota un appuntamento")
-  widgetSubtitle    String @default("Scegli data e ora per il tuo appuntamento")
-  widgetPrimaryColor String @default("#10B981")
-  widgetFontFamily  String @default("system-ui")
-  confirmationMessage String @default("Grazie! La tua prenotazione è stata confermata.")
-
-  // Notifications
-  notificationEmail String?
-  sendOwnerNotifications Boolean @default(true)
-  sendCustomerNotifications Boolean @default(true)
-
-  // Terms and privacy (optional URLs)
-  termsUrl   String?
-  privacyUrl String?
-
-  @@index([accountId])
-  @@map("booking_configurations")
-}
-
-model BookingSlot {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  accountId String
-  account   BookingAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
-
-  // Booking reference (shown to customer)
-  bookingReference String @unique @default(cuid())
-
-  // Customer information
-  customerFirstName String
-  customerLastName  String
-  customerPhone     String
-
-  // Appointment details
-  appointmentDate DateTime // Date + time in ISO format
-  duration        Int @default(30) // minutes
-
-  // Status
-  status BookingStatus @default(ACTIVE)
-
-  // Notes (optional, from customer or owner)
-  customerNotes String? @db.Text
-  ownerNotes    String? @db.Text
-
-  // Cancellation
-  cancelledAt DateTime?
-  cancellationReason String?
-
-  // Metadata
-  customerIp    String?
-  customerAgent String?
-
-  @@index([accountId])
-  @@index([bookingReference])
-  @@index([appointmentDate])
-  @@index([status])
-  @@map("booking_slots")
-}
-
-model BookingSubscription {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  accountId String @unique
-  account   BookingAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
-
-  // Stripe subscription details
-  stripeCustomerId     String?
-  stripeSubscriptionId String?
-  stripePriceId        String?
-
-  // Billing
-  plan        BookingPlan
-  billingCycle String @default("monthly") // monthly, yearly
-  amount      Int // cents
-  currency    String @default("EUR")
-
-  // Dates
-  currentPeriodStart DateTime?
-  currentPeriodEnd   DateTime?
-  cancelAtPeriodEnd  Boolean @default(false)
-
-  @@index([accountId])
-  @@index([stripeCustomerId])
-  @@map("booking_subscriptions")
 }
