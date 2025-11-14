@@ -73,7 +73,7 @@ router.get('/overview', asyncHandler(async (req: AuthRequest, res: Response) => 
       messages: {
         some: {
           createdAt: { gte: thirtyDaysAgo },
-          sender: 'user',
+          role: 'USER',
         },
       },
     },
@@ -91,7 +91,7 @@ router.get('/overview', asyncHandler(async (req: AuthRequest, res: Response) => 
       messages: {
         some: {
           createdAt: { gte: sixtyDaysAgo, lt: thirtyDaysAgo },
-          sender: 'user',
+          role: 'USER',
         },
       },
     },
@@ -187,7 +187,7 @@ router.get('/recent-bots', asyncHandler(async (req: AuthRequest, res: Response) 
       lastActive: lastActiveText,
       lastActiveDate: lastActive,
       conversationCount: bot._count.conversations,
-      isPublished: bot.isPublished,
+      published: bot.published,
     };
   });
 

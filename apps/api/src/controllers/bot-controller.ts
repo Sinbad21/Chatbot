@@ -30,6 +30,20 @@ class BotController {
   async create(req: AuthRequest, res: Response) {
     const { name, description, organizationId, systemPrompt, welcomeMessage, color } = req.body;
 
+    // Security: Verify organization membership before creating bot
+    if (organizationId) {
+      const membership = await prisma.organizationMember.findFirst({
+        where: {
+          organizationId,
+          userId: req.user!.userId,
+        },
+      });
+
+      if (!membership) {
+        throw new AppError('You are not a member of this organization', 403);
+      }
+    }
+
     const bot = await prisma.bot.create({
       data: {
         name,

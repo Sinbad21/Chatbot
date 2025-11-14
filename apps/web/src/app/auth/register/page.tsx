@@ -97,23 +97,17 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      // Store tokens in localStorage
-      localStorage.setItem('accessToken', data.tokens.accessToken);
-      localStorage.setItem('refreshToken', data.tokens.refreshToken);
+      // Backend sets httpOnly cookies automatically - no localStorage needed!
+      // Store only non-sensitive user data
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      // Set auth session cookie for middleware protection
-      // Use Secure flag for HTTPS (CF Pages), SameSite=Lax for CSRF protection
+      // Update last activity timestamp (non-httpOnly for client-side timeout checks)
+      const now = Date.now();
       const isSecure = window.location.protocol === 'https:';
       const cookieOptions = `path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${isSecure ? '; Secure' : ''}`;
-
-      document.cookie = `auth_session=true; ${cookieOptions}`;
-
-      // Imposta il timestamp dell'ultima attività
-      const now = Date.now();
       document.cookie = `last_activity=${now}; ${cookieOptions}`;
 
-      // Hard redirect to ensure cookie is set and page fully reloads
+      // Hard redirect to ensure cookies are set and page fully reloads
       window.location.href = '/dashboard';
     } catch (err: any) {
       if (err.message.includes('fetch')) {

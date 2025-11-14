@@ -7,18 +7,26 @@ export interface AuthRequest extends Request {
 
 /**
  * Authentication middleware
+ * Checks for token in httpOnly cookie first, then fallback to Authorization header
  */
 export function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const authHeader = req.headers.authorization;
+    // First try httpOnly cookie (most secure)
+    let token = req.cookies.accessToken;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Fallback to Authorization header for API clients
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (!token) {
       return res.status(401).json({ error: 'No token provided' });
     }
 
-    const token = authHeader.substring(7);
     const payload = verifyAccessToken(token);
-
     req.user = payload;
     next();
   } catch (error) {
@@ -38,13 +46,22 @@ export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction
 
 /**
  * Optional authentication middleware
+ * Checks for token in httpOnly cookie first, then fallback to Authorization header
  */
 export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const authHeader = req.headers.authorization;
+    // First try httpOnly cookie
+    let token = req.cookies.accessToken;
 
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
+    // Fallback to Authorization header
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (token) {
       const payload = verifyAccessToken(token);
       req.user = payload;
     }
