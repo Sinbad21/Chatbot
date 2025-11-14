@@ -13,11 +13,6 @@ interface WidgetBookingPageProps {
   }>;
 }
 
-// Generate static params for export build
-export function generateStaticParams() {
-  return [];
-}
-
 export default function WidgetBookingPage({ params, searchParams }: WidgetBookingPageProps) {
   const { widgetId } = use(params);
   const { locale } = use(searchParams);

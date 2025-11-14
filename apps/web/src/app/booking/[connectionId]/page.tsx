@@ -10,11 +10,6 @@ interface BookingPageProps {
   }>;
 }
 
-// Generate static params for export build
-export function generateStaticParams() {
-  return [];
-}
-
 export default function BookingPage({ params }: BookingPageProps) {
   const { connectionId } = use(params);
 
