@@ -1,7 +1,14 @@
 /**
  * Chatbot Studio - Booking Widget Embed Script
  *
- * Usage:
+ * Usage (with widgetId - for standalone customers):
+ * <script src="https://yourdomain.com/booking-widget.js"
+ *         data-widget-id="your-widget-id"
+ *         data-button-text="Prenota Ora"
+ *         data-button-color="#10b981">
+ * </script>
+ *
+ * Legacy usage (with connectionId - for bot customers):
  * <script src="https://yourdomain.com/booking-widget.js"
  *         data-connection-id="your-connection-id"
  *         data-button-text="Prenota Ora"
@@ -14,21 +21,26 @@
 
   // Get script tag and configuration
   const script = document.currentScript;
-  const connectionId = script.getAttribute('data-connection-id');
+  const widgetId = script.getAttribute('data-widget-id');
+  const connectionId = script.getAttribute('data-connection-id'); // Legacy support
   const buttonText = script.getAttribute('data-button-text') || 'Prenota Appuntamento';
   const buttonColor = script.getAttribute('data-button-color') || '#10b981';
   const buttonPosition = script.getAttribute('data-button-position') || 'bottom-right';
   const locale = script.getAttribute('data-locale') || 'it'; // Default to Italian
   const inline = script.getAttribute('data-inline') === 'true';
 
-  if (!connectionId) {
-    console.error('Booking Widget: data-connection-id attribute is required');
+  // Prefer widgetId, fallback to connectionId for backwards compatibility
+  const identifier = widgetId || connectionId;
+
+  if (!identifier) {
+    console.error('Booking Widget: data-widget-id or data-connection-id attribute is required');
     return;
   }
 
   // Configuration
   const baseUrl = script.src.replace('/booking-widget.js', '');
-  const widgetUrl = `${baseUrl}/booking/${connectionId}?locale=${locale}`;
+  const widgetPath = widgetId ? `booking/widget/${widgetId}` : `booking/${connectionId}`;
+  const widgetUrl = `${baseUrl}/${widgetPath}?locale=${locale}`;
 
   // Create widget container
   function createWidget() {

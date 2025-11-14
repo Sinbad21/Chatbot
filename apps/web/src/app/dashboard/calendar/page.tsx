@@ -23,6 +23,7 @@ interface CalendarConnection {
   slotDuration: number;
   bufferTime: number;
   maxDailyBookings: number;
+  widgetId?: string;
   workingHours?: {
     monday?: { start: string; end: string };
     tuesday?: { start: string; end: string };
@@ -269,6 +270,38 @@ export default function CalendarPage() {
                   <p className="text-sm text-muted-gray">{connection.maxDailyBookings} bookings</p>
                 </div>
               </div>
+
+              {/* Widget Embed Section */}
+              {connection.widgetId && (
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <ExternalLink className="w-4 h-4 text-emerald" />
+                      <h4 className="text-sm font-semibold text-charcoal">Widget Embed Code</h4>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const code = `<script src="${window.location.origin}/booking-widget.js" data-widget-id="${connection.widgetId}"></script>`;
+                        navigator.clipboard.writeText(code);
+                        alert('Embed code copied to clipboard!');
+                      }}
+                      className="text-xs"
+                    >
+                      Copy Embed Code
+                    </Button>
+                  </div>
+                  <div className="bg-slate-900 rounded-lg p-3 overflow-x-auto">
+                    <code className="text-xs text-green-400 font-mono">
+                      {`<script src="${window.location.origin}/booking-widget.js" data-widget-id="${connection.widgetId}"></script>`}
+                    </code>
+                  </div>
+                  <p className="text-xs text-muted-gray mt-2">
+                    Add this code to your website to embed the booking widget. Widget ID: <span className="font-mono font-semibold">{connection.widgetId}</span>
+                  </p>
+                </div>
+              )}
             </Card>
           ))}
         </div>
