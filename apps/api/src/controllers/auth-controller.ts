@@ -1,5 +1,6 @@
 import { Response } from 'express';
 import { validationResult } from 'express-validator';
+import { randomUUID } from 'crypto';
 import { prisma } from '@chatbot-studio/database';
 import {
   hashPassword,
@@ -46,15 +47,19 @@ class AuthController {
       role: user.role,
     });
 
+    // Generate unique token ID for this session
+    const tokenId = randomUUID();
+
     const refreshToken = generateRefreshToken({
       userId: user.id,
-      tokenId: user.id, // Simplified, should use separate token ID
+      tokenId,
     });
 
-    // Save refresh token
+    // Save refresh token with unique tokenId
     await prisma.refreshToken.create({
       data: {
         token: refreshToken,
+        tokenId,
         userId: user.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       },
@@ -112,15 +117,19 @@ class AuthController {
       role: user.role,
     });
 
+    // Generate unique token ID for this session
+    const tokenId = randomUUID();
+
     const refreshToken = generateRefreshToken({
       userId: user.id,
-      tokenId: user.id,
+      tokenId,
     });
 
-    // Save refresh token
+    // Save refresh token with unique tokenId
     await prisma.refreshToken.create({
       data: {
         token: refreshToken,
+        tokenId,
         userId: user.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
@@ -150,13 +159,18 @@ class AuthController {
     // Verify refresh token
     const payload = verifyRefreshToken(refreshToken);
 
-    // Check if token exists in database
+    // Check if token exists in database and tokenId matches
     const storedToken = await prisma.refreshToken.findUnique({
       where: { token: refreshToken },
     });
 
     if (!storedToken) {
       throw new AppError('Invalid refresh token', 401);
+    }
+
+    // Verify tokenId matches (prevents token reuse attacks)
+    if (storedToken.tokenId !== payload.tokenId) {
+      throw new AppError('Token ID mismatch - possible token reuse attack', 401);
     }
 
     // Get user

@@ -44,6 +44,7 @@ model User {
 model RefreshToken {
   id        String   @id @default(cuid())
   token     String   @unique
+  tokenId   String   @unique // Unique identifier for this specific token session
   userId    String
   expiresAt DateTime
   createdAt DateTime @default(now())
@@ -52,6 +53,7 @@ model RefreshToken {
 
   @@index([userId])
   @@index([token])
+  @@index([tokenId])
   @@map("refresh_tokens")
 }
 
@@ -159,10 +161,12 @@ model Conversation {
   updatedAt DateTime @updatedAt
 
   // Relations
-  bot      Bot       @relation(fields: [botId], references: [id], onDelete: Cascade)
-  user     User?     @relation(fields: [userId], references: [id])
-  messages Message[]
-  lead     Lead?
+  bot            Bot             @relation(fields: [botId], references: [id], onDelete: Cascade)
+  user           User?           @relation(fields: [userId], references: [id])
+  messages       Message[]
+  lead           Lead?
+  calendarEvents CalendarEvent[]
+  mediaUploads   MediaUpload[]
 
   @@index([botId])
   @@index([sessionId])
@@ -682,6 +686,9 @@ model CalendarEvent {
   // Participants (bot/chatbot integration)
   attendeeEmail        String?
   attendeeName         String?
+  attendeeFirstName    String?
+  attendeeLastName     String?
+  attendeePhone        String?
   organizerEmail       String
 
   // Customer info (widget public bookings)
@@ -814,7 +821,6 @@ model OCRResult {
 model OCRMatch {
   id            String    @id @default(cuid())
   ocrResultId   String
-  knowledgeId   String?
 
   // Match details
   matchedText   String
@@ -837,10 +843,8 @@ model OCRMatch {
 
   // Relations
   ocrResult  OCRResult   @relation(fields: [ocrResultId], references: [id], onDelete: Cascade)
-  knowledge  Knowledge?  @relation(fields: [knowledgeId], references: [id], onDelete: SetNull)
 
   @@index([ocrResultId])
-  @@index([knowledgeId])
   @@index([score])
   @@map("ocr_matches")
 }

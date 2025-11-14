@@ -7,6 +7,8 @@ import { Hono } from 'hono';
 import { GoogleCalendarService } from '../services/calendar/google-calendar';
 import { getPrisma } from '../db';
 import { z } from 'zod';
+import { sendAttendeeConfirmation, sendOwnerNotification } from '../services/email-service';
+import { rateLimitBooking } from '../middleware/rate-limit';
 
 type Bindings = {
   DATABASE_URL: string;
@@ -37,6 +39,9 @@ const createEventSchema = z.object({
   timeZone: z.string().default('Europe/Rome'),
   attendeeEmail: z.string().email().optional(),
   attendeeName: z.string().max(255).optional(),
+  attendeeFirstName: z.string().max(100).optional(),
+  attendeeLastName: z.string().max(100).optional(),
+  attendeePhone: z.string().max(50).optional(),
   organizerEmail: z.string().email(),
   idempotencyKey: z.string().optional(),
 });
@@ -290,6 +295,12 @@ app.patch('/connections/:id', async (c) => {
       bufferTime,
       maxDailyBookings,
       workingHours,
+      blockedDates,
+      widgetTitle,
+      widgetSubtitle,
+      confirmMessage,
+      ownerEmail,
+      notifyOwner,
       isActive,
     } = body;
 
@@ -301,6 +312,12 @@ app.patch('/connections/:id', async (c) => {
         bufferTime,
         maxDailyBookings,
         workingHours,
+        blockedDates,
+        widgetTitle,
+        widgetSubtitle,
+        confirmMessage,
+        ownerEmail,
+        notifyOwner,
         isActive,
       },
     });
@@ -376,8 +393,9 @@ app.post('/availability', async (c) => {
 /**
  * POST /calendar/events
  * Create a calendar event
+ * Rate limited: 5 bookings per hour per IP
  */
-app.post('/events', async (c) => {
+app.post('/events', rateLimitBooking({ maxAttempts: 5, windowMs: 60 * 60 * 1000 }), async (c) => {
   try {
     const body = createEventSchema.parse(await c.req.json());
 
@@ -389,53 +407,159 @@ app.post('/events', async (c) => {
       return c.json({ error: 'startTime must be before endTime' }, 400);
     }
 
-    // Check daily booking limit
-    const connection = await prisma.calendarConnection.findUnique({
-      where: { id: body.connectionId },
-      include: {
-        events: {
-          where: {
-            startTime: {
-              gte: new Date(start.toDateString()),
-              lt: new Date(new Date(start.toDateString()).getTime() + 24 * 60 * 60 * 1000),
+    // Use transaction with row-level locking to prevent double bookings
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Get connection with lock
+      const connection = await tx.calendarConnection.findUnique({
+        where: { id: body.connectionId },
+        include: {
+          events: {
+            where: {
+              startTime: {
+                gte: new Date(start.toDateString()),
+                lt: new Date(new Date(start.toDateString()).getTime() + 24 * 60 * 60 * 1000),
+              },
+              status: { not: 'CANCELLED' },
             },
-            status: { not: 'CANCELLED' },
           },
         },
+      });
+
+      if (!connection) {
+        throw new Error('Calendar connection not found');
+      }
+
+      // 2. Check daily booking limit
+      if (connection.events.length >= connection.maxDailyBookings) {
+        throw new Error('Daily booking limit reached');
+      }
+
+      // 3. Check for overlapping bookings (CRITICAL - prevents double booking)
+      const overlappingEvent = await tx.calendarEvent.findFirst({
+        where: {
+          calendarConnectionId: body.connectionId,
+          status: { not: 'CANCELLED' },
+          OR: [
+            // New event starts during existing event
+            {
+              AND: [
+                { startTime: { lte: start } },
+                { endTime: { gt: start } },
+              ],
+            },
+            // New event ends during existing event
+            {
+              AND: [
+                { startTime: { lt: end } },
+                { endTime: { gte: end } },
+              ],
+            },
+            // New event completely contains existing event
+            {
+              AND: [
+                { startTime: { gte: start } },
+                { endTime: { lte: end } },
+              ],
+            },
+          ],
+        },
+      });
+
+      if (overlappingEvent) {
+        throw new Error('This time slot is already booked');
+      }
+
+      // 4. Check for duplicate using idempotency key
+      if (body.idempotencyKey) {
+        const existingEvent = await tx.calendarEvent.findUnique({
+          where: { idempotencyKey: body.idempotencyKey },
+        });
+
+        if (existingEvent) {
+          return existingEvent; // Return existing event instead of creating duplicate
+        }
+      }
+
+      // 5. All checks passed - create the event
+      const calendarService = getCalendarService(c);
+      const event = await calendarService.createEvent(body.connectionId, {
+        calendarId: connection.calendarId,
+        summary: body.summary,
+        description: body.description,
+        start: body.startTime,
+        end: body.endTime,
+        timeZone: body.timeZone,
+        attendeeEmail: body.attendeeEmail,
+        attendeeName: body.attendeeName,
+        organizerEmail: body.organizerEmail,
+        idempotencyKey: body.idempotencyKey,
+      });
+
+      return event;
+    });
+
+    const event = result;
+
+    // Send email notifications asynchronously (don't wait for completion)
+    const connection = await prisma.calendarConnection.findUnique({
+      where: { id: body.connectionId },
+      select: {
+        ownerEmail: true,
+        notifyOwner: true,
+        calendarName: true,
       },
     });
 
-    if (!connection) {
-      return c.json({ error: 'Calendar connection not found' }, 404);
-    }
-
-    if (connection.events.length >= connection.maxDailyBookings) {
-      return c.json({ error: 'Daily booking limit reached' }, 429);
-    }
-
-    const calendarService = getCalendarService(c);
-    const event = await calendarService.createEvent(body.connectionId, {
-      calendarId: connection.calendarId,
-      summary: body.summary,
-      description: body.description,
-      start: body.startTime,
-      end: body.endTime,
-      timeZone: body.timeZone,
+    // Send confirmation email to attendee
+    sendAttendeeConfirmation({
       attendeeEmail: body.attendeeEmail,
       attendeeName: body.attendeeName,
-      organizerEmail: body.organizerEmail,
-      idempotencyKey: body.idempotencyKey,
-    });
+      attendeeFirstName: body.attendeeFirstName,
+      attendeeLastName: body.attendeeLastName,
+      attendeePhone: body.attendeePhone,
+      startTime: body.startTime,
+      endTime: body.endTime,
+      timeZone: body.timeZone,
+      notes: body.description,
+      calendarName: connection?.calendarName,
+    }).catch(err => console.error('Failed to send attendee confirmation:', err));
+
+    // Send notification email to owner if enabled
+    if (connection?.notifyOwner && connection?.ownerEmail) {
+      sendOwnerNotification({
+        ownerEmail: connection.ownerEmail,
+        attendeeEmail: body.attendeeEmail,
+        attendeeName: body.attendeeName,
+        attendeeFirstName: body.attendeeFirstName,
+        attendeeLastName: body.attendeeLastName,
+        attendeePhone: body.attendeePhone,
+        startTime: body.startTime,
+        endTime: body.endTime,
+        timeZone: body.timeZone,
+        notes: body.description,
+        calendarName: connection.calendarName,
+      }).catch(err => console.error('Failed to send owner notification:', err));
+    }
 
     return c.json({ event }, 201);
   } catch (error) {
     console.error('Create event error:', error);
-    return c.json(
-      {
-        error: error instanceof Error ? error.message : 'Failed to create event',
-      },
-      500
-    );
+
+    // Handle specific error cases with appropriate status codes
+    if (error instanceof Error) {
+      if (error.message === 'Calendar connection not found') {
+        return c.json({ error: error.message }, 404);
+      }
+      if (error.message === 'Daily booking limit reached') {
+        return c.json({ error: error.message }, 429);
+      }
+      if (error.message === 'This time slot is already booked') {
+        return c.json({ error: error.message }, 409); // Conflict
+      }
+      return c.json({ error: error.message }, 500);
+    }
+
+    return c.json({ error: 'Failed to create event' }, 500);
   }
 });
 

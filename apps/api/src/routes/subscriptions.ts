@@ -19,6 +19,19 @@ router.get('/plans', asyncHandler(async (req: AuthRequest, res: Response) => {
 router.get('/', asyncHandler(async (req: AuthRequest, res: Response) => {
   const { organizationId } = req.query;
 
+  // Security: Verify user belongs to the organization
+  const membership = await prisma.organizationMember.findFirst({
+    where: {
+      userId: req.user!.userId,
+      organizationId: organizationId as string,
+    },
+  });
+
+  if (!membership) {
+    const { AppError } = await import('../middleware/error-handler');
+    throw new AppError('You do not have permission to view this organization\'s subscription', 403);
+  }
+
   const subscription = await prisma.subscription.findFirst({
     where: { organizationId: organizationId as string },
     include: { plan: true },
@@ -30,6 +43,19 @@ router.get('/', asyncHandler(async (req: AuthRequest, res: Response) => {
 
 router.post('/', asyncHandler(async (req: AuthRequest, res: Response) => {
   const { organizationId, planId } = req.body;
+
+  // Security: Verify user belongs to the organization
+  const membership = await prisma.organizationMember.findFirst({
+    where: {
+      userId: req.user!.userId,
+      organizationId,
+    },
+  });
+
+  if (!membership) {
+    const { AppError } = await import('../middleware/error-handler');
+    throw new AppError('You do not have permission to create subscriptions for this organization', 403);
+  }
 
   const subscription = await prisma.subscription.create({
     data: {
@@ -44,6 +70,23 @@ router.post('/', asyncHandler(async (req: AuthRequest, res: Response) => {
 }));
 
 router.post('/:id/cancel', asyncHandler(async (req: AuthRequest, res: Response) => {
+  // Security: Verify subscription belongs to user's organization
+  const existingSubscription = await prisma.subscription.findFirst({
+    where: {
+      id: req.params.id,
+      organization: {
+        members: {
+          some: { userId: req.user!.userId },
+        },
+      },
+    },
+  });
+
+  if (!existingSubscription) {
+    const { AppError } = await import('../middleware/error-handler');
+    throw new AppError('Subscription not found', 404);
+  }
+
   const subscription = await prisma.subscription.update({
     where: { id: req.params.id },
     data: { cancelAtPeriodEnd: true },

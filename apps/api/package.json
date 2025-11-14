@@ -7,7 +7,10 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@chatbot-studio/database": "*",
@@ -23,7 +26,10 @@
     "dotenv": "^16.3.1",
     "morgan": "^1.10.0",
     "cookie-parser": "^1.4.6",
-    "compression": "^1.7.4"
+    "compression": "^1.7.4",
+    "pino": "^8.16.2",
+    "pino-http": "^8.5.1",
+    "pino-pretty": "^10.2.3"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
@@ -32,7 +38,11 @@
     "@types/cookie-parser": "^1.4.6",
     "@types/compression": "^1.7.5",
     "@types/multer": "^1.4.11",
+    "@types/supertest": "^6.0.2",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0",
+    "@vitest/coverage-v8": "^1.1.0",
+    "supertest": "^6.3.3"
   }
 }

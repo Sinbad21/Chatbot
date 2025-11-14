@@ -48,8 +48,11 @@ class BotController {
   async get(req: AuthRequest, res: Response) {
     const { id } = req.params;
 
-    const bot = await prisma.bot.findUnique({
-      where: { id },
+    const bot = await prisma.bot.findFirst({
+      where: {
+        id,
+        userId: req.user!.userId, // Security: Verify ownership
+      },
       include: {
         _count: {
           select: {
@@ -73,6 +76,18 @@ class BotController {
     const { id } = req.params;
     const updateData = req.body;
 
+    // Security: Verify bot exists and user owns it
+    const existingBot = await prisma.bot.findFirst({
+      where: {
+        id,
+        userId: req.user!.userId,
+      },
+    });
+
+    if (!existingBot) {
+      throw new AppError('Bot not found', 404);
+    }
+
     const bot = await prisma.bot.update({
       where: { id },
       data: updateData,
@@ -84,6 +99,18 @@ class BotController {
   async delete(req: AuthRequest, res: Response) {
     const { id } = req.params;
 
+    // Security: Verify bot exists and user owns it
+    const existingBot = await prisma.bot.findFirst({
+      where: {
+        id,
+        userId: req.user!.userId,
+      },
+    });
+
+    if (!existingBot) {
+      throw new AppError('Bot not found', 404);
+    }
+
     await prisma.bot.delete({
       where: { id },
     });
@@ -93,6 +120,18 @@ class BotController {
 
   async publish(req: AuthRequest, res: Response) {
     const { id } = req.params;
+
+    // Security: Verify bot exists and user owns it
+    const existingBot = await prisma.bot.findFirst({
+      where: {
+        id,
+        userId: req.user!.userId,
+      },
+    });
+
+    if (!existingBot) {
+      throw new AppError('Bot not found', 404);
+    }
 
     const bot = await prisma.bot.update({
       where: { id },
@@ -121,6 +160,18 @@ class BotController {
   async getIntents(req: AuthRequest, res: Response) {
     const { id } = req.params;
 
+    // Security: Verify bot exists and user owns it
+    const bot = await prisma.bot.findFirst({
+      where: {
+        id,
+        userId: req.user!.userId,
+      },
+    });
+
+    if (!bot) {
+      throw new AppError('Bot not found', 404);
+    }
+
     const intents = await prisma.intent.findMany({
       where: { botId: id },
       orderBy: { createdAt: 'desc' },
@@ -132,6 +183,18 @@ class BotController {
   async createIntent(req: AuthRequest, res: Response) {
     const { id } = req.params;
     const { name, patterns, response } = req.body;
+
+    // Security: Verify bot exists and user owns it
+    const bot = await prisma.bot.findFirst({
+      where: {
+        id,
+        userId: req.user!.userId,
+      },
+    });
+
+    if (!bot) {
+      throw new AppError('Bot not found', 404);
+    }
 
     const intent = await prisma.intent.create({
       data: {
@@ -148,6 +211,18 @@ class BotController {
   async getFAQs(req: AuthRequest, res: Response) {
     const { id } = req.params;
 
+    // Security: Verify bot exists and user owns it
+    const bot = await prisma.bot.findFirst({
+      where: {
+        id,
+        userId: req.user!.userId,
+      },
+    });
+
+    if (!bot) {
+      throw new AppError('Bot not found', 404);
+    }
+
     const faqs = await prisma.fAQ.findMany({
       where: { botId: id },
       orderBy: { createdAt: 'desc' },
@@ -159,6 +234,18 @@ class BotController {
   async createFAQ(req: AuthRequest, res: Response) {
     const { id } = req.params;
     const { question, answer, category } = req.body;
+
+    // Security: Verify bot exists and user owns it
+    const bot = await prisma.bot.findFirst({
+      where: {
+        id,
+        userId: req.user!.userId,
+      },
+    });
+
+    if (!bot) {
+      throw new AppError('Bot not found', 404);
+    }
 
     const faq = await prisma.fAQ.create({
       data: {

@@ -19,14 +19,37 @@ router.get('/', asyncHandler(async (req: AuthRequest, res: Response) => {
 }));
 
 router.get('/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
-  const conversation = await prisma.conversation.findUnique({
-    where: { id: req.params.id },
+  // Security: Verify conversation exists and user owns the bot
+  const conversation = await prisma.conversation.findFirst({
+    where: {
+      id: req.params.id,
+      bot: { userId: req.user!.userId }, // Check ownership through bot
+    },
     include: { messages: { orderBy: { createdAt: 'asc' } } },
   });
+
+  if (!conversation) {
+    const { AppError } = await import('../middleware/error-handler');
+    throw new AppError('Conversation not found', 404);
+  }
+
   res.json(conversation);
 }));
 
 router.delete('/:id', asyncHandler(async (req: AuthRequest, res: Response) => {
+  // Security: Verify conversation exists and user owns the bot
+  const conversation = await prisma.conversation.findFirst({
+    where: {
+      id: req.params.id,
+      bot: { userId: req.user!.userId }, // Check ownership through bot
+    },
+  });
+
+  if (!conversation) {
+    const { AppError } = await import('../middleware/error-handler');
+    throw new AppError('Conversation not found', 404);
+  }
+
   await prisma.conversation.delete({ where: { id: req.params.id } });
   res.json({ message: 'Conversation deleted' });
 }));

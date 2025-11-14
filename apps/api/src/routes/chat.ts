@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { body } from 'express-validator';
+import { body, validationResult } from 'express-validator';
 import { asyncHandler } from '../middleware/error-handler';
 import { chatRateLimiter } from '../middleware/rate-limiter';
 import { Response, Request } from 'express';
@@ -16,11 +16,20 @@ router.post(
   '/',
   chatRateLimiter,
   [
-    body('botId').notEmpty(),
-    body('message').notEmpty(),
-    body('sessionId').notEmpty(),
+    body('botId').notEmpty().withMessage('Bot ID is required'),
+    body('message').notEmpty().withMessage('Message is required'),
+    body('sessionId').notEmpty().withMessage('Session ID is required'),
   ],
   asyncHandler(async (req: Request, res: Response) => {
+    // Validate request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      throw new AppError(
+        `Validation failed: ${errors.array().map(e => e.msg).join(', ')}`,
+        400
+      );
+    }
+
     const { botId, message, sessionId, metadata } = req.body;
 
     // Get bot

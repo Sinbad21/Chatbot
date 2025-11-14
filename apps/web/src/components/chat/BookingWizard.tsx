@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Calendar, Clock, User, Mail, Check, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Calendar, Clock, User, Mail, Phone, Check, ChevronRight, ChevronLeft } from 'lucide-react';
 
 interface TimeSlot {
   start: string;
@@ -11,35 +11,40 @@ interface TimeSlot {
 }
 
 interface BookingWizardProps {
-  botId: string;
-  conversationId: string;
+  botId?: string;
+  connectionId?: string;
+  conversationId?: string;
   onComplete: (eventId: string) => void;
   onCancel: () => void;
 }
 
-export function BookingWizard({ botId, conversationId, onComplete, onCancel }: BookingWizardProps) {
+export function BookingWizard({ botId, connectionId: propConnectionId, conversationId, onComplete, onCancel }: BookingWizardProps) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [connectionId, setConnectionId] = useState<string | null>(null);
+  const [connectionId, setConnectionId] = useState<string | null>(propConnectionId || null);
 
-  // Step 1: Date selection
+  // Step 1: Personal Information (NEW ORDER)
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [notes, setNotes] = useState('');
+
+  // Step 2: Date selection
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [availableDates, setAvailableDates] = useState<Date[]>([]);
 
-  // Step 2: Time slot selection
+  // Step 3: Time slot selection
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
-  // Step 3: User details
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [notes, setNotes] = useState('');
-
   useEffect(() => {
-    fetchCalendarConnection();
+    if (!connectionId && botId) {
+      fetchCalendarConnection();
+    }
     generateAvailableDates();
-  }, [botId]);
+  }, [botId, connectionId]);
 
   useEffect(() => {
     if (selectedDate && connectionId) {
@@ -72,7 +77,7 @@ export function BookingWizard({ botId, conversationId, onComplete, onCancel }: B
       const date = new Date(today);
       date.setDate(today.getDate() + i);
 
-      // Skip Sundays (optional)
+      // Skip Sundays (optional - this should come from workingHours config)
       if (date.getDay() !== 0) {
         dates.push(date);
       }
@@ -113,7 +118,7 @@ export function BookingWizard({ botId, conversationId, onComplete, onCancel }: B
   };
 
   const handleBookAppointment = async () => {
-    if (!selectedSlot || !name || !email || !connectionId) return;
+    if (!selectedSlot || !firstName || !email || !connectionId) return;
 
     setLoading(true);
     try {
@@ -123,15 +128,18 @@ export function BookingWizard({ botId, conversationId, onComplete, onCancel }: B
         body: JSON.stringify({
           connectionId,
           conversationId,
-          summary: `Appointment with ${name}`,
-          description: notes || 'Booked via chatbot',
+          summary: `Appointment with ${firstName} ${lastName}`,
+          description: notes || 'Booked via widget',
           startTime: selectedSlot.start,
           endTime: selectedSlot.end,
           timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           attendeeEmail: email,
-          attendeeName: name,
-          organizerEmail: 'your-email@example.com', // TODO: Get from bot config
-          idempotencyKey: `${conversationId}-${Date.now()}`,
+          attendeeName: `${firstName} ${lastName}`,
+          attendeeFirstName: firstName,
+          attendeeLastName: lastName,
+          attendeePhone: phone,
+          organizerEmail: 'your-email@example.com', // TODO: Get from connection config
+          idempotencyKey: `${conversationId || connectionId}-${Date.now()}`,
         }),
       });
 
@@ -170,7 +178,7 @@ export function BookingWizard({ botId, conversationId, onComplete, onCancel }: B
     return (
       <Card className="p-6 text-center">
         <Calendar className="w-12 h-12 text-muted-gray mx-auto mb-3" />
-        <p className="text-charcoal/70">Calendar not configured for this bot</p>
+        <p className="text-charcoal/70">Calendar not configured</p>
         <Button variant="outline" onClick={onCancel} className="mt-4">
           Close
         </Button>
@@ -183,7 +191,7 @@ export function BookingWizard({ botId, conversationId, onComplete, onCancel }: B
       {/* Header */}
       <div className="border-b border-slate-200 p-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-semibold text-charcoal">Book an Appointment</h3>
+          <h3 className="text-lg font-semibold text-charcoal">Prenota un Appuntamento</h3>
           <button onClick={onCancel} className="text-muted-gray hover:text-charcoal">
             ✕
           </button>
@@ -202,12 +210,122 @@ export function BookingWizard({ botId, conversationId, onComplete, onCancel }: B
         </div>
       </div>
 
-      {/* Step 1: Date Selection */}
+      {/* Step 1: Personal Information (REVERSED ORDER) */}
       {step === 1 && (
         <div className="p-4">
           <div className="flex items-center gap-2 mb-4">
+            <User className="w-5 h-5 text-emerald" />
+            <h4 className="font-medium text-charcoal">I Tuoi Dati</h4>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1">
+                  Nome *
+                </label>
+                <input
+                  type="text"
+                  name="given-name"
+                  autoComplete="given-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Mario"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1">
+                  Cognome *
+                </label>
+                <input
+                  type="text"
+                  name="family-name"
+                  autoComplete="family-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Rossi"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-1">
+                Numero di Telefono *
+              </label>
+              <input
+                type="tel"
+                name="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+39 333 123 4567"
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                required
+              />
+              <p className="text-xs text-muted-gray mt-1">
+                Formato: +39 seguito dal numero
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-1">
+                Email *
+              </label>
+              <input
+                type="email"
+                name="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="mario.rossi@example.com"
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                required
+              />
+              <p className="text-xs text-muted-gray mt-1">
+                Riceverai una conferma via email
+              </p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-charcoal mb-1">
+                Note (opzionale)
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Argomenti specifici da discutere..."
+                rows={3}
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald resize-none"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-200">
+            <Button variant="outline" onClick={onCancel}>
+              Annulla
+            </Button>
+            <Button
+              onClick={() => setStep(2)}
+              disabled={!firstName || !lastName || !phone || !email}
+              className="bg-emerald hover:bg-emerald/90 text-white"
+            >
+              Avanti <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 2: Date Selection (REVERSED ORDER) */}
+      {step === 2 && (
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-4">
             <Calendar className="w-5 h-5 text-emerald" />
-            <h4 className="font-medium text-charcoal">Select a Date</h4>
+            <h4 className="font-medium text-charcoal">Scegli il Giorno</h4>
           </div>
 
           <div className="grid grid-cols-3 gap-2 max-h-80 overflow-y-auto">
@@ -228,52 +346,55 @@ export function BookingWizard({ botId, conversationId, onComplete, onCancel }: B
             ))}
           </div>
 
-          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-slate-200">
-            <Button variant="outline" onClick={onCancel}>
-              Cancel
+          <div className="flex justify-between gap-2 mt-4 pt-4 border-t border-slate-200">
+            <Button variant="outline" onClick={() => setStep(1)}>
+              <ChevronLeft className="w-4 h-4 mr-1" /> Indietro
             </Button>
             <Button
-              onClick={() => setStep(2)}
+              onClick={() => setStep(3)}
               disabled={!selectedDate}
               className="bg-emerald hover:bg-emerald/90 text-white"
             >
-              Next <ChevronRight className="w-4 h-4 ml-1" />
+              Avanti <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </div>
       )}
 
-      {/* Step 2: Time Slot Selection */}
-      {step === 2 && (
+      {/* Step 3: Time Slot Selection (REVERSED ORDER) */}
+      {step === 3 && (
         <div className="p-4">
           <div className="flex items-center gap-2 mb-4">
             <Clock className="w-5 h-5 text-emerald" />
-            <h4 className="font-medium text-charcoal">Select a Time</h4>
+            <h4 className="font-medium text-charcoal">Scegli l'Orario</h4>
           </div>
 
-          <div className="mb-4 p-3 bg-emerald/10 rounded-lg">
+          <div className="mb-4 p-3 bg-emerald/10 rounded-lg space-y-1">
             <p className="text-sm text-charcoal">
-              <strong>{selectedDate && formatDate(selectedDate)}</strong>
+              <strong>{firstName} {lastName}</strong>
+            </p>
+            <p className="text-sm text-charcoal">
+              {selectedDate && formatDate(selectedDate)}
             </p>
           </div>
 
           {loadingSlots ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald mx-auto mb-2"></div>
-              <p className="text-sm text-muted-gray">Loading available times...</p>
+              <p className="text-sm text-muted-gray">Caricamento orari disponibili...</p>
             </div>
           ) : availableSlots.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-gray">No available slots for this date</p>
+              <p className="text-muted-gray">Nessuno slot disponibile per questa data</p>
               <Button
                 variant="outline"
                 onClick={() => {
                   setSelectedDate(null);
-                  setStep(1);
+                  setStep(2);
                 }}
                 className="mt-4"
               >
-                Choose Another Date
+                Scegli un'Altra Data
               </Button>
             </div>
           ) : (
@@ -294,108 +415,45 @@ export function BookingWizard({ botId, conversationId, onComplete, onCancel }: B
                 ))}
               </div>
 
+              {/* Summary before confirmation */}
+              {selectedSlot && (
+                <div className="mt-4 p-4 bg-slate-50 rounded-lg space-y-2">
+                  <h5 className="font-semibold text-charcoal mb-2">Riepilogo Prenotazione</h5>
+                  <div className="text-sm space-y-1">
+                    <p><strong>Nome:</strong> {firstName} {lastName}</p>
+                    <p><strong>Telefono:</strong> {phone}</p>
+                    <p><strong>Email:</strong> {email}</p>
+                    <p><strong>Data:</strong> {selectedDate && formatDate(selectedDate)}</p>
+                    <p><strong>Orario:</strong> {`${formatTime(selectedSlot.start)} - ${formatTime(selectedSlot.end)}`}</p>
+                    {notes && <p><strong>Note:</strong> {notes}</p>}
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-between gap-2 mt-4 pt-4 border-t border-slate-200">
-                <Button variant="outline" onClick={() => setStep(1)}>
-                  <ChevronLeft className="w-4 h-4 mr-1" /> Back
+                <Button variant="outline" onClick={() => setStep(2)}>
+                  <ChevronLeft className="w-4 h-4 mr-1" /> Indietro
                 </Button>
                 <Button
-                  onClick={() => setStep(3)}
-                  disabled={!selectedSlot}
+                  onClick={handleBookAppointment}
+                  disabled={!selectedSlot || loading}
                   className="bg-emerald hover:bg-emerald/90 text-white"
                 >
-                  Next <ChevronRight className="w-4 h-4 ml-1" />
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Prenotazione...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 mr-2" />
+                      Conferma Prenotazione
+                    </>
+                  )}
                 </Button>
               </div>
             </>
           )}
-        </div>
-      )}
-
-      {/* Step 3: User Details */}
-      {step === 3 && (
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <User className="w-5 h-5 text-emerald" />
-            <h4 className="font-medium text-charcoal">Your Information</h4>
-          </div>
-
-          <div className="mb-4 p-3 bg-emerald/10 rounded-lg space-y-1">
-            <p className="text-sm text-charcoal">
-              <strong>{selectedDate && formatDate(selectedDate)}</strong>
-            </p>
-            <p className="text-sm text-charcoal">
-              {selectedSlot && `${formatTime(selectedSlot.start)} - ${formatTime(selectedSlot.end)}`}
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Mario Rossi"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">
-                Email *
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="mario.rossi@example.com"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
-                required
-              />
-              <p className="text-xs text-muted-gray mt-1">
-                We'll send you a confirmation email with a calendar invite
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">
-                Notes (optional)
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Any specific topics you'd like to discuss..."
-                rows={3}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald resize-none"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-between gap-2 mt-4 pt-4 border-t border-slate-200">
-            <Button variant="outline" onClick={() => setStep(2)}>
-              <ChevronLeft className="w-4 h-4 mr-1" /> Back
-            </Button>
-            <Button
-              onClick={handleBookAppointment}
-              disabled={!name || !email || loading}
-              className="bg-emerald hover:bg-emerald/90 text-white"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Booking...
-                </>
-              ) : (
-                <>
-                  <Check className="w-4 h-4 mr-2" />
-                  Confirm Booking
-                </>
-              )}
-            </Button>
-          </div>
         </div>
       )}
     </Card>

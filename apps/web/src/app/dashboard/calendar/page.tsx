@@ -363,6 +363,264 @@ export default function CalendarPage() {
                 </p>
               </div>
 
+              {/* Working Hours */}
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-3">
+                  Working Hours
+                </label>
+                <div className="space-y-3">
+                  {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => {
+                    const dayLabel = day.charAt(0).toUpperCase() + day.slice(1);
+                    const workingHours = selectedConnection.workingHours as any || {};
+                    const dayHours = workingHours[day] || { start: '09:00', end: '18:00', enabled: day !== 'sunday' };
+
+                    return (
+                      <div key={day} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                        <label className="flex items-center gap-2 w-28">
+                          <input
+                            type="checkbox"
+                            checked={dayHours.enabled !== false}
+                            onChange={(e) => {
+                              const newWorkingHours = { ...workingHours };
+                              newWorkingHours[day] = { ...dayHours, enabled: e.target.checked };
+                              setSelectedConnection({
+                                ...selectedConnection,
+                                workingHours: newWorkingHours,
+                              });
+                            }}
+                            className="w-4 h-4 text-emerald border-slate-300 rounded focus:ring-emerald"
+                          />
+                          <span className="text-sm font-medium text-charcoal">{dayLabel}</span>
+                        </label>
+
+                        {dayHours.enabled !== false && (
+                          <>
+                            <input
+                              type="time"
+                              value={dayHours.start || '09:00'}
+                              onChange={(e) => {
+                                const newWorkingHours = { ...workingHours };
+                                newWorkingHours[day] = { ...dayHours, start: e.target.value };
+                                setSelectedConnection({
+                                  ...selectedConnection,
+                                  workingHours: newWorkingHours,
+                                });
+                              }}
+                              className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-emerald"
+                            />
+                            <span className="text-muted-gray">-</span>
+                            <input
+                              type="time"
+                              value={dayHours.end || '18:00'}
+                              onChange={(e) => {
+                                const newWorkingHours = { ...workingHours };
+                                newWorkingHours[day] = { ...dayHours, end: e.target.value };
+                                setSelectedConnection({
+                                  ...selectedConnection,
+                                  workingHours: newWorkingHours,
+                                });
+                              }}
+                              className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-emerald"
+                            />
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-muted-gray mt-2">
+                  Set your available hours for each day of the week
+                </p>
+              </div>
+
+              {/* Widget Customization */}
+              <div className="border-t border-slate-200 pt-6">
+                <h3 className="text-lg font-semibold text-charcoal mb-4">Widget Customization</h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">
+                      Widget Title
+                    </label>
+                    <input
+                      type="text"
+                      value={(selectedConnection as any).widgetTitle || 'Book an Appointment'}
+                      onChange={(e) =>
+                        setSelectedConnection({
+                          ...selectedConnection,
+                          widgetTitle: e.target.value,
+                        } as any)
+                      }
+                      placeholder="Book an Appointment"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">
+                      Widget Subtitle
+                    </label>
+                    <input
+                      type="text"
+                      value={(selectedConnection as any).widgetSubtitle || 'Choose a date and time that works for you'}
+                      onChange={(e) =>
+                        setSelectedConnection({
+                          ...selectedConnection,
+                          widgetSubtitle: e.target.value,
+                        } as any)
+                      }
+                      placeholder="Choose a date and time that works for you"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">
+                      Confirmation Message
+                    </label>
+                    <textarea
+                      value={(selectedConnection as any).confirmMessage || 'Your appointment has been confirmed! Check your email for details.'}
+                      onChange={(e) =>
+                        setSelectedConnection({
+                          ...selectedConnection,
+                          confirmMessage: e.target.value,
+                        } as any)
+                      }
+                      placeholder="Your appointment has been confirmed!"
+                      rows={2}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Email Notifications */}
+              <div className="border-t border-slate-200 pt-6">
+                <h3 className="text-lg font-semibold text-charcoal mb-4">Email Notifications</h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">
+                      Owner Email
+                    </label>
+                    <input
+                      type="email"
+                      value={(selectedConnection as any).ownerEmail || ''}
+                      onChange={(e) =>
+                        setSelectedConnection({
+                          ...selectedConnection,
+                          ownerEmail: e.target.value,
+                        } as any)
+                      }
+                      placeholder="your-email@example.com"
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                    />
+                    <p className="text-xs text-muted-gray mt-1">
+                      Email address to receive booking notifications
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-charcoal">Notify on New Bookings</p>
+                      <p className="text-sm text-muted-gray">
+                        Receive email when someone books an appointment
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={(selectedConnection as any).notifyOwner !== false}
+                        onChange={(e) =>
+                          setSelectedConnection({
+                            ...selectedConnection,
+                            notifyOwner: e.target.checked,
+                          } as any)
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald"></div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Blocked Dates */}
+              <div className="border-t border-slate-200 pt-6">
+                <h3 className="text-lg font-semibold text-charcoal mb-4">Giorni Bloccati / Festività</h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal mb-2">
+                      Aggiungi Data Bloccata
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="date"
+                        id="blocked-date-input"
+                        className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                      />
+                      <Button
+                        onClick={() => {
+                          const input = document.getElementById('blocked-date-input') as HTMLInputElement;
+                          if (input.value) {
+                            const blockedDates = (selectedConnection as any).blockedDates || [];
+                            if (!blockedDates.includes(input.value)) {
+                              setSelectedConnection({
+                                ...selectedConnection,
+                                blockedDates: [...blockedDates, input.value],
+                              } as any);
+                              input.value = '';
+                            }
+                          }
+                        }}
+                        className="bg-emerald hover:bg-emerald/90 text-white"
+                      >
+                        Aggiungi
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-gray mt-1">
+                      Le date bloccate non saranno disponibili per le prenotazioni
+                    </p>
+                  </div>
+
+                  {/* List of blocked dates */}
+                  {((selectedConnection as any).blockedDates || []).length > 0 && (
+                    <div className="bg-slate-50 rounded-lg p-4">
+                      <p className="text-sm font-medium text-charcoal mb-3">Date Bloccate:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {((selectedConnection as any).blockedDates || []).map((date: string, index: number) => (
+                          <div
+                            key={index}
+                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm"
+                          >
+                            <span className="text-charcoal">
+                              {new Date(date + 'T00:00:00').toLocaleDateString('it-IT', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </span>
+                            <button
+                              onClick={() => {
+                                const blockedDates = (selectedConnection as any).blockedDates || [];
+                                setSelectedConnection({
+                                  ...selectedConnection,
+                                  blockedDates: blockedDates.filter((_: string, i: number) => i !== index),
+                                } as any);
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Active Status */}
               <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
                 <div>
