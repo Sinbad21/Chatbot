@@ -51,9 +51,9 @@ const METADATA_TRANSLATIONS = {
 };
 
 // Detect language from Accept-Language header
-function detectLanguage(): keyof typeof METADATA_TRANSLATIONS {
+async function detectLanguage(): Promise<keyof typeof METADATA_TRANSLATIONS> {
   try {
-    const headersList = headers();
+    const headersList = await headers();
     const acceptLanguage = headersList.get('accept-language') || '';
 
     // Parse accept-language header (e.g., "en-US,en;q=0.9,es;q=0.8")
@@ -75,7 +75,7 @@ function detectLanguage(): keyof typeof METADATA_TRANSLATIONS {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const lang = detectLanguage();
+  const lang = await detectLanguage();
   const meta = METADATA_TRANSLATIONS[lang];
 
   return {
