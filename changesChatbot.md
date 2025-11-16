@@ -504,7 +504,7 @@ npx wrangler deploy
 
 ### Deployment Riuscito ✅
 
-**URL:** https://chatbot-studio-web.gabrypiritore.workers.dev
+**URL:** https://chatbotstudio.gabrypiritore.workers.dev
 
 **Dettagli deployment:**
 - ✅ Assets caricati: 8150.71 KiB (compressi: 1634.36 KiB)
@@ -698,6 +698,29 @@ Tutte le pagine `/dashboard/**` erano pre-renderizzate come statiche (○), quan
 ✅ **SEO mantenuto:**
 - Pagine pubbliche statiche ottimizzate per crawler
 - Pagine autenticate dinamiche con dati real-time
+
+---
+
+---
+
+## 🔧 CORREZIONE NOME WORKER (2025-11-16)
+
+### Problema
+Worker deployato con nome errato: `chatbot-studio-web` invece di `chatbotstudio`.
+
+### Soluzione
+**File modificato:** `apps/web/wrangler.toml`
+```diff
+- name = "chatbot-studio-web"
++ name = "chatbotstudio"
+```
+
+### Deployment Finale
+**Worker name:** chatbotstudio
+**URL:** https://chatbotstudio.gabrypiritore.workers.dev
+**Version ID:** 7396ff43-62e4-4b76-b2d2-883bed71aa71
+**Worker startup:** 17 ms
+**Status:** ✅ Live e funzionante
 
 ---
 
