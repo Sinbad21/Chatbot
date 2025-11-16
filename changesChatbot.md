@@ -468,6 +468,123 @@ webpack: (config, { isServer }) => {
 
 ---
 
+---
+
+## 🚀 DEPLOYMENT COMPLETATO (2025-11-16)
+
+### Problema: File _redirects Invalido
+
+**Errore rilevato durante deployment:**
+```
+Invalid _redirects configuration:
+Line 5: URLs should either be relative (e.g. begin with a forward-slash), or use HTTPS
+Line 13: Infinite loop detected in this rule.
+```
+
+**Causa:**
+OpenNext aveva generato un file `_redirects` con sintassi pensata per Cloudflare Pages, ma incompatibile con Workers.
+
+**Contenuto del file problematico:**
+```
+/api/* 200
+/_next/* 200
+/favicon.ico 200
+/images/* 200
+/* /index.html 200
+```
+
+**Soluzione:**
+Rimosso `.open-next/assets/_redirects` perché su Cloudflare Workers il routing è gestito direttamente dal worker (`worker.js`), non da file di configurazione.
+
+**Comando eseguito:**
+```bash
+rm .open-next/assets/_redirects
+npx wrangler deploy
+```
+
+### Deployment Riuscito ✅
+
+**URL:** https://chatbot-studio-web.gabrypiritore.workers.dev
+
+**Dettagli deployment:**
+- ✅ Assets caricati: 8150.71 KiB (compressi: 1634.36 KiB)
+- ✅ Worker startup time: 27 ms
+- ✅ Assets binding: ASSETS configurato correttamente
+- ✅ Version ID: a285bd68-6996-4092-b770-b3a057c98caa
+- ✅ 120 file statici uploadati
+
+**Verifica funzionamento:**
+- ✅ Homepage (/) carica correttamente - Status 200 OK
+- ✅ Landing page completa con tutte le sezioni
+- ✅ Navigation, pricing, FAQ funzionanti
+- ✅ Route dinamiche pronte: `/booking/[connectionId]`, `/booking/widget/[widgetId]`
+
+**Note importanti:**
+- Workers.dev abilitato automaticamente (dominio default)
+- Preview URLs abilitati
+- Il Worker è pronto per ricevere traffico
+
+### File Modificati in Questa Sessione
+
+| File | Azione | Motivo |
+|------|--------|--------|
+| `.open-next/assets/_redirects` | ❌ RIMOSSO | Sintassi invalida per Workers, non necessario |
+
+---
+
+## 📋 Riepilogo Completo Migrazione
+
+### Architettura Finale
+
+**Prima della migrazione:**
+- Cloudflare Pages: Static assets frontend
+- Cloudflare Worker: Server-side API (api-worker)
+
+**Dopo la migrazione:**
+- Cloudflare Worker 1: **chatbot-studio-web** (Frontend Next.js completo con OpenNext)
+  - URL: https://chatbot-studio-web.gabrypiritore.workers.dev
+  - SSR + Static assets
+  - Route dinamiche
+  - Middleware
+- Cloudflare Worker 2: **api-worker** (Backend API - esistente)
+
+### Statistiche Build Finale
+
+**Next.js Build:**
+- 27 pagine totali
+- 26 static (○)
+- 2 dynamic (ƒ): `/booking/[connectionId]`, `/booking/widget/[widgetId]`
+- Middleware: 34.2 kB
+
+**OpenNext Build:**
+- Worker: `.open-next/worker.js`
+- Assets: 120 file statici
+- Bundle size: ~8.15 MB (compressi: ~1.63 MB)
+- Startup time: 27 ms
+
+### Limiti Cloudflare Rispettati ✅
+
+| Risorsa | Limite Workers Paid | Utilizzato | Status |
+|---------|---------------------|------------|--------|
+| Worker compressed size | 10 MiB | ~1.63 MiB | ✅ 83.7% libero |
+| Single asset file | 25 MiB | < 1 MiB | ✅ OK |
+| Total assets | Illimitato | 8.15 MB | ✅ OK |
+
+---
+
+## 🔧 Prossimi Passi Consigliati
+
+1. **✅ COMPLETATO** - Deployment su Cloudflare Workers
+2. **TODO** - Configurare CORS su api-worker per accettare requests da chatbot-studio-web.gabrypiritore.workers.dev
+3. **TODO** - Testare tutte le route dinamiche con dati reali
+4. **TODO** - Verificare middleware autenticazione funzioni correttamente
+5. **TODO** - Configurare custom domain (opzionale)
+6. **TODO** - Setup GitHub Actions per auto-deployment (già creato workflow)
+7. **TODO** - Monitorare performance e logs in produzione
+
+---
+
 **Fine Changelog**
 
 *Generato automaticamente da Claude Code*
+*Ultima modifica: 2025-11-16*
