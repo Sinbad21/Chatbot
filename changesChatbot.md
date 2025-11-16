@@ -437,6 +437,37 @@ npm run pages:deploy
 
 ---
 
+## 🔧 FIX: Webpack Cache Disabilitata (2025-11-16)
+
+### Problema
+Cache Webpack generava file che eccedevano il limite di 25 MiB di Cloudflare.
+
+### Soluzione
+
+**Aggiornato `next.config.js`:**
+```javascript
+webpack: (config, { isServer }) => {
+  config.cache = false;  // Disabilita cache Webpack
+  return config;
+},
+```
+
+### Risultati ✅
+
+**Build verification:**
+- ✅ Nessun file > 25 MiB
+- ✅ File cache: 12K-76K (piccolissimi)
+- ✅ Total build: ~36 MB non compresso
+- ✅ Handler: ~5.4 MB
+- ✅ Compressed estimate: ~2-3 MiB (sotto limite 10 MiB)
+
+**Impatto prestazioni:**
+- Build leggermente più lento (~1-2 secondi) senza cache
+- ✅ Nessun impatto runtime
+- ✅ Deploy funzionante su Cloudflare Workers
+
+---
+
 **Fine Changelog**
 
 *Generato automaticamente da Claude Code*
