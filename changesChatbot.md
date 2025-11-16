@@ -348,6 +348,50 @@ npm run deploy:web
 
 ---
 
+---
+
+## 🔧 FIX: Route Group Conflict (2025-11-16)
+
+### Problema Rilevato
+
+**Errore OpenNext durante build:**
+```
+ENOENT: no such file or directory, copyfile
+'...\page_client-reference-manifest.js'
+```
+
+**Causa Root:**
+- Presenza di **due landing pages** che mappano entrambe alla route `/`:
+  1. `src/app/page.tsx` → LandingPageV2 (nuova versione)
+  2. `src/app/(landing)/page.tsx` → LandingPage (vecchia versione)
+- Il route group `(landing)` creava un conflitto che OpenNext non gestisce correttamente
+- Next.js compilava ma OpenNext cercava file manifest non esistenti
+
+### Soluzione Applicata
+
+**Rimossa directory conflittuale:**
+```bash
+rm -rf src/app/(landing)
+```
+
+**Risultato:**
+- ✅ OpenNext build completato con successo
+- ✅ Worker generato: `.open-next/worker.js`
+- ✅ 26 pages totali (invece di 27 con conflitto)
+- ✅ Route dinamiche funzionanti
+- ✅ Middleware correttamente bundled
+
+### File Rimossi
+
+| File | Motivo |
+|------|--------|
+| `src/app/(landing)/page.tsx` | Conflitto con `src/app/page.tsx` |
+| `src/app/(landing)/layout.tsx` | Parte del route group rimosso |
+
+**Landing page attiva:** `src/app/page.tsx` → LandingPageV2
+
+---
+
 **Fine Changelog**
 
 *Generato automaticamente da Claude Code*
