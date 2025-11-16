@@ -32,6 +32,7 @@ const app = new Hono<{ Bindings: Bindings }>();
 
 // CORS middleware - robust setup with error handler
 const ALLOWED_ORIGINS = [
+  'https://chatbotstudio.gabrypiritore.workers.dev', // Frontend Worker (OpenNext)
   'https://chatbot-5o5.pages.dev',
   'https://chatbot-studio.pages.dev',
   'https://chatbot-studio-29k.pages.dev',
