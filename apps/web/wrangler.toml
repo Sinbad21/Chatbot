@@ -1,0 +1,10 @@
+# Cloudflare Workers configuration for OpenNext
+name = "chatbot-studio-web"
+compatibility_date = "2025-05-05"
+compatibility_flags = ["nodejs_compat"]
+
+# Workers Paid plan: 10 MiB limit
+# This config is optimized for Next.js with OpenNext adapter
+
+# Pages configuration will be added during deployment
+# The actual Pages project should be configured in Cloudflare Dashboard

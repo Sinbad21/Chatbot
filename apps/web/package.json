@@ -5,9 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "pages:build": "npx @opennextjs/cloudflare build",
+    "pages:deploy": "npm run pages:build && wrangler pages deploy .open-next/worker",
+    "pages:dev": "wrangler pages dev .open-next/worker --compatibility-date=2025-05-05 --compatibility-flag=nodejs_compat",
+    "preview": "npm run pages:build && npm run pages:dev",
     "start": "next start",
     "lint": "next lint",
-    "clean": "rm -rf .next out"
+    "clean": "rm -rf .next .open-next out"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
@@ -30,12 +34,14 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.12.0",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "wrangler": "^4.47.0"
   }
 }

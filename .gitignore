@@ -172,6 +172,7 @@ out/
 build/
 .vercel
 .turbo
+.open-next/
 
 # Cloudflare
 .wrangler/
