@@ -584,6 +584,123 @@ npx wrangler deploy
 
 ---
 
+---
+
+## 🔄 OTTIMIZZAZIONE SSR vs SSG (2025-11-16)
+
+### Problema: Pagine Dashboard Pre-renderizzate come Statiche
+
+**Situazione iniziale:**
+Tutte le pagine `/dashboard/**` erano pre-renderizzate come statiche (○), quando invece dovrebbero essere dinamiche (ƒ) perché fanno fetch di dati utente/DB.
+
+**Pagine che dovevano essere dinamiche:**
+- Tutto ciò che riguarda utenti, DB, bot, scraping, booking
+
+**Pagine che possono rimanere statiche:**
+- Landing, pricing, legal, about, docs
+
+### Soluzione Implementata
+
+**Creata architettura wrapper per forzare SSR:**
+
+1. **Rinominato layout client** esistente:
+   - `apps/web/src/app/dashboard/layout.tsx` → `DashboardLayoutClient.tsx`
+
+2. **Creato nuovo layout server-side wrapper** (`apps/web/src/app/dashboard/layout.tsx`):
+   ```typescript
+   // Force dynamic rendering for all dashboard routes
+   export const dynamic = 'force-dynamic';
+   export const revalidate = 0;
+
+   import DashboardLayoutClient from './DashboardLayoutClient';
+
+   export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+     return <DashboardLayoutClient>{children}</DashboardLayoutClient>;
+   }
+   ```
+
+3. **Risultato:** Tutte le route `/dashboard/**` ora usano SSR (ƒ) invece di SSG (○)
+
+### Confronto Build - Prima vs Dopo
+
+**Prima (tutte statiche ○):**
+```
+├ ○ /dashboard                           2.78 kB         106 kB
+├ ○ /dashboard/analytics                 5.41 kB         242 kB
+├ ○ /dashboard/bookings                   4.2 kB         115 kB
+├ ○ /dashboard/bot                       23.4 kB         239 kB
+├ ○ /dashboard/bots                      2.54 kB         109 kB
+├ ○ /dashboard/calendar                   5.8 kB         116 kB
+├ ○ /dashboard/conversations             5.51 kB         129 kB
+├ ○ /dashboard/create-bot                2.74 kB         109 kB
+├ ○ /dashboard/integrations              7.35 kB         118 kB
+├ ○ /dashboard/leads                     4.47 kB         128 kB
+├ ○ /dashboard/scraping                  5.85 kB         129 kB
+├ ○ /dashboard/settings                   4.5 kB         128 kB
+```
+
+**Dopo (tutte dinamiche ƒ):**
+```
+├ ƒ /dashboard                           2.78 kB         106 kB ✅
+├ ƒ /dashboard/analytics                 5.41 kB         242 kB ✅
+├ ƒ /dashboard/bookings                   4.2 kB         115 kB ✅
+├ ƒ /dashboard/bot                       23.4 kB         239 kB ✅
+├ ƒ /dashboard/bots                      2.54 kB         109 kB ✅
+├ ƒ /dashboard/calendar                   5.8 kB         116 kB ✅
+├ ƒ /dashboard/conversations             5.51 kB         129 kB ✅
+├ ƒ /dashboard/create-bot                2.74 kB         109 kB ✅
+├ ƒ /dashboard/integrations              7.35 kB         118 kB ✅
+├ ƒ /dashboard/leads                     4.47 kB         128 kB ✅
+├ ƒ /dashboard/scraping                  5.85 kB         129 kB ✅
+├ ƒ /dashboard/settings                   4.5 kB         128 kB ✅
+```
+
+### Riepilogo Finale Rendering
+
+**Pagine Dinamiche (ƒ) - Server-Side Rendering:**
+- `/dashboard` + 11 sub-routes (analytics, bookings, bot, bots, calendar, conversations, create-bot, integrations, leads, scraping, settings)
+- `/booking/[connectionId]`
+- `/booking/widget/[widgetId]`
+- **Totale: 14 pagine dinamiche**
+
+**Pagine Statiche (○) - Static Site Generation:**
+- `/` (landing)
+- `/about`, `/blog`, `/contact`, `/docs`
+- `/pricing`
+- `/legal/gdpr`, `/legal/privacy`, `/legal/terms`
+- `/auth/login`, `/auth/register`
+- **Totale: 13 pagine statiche**
+
+### Deployment Aggiornato
+
+**Version ID:** 4d4a950a-b3d1-422b-a69c-1922df77f687
+**Worker startup:** 25 ms
+**Assets modificati:** 2 (BUILD_ID + dashboard layout chunk)
+**Totale upload:** 8141.21 KiB (compressi: 1625.64 KiB)
+
+### File Modificati
+
+| File | Azione | Motivo |
+|------|--------|--------|
+| `apps/web/src/app/dashboard/layout.tsx` | ✏️ MODIFICATO | Creato wrapper server-side per forzare dynamic rendering |
+| `apps/web/src/app/dashboard/DashboardLayoutClient.tsx` | ✨ NUOVO | Client component spostato dal layout.tsx originale |
+
+### Benefici
+
+✅ **Performance ottimizzata:**
+- Pagine statiche (landing, legal, pricing) → CDN edge caching
+- Pagine dinamiche (dashboard, booking) → Fresh data su ogni request
+
+✅ **Sicurezza migliorata:**
+- Dati utente/DB sempre freschi, mai cached
+- No data leakage tra utenti
+
+✅ **SEO mantenuto:**
+- Pagine pubbliche statiche ottimizzate per crawler
+- Pagine autenticate dinamiche con dati real-time
+
+---
+
 **Fine Changelog**
 
 *Generato automaticamente da Claude Code*
