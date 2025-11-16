@@ -392,6 +392,51 @@ rm -rf src/app/(landing)
 
 ---
 
+## ⚙️ CORREZIONE: Configurazione Deployment (2025-11-16)
+
+### Chiarimento Architettura
+
+**OpenNext per Cloudflare usa Workers, NON Pages:**
+- Deployment su **Cloudflare Workers** (non Pages)
+- Struttura output: `.open-next/worker.js` + `.open-next/assets/`
+- Dimensione totale build: ~36 MB (sotto limite 10 MiB compresso)
+
+### Configurazione Corretta
+
+#### `wrangler.toml` aggiornato:
+```toml
+name = "chatbot-studio-web"
+main = ".open-next/worker.js"              # ← Entry point Worker
+compatibility_date = "2025-05-05"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".open-next/assets"            # ← Static assets
+binding = "ASSETS"
+```
+
+#### `package.json` scripts aggiornati:
+```json
+"pages:deploy": "npm run pages:build && wrangler deploy"  # ← Workers deploy (non Pages)
+"pages:dev": "wrangler dev"                                # ← Local dev server
+```
+
+### Deployment
+
+**Comando:**
+```bash
+npm run pages:deploy
+```
+
+**Questo esegue:**
+1. Build Next.js
+2. Trasformazione OpenNext
+3. Deploy su Cloudflare Workers
+
+**NON si usa Cloudflare Pages Dashboard**. Il deployment avviene via Wrangler CLI.
+
+---
+
 **Fine Changelog**
 
 *Generato automaticamente da Claude Code*
