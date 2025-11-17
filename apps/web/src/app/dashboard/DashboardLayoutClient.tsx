@@ -180,7 +180,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <nav className="space-y-1 bg-white rounded-lg shadow-sm p-2">
               {navigation.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                // Special case for dashboard: only active when pathname is exactly '/dashboard'
+                const isActive = item.href === '/dashboard'
+                  ? pathname === '/dashboard'
+                  : pathname === item.href || pathname.startsWith(item.href + '/');
                 return (
                   <Link
                     key={item.nameKey}
@@ -218,7 +221,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <nav className="p-4 space-y-1">
                   {navigation.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                    // Special case for dashboard: only active when pathname is exactly '/dashboard'
+                    const isActive = item.href === '/dashboard'
+                      ? pathname === '/dashboard'
+                      : pathname === item.href || pathname.startsWith(item.href + '/');
                     return (
                       <Link
                         key={item.nameKey}
