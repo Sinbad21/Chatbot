@@ -23,6 +23,9 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
   const [loading, setLoading] = useState(false);
   const [connectionId, setConnectionId] = useState<string | null>(propConnectionId || null);
 
+  // API URL
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   // Step 1: Personal Information (NEW ORDER)
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -97,7 +100,7 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
       const endOfDay = new Date(selectedDate);
       endOfDay.setHours(23, 59, 59, 999);
 
-      const response = await fetch('/api/calendar/availability', {
+      const response = await fetch(`${apiUrl}/calendar/availability`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -122,7 +125,7 @@ export function BookingWizard({ botId, connectionId: propConnectionId, conversat
 
     setLoading(true);
     try {
-      const response = await fetch('/api/calendar/events', {
+      const response = await fetch(`${apiUrl}/calendar/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

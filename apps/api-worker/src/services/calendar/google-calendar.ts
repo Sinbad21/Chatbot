@@ -3,12 +3,14 @@
  * Handles authentication, token management, and calendar operations
  */
 
-import { prisma } from '@chatbot/database';
+import { getPrisma } from '../../db';
+import type { PrismaClient } from '@prisma/client';
 
 export interface GoogleCalendarConfig {
   clientId: string;
   clientSecret: string;
   redirectUri: string;
+  env: any; // Cloudflare Workers environment
 }
 
 export interface OAuthTokens {
@@ -44,12 +46,14 @@ export interface CreateEventRequest {
 
 export class GoogleCalendarService {
   private config: GoogleCalendarConfig;
+  private prisma: PrismaClient;
   private baseUrl = 'https://www.googleapis.com/calendar/v3';
   private authUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
   private tokenUrl = 'https://oauth2.googleapis.com/token';
 
   constructor(config: GoogleCalendarConfig) {
     this.config = config;
+    this.prisma = getPrisma(config.env);
   }
 
   /**
@@ -141,7 +145,7 @@ export class GoogleCalendarService {
    * Get valid access token (refresh if expired)
    */
   async getValidAccessToken(connectionId: string): Promise<string> {
-    const connection = await prisma.calendarConnection.findUnique({
+    const connection = await this.prisma.calendarConnection.findUnique({
       where: { id: connectionId },
     });
 
@@ -162,7 +166,7 @@ export class GoogleCalendarService {
       const tokens = await this.refreshAccessToken(connection.refreshToken);
 
       // Update connection with new tokens
-      await prisma.calendarConnection.update({
+      await this.prisma.calendarConnection.update({
         where: { id: connectionId },
         data: {
           accessToken: tokens.accessToken,
@@ -238,7 +242,7 @@ export class GoogleCalendarService {
     startDate: Date,
     endDate: Date
   ): Promise<TimeSlot[]> {
-    const connection = await prisma.calendarConnection.findUnique({
+    const connection = await this.prisma.calendarConnection.findUnique({
       where: { id: connectionId },
     });
 
@@ -381,7 +385,7 @@ export class GoogleCalendarService {
   ): Promise<any> {
     // Check for idempotency
     if (request.idempotencyKey) {
-      const existing = await prisma.calendarEvent.findUnique({
+      const existing = await this.prisma.calendarEvent.findUnique({
         where: { idempotencyKey: request.idempotencyKey },
       });
 
@@ -450,7 +454,7 @@ export class GoogleCalendarService {
     const event = await response.json();
 
     // Save to database
-    const savedEvent = await prisma.calendarEvent.create({
+    const savedEvent = await this.prisma.calendarEvent.create({
       data: {
         calendarConnectionId: connectionId,
         externalEventId: event.id,
@@ -481,7 +485,7 @@ export class GoogleCalendarService {
     updates: Partial<CreateEventRequest>
   ): Promise<any> {
     const accessToken = await this.getValidAccessToken(connectionId);
-    const connection = await prisma.calendarConnection.findUnique({
+    const connection = await this.prisma.calendarConnection.findUnique({
       where: { id: connectionId },
     });
 
@@ -489,7 +493,7 @@ export class GoogleCalendarService {
       throw new Error('Calendar connection not found');
     }
 
-    const event = await prisma.calendarEvent.findFirst({
+    const event = await this.prisma.calendarEvent.findFirst({
       where: { id: eventId, calendarConnectionId: connectionId },
     });
 
@@ -534,7 +538,7 @@ export class GoogleCalendarService {
     const updatedEvent = await response.json();
 
     // Update in database
-    await prisma.calendarEvent.update({
+    await this.prisma.calendarEvent.update({
       where: { id: eventId },
       data: {
         title: updates.summary || event.title,
@@ -553,7 +557,7 @@ export class GoogleCalendarService {
    */
   async cancelEvent(connectionId: string, eventId: string): Promise<void> {
     const accessToken = await this.getValidAccessToken(connectionId);
-    const connection = await prisma.calendarConnection.findUnique({
+    const connection = await this.prisma.calendarConnection.findUnique({
       where: { id: connectionId },
     });
 
@@ -561,7 +565,7 @@ export class GoogleCalendarService {
       throw new Error('Calendar connection not found');
     }
 
-    const event = await prisma.calendarEvent.findFirst({
+    const event = await this.prisma.calendarEvent.findFirst({
       where: { id: eventId, calendarConnectionId: connectionId },
     });
 
@@ -586,7 +590,7 @@ export class GoogleCalendarService {
     }
 
     // Update status in database
-    await prisma.calendarEvent.update({
+    await this.prisma.calendarEvent.update({
       where: { id: eventId },
       data: { status: 'CANCELLED' },
     });
@@ -601,7 +605,7 @@ export class GoogleCalendarService {
     channelId: string
   ): Promise<any> {
     const accessToken = await this.getValidAccessToken(connectionId);
-    const connection = await prisma.calendarConnection.findUnique({
+    const connection = await this.prisma.calendarConnection.findUnique({
       where: { id: connectionId },
     });
 

@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { registerKnowledgeRoutes } from './routes/knowledge';
 import { registerWebhookRoutes } from './routes/webhooks';
+import { registerCalendarRoutes } from './routes/calendar';
 import { parseHTML } from 'linkedom';
 import { getPrisma } from './db';
 import { extractText } from 'unpdf';
@@ -26,6 +27,10 @@ type Bindings = {
   SLACK_BOT_TOKEN?: string;
   SLACK_SIGNING_SECRET?: string;
   SLACK_APP_ID?: string;
+  // Google Calendar
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
+  GOOGLE_REDIRECT_URI?: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -127,6 +132,7 @@ const authMiddleware = async (c: any, next: any) => {
 
 registerKnowledgeRoutes(app as any, authMiddleware);
 registerWebhookRoutes(app as any);
+registerCalendarRoutes(app as any);
 
 // ============================================
 // HEALTH CHECK

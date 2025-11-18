@@ -23,6 +23,9 @@ export function StandaloneBookingWidget({ connectionId, widgetId, onClose }: Sta
   const [loading, setLoading] = useState(false);
   const [configLoading, setConfigLoading] = useState(true);
 
+  // API URL
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   // Determine which identifier to use (prefer widgetId for public access)
   const identifier = widgetId || connectionId;
   const isPublicWidget = !!widgetId;
@@ -68,8 +71,8 @@ export function StandaloneBookingWidget({ connectionId, widgetId, onClose }: Sta
 
       // Use public widget endpoint if widgetId is provided, otherwise use authenticated endpoint
       const url = isPublicWidget
-        ? `/api/calendar/widget/${identifier}/config`
-        : `/api/calendar/connections/${identifier}`;
+        ? `${apiUrl}/calendar/widget/${identifier}/config`
+        : `${apiUrl}/calendar/connections/${identifier}`;
 
       const response = await fetch(url);
       const data = await response.json();
@@ -120,8 +123,8 @@ export function StandaloneBookingWidget({ connectionId, widgetId, onClose }: Sta
 
       // Use public widget endpoint if widgetId is provided
       const url = isPublicWidget
-        ? `/api/calendar/widget/${identifier}/availability`
-        : '/api/calendar/availability';
+        ? `${apiUrl}/calendar/widget/${identifier}/availability`
+        : `${apiUrl}/calendar/availability`;
 
       const body = isPublicWidget
         ? {
@@ -157,8 +160,8 @@ export function StandaloneBookingWidget({ connectionId, widgetId, onClose }: Sta
     try {
       // Use public widget endpoint if widgetId is provided
       const url = isPublicWidget
-        ? `/api/calendar/widget/${identifier}/events`
-        : '/api/calendar/events';
+        ? `${apiUrl}/calendar/widget/${identifier}/events`
+        : `${apiUrl}/calendar/events`;
 
       const body = isPublicWidget
         ? {

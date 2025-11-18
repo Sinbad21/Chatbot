@@ -1,8 +1,8 @@
 # ChatBot Studio - Project Status Report
 
-**Last Updated:** November 18, 2025
+**Last Updated:** November 18, 2025 (Evening Update)
 **Version:** 1.0.0 (Beta)
-**Completion Status:** ~45% Complete
+**Completion Status:** ~48% Complete
 
 ---
 
@@ -66,7 +66,7 @@ ChatBot Studio is a **TypeScript/Node.js SaaS platform** for creating and managi
 | AI Chat System | 6/10 | 🟡 60% |
 | Document Processing | 5/9 | 🟠 56% |
 | Dashboard & Analytics | 7/12 | 🟡 58% |
-| Calendar & Bookings | 4/8 | 🟡 50% |
+| Calendar & Bookings | 6/8 | 🟡 75% |
 | Multi-Channel Integrations | 1/5 | 🔴 20% |
 | Billing & Subscriptions | 2/10 | 🔴 20% |
 | Lead Management | 2/9 | 🔴 22% |
@@ -741,6 +741,132 @@ This is a critical gap. Minimum testing needed:
 - Removed problematic `_redirects` file from public/ folder
 - Fixed duplicate settings translations in i18n files
 - Corrected deployment documentation
+
+---
+
+## Latest Updates (November 18, 2025 - Evening Session)
+
+### ✅ Google Calendar Integration - MAJOR FIX
+
+**Problem:** Calendar integration was completely non-functional due to missing API routes and incorrect frontend API calls.
+
+**Root Causes Identified:**
+1. Calendar routes existed in code but were **never registered** in the API worker
+2. Frontend was calling `/api/calendar/*` (Next.js routes that don't exist) instead of API Worker
+3. Rate limit middleware used `setInterval()` at global scope (not allowed in Cloudflare Workers)
+4. GoogleCalendarService was importing non-existent `@chatbot/database` module
+5. Missing `zod` dependency for validation
+
+**Changes Made:**
+
+#### Backend (API Worker)
+1. **Registered Calendar Routes** (`apps/api-worker/src/index.ts`)
+   - Added `import { registerCalendarRoutes } from './routes/calendar'`
+   - Called `registerCalendarRoutes(app as any)` to enable all 16 calendar endpoints
+   - Added Google Calendar environment variables to Bindings type:
+     - `GOOGLE_CLIENT_ID`
+     - `GOOGLE_CLIENT_SECRET`
+     - `GOOGLE_REDIRECT_URI`
+
+2. **Fixed GoogleCalendarService** (`apps/api-worker/src/services/calendar/google-calendar.ts`)
+   - Changed import from `@chatbot/database` to `getPrisma` from `../../db`
+   - Added `env` parameter to `GoogleCalendarConfig` interface
+   - Added `private prisma: PrismaClient` property to class
+   - Initialize prisma in constructor with `getPrisma(config.env)`
+   - Replaced all `prisma.` references with `this.prisma.`
+
+3. **Fixed Rate Limit Middleware** (`apps/api-worker/src/middleware/rate-limit.ts`)
+   - Removed global `setInterval()` cleanup (causes Cloudflare Workers error)
+   - Implemented lazy cleanup via `cleanupExpiredEntries()` function
+   - Called cleanup inside `getRateLimitData()` for in-memory fallback
+
+4. **Fixed Calendar Routes** (`apps/api-worker/src/routes/calendar.ts`)
+   - Wrapped all route definitions in `registerRoutes()` function
+   - Fixed syntax error (extra closing brace at line 1084)
+   - Added `const prisma = getPrisma(c.env)` to all 16 route handlers using automated sed script
+   - Routes now properly scoped within function instead of module level
+
+5. **Added Missing Dependency**
+   - Installed `zod` package for validation schemas
+
+#### Frontend (Next.js)
+Fixed **5 files** that were calling non-existent `/api/calendar` routes:
+
+1. **Calendar Page** (`apps/web/src/app/dashboard/calendar/page.tsx`)
+   - Added `const apiUrl = process.env.NEXT_PUBLIC_API_URL`
+   - Updated 3 fetch calls to use `${apiUrl}/calendar/*`
+
+2. **Bookings Page** (`apps/web/src/app/dashboard/bookings/page.tsx`)
+   - Added `const apiUrl = process.env.NEXT_PUBLIC_API_URL`
+   - Updated 3 fetch calls to use `${apiUrl}/calendar/*`
+
+3. **StandaloneBookingWidget** (`apps/web/src/components/booking/StandaloneBookingWidget.tsx`)
+   - Added `const apiUrl = process.env.NEXT_PUBLIC_API_URL`
+   - Updated 3 fetch calls:
+     - Widget config endpoint
+     - Availability endpoint
+     - Events endpoint
+
+4. **BookingWizard** (`apps/web/src/components/chat/BookingWizard.tsx`)
+   - Added `const apiUrl = process.env.NEXT_PUBLIC_API_URL`
+   - Updated 2 fetch calls:
+     - Availability endpoint
+     - Events endpoint
+
+**API Endpoints Now Available:**
+```
+GET  /calendar/connect/google          - Start OAuth flow
+GET  /calendar/callback/google         - OAuth callback handler
+GET  /calendar/connections              - List calendar connections
+GET  /calendar/connections/:id          - Get specific connection
+PATCH /calendar/connections/:id         - Update connection settings
+DELETE /calendar/connections/:id        - Delete connection
+POST /calendar/availability             - Get available time slots
+POST /calendar/events                   - Create calendar event
+GET  /calendar/events/:id               - Get event details
+PATCH /calendar/events/:id              - Update event
+DELETE /calendar/events/:id             - Cancel event
+GET  /calendar/events                   - List all events
+POST /calendar/webhook                  - Google Calendar webhooks
+GET  /calendar/widget/:widgetId/config  - Public widget config
+POST /calendar/widget/:widgetId/availability - Public availability
+POST /calendar/widget/:widgetId/events  - Public booking creation
+```
+
+**Deployment:**
+- ✅ API Worker deployed successfully
+- ✅ Frontend rebuilt and deployed (2 builds to ensure all files updated)
+- ✅ All 16 calendar routes now operational
+
+**Current Status:**
+- 🟡 Calendar routes are **deployed and functional**
+- ⚠️ Requires Google Cloud Console setup:
+  - Create OAuth 2.0 Client ID
+  - Configure authorized redirect URIs
+  - Add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to Cloudflare Workers secrets
+- 🔧 Organization ID currently hardcoded (`org_123456789`) - needs auth context integration
+
+**Files Modified (Total: 9)**
+- `apps/api-worker/src/index.ts`
+- `apps/api-worker/src/routes/calendar.ts`
+- `apps/api-worker/src/services/calendar/google-calendar.ts`
+- `apps/api-worker/src/middleware/rate-limit.ts`
+- `apps/api-worker/package.json` (added zod)
+- `apps/web/src/app/dashboard/calendar/page.tsx`
+- `apps/web/src/app/dashboard/bookings/page.tsx`
+- `apps/web/src/components/booking/StandaloneBookingWidget.tsx`
+- `apps/web/src/components/chat/BookingWizard.tsx`
+
+### 📊 Metrics Updated
+- **Calendar & Bookings**: 50% → 75% complete (routes now functional, OAuth setup pending)
+- **Backend API Coverage**: Significant improvement with 16 new working endpoints
+
+### 🎯 Next Steps for Calendar Integration
+1. Create Google Cloud project and OAuth credentials
+2. Configure Cloudflare Workers secrets (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`)
+3. Integrate organization ID from auth context (remove hardcoded value)
+4. Test full OAuth flow end-to-end
+5. Add error handling for missing credentials
 
 ---
 

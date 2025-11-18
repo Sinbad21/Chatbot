@@ -16,15 +16,18 @@ interface KVNamespace {
   delete(key: string): Promise<void>;
 }
 
-// Clean up old entries every 5 minutes
-setInterval(() => {
+/**
+ * Lazy cleanup of expired entries (called when getting data)
+ * Note: setInterval is not allowed in Cloudflare Workers global scope
+ */
+function cleanupExpiredEntries() {
   const now = Date.now();
   for (const [ip, data] of ipBookingAttempts.entries()) {
     if (now > data.resetAt) {
       ipBookingAttempts.delete(ip);
     }
   }
-}, 5 * 60 * 1000);
+}
 
 interface RateLimitConfig {
   maxAttempts: number; // Maximum booking attempts
@@ -77,9 +80,12 @@ async function getRateLimitData(
     } catch (error) {
       console.error('KV get error:', error);
       // Fall back to in-memory
+      cleanupExpiredEntries(); // Lazy cleanup
       return ipBookingAttempts.get(ip) || null;
     }
   }
+  // Perform lazy cleanup of in-memory store
+  cleanupExpiredEntries();
   return ipBookingAttempts.get(ip) || null;
 }
 

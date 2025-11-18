@@ -45,6 +45,9 @@ export default function CalendarPage() {
   const [selectedConnection, setSelectedConnection] = useState<CalendarConnection | null>(null);
   const [editMode, setEditMode] = useState(false);
 
+  // API URL
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   // TODO: Get from auth context
   const organizationId = 'org_123456789';
   const userPlan = 'advanced'; // or 'custom', 'enterprise'
@@ -56,7 +59,7 @@ export default function CalendarPage() {
   const fetchConnections = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/calendar/connections?organizationId=${organizationId}`);
+      const response = await fetch(`${apiUrl}/calendar/connections?organizationId=${organizationId}`);
       const data = await response.json();
       setConnections(data.connections || []);
     } catch (error) {
@@ -68,7 +71,7 @@ export default function CalendarPage() {
 
   const handleConnectGoogle = async () => {
     try {
-      const response = await fetch(`/api/calendar/connect/google?organizationId=${organizationId}`);
+      const response = await fetch(`${apiUrl}/calendar/connect/google?organizationId=${organizationId}`);
       const data = await response.json();
 
       if (data.authUrl) {
@@ -84,7 +87,7 @@ export default function CalendarPage() {
 
   const handleUpdateConnection = async (connectionId: string, updates: Partial<CalendarConnection>) => {
     try {
-      const response = await fetch(`/api/calendar/connections/${connectionId}`, {
+      const response = await fetch(`${apiUrl}/calendar/connections/${connectionId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
@@ -106,7 +109,7 @@ export default function CalendarPage() {
     }
 
     try {
-      const response = await fetch(`/api/calendar/connections/${connectionId}`, {
+      const response = await fetch(`${apiUrl}/calendar/connections/${connectionId}`, {
         method: 'DELETE',
       });
 

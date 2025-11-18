@@ -41,6 +41,9 @@ export default function BookingsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [connectionId, setConnectionId] = useState<string>('');
 
+  // API URL
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   // TODO: Get from auth context
   const organizationId = 'org_123456789';
 
@@ -53,7 +56,7 @@ export default function BookingsPage() {
       setLoading(true);
 
       // First get the user's calendar connection
-      const connectionsResponse = await fetch(`/api/calendar/connections?organizationId=${organizationId}`);
+      const connectionsResponse = await fetch(`${apiUrl}/calendar/connections?organizationId=${organizationId}`);
       const connectionsData = await connectionsResponse.json();
 
       if (connectionsData.connections && connectionsData.connections.length > 0) {
@@ -61,7 +64,7 @@ export default function BookingsPage() {
         setConnectionId(activeConnection.id);
 
         // Then fetch events for that connection
-        const eventsResponse = await fetch(`/api/calendar/events?connectionId=${activeConnection.id}`);
+        const eventsResponse = await fetch(`${apiUrl}/calendar/events?connectionId=${activeConnection.id}`);
         const eventsData = await eventsResponse.json();
 
         let filteredBookings = eventsData.events || [];
@@ -97,7 +100,7 @@ export default function BookingsPage() {
     }
 
     try {
-      const response = await fetch(`/api/calendar/events/${bookingId}`, {
+      const response = await fetch(`${apiUrl}/calendar/events/${bookingId}`, {
         method: 'DELETE',
       });
 
