@@ -330,7 +330,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900">
-            {overview?.conversations.toLocaleString() || 0}
+            {(overview?.conversations ?? 0).toLocaleString()}
           </div>
           <p className="text-xs text-green-600 mt-2">{t('analytics.growth.fromLastPeriod').replace('{percent}', '12')}</p>
         </div>
@@ -345,7 +345,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900">
-            {overview?.messages.toLocaleString() || 0}
+            {(overview?.messages ?? 0).toLocaleString()}
           </div>
           <p className="text-xs text-green-600 mt-2">{t('analytics.growth.fromLastPeriod').replace('{percent}', '8')}</p>
         </div>
@@ -360,7 +360,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900">
-            {overview?.leads.toLocaleString() || 0}
+            {(overview?.leads ?? 0).toLocaleString()}
           </div>
           <p className="text-xs text-green-600 mt-2">{t('analytics.growth.fromLastPeriod').replace('{percent}', '24')}</p>
         </div>

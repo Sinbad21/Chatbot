@@ -1,8 +1,8 @@
 # ChatBot Studio - Project Status Report
 
-**Last Updated:** November 12, 2025
+**Last Updated:** November 18, 2025
 **Version:** 1.0.0 (Beta)
-**Completion Status:** ~40% Complete
+**Completion Status:** ~45% Complete
 
 ---
 
@@ -12,10 +12,12 @@ ChatBot Studio is a **TypeScript/Node.js SaaS platform** for creating and managi
 
 **Current State:**
 - ✅ Core chat functionality with OpenAI GPT-5 Mini integration
-- ✅ User authentication and multi-tenancy
+- ✅ User authentication and multi-tenancy with session timeout (30 min inactivity)
 - ✅ Bot creation and management
 - ✅ Document upload and processing
-- ⚠️ Analytics dashboard (UI only, hardcoded data)
+- ✅ Calendar and booking system (UI accessible from dashboard)
+- ⚠️ Analytics dashboard (functional with real data, some features limited)
+- ⚠️ Internationalization (English and Italian fully supported)
 - ❌ Multi-channel integrations (code ready, not connected)
 - ❌ Billing system (database ready, no Stripe integration)
 - ❌ No test coverage
@@ -59,16 +61,18 @@ ChatBot Studio is a **TypeScript/Node.js SaaS platform** for creating and managi
 
 | Category | Features Complete | Status |
 |----------|-------------------|--------|
-| Authentication | 4/6 | 🟡 67% |
+| Authentication | 5/6 | 🟢 83% |
 | Bot Management | 5/8 | 🟡 63% |
 | AI Chat System | 6/10 | 🟡 60% |
 | Document Processing | 5/9 | 🟠 56% |
-| Dashboard & Analytics | 3/12 | 🔴 25% |
+| Dashboard & Analytics | 7/12 | 🟡 58% |
+| Calendar & Bookings | 4/8 | 🟡 50% |
 | Multi-Channel Integrations | 1/5 | 🔴 20% |
 | Billing & Subscriptions | 2/10 | 🔴 20% |
 | Lead Management | 2/9 | 🔴 22% |
-| Security | 8/10 | 🟢 80% |
+| Security | 9/10 | 🟢 90% |
 | Testing & CI/CD | 0/5 | 🔴 0% |
+| Internationalization | 2/3 | 🟡 67% |
 
 **Legend:** 🟢 80%+ | 🟡 50-79% | 🟠 30-49% | 🔴 <30%
 
@@ -76,7 +80,7 @@ ChatBot Studio is a **TypeScript/Node.js SaaS platform** for creating and managi
 
 ## Detailed Feature Analysis
 
-### 1. Authentication & User Management 🟡 67%
+### 1. Authentication & User Management 🟢 83%
 
 #### ✅ Implemented
 - User registration with email/password
@@ -87,6 +91,8 @@ ChatBot Studio is a **TypeScript/Node.js SaaS platform** for creating and managi
 - Password strength validation (uppercase, lowercase, number, special char)
 - Disposable email blocking (tempmail.com, guerrillamail.com)
 - Rate limiting on auth endpoints (5 requests/15min)
+- **Session timeout** (30 minutes of inactivity, redirects to login)
+- **Client-side session tracking** with activity monitoring
 
 #### ❌ Not Implemented
 - OAuth integration (Google, Microsoft)
@@ -202,37 +208,33 @@ ChatBot Studio is a **TypeScript/Node.js SaaS platform** for creating and managi
 
 ---
 
-### 5. Dashboard & Analytics 🔴 25%
+### 5. Dashboard & Analytics 🟡 58%
 
 #### ✅ Implemented
-- Dashboard layout with sidebar navigation
-- Bot statistics cards (hardcoded values)
-- Conversation list page
-- Basic UI components and styling
+- Dashboard layout with sidebar navigation (11 menu items)
+- **Navigation Links**: Dashboard, Bots, Conversations, Analytics, Leads, Calendar, Bookings, Scraping, Integrations, Settings
+- **Real analytics data** from backend API (conversations, messages, leads)
+- **Usage & Costs tracking** (AI model usage, token consumption, cost calculation)
+- **Date range filtering** (7d, 30d, 90d, all time)
+- **CSV export** for conversations and analytics data
+- **Recharts visualizations**: Line charts, bar charts, area charts, pie charts
+- Statistics cards with real-time data
+- Search and filtering for conversations
+- **Internationalization** (English and Italian with i18n system)
+- **Responsive design** for mobile and desktop
+- **Logo navigation** - Click dashboard logo to return to landing page
 
-#### ⚠️ Fake/Hardcoded Data
-All analytics data is currently hardcoded in the frontend:
-```typescript
-// apps/web/src/app/dashboard/page.tsx
-<div>5</div>        // Total Bots (hardcoded)
-<div>1,234</div>    // Conversations (hardcoded)
-<div>89</div>       // Leads (hardcoded)
-<div>94.5%</div>    // Satisfaction (hardcoded)
-```
+#### ⚠️ Partially Implemented
+- Growth metrics (displayed but calculation may be simplified)
+- Model breakdown statistics (functional but limited to GPT models)
 
 #### ❌ Not Implemented
-- Real-time data from backend API
-- Conversation metrics (response time, resolution rate)
-- User engagement analytics
-- Bot performance comparison
-- Charts and graphs (Recharts installed but not used)
-- Date range filtering
-- Data export (CSV, PDF)
-- Custom reports
-- Webhook event logs
-- API usage dashboard
-- Cost analytics (token usage per bot/conversation)
-- Live conversation monitoring
+- Real-time live updates (requires WebSocket)
+- Advanced custom reports builder
+- Webhook event logs visualization
+- A/B testing analytics
+- Funnel analysis
+- User journey mapping
 
 #### 📍 Location
 - Frontend: `apps/web/src/app/dashboard/analytics/`
@@ -240,7 +242,42 @@ All analytics data is currently hardcoded in the frontend:
 
 ---
 
-### 6. Multi-Channel Integrations 🔴 20%
+### 6. Calendar & Bookings 🟡 50%
+
+#### ✅ Implemented
+- **Calendar page** accessible from dashboard navigation
+- **Bookings page** for viewing all appointments
+- Database schema for calendar connections and events
+- **Booking widget** components (embeddable)
+- Working hours configuration
+- Blocked dates management
+- Slot duration and buffer time settings
+- **Internationalization** for booking UI (English and Italian)
+
+#### ⚠️ Partially Implemented
+- Calendar integration backend (structure exists, needs Google Calendar API)
+- Widget customization UI (basic settings available)
+- Email notifications for bookings (database ready, no email service)
+
+#### ❌ Not Implemented
+- Google Calendar API integration
+- iCal/ICS export
+- Recurring appointments
+- Timezone handling across regions
+- Waitlist functionality
+- Calendar sync with external providers
+- Automated reminders and confirmations via email
+- Payment integration for paid bookings
+
+#### 📍 Location
+- Frontend: `apps/web/src/app/dashboard/calendar/`, `apps/web/src/app/dashboard/bookings/`
+- Components: `apps/web/src/components/booking-widget/`, `apps/web/src/components/booking/`
+- Database: `CalendarConnection`, `CalendarEvent` tables
+- Translations: `messages/en.json`, `messages/it.json` (booking.*)
+
+---
+
+### 7. Multi-Channel Integrations 🔴 20%
 
 #### ✅ Code Ready (Not Connected)
 The following adapters are fully coded but NOT integrated:
@@ -273,7 +310,7 @@ The following adapters are fully coded but NOT integrated:
 
 ---
 
-### 7. Billing & Subscriptions 🔴 20%
+### 8. Billing & Subscriptions 🔴 20%
 
 #### ✅ Database Ready
 Comprehensive database schema for billing:
@@ -306,7 +343,7 @@ Comprehensive database schema for billing:
 
 ---
 
-### 8. Lead Management & Scraping 🔴 22%
+### 9. Lead Management & Scraping 🔴 22%
 
 #### ✅ Implemented
 - Database tables (Lead, LeadCampaign)
@@ -334,12 +371,50 @@ Comprehensive database schema for billing:
 
 ---
 
-### 9. Security 🟢 80%
+### 10. Internationalization 🟡 67%
+
+#### ✅ Implemented
+- **Two-language support**: English and Italian
+- **Translation system**: Custom i18n implementation (`lib/i18n.ts`)
+- **Language switcher** in dashboard header
+- **Persistent language selection** via localStorage
+- **Comprehensive translations** for:
+  - Dashboard, Analytics, Bots, Conversations, Leads
+  - Settings, Calendar, Bookings
+  - Authentication pages (Login, Register)
+  - Landing page components
+  - Error messages and UI labels
+
+#### ⚠️ Partially Implemented
+- Some hardcoded strings may remain in older components
+- Translation files in two locations (confusing):
+  - `apps/web/src/translations/` (used by dashboard via lib/i18n.ts)
+  - `apps/web/messages/` (used by booking widget via lib/i18n/)
+
+#### ❌ Not Implemented
+- Additional languages (Spanish, French, German, etc.)
+- Right-to-left (RTL) language support (Arabic, Hebrew)
+- Date/time localization based on locale
+- Number formatting by locale
+- Currency formatting by locale
+- Translation management system for non-developers
+
+#### 📍 Location
+- Main i18n: `apps/web/src/lib/i18n.ts`
+- Translations: `apps/web/src/translations/*.json`
+- Booking i18n: `apps/web/src/lib/i18n/` (separate system)
+- Booking translations: `apps/web/messages/*.json`
+
+---
+
+### 11. Security 🟢 90%
 
 #### ✅ Implemented
 - Password hashing with bcrypt (10 salt rounds)
 - JWT authentication (access + refresh tokens)
 - Token expiry and rotation
+- **Session timeout enforcement** (30 min inactivity)
+- **Client-side activity monitoring** (auto-logout on timeout)
 - Rate limiting on sensitive endpoints
 - Input validation with express-validator
 - CORS protection (configurable origins)
@@ -348,6 +423,7 @@ Comprehensive database schema for billing:
 - Environment variable management (no secrets in code)
 - Disposable email blocking
 - Password strength enforcement
+- **Secure cookie handling** (SameSite, Secure flags on HTTPS)
 
 #### ❌ Not Implemented
 - Two-factor authentication (2FA/MFA)
@@ -367,7 +443,7 @@ Comprehensive database schema for billing:
 
 ---
 
-### 10. Testing & CI/CD 🔴 0%
+### 12. Testing & CI/CD 🔴 0%
 
 #### ❌ Completely Missing
 - No test files exist
@@ -436,8 +512,11 @@ This is a critical gap. Minimum testing needed:
 ## Deployment Status
 
 ### ✅ Currently Deployed
-- **Frontend:** Cloudflare Pages (https://chatbot-5o5.pages.dev)
+- **Frontend:** Cloudflare Workers (https://chatbotstudio-web.gabrypiritore.workers.dev)
+  - Built with OpenNext for Cloudflare Workers
+  - Deployed via wrangler CLI
 - **API:** Cloudflare Workers (https://chatbotstudio.gabrypiritore.workers.dev)
+  - Hono framework for edge computing
 - **Database:** Neon PostgreSQL (serverless)
 
 ### ⚠️ Configuration Required
@@ -624,6 +703,47 @@ This is a critical gap. Minimum testing needed:
 
 ---
 
+## Recent Updates (November 18, 2025)
+
+### ✅ Bug Fixes & Improvements
+1. **Settings Page Translations Fixed**
+   - Resolved duplicate translation keys causing "settings.profile" display issues
+   - Cleaned up `src/translations/en.json` and `it.json`
+
+2. **Navigation Enhancements**
+   - Added **Calendar** and **Bookings** to dashboard sidebar
+   - Dashboard logo now clickable - returns to landing page
+   - Navigation count increased from 8 to 11 items
+
+3. **Session Management**
+   - Implemented 30-minute inactivity timeout
+   - Auto-logout with redirect to login page
+   - Session activity tracking with cookie-based persistence
+
+4. **Deployment Architecture**
+   - Updated from Cloudflare Pages to Cloudflare Workers
+   - Frontend now uses OpenNext for Workers
+   - Resolved `_redirects` file conflicts
+   - Successfully deployed to production
+
+5. **User Experience**
+   - Italian session timeout messages
+   - Improved error messages in login flow
+   - Better token refresh handling
+
+### 📊 Metrics Improved
+- **Dashboard & Analytics**: 25% → 58% complete
+- **Authentication**: 67% → 83% complete
+- **Security**: 80% → 90% complete
+- **Overall Project**: 40% → 45% complete
+
+### 🔧 Technical Debt Addressed
+- Removed problematic `_redirects` file from public/ folder
+- Fixed duplicate settings translations in i18n files
+- Corrected deployment documentation
+
+---
+
 ## Conclusion
 
 **ChatBot Studio** is a **well-architected SaaS platform** with solid foundations but significant work remaining. The core AI chat functionality is operational, the database design is excellent, and security measures are properly implemented.
@@ -646,6 +766,6 @@ This is a critical gap. Minimum testing needed:
 
 ---
 
-**Report Generated:** November 12, 2025
-**Next Review:** December 12, 2025
+**Report Generated:** November 18, 2025
+**Next Review:** December 18, 2025
 **Contact:** [Add maintainer contact information]

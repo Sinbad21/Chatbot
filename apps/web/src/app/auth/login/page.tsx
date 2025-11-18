@@ -61,15 +61,17 @@ function LoginForm() {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Backend sets httpOnly cookies automatically - no localStorage needed!
-      // Store only non-sensitive user data
-      localStorage.setItem('user', JSON.stringify(data.user));
+      // Store user data and tokens
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("accessToken", data.tokens.accessToken);
+      localStorage.setItem("refreshToken", data.tokens.refreshToken);
 
       // Update last activity timestamp (non-httpOnly for client-side timeout checks)
       const now = Date.now();
       const isSecure = window.location.protocol === 'https:';
       const cookieOptions = `path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${isSecure ? '; Secure' : ''}`;
       document.cookie = `last_activity=${now}; ${cookieOptions}`;
+      document.cookie = `auth_session=true; ${cookieOptions}`;
 
       // Hard redirect to ensure cookies are set and page fully reloads
       window.location.href = '/dashboard';

@@ -9,6 +9,8 @@ import {
   MessageSquare,
   BarChart3,
   Users,
+  Calendar,
+  CalendarCheck,
   Globe,
   Puzzle,
   Settings,
@@ -34,6 +36,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { nameKey: 'nav.conversations', href: '/dashboard/conversations', icon: MessageSquare },
     { nameKey: 'nav.analytics', href: '/dashboard/analytics', icon: BarChart3 },
     { nameKey: 'nav.leads', href: '/dashboard/leads', icon: Users },
+    { nameKey: 'nav.calendar', href: '/dashboard/calendar', icon: Calendar },
+    { nameKey: 'nav.bookings', href: '/dashboard/bookings', icon: CalendarCheck },
     { nameKey: 'nav.scraping', href: '/dashboard/scraping', icon: Globe },
     { nameKey: 'nav.integrations', href: '/dashboard/integrations', icon: Puzzle },
     { nameKey: 'nav.settings', href: '/dashboard/settings', icon: Settings },
@@ -114,7 +118,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               >
                 {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
-              <h1 className="text-2xl font-bold text-indigo-600">Chatbot Studio</h1>
+              <Link href="/">
+                <h1 className="text-2xl font-bold text-indigo-600 hover:text-indigo-700 cursor-pointer transition-colors">Chatbot Studio</h1>
+              </Link>
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-900 font-medium hidden sm:block">

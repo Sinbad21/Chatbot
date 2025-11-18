@@ -1,4 +1,70 @@
 {
+  "analytics": {
+    "title": "Analitiche",
+    "subtitle": "Monitora le prestazioni e l'utilizzo del tuo chatbot",
+    "loadingAnalytics": "Caricamento analitiche...",
+    "authTokenNotFound": "Token di autenticazione non trovato",
+    "failedToLoad": "Impossibile caricare i dati analitici",
+    "exportCSV": "Esporta CSV",
+    "searchByBotOrStatus": "Cerca per bot o stato",
+    "noConversationsFound": "Nessuna conversazione trovata",
+    "usageAndCosts": "Utilizzo e Costi",
+    "usageSubtitle": "Traccia l'utilizzo del modello AI e i costi",
+    "requestsLabel": "Richieste",
+    "inputTokensLabel": "Token Input",
+    "outputTokensLabel": "Token Output",
+    "dateRanges": {
+      "7d": "Ultimi 7 giorni",
+      "30d": "Ultimi 30 giorni",
+      "90d": "Ultimi 90 giorni",
+      "all": "Tutto il tempo"
+    },
+    "stats": {
+      "totalConversations": "Conversazioni Totali",
+      "totalMessages": "Messaggi Totali",
+      "totalLeads": "Lead Totali",
+      "totalRequests": "Richieste Totali",
+      "inputTokens": "Token Input",
+      "outputTokens": "Token Output",
+      "totalCost": "Costo Totale"
+    },
+    "growth": {
+      "fromLastPeriod": "+{percent}% dal periodo precedente"
+    },
+    "charts": {
+      "conversationsOverTime": "Conversazioni nel Tempo",
+      "topIntents": "Intenti Principali",
+      "usageOverTime": "Utilizzo nel Tempo",
+      "usageByModel": "Utilizzo per Modello",
+      "modelBreakdown": "Dettaglio Modelli"
+    },
+    "table": {
+      "recentConversations": "Conversazioni Recenti",
+      "botName": "Nome Bot",
+      "messages": "Messaggi",
+      "duration": "Durata",
+      "created": "Creato"
+    }
+  },
+  "conversations": {
+    "status": "Stato"
+  },
+  "bots": {
+    "configError": "Errore di configurazione",
+    "failedToFetch": "Impossibile recuperare i bot",
+    "failedToLoad": "Impossibile caricare i bot",
+    "myBots": "I Miei Bot",
+    "createNew": "Crea Nuovo Bot",
+    "loadingBots": "Caricamento bot...",
+    "noBots": "Nessun bot ancora",
+    "getStarted": "Inizia creando il tuo primo chatbot",
+    "createYourFirstBot": "Crea il Tuo Primo Bot",
+    "published": "Pubblicato",
+    "draft": "Bozza",
+    "conversationsCount": "{count} conversazioni",
+    "documentsCount": "{count} documenti",
+    "viewDetails": "Vedi Dettagli"
+  },
   "booking": {
     "title": "Prenota un Appuntamento",
     "subtitle": "Scegli una data e un orario che funzionano per te",

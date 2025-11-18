@@ -1,4 +1,70 @@
 {
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Monitor your chatbot performance and usage",
+    "loadingAnalytics": "Loading analytics...",
+    "authTokenNotFound": "Authentication token not found",
+    "failedToLoad": "Failed to load analytics data",
+    "exportCSV": "Export CSV",
+    "searchByBotOrStatus": "Search by bot or status",
+    "noConversationsFound": "No conversations found",
+    "usageAndCosts": "Usage & Costs",
+    "usageSubtitle": "Track your AI model usage and costs",
+    "requestsLabel": "Requests",
+    "inputTokensLabel": "Input Tokens",
+    "outputTokensLabel": "Output Tokens",
+    "dateRanges": {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "all": "All time"
+    },
+    "stats": {
+      "totalConversations": "Total Conversations",
+      "totalMessages": "Total Messages",
+      "totalLeads": "Total Leads",
+      "totalRequests": "Total Requests",
+      "inputTokens": "Input Tokens",
+      "outputTokens": "Output Tokens",
+      "totalCost": "Total Cost"
+    },
+    "growth": {
+      "fromLastPeriod": "+{percent}% from last period"
+    },
+    "charts": {
+      "conversationsOverTime": "Conversations Over Time",
+      "topIntents": "Top Intents",
+      "usageOverTime": "Usage Over Time",
+      "usageByModel": "Usage by Model",
+      "modelBreakdown": "Model Breakdown"
+    },
+    "table": {
+      "recentConversations": "Recent Conversations",
+      "botName": "Bot Name",
+      "messages": "Messages",
+      "duration": "Duration",
+      "created": "Created"
+    }
+  },
+  "conversations": {
+    "status": "Status"
+  },
+  "bots": {
+    "configError": "Configuration error",
+    "failedToFetch": "Failed to fetch bots",
+    "failedToLoad": "Failed to load bots",
+    "myBots": "My Bots",
+    "createNew": "Create New Bot",
+    "loadingBots": "Loading bots...",
+    "noBots": "No bots yet",
+    "getStarted": "Get started by creating your first chatbot",
+    "createYourFirstBot": "Create Your First Bot",
+    "published": "Published",
+    "draft": "Draft",
+    "conversationsCount": "{count} conversations",
+    "documentsCount": "{count} documents",
+    "viewDetails": "View Details"
+  },
   "booking": {
     "title": "Book an Appointment",
     "subtitle": "Choose a date and time that works for you",

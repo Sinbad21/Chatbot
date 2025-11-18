@@ -267,6 +267,7 @@ app.post('/api/v1/auth/register', async (c) => {
       data: {
         token: refreshToken,
         userId: result.user.id,
+        tokenId: result.user.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });

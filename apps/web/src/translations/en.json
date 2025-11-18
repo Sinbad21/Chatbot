@@ -36,6 +36,8 @@
     "conversations": "Conversations",
     "analytics": "Analytics",
     "leads": "Leads",
+    "calendar": "Calendar",
+    "bookings": "Bookings",
     "scraping": "Scraping",
     "integrations": "Integrations",
     "settings": "Settings",
@@ -486,18 +488,6 @@
     "inputTokensLabel": "Input Tokens:",
     "outputTokensLabel": "Output Tokens:",
     "requestsLabel": "Requests:"
-  },
-  "settings": {
-    "title": "Settings",
-    "account": "Account",
-    "profile": "Profile",
-    "preferences": "Preferences",
-    "language": "Language",
-    "selectLanguage": "Select Language",
-    "theme": "Theme",
-    "notifications": "Notifications",
-    "apiKeys": "API Keys",
-    "billing": "Billing"
   },
   "messages": {
     "saved": "Saved successfully",
