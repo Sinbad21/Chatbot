@@ -78,8 +78,8 @@ function registerRoutes(app: Hono<{ Bindings: Bindings }>) {
    * Start OAuth flow for Google Calendar
    */
   app.get('/calendar/connect/google', async (c) => {
-    const prisma = getPrisma(c.env);
     try {
+      const prisma = getPrisma(c.env);
       const { organizationId } = connectSchema.parse({
         organizationId: c.req.query('organizationId'),
       });
@@ -142,8 +142,8 @@ function registerRoutes(app: Hono<{ Bindings: Bindings }>) {
  * OAuth callback handler
  */
 app.get('/calendar/callback/google', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const code = c.req.query('code');
     const state = c.req.query('state');
     const error = c.req.query('error');
@@ -229,8 +229,8 @@ app.get('/calendar/callback/google', async (c) => {
  * List calendar connections for an organization
  */
 app.get('/calendar/connections', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const organizationId = c.req.query('organizationId');
 
     if (!organizationId) {
@@ -259,8 +259,8 @@ app.get('/calendar/connections', async (c) => {
  * Get a specific calendar connection
  */
 app.get('/calendar/connections/:id', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const connectionId = c.req.param('id');
 
     const connection = await prisma.calendarConnection.findUnique({
@@ -291,8 +291,8 @@ app.get('/calendar/connections/:id', async (c) => {
  * Update calendar connection settings
  */
 app.patch('/calendar/connections/:id', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const connectionId = c.req.param('id');
     const body = await c.req.json();
 
@@ -341,8 +341,8 @@ app.patch('/calendar/connections/:id', async (c) => {
  * Delete a calendar connection
  */
 app.delete('/calendar/connections/:id', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const connectionId = c.req.param('id');
 
     await prisma.calendarConnection.delete({
@@ -361,8 +361,8 @@ app.delete('/calendar/connections/:id', async (c) => {
  * Get available time slots
  */
 app.post('/calendar/availability', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const body = availabilitySchema.parse(await c.req.json());
 
     const startDate = new Date(body.startDate);
@@ -405,8 +405,8 @@ app.post('/calendar/availability', async (c) => {
  * Rate limited: 5 bookings per hour per IP
  */
 app.post('/calendar/events', rateLimitBooking({ maxAttempts: 5, windowMs: 60 * 60 * 1000 }), async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const body = createEventSchema.parse(await c.req.json());
 
     // Validate times
@@ -578,8 +578,8 @@ app.post('/calendar/events', rateLimitBooking({ maxAttempts: 5, windowMs: 60 * 6
  * Get a specific event
  */
 app.get('/calendar/events/:id', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const eventId = c.req.param('id');
 
     const event = await prisma.calendarEvent.findUnique({
@@ -610,8 +610,8 @@ app.get('/calendar/events/:id', async (c) => {
  * Update an event (reschedule)
  */
 app.patch('/calendar/events/:id', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const eventId = c.req.param('id');
     const body = updateEventSchema.parse(await c.req.json());
 
@@ -660,8 +660,8 @@ app.patch('/calendar/events/:id', async (c) => {
  * Cancel an event
  */
 app.delete('/calendar/events/:id', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const eventId = c.req.param('id');
 
     const event = await prisma.calendarEvent.findUnique({
@@ -687,8 +687,8 @@ app.delete('/calendar/events/:id', async (c) => {
  * List events for a connection or conversation
  */
 app.get('/calendar/events', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const connectionId = c.req.query('connectionId');
     const conversationId = c.req.query('conversationId');
     const status = c.req.query('status');
@@ -724,8 +724,8 @@ app.get('/calendar/events', async (c) => {
  * Handle Google Calendar push notifications
  */
 app.post('/calendar/webhook', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const channelId = c.req.header('X-Goog-Channel-ID');
     const resourceState = c.req.header('X-Goog-Resource-State');
     const resourceId = c.req.header('X-Goog-Resource-ID');
@@ -771,8 +771,8 @@ app.post('/calendar/webhook', async (c) => {
  * Get widget configuration (public endpoint)
  */
 app.get('/calendar/widget/:widgetId/config', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const widgetId = c.req.param('widgetId');
 
     const connection = await prisma.calendarConnection.findUnique({
@@ -810,8 +810,8 @@ app.get('/calendar/widget/:widgetId/config', async (c) => {
  * Get available time slots for widget (public endpoint)
  */
 app.post('/calendar/widget/:widgetId/availability', async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const widgetId = c.req.param('widgetId');
     const body = await c.req.json();
 
@@ -874,8 +874,8 @@ app.post('/calendar/widget/:widgetId/availability', async (c) => {
  * Rate limited: 5 bookings per hour per IP
  */
 app.post('/calendar/widget/:widgetId/events', rateLimitBooking({ maxAttempts: 5, windowMs: 60 * 60 * 1000 }), async (c) => {
-    const prisma = getPrisma(c.env);
   try {
+    const prisma = getPrisma(c.env);
     const widgetId = c.req.param('widgetId');
     const body = await c.req.json();
 
