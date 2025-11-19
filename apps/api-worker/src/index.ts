@@ -30,7 +30,6 @@ type Bindings = {
   // Google Calendar
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
-  GOOGLE_REDIRECT_URI?: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();

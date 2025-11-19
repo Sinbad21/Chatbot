@@ -14,7 +14,6 @@ type Bindings = {
   DATABASE_URL: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
-  GOOGLE_REDIRECT_URI: string;
 };
 
 // Validation schemas
@@ -58,7 +57,7 @@ const updateEventSchema = z.object({
 const getCalendarService = (c: any): GoogleCalendarService => {
   const clientId = c.env.GOOGLE_CLIENT_ID;
   const clientSecret = c.env.GOOGLE_CLIENT_SECRET;
-  const redirectUri = c.env.GOOGLE_REDIRECT_URI || 'https://yourdomain.com/api/calendar/callback/google';
+  const redirectUri = 'https://chatbotstudio.gabrypiritore.workers.dev/calendar/callback/google';
 
   if (!clientId || !clientSecret) {
     throw new Error('Google Calendar credentials not configured');
