@@ -303,7 +303,7 @@ export default function AnalyticsPage() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value as DateRange)}
-            className="px-4 py-2 border border-white/10 rounded-lg text-sm text-white bg-white/5 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg text-sm text-white focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 transition-all"
           >
             <option value="7d">{t('analytics.dateRanges.7d')}</option>
             <option value="30d">{t('analytics.dateRanges.30d')}</option>
@@ -312,7 +312,7 @@ export default function AnalyticsPage() {
           </select>
           <button
             onClick={handleExportCSV}
-            className="px-4 py-2 bg-white text-black rounded-lg hover:bg-white/90 text-sm font-medium transition-colors"
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 text-sm font-medium transition-all shadow-lg shadow-purple-500/25"
           >
             {t('analytics.exportCSV')}
           </button>
@@ -432,7 +432,7 @@ export default function AnalyticsPage() {
             placeholder={t('analytics.searchByBotOrStatus')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-4 py-2 border border-white/10 rounded-lg text-sm text-white bg-white/5 placeholder:text-white/40 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg text-sm text-white placeholder-purple-400/50 focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 transition-all"
           />
         </div>
 
@@ -480,10 +480,10 @@ export default function AnalyticsPage() {
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           conv.status === 'completed'
-                            ? 'bg-emerald-400/10 text-emerald-400'
+                            ? 'bg-fuchsia-500/20 text-fuchsia-300'
                             : conv.status === 'active'
-                            ? 'bg-blue-900/50 text-blue-400'
-                            : 'bg-platinum-800 text-platinum-400'
+                            ? 'bg-purple-500/20 text-purple-300'
+                            : 'bg-purple-900/50 text-purple-400'
                         }`}
                       >
                         {conv.status}
@@ -516,7 +516,7 @@ export default function AnalyticsPage() {
             <select
               value={selectedBotId}
               onChange={(e) => setSelectedBotId(e.target.value)}
-              className="px-4 py-2 border border-platinum-800 rounded-lg text-sm text-platinum-100 bg-platinum-900 focus:ring-2 focus:ring-platinum-500 focus:border-transparent"
+              className="px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg text-sm text-white focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 transition-all"
             >
               {bots.map((bot) => (
                 <option key={bot.id} value={bot.id}>

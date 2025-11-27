@@ -62,7 +62,7 @@ export default function BotsListPage() {
         <h1 className="text-3xl font-bold text-white font-serif">{t('bots.myBots')}</h1>
         <Link
           href="/dashboard/create-bot"
-          className="px-6 py-3 bg-white text-black rounded-lg hover:bg-white/90 font-medium transition-colors"
+          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 font-medium transition-all shadow-lg shadow-purple-500/25"
         >
           {t('bots.createNew')}
         </Link>
@@ -101,7 +101,7 @@ export default function BotsListPage() {
           </p>
           <Link
             href="/dashboard/create-bot"
-            className="inline-block px-6 py-3 bg-white text-black rounded-lg hover:bg-white/90 font-medium transition-colors"
+            className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 font-medium transition-all shadow-lg shadow-purple-500/25"
           >
             {t('bots.createYourFirstBot')}
           </Link>
@@ -118,8 +118,8 @@ export default function BotsListPage() {
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium ${
                     bot.published
-                      ? 'bg-emerald-400/10 text-emerald-400'
-                      : 'bg-white/10 text-white/60'
+                      ? 'bg-fuchsia-500/20 text-fuchsia-300'
+                      : 'bg-purple-500/20 text-purple-300'
                   }`}
                 >
                   {bot.published ? t('bots.published') : t('bots.draft')}
@@ -137,7 +137,7 @@ export default function BotsListPage() {
 
               <Link
                 href={`/dashboard/bot?id=${bot.id}`}
-                className="block w-full px-4 py-2 bg-white text-black text-center rounded-lg hover:bg-white/90 font-medium transition-colors"
+                className="block w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-center rounded-lg hover:from-purple-500 hover:to-fuchsia-500 font-medium transition-all shadow-lg shadow-purple-500/25"
               >
                 {t('bots.viewDetails')}
               </Link>

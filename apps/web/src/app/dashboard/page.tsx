@@ -80,8 +80,8 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-fuchsia-500 mx-auto mb-4"></div>
+          <p className="text-purple-300/70">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -89,9 +89,9 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <h2 className="text-red-800 font-semibold mb-2">Error Loading Dashboard</h2>
-        <p className="text-red-600">{error}</p>
+      <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-red-500/30 rounded-2xl p-6">
+        <h2 className="text-red-400 font-semibold mb-2">Error Loading Dashboard</h2>
+        <p className="text-red-300/70">{error}</p>
       </div>
     );
   }
@@ -109,37 +109,37 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">{t('dashboard.title')}</h1>
+      <h1 className="text-3xl font-bold mb-8 text-white">{t('dashboard.title')}</h1>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow min-w-0">
-          <div className="text-sm text-gray-800 font-medium mb-2">{t('dashboard.stats.totalBots')}</div>
-          <div className="text-3xl font-bold text-indigo-600 truncate">{analytics.totalBots}</div>
-          <div className="text-xs text-green-600 font-medium mt-1">
+        <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 p-6 rounded-2xl min-w-0">
+          <div className="text-sm text-purple-300/70 font-medium mb-2">{t('dashboard.stats.totalBots')}</div>
+          <div className="text-3xl font-bold text-fuchsia-400 truncate">{analytics.totalBots}</div>
+          <div className="text-xs text-fuchsia-400/70 font-medium mt-1">
             {t('dashboard.growth.thisMonth').replace('{count}', analytics.botsThisMonth.toString())}
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow min-w-0">
-          <div className="text-sm text-gray-800 font-medium mb-2">{t('dashboard.stats.conversations')}</div>
-          <div className="text-3xl font-bold text-blue-600 truncate">{analytics.conversations.toLocaleString()}</div>
+        <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 p-6 rounded-2xl min-w-0">
+          <div className="text-sm text-purple-300/70 font-medium mb-2">{t('dashboard.stats.conversations')}</div>
+          <div className="text-3xl font-bold text-purple-400 truncate">{analytics.conversations.toLocaleString()}</div>
           <div className={`text-xs font-medium mt-1 ${formatGrowth(analytics.conversationsGrowth).color}`}>
             {formatGrowth(analytics.conversationsGrowth).text} vs last month
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow min-w-0">
-          <div className="text-sm text-gray-800 font-medium mb-2">{t('dashboard.stats.leadsCaptured')}</div>
-          <div className="text-3xl font-bold text-green-600 truncate">{analytics.leads}</div>
+        <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 p-6 rounded-2xl min-w-0">
+          <div className="text-sm text-purple-300/70 font-medium mb-2">{t('dashboard.stats.leadsCaptured')}</div>
+          <div className="text-3xl font-bold text-emerald-400 truncate">{analytics.leads}</div>
           <div className={`text-xs font-medium mt-1 ${formatGrowth(analytics.leadsGrowth).color}`}>
             {formatGrowth(analytics.leadsGrowth).text} vs last month
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow min-w-0">
-          <div className="text-sm text-gray-800 font-medium mb-2">{t('dashboard.stats.activeUsers')}</div>
-          <div className="text-3xl font-bold text-purple-600 truncate">{analytics.activeUsers}</div>
+        <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 p-6 rounded-2xl min-w-0">
+          <div className="text-sm text-purple-300/70 font-medium mb-2">{t('dashboard.stats.activeUsers')}</div>
+          <div className="text-3xl font-bold text-fuchsia-400 truncate">{analytics.activeUsers}</div>
           <div className={`text-xs font-medium mt-1 ${formatGrowth(analytics.activeUsersGrowth).color}`}>
             {formatGrowth(analytics.activeUsersGrowth).text} vs last month
           </div>
@@ -147,25 +147,25 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">{t('dashboard.recentBots')}</h2>
+      <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 rounded-2xl p-6">
+        <h2 className="text-xl font-bold text-white mb-4">{t('dashboard.recentBots')}</h2>
         {recentBots.length === 0 ? (
-          <p className="text-gray-600 text-center py-8">
+          <p className="text-purple-300/70 text-center py-8">
             No bots yet. Create your first bot to get started!
           </p>
         ) : (
           <div className="space-y-4">
             {recentBots.map((bot) => (
-              <div key={bot.id} className="flex items-center justify-between border-b pb-4 last:border-b-0">
+              <div key={bot.id} className="flex items-center justify-between border-b border-purple-500/20 pb-4 last:border-b-0">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{bot.name}</h3>
-                  <p className="text-sm text-gray-700">
+                  <h3 className="font-semibold text-white">{bot.name}</h3>
+                  <p className="text-sm text-purple-300/70">
                     Last active: {bot.lastActive} • {bot.conversationCount} conversation{bot.conversationCount !== 1 ? 's' : ''}
                   </p>
                 </div>
                 <button
                   onClick={() => router.push(`/dashboard/bots/${bot.id}`)}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition-colors"
+                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 font-medium transition-all shadow-lg shadow-purple-500/25"
                 >
                   {t('dashboard.view')}
                 </button>

@@ -308,16 +308,16 @@ export default function CalendarPage() {
 
       {/* Configuration Modal */}
       {editMode && selectedConnection && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-white">
-            <div className="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-charcoal">Calendar Configuration</h2>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-gradient-to-br from-[#2d1b4e] to-[#150a25] border border-purple-500/20">
+            <div className="sticky top-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-b border-purple-500/20 p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Calendar Configuration</h2>
               <button
                 onClick={() => {
                   setEditMode(false);
                   setSelectedConnection(null);
                 }}
-                className="text-muted-gray hover:text-charcoal"
+                className="text-purple-300/70 hover:text-white transition-colors"
               >
                 ✕
               </button>
@@ -326,7 +326,7 @@ export default function CalendarPage() {
             <div className="p-6 space-y-6">
               {/* Slot Duration */}
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-2">
+                <label className="block text-sm font-medium text-purple-300/70 mb-2">
                   Slot Duration (minutes)
                 </label>
                 <input
@@ -341,16 +341,16 @@ export default function CalendarPage() {
                   min="15"
                   max="240"
                   step="15"
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                 />
-                <p className="text-xs text-muted-gray mt-1">
+                <p className="text-xs text-purple-400/50 mt-1">
                   How long each appointment slot should be
                 </p>
               </div>
 
               {/* Buffer Time */}
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-2">
+                <label className="block text-sm font-medium text-purple-300/70 mb-2">
                   Buffer Time (minutes)
                 </label>
                 <input
@@ -365,16 +365,16 @@ export default function CalendarPage() {
                   min="0"
                   max="60"
                   step="5"
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                 />
-                <p className="text-xs text-muted-gray mt-1">
+                <p className="text-xs text-purple-400/50 mt-1">
                   Time between appointments for preparation
                 </p>
               </div>
 
               {/* Max Daily Bookings */}
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-2">
+                <label className="block text-sm font-medium text-purple-300/70 mb-2">
                   Maximum Daily Bookings
                 </label>
                 <input
@@ -388,16 +388,16 @@ export default function CalendarPage() {
                   }
                   min="1"
                   max="100"
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                 />
-                <p className="text-xs text-muted-gray mt-1">
+                <p className="text-xs text-purple-400/50 mt-1">
                   Maximum number of appointments allowed per day
                 </p>
               </div>
 
               {/* Working Hours */}
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-3">
+                <label className="block text-sm font-medium text-purple-300/70 mb-3">
                   Working Hours
                 </label>
                 <div className="space-y-3">
@@ -407,7 +407,7 @@ export default function CalendarPage() {
                     const dayHours = workingHours[day] || { start: '09:00', end: '18:00', enabled: day !== 'sunday' };
 
                     return (
-                      <div key={day} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                      <div key={day} className="flex items-center gap-3 p-3 bg-purple-900/30 border border-purple-500/20 rounded-lg">
                         <label className="flex items-center gap-2 w-28">
                           <input
                             type="checkbox"
@@ -420,9 +420,9 @@ export default function CalendarPage() {
                                 workingHours: newWorkingHours,
                               });
                             }}
-                            className="w-4 h-4 text-emerald border-slate-300 rounded focus:ring-emerald"
+                            className="w-4 h-4 text-fuchsia-600 border-purple-500/30 rounded focus:ring-fuchsia-500 bg-purple-900/30"
                           />
-                          <span className="text-sm font-medium text-charcoal">{dayLabel}</span>
+                          <span className="text-sm font-medium text-white">{dayLabel}</span>
                         </label>
 
                         {dayHours.enabled !== false && (
@@ -438,9 +438,9 @@ export default function CalendarPage() {
                                   workingHours: newWorkingHours,
                                 });
                               }}
-                              className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-emerald"
+                              className="px-3 py-1.5 bg-purple-900/50 border border-purple-500/30 rounded-lg text-sm text-white focus:ring-2 focus:ring-fuchsia-500/50"
                             />
-                            <span className="text-muted-gray">-</span>
+                            <span className="text-purple-300/70">-</span>
                             <input
                               type="time"
                               value={dayHours.end || '18:00'}
@@ -452,7 +452,7 @@ export default function CalendarPage() {
                                   workingHours: newWorkingHours,
                                 });
                               }}
-                              className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-emerald"
+                              className="px-3 py-1.5 bg-purple-900/50 border border-purple-500/30 rounded-lg text-sm text-white focus:ring-2 focus:ring-fuchsia-500/50"
                             />
                           </>
                         )}
@@ -460,18 +460,18 @@ export default function CalendarPage() {
                     );
                   })}
                 </div>
-                <p className="text-xs text-muted-gray mt-2">
+                <p className="text-xs text-purple-400/50 mt-2">
                   Set your available hours for each day of the week
                 </p>
               </div>
 
               {/* Widget Customization */}
-              <div className="border-t border-slate-200 pt-6">
-                <h3 className="text-lg font-semibold text-charcoal mb-4">Widget Customization</h3>
+              <div className="border-t border-purple-500/20 pt-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Widget Customization</h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">
+                    <label className="block text-sm font-medium text-purple-300/70 mb-2">
                       Widget Title
                     </label>
                     <input
@@ -484,12 +484,12 @@ export default function CalendarPage() {
                         } as any)
                       }
                       placeholder="Book an Appointment"
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">
+                    <label className="block text-sm font-medium text-purple-300/70 mb-2">
                       Widget Subtitle
                     </label>
                     <input
@@ -502,12 +502,12 @@ export default function CalendarPage() {
                         } as any)
                       }
                       placeholder="Choose a date and time that works for you"
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">
+                    <label className="block text-sm font-medium text-purple-300/70 mb-2">
                       Confirmation Message
                     </label>
                     <textarea
@@ -520,19 +520,19 @@ export default function CalendarPage() {
                       }
                       placeholder="Your appointment has been confirmed!"
                       rows={2}
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald resize-none"
+                      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all resize-none"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Email Notifications */}
-              <div className="border-t border-slate-200 pt-6">
-                <h3 className="text-lg font-semibold text-charcoal mb-4">Email Notifications</h3>
+              <div className="border-t border-purple-500/20 pt-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Email Notifications</h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">
+                    <label className="block text-sm font-medium text-purple-300/70 mb-2">
                       Owner Email
                     </label>
                     <input
@@ -545,17 +545,17 @@ export default function CalendarPage() {
                         } as any)
                       }
                       placeholder="your-email@example.com"
-                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                     />
-                    <p className="text-xs text-muted-gray mt-1">
+                    <p className="text-xs text-purple-400/50 mt-1">
                       Email address to receive booking notifications
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 bg-purple-900/30 border border-purple-500/20 rounded-lg">
                     <div>
-                      <p className="font-medium text-charcoal">Notify on New Bookings</p>
-                      <p className="text-sm text-muted-gray">
+                      <p className="font-medium text-white">Notify on New Bookings</p>
+                      <p className="text-sm text-purple-300/70">
                         Receive email when someone books an appointment
                       </p>
                     </div>
@@ -571,26 +571,26 @@ export default function CalendarPage() {
                         }
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald"></div>
+                      <div className="w-11 h-6 bg-purple-900/50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-fuchsia-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-purple-500/30 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-fuchsia-500"></div>
                     </label>
                   </div>
                 </div>
               </div>
 
               {/* Blocked Dates */}
-              <div className="border-t border-slate-200 pt-6">
-                <h3 className="text-lg font-semibold text-charcoal mb-4">Giorni Bloccati / Festività</h3>
+              <div className="border-t border-purple-500/20 pt-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Giorni Bloccati / Festività</h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-charcoal mb-2">
+                    <label className="block text-sm font-medium text-purple-300/70 mb-2">
                       Aggiungi Data Bloccata
                     </label>
                     <div className="flex gap-2">
                       <input
                         type="date"
                         id="blocked-date-input"
-                        className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald"
+                        className="flex-1 px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white transition-all"
                       />
                       <Button
                         onClick={() => {
@@ -606,27 +606,27 @@ export default function CalendarPage() {
                             }
                           }
                         }}
-                        className="bg-emerald hover:bg-emerald/90 text-white"
+                        className="bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white shadow-lg shadow-purple-500/25"
                       >
                         Aggiungi
                       </Button>
                     </div>
-                    <p className="text-xs text-muted-gray mt-1">
+                    <p className="text-xs text-purple-400/50 mt-1">
                       Le date bloccate non saranno disponibili per le prenotazioni
                     </p>
                   </div>
 
                   {/* List of blocked dates */}
                   {((selectedConnection as any).blockedDates || []).length > 0 && (
-                    <div className="bg-slate-50 rounded-lg p-4">
-                      <p className="text-sm font-medium text-charcoal mb-3">Date Bloccate:</p>
+                    <div className="bg-purple-900/30 border border-purple-500/20 rounded-lg p-4">
+                      <p className="text-sm font-medium text-white mb-3">Date Bloccate:</p>
                       <div className="flex flex-wrap gap-2">
                         {((selectedConnection as any).blockedDates || []).map((date: string, index: number) => (
                           <div
                             key={index}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-sm"
+                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-900/50 border border-purple-500/30 rounded-lg text-sm"
                           >
-                            <span className="text-charcoal">
+                            <span className="text-white">
                               {new Date(date + 'T00:00:00').toLocaleDateString('it-IT', {
                                 day: 'numeric',
                                 month: 'short',
@@ -641,7 +641,7 @@ export default function CalendarPage() {
                                   blockedDates: blockedDates.filter((_: string, i: number) => i !== index),
                                 } as any);
                               }}
-                              className="text-red-600 hover:text-red-700"
+                              className="text-red-400 hover:text-red-300 transition-colors"
                             >
                               ✕
                             </button>
@@ -654,10 +654,10 @@ export default function CalendarPage() {
               </div>
 
               {/* Active Status */}
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-purple-900/30 border border-purple-500/20 rounded-lg">
                 <div>
-                  <p className="font-medium text-charcoal">Calendar Active</p>
-                  <p className="text-sm text-muted-gray">
+                  <p className="font-medium text-white">Calendar Active</p>
+                  <p className="text-sm text-purple-300/70">
                     Allow bookings through this calendar
                   </p>
                 </div>
@@ -673,24 +673,25 @@ export default function CalendarPage() {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald"></div>
+                  <div className="w-11 h-6 bg-purple-900/50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-fuchsia-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-purple-500/30 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-fuchsia-500"></div>
                 </label>
               </div>
             </div>
 
-            <div className="sticky bottom-0 bg-white border-t border-slate-200 p-6 flex justify-end gap-3">
+            <div className="sticky bottom-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-t border-purple-500/20 p-6 flex justify-end gap-3">
               <Button
                 variant="outline"
                 onClick={() => {
                   setEditMode(false);
                   setSelectedConnection(null);
                 }}
+                className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
               >
                 Cancel
               </Button>
               <Button
                 onClick={() => handleUpdateConnection(selectedConnection.id, selectedConnection)}
-                className="bg-emerald hover:bg-emerald/90 text-white"
+                className="bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white shadow-lg shadow-purple-500/25"
               >
                 Save Changes
               </Button>
