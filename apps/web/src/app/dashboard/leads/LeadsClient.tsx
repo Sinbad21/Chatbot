@@ -252,7 +252,7 @@ export default function LeadsClient() {
       <div className="space-y-6">
         {/* Success/Error Message */}
         {message && (
-          <div className={`p-4 rounded-lg ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+          <div className={`p-4 rounded-lg ${message.type === 'success' ? 'bg-fuchsia-500/20 border border-fuchsia-500/30 text-fuchsia-300' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>
             {message.text}
           </div>
         )}
@@ -262,22 +262,22 @@ export default function LeadsClient() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push('/dashboard/leads')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-purple-500/10 rounded-lg transition-colors"
             >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{t('leads.leadDetails')}</h1>
-              <p className="text-sm text-gray-600 mt-1">{selectedLead.email || 'No email'}</p>
+              <h1 className="text-2xl font-bold text-white">{t('leads.leadDetails')}</h1>
+              <p className="text-sm text-purple-300/70 mt-1">{selectedLead.email || 'No email'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <select
               value={selectedLead.status}
               onChange={(e) => handleStatusChange(selectedLead.id, e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-500"
+              className="px-4 py-2 bg-purple-900/30 border border-purple-500/30 rounded-lg text-sm font-medium text-white focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50"
             >
               <option value="NEW">{t('leads.new')}</option>
               <option value="CONTACTED">{t('leads.contacted')}</option>
@@ -289,55 +289,55 @@ export default function LeadsClient() {
         </div>
 
         {/* Lead Info Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('leads.contactInformation')}</h2>
+        <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 rounded-2xl p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">{t('leads.contactInformation')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('leads.name')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.name || 'N/A'}</p>
+              <label className="text-xs font-medium text-purple-300/70">{t('leads.name')}</label>
+              <p className="text-sm text-white font-medium mt-1">{selectedLead.name || 'N/A'}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('leads.email')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.email || 'N/A'}</p>
+              <label className="text-xs font-medium text-purple-300/70">{t('leads.email')}</label>
+              <p className="text-sm text-white font-medium mt-1">{selectedLead.email || 'N/A'}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('leads.phone')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.phone || 'N/A'}</p>
+              <label className="text-xs font-medium text-purple-300/70">{t('leads.phone')}</label>
+              <p className="text-sm text-white font-medium mt-1">{selectedLead.phone || 'N/A'}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('leads.company')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.company || 'N/A'}</p>
+              <label className="text-xs font-medium text-purple-300/70">{t('leads.company')}</label>
+              <p className="text-sm text-white font-medium mt-1">{selectedLead.company || 'N/A'}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('leads.leadScore')}</label>
+              <label className="text-xs font-medium text-purple-300/70">{t('leads.leadScore')}</label>
               <p className={`text-2xl font-bold mt-1 ${getScoreColor(selectedLead.score)}`}>
                 {selectedLead.score}
               </p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('conversations.status')}</label>
+              <label className="text-xs font-medium text-purple-300/70">{t('conversations.status')}</label>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${getStatusColor(selectedLead.status)}`}>
                 {selectedLead.status}
               </span>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('leads.bot')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.conversation.botName}</p>
+              <label className="text-xs font-medium text-purple-300/70">{t('leads.bot')}</label>
+              <p className="text-sm text-white font-medium mt-1">{selectedLead.conversation.botName}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('leads.campaign')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">{selectedLead.campaign?.name || t('leads.none')}</p>
+              <label className="text-xs font-medium text-purple-300/70">{t('leads.campaign')}</label>
+              <p className="text-sm text-white font-medium mt-1">{selectedLead.campaign?.name || t('leads.none')}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('leads.created')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">{formatDate(selectedLead.createdAt)}</p>
+              <label className="text-xs font-medium text-purple-300/70">{t('leads.created')}</label>
+              <p className="text-sm text-white font-medium mt-1">{formatDate(selectedLead.createdAt)}</p>
             </div>
           </div>
         </div>
 
         {/* Conversation Transcript */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 rounded-2xl p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">
             {t('leads.conversation').replace('{count}', selectedLead.conversation.messageCount.toString())}
           </h2>
           <div className="space-y-3">
@@ -347,7 +347,7 @@ export default function LeadsClient() {
                 className={`flex ${msg.role === 'USER' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`max-w-[70%] rounded-lg px-4 py-2 ${
-                  msg.role === 'USER' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-900'
+                  msg.role === 'USER' ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white' : 'bg-purple-900/50 text-purple-100'
                 }`}>
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                   <span className="text-xs opacity-70 mt-1 block">
@@ -375,7 +375,7 @@ export default function LeadsClient() {
           <button
             onClick={handleExportCSV}
             disabled={leads.length === 0}
-            className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border flex items-center gap-2 border-white/10 bg-white/5 hover:bg-white/10 text-white disabled:opacity-50"
+            className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border flex items-center gap-2 border-purple-500/20 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white disabled:opacity-50 shadow-lg shadow-purple-500/25 transition-all"
           >
             <Download size={14} /> Export
           </button>

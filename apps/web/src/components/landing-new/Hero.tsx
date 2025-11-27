@@ -355,9 +355,8 @@ export const Hero: React.FC = () => {
       className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-platinum-950 pt-24 md:pt-0"
       style={{ perspective: '2000px' }}
     >
+      {/* Subtle grid background only */}
       <div className="absolute inset-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-gradient-to-br from-platinum-400/10 to-transparent blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tl from-platinum-200/5 to-transparent blur-[100px] animate-pulse" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
       </div>
 

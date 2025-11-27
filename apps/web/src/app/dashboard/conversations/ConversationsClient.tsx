@@ -286,27 +286,27 @@ ${transcript}
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push('/dashboard/conversations')}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-purple-500/10 rounded-lg transition-colors"
             >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{t('conversations.conversationDetails')}</h1>
-              <p className="text-sm text-gray-600 mt-1">{t('conversations.viewFullTranscript')}</p>
+              <h1 className="text-2xl font-bold text-white">{t('conversations.conversationDetails')}</h1>
+              <p className="text-sm text-purple-300/70 mt-1">{t('conversations.viewFullTranscript')}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => handleExportConversation(selectedConversation)}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
+              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 text-sm font-medium shadow-lg shadow-purple-500/25 transition-all"
             >
               {t('conversations.exportTranscript')}
             </button>
             <button
               onClick={() => handleDeleteConversation(selectedConversation.id)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium flex items-center gap-2"
+              className="px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-300 rounded-lg hover:bg-red-500/30 text-sm font-medium flex items-center gap-2 transition-all"
             >
               <Trash2 size={16} />
               {t('common.delete')}
@@ -315,53 +315,53 @@ ${transcript}
         </div>
 
         {/* Metadata Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('conversations.metadata')}</h2>
+        <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 rounded-2xl p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">{t('conversations.metadata')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('conversations.botName')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">{selectedConversation.botName}</p>
+              <label className="text-xs font-medium text-purple-300/70">{t('conversations.botName')}</label>
+              <p className="text-sm text-white font-medium mt-1">{selectedConversation.botName}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('conversations.status')}</label>
+              <label className="text-xs font-medium text-purple-300/70">{t('conversations.status')}</label>
               <span
                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
                   selectedConversation.status === 'completed'
-                    ? 'bg-green-100 text-green-800'
+                    ? 'bg-fuchsia-500/20 text-fuchsia-300'
                     : selectedConversation.status === 'active'
-                    ? 'bg-blue-100 text-blue-800'
-                    : 'bg-gray-100 text-gray-800'
+                    ? 'bg-purple-500/20 text-purple-300'
+                    : 'bg-purple-900/50 text-purple-400'
                 }`}
               >
                 {selectedConversation.status}
               </span>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('conversations.duration')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">
+              <label className="text-xs font-medium text-purple-300/70">{t('conversations.duration')}</label>
+              <p className="text-sm text-white font-medium mt-1">
                 {selectedConversation.metadata?.duration || 'N/A'}
               </p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('conversations.messages').replace('{count}', '')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">{selectedConversation.messages.length}</p>
+              <label className="text-xs font-medium text-purple-300/70">{t('conversations.messages').replace('{count}', '')}</label>
+              <p className="text-sm text-white font-medium mt-1">{selectedConversation.messages.length}</p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('conversations.started')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">
+              <label className="text-xs font-medium text-purple-300/70">{t('conversations.started')}</label>
+              <p className="text-sm text-white font-medium mt-1">
                 {new Date(selectedConversation.createdAt).toLocaleString()}
               </p>
             </div>
             <div>
-              <label className="text-xs font-medium text-gray-600">{t('conversations.ended')}</label>
-              <p className="text-sm text-gray-900 font-medium mt-1">
+              <label className="text-xs font-medium text-purple-300/70">{t('conversations.ended')}</label>
+              <p className="text-sm text-white font-medium mt-1">
                 {new Date(selectedConversation.updatedAt).toLocaleString()}
               </p>
             </div>
             {selectedConversation.metadata?.leadCaptured !== undefined && (
               <div>
-                <label className="text-xs font-medium text-gray-600">{t('conversations.leadCaptured')}</label>
-                <p className="text-sm text-gray-900 font-medium mt-1">
+                <label className="text-xs font-medium text-purple-300/70">{t('conversations.leadCaptured')}</label>
+                <p className="text-sm text-white font-medium mt-1">
                   {selectedConversation.metadata.leadCaptured ? '✓ Yes' : '✗ No'}
                 </p>
               </div>
@@ -370,8 +370,8 @@ ${transcript}
         </div>
 
         {/* Transcript */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('conversations.transcript')}</h2>
+        <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 rounded-2xl p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">{t('conversations.transcript')}</h2>
           <div className="space-y-4">
             {selectedConversation.messages.map((message, index) => {
               const prevMessage = index > 0 ? selectedConversation.messages[index - 1] : null;
@@ -384,18 +384,18 @@ ${transcript}
                 >
                   <div className={`max-w-[75%] ${message.role === 'user' ? 'order-2' : 'order-1'}`}>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium text-gray-600">
+                      <span className="text-xs font-medium text-purple-300/70">
                         {message.role === 'user' ? t('conversations.user') : selectedConversation.botName}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-purple-400/50">
                         {new Date(message.createdAt).toLocaleTimeString()}
                       </span>
                     </div>
                     <div
                       className={`rounded-lg px-4 py-2 ${
                         message.role === 'user'
-                          ? 'bg-indigo-600 text-white'
-                          : 'bg-gray-100 text-gray-900'
+                          ? 'bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white'
+                          : 'bg-purple-900/50 text-purple-100'
                       }`}
                     >
                       <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -403,7 +403,7 @@ ${transcript}
                     {canUseAsTraining && prevMessage && (
                       <button
                         onClick={() => handleUseAsTraining(prevMessage.content, message.content)}
-                        className="mt-2 flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+                        className="mt-2 flex items-center gap-1.5 text-xs text-fuchsia-400 hover:text-fuchsia-300 font-medium transition-colors"
                       >
                         <BookOpen size={14} />
                         {t('conversations.useAsTraining')}
@@ -418,14 +418,14 @@ ${transcript}
 
         {/* Training Modal */}
         {trainingModalOpen && selectedMessage && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+            <div className="bg-gradient-to-br from-[#2d1b4e] to-[#150a25] border border-purple-500/20 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
               {/* Modal Header */}
-              <div className="px-6 py-4 border-b flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">{t('conversations.addToTrainingData')}</h3>
+              <div className="px-6 py-4 border-b border-purple-500/20 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-white">{t('conversations.addToTrainingData')}</h3>
                 <button
                   onClick={() => setTrainingModalOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg"
+                  className="p-2 hover:bg-purple-500/10 rounded-lg text-purple-300 hover:text-white transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -434,7 +434,7 @@ ${transcript}
               {/* Modal Body */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">{t('conversations.type')}</label>
+                  <label className="text-sm font-medium text-purple-300/70 mb-2 block">{t('conversations.type')}</label>
                   <div className="flex gap-4">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -443,9 +443,9 @@ ${transcript}
                         value="faq"
                         checked={trainingType === 'faq'}
                         onChange={(e) => setTrainingType(e.target.value as 'faq' | 'intent')}
-                        className="w-4 h-4 text-indigo-600"
+                        className="w-4 h-4 text-fuchsia-600 border-purple-500/30 bg-purple-900/30"
                       />
-                      <span className="text-sm text-gray-900">{t('conversations.faq')}</span>
+                      <span className="text-sm text-white">{t('conversations.faq')}</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -454,44 +454,44 @@ ${transcript}
                         value="intent"
                         checked={trainingType === 'intent'}
                         onChange={(e) => setTrainingType(e.target.value as 'faq' | 'intent')}
-                        className="w-4 h-4 text-indigo-600"
+                        className="w-4 h-4 text-fuchsia-600 border-purple-500/30 bg-purple-900/30"
                       />
-                      <span className="text-sm text-gray-900">{t('conversations.intent')}</span>
+                      <span className="text-sm text-white">{t('conversations.intent')}</span>
                     </label>
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <label className="text-sm font-medium text-purple-300/70 mb-2 block">
                     {trainingType === 'faq' ? t('conversations.question') : t('conversations.trigger')}
                   </label>
-                  <div className="bg-gray-50 rounded-lg p-4 border">
-                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedMessage.user}</p>
+                  <div className="bg-purple-900/30 border border-purple-500/20 rounded-lg p-4">
+                    <p className="text-sm text-white whitespace-pre-wrap">{selectedMessage.user}</p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <label className="text-sm font-medium text-purple-300/70 mb-2 block">
                     {trainingType === 'faq' ? t('conversations.answer') : t('conversations.response')}
                   </label>
-                  <div className="bg-gray-50 rounded-lg p-4 border">
-                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedMessage.bot}</p>
+                  <div className="bg-purple-900/30 border border-purple-500/20 rounded-lg p-4">
+                    <p className="text-sm text-white whitespace-pre-wrap">{selectedMessage.bot}</p>
                   </div>
                 </div>
               </div>
 
               {/* Modal Footer */}
-              <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
+              <div className="px-6 py-4 border-t border-purple-500/20 bg-[#1a0f2e]/50 flex justify-end gap-3">
                 <button
                   onClick={() => setTrainingModalOpen(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-300"
+                  className="px-4 py-2 bg-purple-900/50 border border-purple-500/30 text-purple-300 rounded-lg text-sm font-medium hover:bg-purple-500/10 transition-all"
                 >
                   {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleSaveTraining}
                   disabled={isSavingTraining}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg text-sm font-medium hover:from-purple-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-purple-500/25 transition-all"
                 >
                   {isSavingTraining ? (
                     <>
