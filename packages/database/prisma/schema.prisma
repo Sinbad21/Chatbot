@@ -86,6 +86,8 @@ model Organization {
   apiKeys        ApiKey[]
   auditLogs      AuditLog[]
   calendarConnections CalendarConnection[]
+  userProducts   UserProduct[]
+  reviewBots     ReviewBot[]
 
   @@index([slug])
   @@map("organizations")
@@ -262,7 +264,7 @@ model FAQ {
   category  String?
   enabled   Boolean  @default(true)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
 
   @@index([botId])
   @@map("faqs")
@@ -342,7 +344,7 @@ model Subscription {
   cancelAtPeriodEnd  Boolean @default(false)
   stripeSubscriptionId String? @unique
   createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  updatedAt      DateTime @default(now())
 
   // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -364,7 +366,7 @@ model Plan {
   stripePriceId String?  @unique
   active        Boolean  @default(true)
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime @default(now())
 
   // Relations
   subscriptions Subscription[]
@@ -431,7 +433,7 @@ model IntegrationConfig {
   config         Json
   enabled        Boolean  @default(true)
   createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  updatedAt      DateTime @default(now())
 
   // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -486,7 +488,7 @@ model Template {
   rating      Float    @default(0)
   published   Boolean  @default(false)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now())
 
   @@index([category])
   @@index([published])
@@ -653,7 +655,7 @@ model CalendarConnection {
   isActive         Boolean   @default(true)
   lastSyncAt       DateTime?
   createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  updatedAt        DateTime  @default(now())
 
   // Relations
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -855,4 +857,370 @@ enum MediaStatus {
   PROCESSING
   COMPLETED
   FAILED
+}
+
+// ============================================
+// 16. PRODUCTS & ADD-ONS (Modular System)
+// ============================================
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique // "chatbot-base", "review-bot", "calendar-standalone"
+  name        String
+  description String?
+  type        ProductType
+  
+  // Pricing
+  priceMonthly  Int      // cents
+  priceYearly   Int      // cents
+  stripePriceIdMonthly String?
+  stripePriceIdYearly  String?
+  
+  // Features included
+  features    Json?    // ["feature1", "feature2"]
+  limits      Json?    // {"conversations": 1000, "bots": 5}
+  
+  // Display
+  icon        String?
+  color       String?
+  sortOrder   Int      @default(0)
+  isPopular   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  
+  // Relations
+  userProducts    UserProduct[]
+  availableAddons ProductAddon[]
+  
+  @@index([slug])
+  @@index([type])
+  @@map("products")
+}
+
+model Addon {
+  id          String   @id @default(cuid())
+  slug        String   @unique // "whatsapp", "telegram", "review-flow"
+  name        String
+  description String?
+  category    AddonCategory
+  
+  // Pricing
+  priceMonthly  Int      // cents
+  stripePriceId String?
+  
+  // What it enables
+  features    Json?    // Features this addon provides
+  
+  // Display
+  icon        String?
+  color       String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  
+  // Requirements
+  requiredAddons String[] // Addon slugs that must be active
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+  
+  // Relations
+  userAddons      UserAddon[]
+  compatibleWith  ProductAddon[]
+  
+  @@index([slug])
+  @@index([category])
+  @@map("addons")
+}
+
+// Which addons are available for which products
+model ProductAddon {
+  id        String  @id @default(cuid())
+  productId String
+  addonId   String
+  
+  // Optional: different pricing per product
+  priceOverride Int?
+  
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  addon   Addon   @relation(fields: [addonId], references: [id], onDelete: Cascade)
+  
+  @@unique([productId, addonId])
+  @@map("product_addons")
+}
+
+// User's active products
+model UserProduct {
+  id             String   @id @default(cuid())
+  organizationId String
+  productId      String
+  
+  // Stripe
+  stripeSubscriptionId    String?
+  stripeSubscriptionItemId String?
+  
+  // Status
+  status         SubscriptionStatus @default(ACTIVE)
+  billingCycle   BillingCycle       @default(MONTHLY)
+  
+  // Dates
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean  @default(false)
+  cancelledAt        DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  
+  // Relations
+  product      Product      @relation(fields: [productId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userAddons   UserAddon[]
+  
+  @@unique([organizationId, productId])
+  @@index([organizationId])
+  @@index([status])
+  @@map("user_products")
+}
+
+// User's active addons
+model UserAddon {
+  id            String   @id @default(cuid())
+  userProductId String
+  addonId       String
+  
+  // Stripe
+  stripeSubscriptionItemId String?
+  
+  // Status
+  status        SubscriptionStatus @default(ACTIVE)
+  
+  // Dates
+  activatedAt   DateTime  @default(now())
+  cancelledAt   DateTime?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now())
+  
+  // Relations
+  userProduct UserProduct @relation(fields: [userProductId], references: [id], onDelete: Cascade)
+  addon       Addon       @relation(fields: [addonId], references: [id])
+  
+  @@unique([userProductId, addonId])
+  @@index([userProductId])
+  @@index([addonId])
+  @@map("user_addons")
+}
+
+enum ProductType {
+  CHATBOT       // Main chatbot product
+  REVIEW_BOT    // Standalone review bot
+  CALENDAR      // Standalone calendar booking
+  LEAD_SCRAPER  // Standalone lead scraping
+}
+
+enum AddonCategory {
+  CHANNEL       // WhatsApp, Telegram, Slack, etc.
+  INTEGRATION   // HubSpot, Stripe, etc.
+  FEATURE       // Review flow, Analytics Pro, etc.
+  AI            // GPT-4, Custom models, etc.
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+}
+
+// ============================================
+// 17. REVIEW BOT
+// ============================================
+
+model ReviewBot {
+  id             String   @id @default(cuid())
+  organizationId String
+  
+  // Basic info
+  name           String
+  isActive       Boolean  @default(true)
+  
+  // Google Review settings
+  googlePlaceId    String?  // Google Place ID for direct review link
+  googleReviewUrl  String?  // Direct URL to leave review
+  businessName     String?
+  
+  // Widget settings (same style as chatbot)
+  widgetId         String   @unique @default(cuid())
+  widgetColor      String   @default("#6366f1")
+  widgetPosition   String   @default("bottom-right") // bottom-right, bottom-left
+  widgetTitle      String   @default("Come è stata la tua esperienza?")
+  
+  // Messages
+  thankYouMessage    String @default("🎉 Grazie per il tuo acquisto!")
+  positiveMessage    String @default("Fantastico! Ti andrebbe di condividere la tua opinione su Google? Ci aiuta tantissimo!")
+  negativeMessage    String @default("Grazie per il feedback! Cosa possiamo migliorare?")
+  completedMessage   String @default("Grazie mille per il tuo tempo! ❤️")
+  
+  // Timing
+  delaySeconds     Int      @default(2) // Delay before showing after purchase
+  autoCloseSeconds Int?     // Auto close if no interaction (null = never)
+  
+  // Survey settings
+  surveyType       SurveyType @default(EMOJI) // EMOJI, STARS, NPS
+  positiveThreshold Int      @default(4) // Score >= this shows Google prompt (1-5 scale)
+  
+  // Stats
+  totalRequests    Int      @default(0)
+  totalResponses   Int      @default(0)
+  totalPositive    Int      @default(0)
+  totalNegative    Int      @default(0)
+  totalGoogleClicks Int     @default(0)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @default(now())
+  
+  // Relations
+  organization      Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  ecommerceConnections EcommerceConnection[]
+  reviewRequests    ReviewRequest[]
+  
+  @@index([organizationId])
+  @@index([widgetId])
+  @@map("review_bots")
+}
+
+model EcommerceConnection {
+  id           String   @id @default(cuid())
+  reviewBotId  String
+  
+  // Platform
+  platform     EcommercePlatform
+  
+  // Connection details
+  shopDomain   String?  // For Shopify/WooCommerce
+  apiKey       String?  // Encrypted
+  apiSecret    String?  // Encrypted
+  webhookSecret String? // For verifying webhooks
+  
+  // Stripe specific
+  stripeAccountId String? // Connected account ID
+  
+  // WooCommerce specific
+  wooConsumerKey    String?
+  wooConsumerSecret String?
+  
+  // Shopify specific
+  shopifyAccessToken String?
+  shopifyShopId      String?
+  
+  // Status
+  isActive     Boolean  @default(true)
+  lastSyncAt   DateTime?
+  errorMessage String?
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  
+  // Relations
+  reviewBot    ReviewBot @relation(fields: [reviewBotId], references: [id], onDelete: Cascade)
+  
+  @@unique([reviewBotId, platform])
+  @@index([reviewBotId])
+  @@index([platform])
+  @@map("ecommerce_connections")
+}
+
+model ReviewRequest {
+  id           String   @id @default(cuid())
+  reviewBotId  String
+  
+  // Purchase info
+  orderId      String?  // External order ID
+  orderAmount  Int?     // cents
+  currency     String   @default("EUR")
+  platform     EcommercePlatform
+  
+  // Customer info
+  customerEmail String?
+  customerName  String?
+  customerPhone String?
+  
+  // Session
+  sessionId    String   @unique @default(cuid())
+  
+  // Status
+  status       ReviewRequestStatus @default(PENDING)
+  
+  // Timestamps
+  sentAt       DateTime?
+  viewedAt     DateTime?
+  respondedAt  DateTime?
+  
+  // Metadata
+  metadata     Json?
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  
+  // Relations
+  reviewBot    ReviewBot       @relation(fields: [reviewBotId], references: [id], onDelete: Cascade)
+  response     ReviewResponse?
+  
+  @@index([reviewBotId])
+  @@index([sessionId])
+  @@index([status])
+  @@index([customerEmail])
+  @@map("review_requests")
+}
+
+model ReviewResponse {
+  id              String   @id @default(cuid())
+  reviewRequestId String   @unique
+  
+  // Rating
+  rating          Int      // 1-5 scale (or 1-10 for NPS)
+  ratingType      SurveyType
+  
+  // Feedback
+  feedbackText    String?  @db.Text
+  
+  // Google Review
+  clickedGoogleReview Boolean @default(false)
+  googleClickedAt     DateTime?
+  
+  // Metadata
+  userAgent       String?
+  ipAddress       String?
+  
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  reviewRequest ReviewRequest @relation(fields: [reviewRequestId], references: [id], onDelete: Cascade)
+  
+  @@index([reviewRequestId])
+  @@index([rating])
+  @@map("review_responses")
+}
+
+enum EcommercePlatform {
+  STRIPE
+  WOOCOMMERCE
+  SHOPIFY
+  MANUAL  // For manual triggers via API
+}
+
+enum SurveyType {
+  EMOJI   // 😍 😊 😐 😕 😞
+  STARS   // ⭐⭐⭐⭐⭐
+  NPS     // 0-10 scale
+}
+
+enum ReviewRequestStatus {
+  PENDING     // Created, not yet shown
+  SENT        // Widget shown to customer
+  VIEWED      // Customer saw it
+  RESPONDED   // Customer gave feedback
+  COMPLETED   // Google review clicked (or flow completed)
+  EXPIRED     // No response within time limit
+  SKIPPED     // Customer closed without responding
 }
