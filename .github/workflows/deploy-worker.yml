@@ -1,0 +1,49 @@
+name: Deploy Next.js to Cloudflare Workers
+
+# Deploys to: https://chatbotstudio.gabrypiritore.workers.dev
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/web/**'
+      - 'packages/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Cloudflare Workers
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build Next.js
+        run: |
+          cd apps/web
+          npm run build
+
+      - name: Build OpenNext
+        run: |
+          cd apps/web
+          npm run pages:build
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: apps/web
+          command: deploy
+
+env:
+  NODE_VERSION: 20

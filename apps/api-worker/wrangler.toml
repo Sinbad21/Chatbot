@@ -1,0 +1,14 @@
+name = "chatbotstudio"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Environment variables (secrets configured in Cloudflare dashboard)
+[vars]
+# These will be overridden by secrets in Cloudflare dashboard
+
+# Secrets must be set in Cloudflare dashboard under Settings → Variables and Secrets
+# - DATABASE_URL
+# - JWT_SECRET
+# - JWT_REFRESH_SECRET
+# - OPENAI_API_KEY

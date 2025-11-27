@@ -1,0 +1,858 @@
+// Chatbot Studio - Complete Database Schema
+// 23 Tables for Multi-Tenant SaaS Platform
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// 1. USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  name          String
+  avatar        String?
+  role          UserRole @default(USER)
+  emailVerified Boolean  @default(false)
+  onboarded     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  organizations OrganizationMember[]
+  bots          Bot[]
+  conversations Conversation[]
+  messages      Message[]
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  apiKeys       ApiKey[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  tokenId   String   @unique // Unique identifier for this specific token session
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([tokenId])
+  @@map("refresh_tokens")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+// ============================================
+// 2. ORGANIZATION (Multi-Tenant)
+// ============================================
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  logo      String?
+  plan      String   @default("free")
+  metadata  Json?    // For storing OAuth state and other flexible data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  members        OrganizationMember[]
+  bots           Bot[]
+  subscriptions  Subscription[]
+  payments       Payment[]
+  leadCampaigns  LeadCampaign[]
+  integrations   IntegrationConfig[]
+  apiKeys        ApiKey[]
+  auditLogs      AuditLog[]
+  calendarConnections CalendarConnection[]
+
+  @@index([slug])
+  @@map("organizations")
+}
+
+model OrganizationMember {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  role           MemberRole
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@map("organization_members")
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+// ============================================
+// 3. BOT & CONVERSATIONS
+// ============================================
+
+model Bot {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  avatar         String?
+  organizationId String
+  userId         String
+  published      Boolean  @default(false)
+  systemPrompt   String   @default("You are a helpful AI assistant.")
+  welcomeMessage String   @default("Hello! How can I help you?")
+  color          String   @default("#6366f1")
+  model          String   @default("gpt-5-mini")
+  logoUrl        String?
+  theme          Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creator       User           @relation(fields: [userId], references: [id])
+  conversations Conversation[]
+  documents     Document[]
+  intents       Intent[]
+  faqs          FAQ[]
+  analytics     Analytics[]
+  usageLogs     UsageLog[]
+  calendarConnections CalendarConnection[]
+  mediaUploads  MediaUpload[]
+
+  @@index([organizationId])
+  @@index([userId])
+  @@map("bots")
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  botId     String
+  userId    String?
+  sessionId String
+  source    String   @default("widget")
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  bot            Bot             @relation(fields: [botId], references: [id], onDelete: Cascade)
+  user           User?           @relation(fields: [userId], references: [id])
+  messages       Message[]
+  lead           Lead?
+  calendarEvents CalendarEvent[]
+  mediaUploads   MediaUpload[]
+
+  @@index([botId])
+  @@index([sessionId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  content        String
+  role           MessageRole
+  userId         String?
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id])
+
+  @@index([conversationId])
+  @@index([createdAt])
+  @@map("messages")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+// ============================================
+// 4. DOCUMENTS & KNOWLEDGE BASE
+// ============================================
+
+model Document {
+  id        String          @id @default(cuid())
+  botId     String
+  bot       Bot             @relation(fields: [botId], references: [id], onDelete: Cascade)
+  title     String
+  type      String
+  size      Int
+  url       String
+  content   String          @db.Text
+  status    DocumentStatus  @default(PROCESSING)
+  source    DocumentSource  @default(SCRAPED)
+  excluded  Boolean         @default(false)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@unique([url, botId], name: "unique_url_per_bot")
+  @@index([botId])
+  @@index([excluded])
+  @@map("documents")
+}
+
+enum DocumentStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum DocumentSource {
+  UPLOAD
+  SCRAPED
+}
+
+// ============================================
+// 5. INTENTS & FAQ
+// ============================================
+
+model Intent {
+  id        String   @id @default(cuid())
+  botId     String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  name      String
+  patterns  String[]
+  response  String
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([botId])
+  @@map("intents")
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  botId     String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  question  String
+  answer    String
+  category  String?
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([botId])
+  @@map("faqs")
+}
+
+// ============================================
+// 6. LEAD SCRAPING
+// ============================================
+
+model Lead {
+  id             String   @id @default(cuid())
+  conversationId String   @unique
+  campaignId     String?
+  name           String?
+  email          String?
+  phone          String?
+  company        String?
+  metadata       Json?
+  score          Int      @default(0)
+  status         LeadStatus @default(NEW)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  conversation Conversation   @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  campaign     LeadCampaign?  @relation(fields: [campaignId], references: [id])
+
+  @@index([campaignId])
+  @@index([email])
+  @@map("leads")
+}
+
+model LeadCampaign {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  description    String?
+  creditsUsed    Int      @default(0)
+  creditsLimit   Int      @default(100)
+  status         CampaignStatus @default(ACTIVE)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  leads        Lead[]
+
+  @@index([organizationId])
+  @@map("lead_campaigns")
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  LOST
+}
+
+enum CampaignStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+// ============================================
+// 7. BILLING & SUBSCRIPTIONS
+// ============================================
+
+model Subscription {
+  id             String   @id @default(cuid())
+  organizationId String
+  planId         String
+  status         SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean @default(false)
+  stripeSubscriptionId String? @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan         Plan         @relation(fields: [planId], references: [id])
+
+  @@index([organizationId])
+  @@map("subscriptions")
+}
+
+model Plan {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  price         Float
+  interval      String   @default("month")
+  features      Json
+  maxBots       Int      @default(1)
+  maxConversations Int   @default(1000)
+  stripePriceId String?  @unique
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+model Payment {
+  id             String   @id @default(cuid())
+  organizationId String
+  amount         Float
+  currency       String   @default("usd")
+  status         PaymentStatus
+  stripePaymentId String? @unique
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("payments")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+// ============================================
+// 8. INTEGRATIONS
+// ============================================
+
+model Integration {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String?
+  category    String
+  config      Json
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  // Relations
+  configurations IntegrationConfig[]
+
+  @@map("integrations")
+}
+
+model IntegrationConfig {
+  id             String   @id @default(cuid())
+  organizationId String
+  integrationId  String
+  config         Json
+  enabled        Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  integration  Integration  @relation(fields: [integrationId], references: [id])
+
+  @@unique([organizationId, integrationId])
+  @@index([organizationId])
+  @@map("integration_configs")
+}
+
+// ============================================
+// 9. NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType
+  read      Boolean  @default(false)
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+}
+
+// ============================================
+// 10. MARKETPLACE TEMPLATES
+// ============================================
+
+model Template {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  category    String
+  config      Json
+  preview     String?
+  downloads   Int      @default(0)
+  rating      Float    @default(0)
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([published])
+  @@map("templates")
+}
+
+// ============================================
+// 11. ANALYTICS
+// ============================================
+
+model Analytics {
+  id        String   @id @default(cuid())
+  botId     String
+  date      DateTime
+  metric    String
+  value     Float
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  // Relations
+  bot Bot @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@unique([botId, date, metric])
+  @@index([botId])
+  @@index([date])
+  @@map("analytics")
+}
+
+model UsageLog {
+  id           String   @id @default(cuid())
+  botId        String
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  cost         Float
+  createdAt    DateTime @default(now())
+
+  // Relations
+  bot Bot @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@index([botId])
+  @@index([createdAt])
+  @@index([botId, createdAt])
+  @@map("usage_logs")
+}
+
+// ============================================
+// 12. AUDIT LOGS
+// ============================================
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  action         String
+  resource       String
+  resourceId     String?
+  metadata       Json?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// 13. API KEYS
+// ============================================
+
+model ApiKey {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  name           String
+  key            String   @unique
+  lastUsed       DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime @default(now())
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId])
+  @@index([key])
+  @@map("api_keys")
+}
+
+// ============================================
+// 14. CALENDAR INTEGRATION
+// ============================================
+
+model CalendarConnection {
+  id               String    @id @default(cuid())
+  organizationId   String?   // Optional for standalone
+  botId            String?
+  provider         CalendarProvider @default(GOOGLE)
+
+  // Standalone account info (for customers without bot)
+  standaloneAccountEmail String?
+  standaloneAccountName  String?
+  standaloneAccountPhone String?
+
+  // Widget ID for public embedding
+  widgetId         String    @unique @default(cuid())
+
+  // Subscription source
+  subscriptionSource String  @default("BOT_PRO") // BOT_PRO, BOT_ENTERPRISE, STANDALONE
+
+  // Stripe subscription (for standalone only)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionStatus   String  @default("active") // active, cancelled, past_due
+  subscriptionEndsAt   DateTime?
+
+  // OAuth tokens (encrypted)
+  accessToken      String
+  refreshToken     String?
+  tokenExpiresAt   DateTime?
+
+  // Calendar settings
+  calendarId       String
+  calendarName     String?
+  timeZone         String    @default("Europe/Rome")
+
+  // Availability settings
+  slotDuration     Int       @default(30) // minutes
+  bufferTime       Int       @default(0)  // minutes between slots
+  maxDailyBookings Int       @default(20)
+  minAdvanceBooking Int      @default(60) // minutes - minimum notice
+  maxAdvanceBooking Int      @default(90) // days - max booking in advance
+
+  // Working hours (JSON: {"monday": {"enabled": true, "slots": [{"start": "09:00", "end": "18:00"}]}})
+  workingHours     Json?
+
+  // Blocked dates (holidays, vacations) - JSON array of ISO dates
+  blockedDates     Json      @default("[]")
+
+  // Widget customization
+  widgetTitle       String   @default("Book an Appointment")
+  widgetSubtitle    String   @default("Choose your preferred date and time")
+  widgetPrimaryColor String  @default("#10B981")
+  widgetFontFamily  String   @default("system-ui")
+  confirmationMessage String @default("Thank you! Your appointment has been confirmed.")
+
+  // Notifications
+  notificationEmail String?
+  sendOwnerNotifications Boolean @default(true)
+  sendCustomerNotifications Boolean @default(true)
+
+  // Terms and privacy
+  termsUrl   String?
+  privacyUrl String?
+
+  // Status
+  isActive         Boolean   @default(true)
+  lastSyncAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bot          Bot?          @relation(fields: [botId], references: [id], onDelete: Cascade)
+  events       CalendarEvent[]
+
+  @@index([organizationId])
+  @@index([botId])
+  @@index([widgetId])
+  @@index([provider])
+  @@index([standaloneAccountEmail])
+  @@map("calendar_connections")
+}
+
+model CalendarEvent {
+  id                   String    @id @default(cuid())
+  calendarConnectionId String
+  conversationId       String?
+
+  // Event details
+  externalEventId      String    // ID from provider (Google, etc.)
+  title                String
+  description          String?
+  startTime            DateTime
+  endTime              DateTime
+  timeZone             String
+
+  // Booking reference for public widget bookings
+  bookingReference     String?   @unique
+
+  // Participants (bot/chatbot integration)
+  attendeeEmail        String?
+  attendeeName         String?
+  attendeeFirstName    String?
+  attendeeLastName     String?
+  attendeePhone        String?
+  organizerEmail       String
+
+  // Customer info (widget public bookings)
+  customerFirstName    String?
+  customerLastName     String?
+  customerPhone        String?
+
+  // Meeting link
+  meetingUrl           String?
+
+  // Status
+  status               EventStatus @default(CONFIRMED)
+
+  // Notes
+  customerNotes        String?   @db.Text
+  ownerNotes           String?   @db.Text
+
+  // Idempotency
+  idempotencyKey       String?   @unique
+
+  // Metadata for tracking
+  customerIp           String?
+  customerAgent        String?
+  metadata             Json?
+
+  // Cancellation
+  cancelledAt          DateTime?
+  cancellationReason   String?
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // Relations
+  connection    CalendarConnection @relation(fields: [calendarConnectionId], references: [id], onDelete: Cascade)
+  conversation  Conversation?      @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  @@index([calendarConnectionId])
+  @@index([conversationId])
+  @@index([bookingReference])
+  @@index([externalEventId])
+  @@index([startTime])
+  @@index([status])
+  @@map("calendar_events")
+}
+
+enum CalendarProvider {
+  GOOGLE
+  OUTLOOK
+  CALDAV
+}
+
+enum EventStatus {
+  CONFIRMED
+  TENTATIVE
+  CANCELLED
+  RESCHEDULED
+}
+
+// ============================================
+// 15. OCR & IMAGE PROCESSING
+// ============================================
+
+model MediaUpload {
+  id             String    @id @default(cuid())
+  conversationId String
+  messageId      String?
+  organizationId String
+  botId          String
+
+  // File details
+  url            String
+  fileName       String
+  mimeType       String
+  fileSize       Int       // bytes
+  width          Int?
+  height         Int?
+
+  // Processing
+  status         MediaStatus @default(PENDING)
+  errorMessage   String?
+
+  // Security
+  virusScanned   Boolean   @default(false)
+  virusScanResult String?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  bot          Bot          @relation(fields: [botId], references: [id], onDelete: Cascade)
+  ocrResult    OCRResult?
+
+  @@index([conversationId])
+  @@index([botId])
+  @@index([organizationId])
+  @@index([status])
+  @@map("media_uploads")
+}
+
+model OCRResult {
+  id             String    @id @default(cuid())
+  mediaUploadId  String    @unique
+
+  // OCR output
+  text           String    @db.Text
+  confidence     Float?
+
+  // Normalized text
+  normalizedText String    @db.Text
+  textNoSpaces   String    @db.Text
+
+  // Provider info
+  provider       String    // tesseract, google-vision, etc.
+  processingTime Int?      // milliseconds
+
+  // Language detection
+  detectedLang   String?
+
+  createdAt      DateTime  @default(now())
+
+  // Relations
+  mediaUpload MediaUpload @relation(fields: [mediaUploadId], references: [id], onDelete: Cascade)
+  matches     OCRMatch[]
+
+  @@index([mediaUploadId])
+  @@map("ocr_results")
+}
+
+model OCRMatch {
+  id            String    @id @default(cuid())
+  ocrResultId   String
+
+  // Match details
+  matchedText   String
+  score         Float     // 0-1
+  matchType     String    // title, slug, content, tag
+
+  // Source data
+  sourceUrl     String?
+  sourceTitle   String?
+  sourceExcerpt String?   @db.Text
+
+  // Ranking
+  rank          Int       @default(0)
+
+  // User feedback
+  clicked       Boolean   @default(false)
+  addedToDocs   Boolean   @default(false)
+
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  ocrResult  OCRResult   @relation(fields: [ocrResultId], references: [id], onDelete: Cascade)
+
+  @@index([ocrResultId])
+  @@index([score])
+  @@map("ocr_matches")
+}
+
+enum MediaStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}

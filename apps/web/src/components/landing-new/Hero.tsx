@@ -1,0 +1,496 @@
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ArrowDown, Sparkles, Bot, Briefcase, Home, Headphones, RefreshCw,
+  ChevronRight, ChevronLeft, BarChart3, Calendar, Users, Download, Filter,
+  CheckCircle, Clock, PieChart
+} from 'lucide-react';
+
+const SCENARIOS = [
+  {
+    id: 'sales',
+    persona: "Sales Specialist",
+    color: "text-blue-400",
+    bgGradient: "from-blue-500/20 to-transparent",
+    icon: <Briefcase className="w-5 h-5" />,
+    messages: [
+      { text: "Vorrei aumentare i lead per la mia agenzia immobiliare.", sender: 'user' as const },
+      { text: "Analisi completata. Per il settore Real Estate, consiglio un bot proattivo che pre-qualifica i clienti chiedendo budget e zona preferita.", sender: 'bot' as const },
+      { text: "Sembra utile. Può fissare appuntamenti?", sender: 'user' as const },
+      { text: "Certamente. Si integra con Google Calendar e prenota visite solo per lead qualificati sopra i 300k€.", sender: 'bot' as const }
+    ]
+  },
+  {
+    id: 'realestate',
+    persona: "Luxury Estate Agent",
+    color: "text-emerald-400",
+    bgGradient: "from-emerald-500/20 to-transparent",
+    icon: <Home className="w-5 h-5" />,
+    messages: [
+      { text: "Cerco un attico in centro a Milano con terrazza.", sender: 'user' as const },
+      { text: "Ho trovato 3 opzioni off-market in zona Brera. L'opzione A ha una terrazza di 40mq e vista Duomo. Desideri le planimetrie?", sender: 'bot' as const },
+      { text: "Sì, inviamele su WhatsApp.", sender: 'user' as const },
+      { text: "Inviate ora. Ho incluso anche un video tour virtuale dell'interno. Vuoi che ti chiami un consulente?", sender: 'bot' as const }
+    ]
+  },
+  {
+    id: 'support',
+    persona: "Tech Support AI",
+    color: "text-purple-400",
+    bgGradient: "from-purple-500/20 to-transparent",
+    icon: <Headphones className="w-5 h-5" />,
+    messages: [
+      { text: "Il mio ordine #4092 è in ritardo.", sender: 'user' as const },
+      { text: "Controllo subito, Marco... Vedo che il pacco è in transito a Bologna. La nuova consegna stimata è domani entro le 14:00.", sender: 'bot' as const },
+      { text: "Perfetto, grazie mille.", sender: 'user' as const },
+      { text: "Di nulla! Ti ho appena inviato il link di tracking aggiornato via SMS. Serve altro?", sender: 'bot' as const }
+    ]
+  }
+];
+
+interface Message {
+  id: number;
+  text: string;
+  sender: 'bot' | 'user';
+}
+
+const ChatSlide: React.FC = () => {
+  const [scenarioIndex, setScenarioIndex] = useState(0);
+  const [displayedMessages, setDisplayedMessages] = useState<Message[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const currentScenario = SCENARIOS[scenarioIndex];
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      const { scrollHeight, clientHeight } = chatContainerRef.current;
+      chatContainerRef.current.scrollTo({
+        top: scrollHeight - clientHeight + 100,
+        behavior: 'smooth'
+      });
+    }
+  }, [displayedMessages, isTyping]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const runScenario = async () => {
+      setDisplayedMessages([]);
+      const messages = currentScenario.messages;
+
+      for (let i = 0; i < messages.length; i++) {
+        if (!isMounted) return;
+        const msg = messages[i];
+        if (msg.sender === 'user') {
+          await new Promise(r => setTimeout(r, 1000));
+          if (!isMounted) return;
+          setDisplayedMessages(prev => [...prev, { id: Date.now(), ...msg }]);
+        } else {
+          await new Promise(r => setTimeout(r, 600));
+          if (!isMounted) return;
+          setIsTyping(true);
+          await new Promise(r => setTimeout(r, 1500));
+          if (!isMounted) return;
+          setIsTyping(false);
+          setDisplayedMessages(prev => [...prev, { id: Date.now(), ...msg }]);
+        }
+      }
+      await new Promise(r => setTimeout(r, 4000));
+      if (!isMounted) return;
+      setScenarioIndex(prev => (prev + 1) % SCENARIOS.length);
+    };
+    runScenario();
+    return () => { isMounted = false; };
+  }, [scenarioIndex, currentScenario.messages]);
+
+  return (
+    <div className="flex flex-col h-full relative overflow-hidden">
+      <div className={`absolute inset-0 opacity-20 bg-gradient-to-tr ${currentScenario.bgGradient} blur-3xl transition-colors duration-1000`} />
+
+      <div className="flex items-center justify-between border-b border-platinum-800/50 p-6 bg-platinum-900/80 backdrop-blur-md z-10">
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="w-10 h-10 rounded-full bg-platinum-900 border border-platinum-700 flex items-center justify-center shadow-lg z-10 relative">
+              <div className={`${currentScenario.color}`}>{currentScenario.icon}</div>
+            </div>
+            <div className={`absolute inset-0 rounded-full blur-md animate-pulse ${currentScenario.color} opacity-40`}></div>
+          </div>
+          <div>
+            <h3 className={`font-serif font-medium text-sm ${currentScenario.color}`}>{currentScenario.persona}</h3>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-[pulse_2s_infinite]" />
+              <span className="text-[10px] text-emerald-400/80 uppercase tracking-wide font-semibold">Live Demo</span>
+            </div>
+          </div>
+        </div>
+        <RefreshCw className="w-4 h-4 text-platinum-500 animate-[spin_8s_linear_infinite]" />
+      </div>
+
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide z-10">
+        <AnimatePresence mode='popLayout'>
+          {displayedMessages.map((msg) => (
+            <motion.div
+              key={msg.id}
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`max-w-[85%] p-3 rounded-xl text-sm leading-relaxed shadow-lg backdrop-blur-sm ${msg.sender === 'user'
+                ? 'bg-platinum-200 text-platinum-950 rounded-tr-none font-medium'
+                : 'bg-platinum-800/60 border border-platinum-700/50 text-platinum-100 rounded-tl-none'
+                }`}>
+                {msg.text}
+              </div>
+            </motion.div>
+          ))}
+          {isTyping && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex justify-start">
+              <div className="bg-platinum-800/60 border border-platinum-700/50 p-3 rounded-xl rounded-tl-none flex gap-1 items-center h-9">
+                <span className="w-1 h-1 bg-platinum-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                <span className="w-1 h-1 bg-platinum-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                <span className="w-1 h-1 bg-platinum-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="p-4 border-t border-platinum-800/50 bg-platinum-900/50 backdrop-blur-md z-10">
+        <div className="w-full bg-platinum-950/50 border border-platinum-800 rounded-lg px-4 py-2 text-platinum-600 text-xs italic flex items-center justify-between">
+          <span>Scrivi un messaggio...</span>
+          <Sparkles className="w-3 h-3 text-platinum-500" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DashboardSlide: React.FC = () => {
+  return (
+    <div className="flex flex-col h-full relative p-6 bg-platinum-900/80 backdrop-blur-md">
+      <div className="flex items-center gap-3 mb-6 border-b border-platinum-800 pb-4">
+        <div className="p-2 bg-platinum-800 rounded-lg text-white"><BarChart3 size={20} /></div>
+        <div>
+          <h3 className="text-white font-serif text-lg">Performance Hub</h3>
+          <p className="text-xs text-platinum-500 uppercase tracking-wider">Real-time Analytics</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="p-4 bg-platinum-950/50 border border-platinum-800 rounded-xl">
+          <div className="text-platinum-400 text-xs uppercase mb-1">Tempo Risposta</div>
+          <div className="text-2xl font-bold text-white">0.2s</div>
+          <div className="flex items-center gap-1 text-emerald-400 text-[10px] mt-1">
+            <span className="font-bold">⚡ Instant</span>
+          </div>
+        </div>
+        <div className="p-4 bg-platinum-950/50 border border-platinum-800 rounded-xl">
+          <div className="text-platinum-400 text-xs uppercase mb-1">Soddisfazione</div>
+          <div className="text-2xl font-bold text-white">4.9<span className="text-sm text-platinum-500">/5</span></div>
+          <div className="w-full bg-platinum-900 h-1 mt-2 rounded-full overflow-hidden">
+            <div className="h-full bg-emerald-400 w-[98%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 bg-platinum-950/30 border border-platinum-800 rounded-xl p-4 flex flex-col justify-center relative overflow-hidden">
+        <h4 className="text-platinum-300 text-xs font-bold mb-4 flex items-center gap-2">
+          <PieChart size={14} /> Tasso di Completamento
+        </h4>
+        <div className="flex items-end justify-between h-32 gap-2 px-2">
+          {[40, 65, 45, 80, 95, 85, 90].map((h, i) => (
+            <motion.div
+              key={i}
+              initial={{ height: 0 }}
+              animate={{ height: `${h}%` }}
+              transition={{ delay: i * 0.1, duration: 1 }}
+              className="w-full bg-gradient-to-t from-platinum-700 to-platinum-400 rounded-t-sm opacity-80 hover:opacity-100 transition-opacity cursor-crosshair relative group"
+            >
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">{h}%</div>
+            </motion.div>
+          ))}
+        </div>
+        <div className="flex justify-between mt-2 text-[10px] text-platinum-600 font-mono border-t border-platinum-800 pt-2">
+          <span>LUN</span><span>DOM</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const BookingSlide: React.FC = () => {
+  return (
+    <div className="flex flex-col h-full relative p-6 bg-platinum-900/80 backdrop-blur-md">
+      <div className="flex items-center gap-3 mb-6 border-b border-platinum-800 pb-4">
+        <div className="p-2 bg-platinum-800 rounded-lg text-white"><Calendar size={20} /></div>
+        <div>
+          <h3 className="text-white font-serif text-lg">Smart Booking</h3>
+          <p className="text-xs text-platinum-500 uppercase tracking-wider">Appuntamenti AI</p>
+        </div>
+      </div>
+
+      <div className="flex justify-between mb-6 bg-platinum-950/50 p-3 rounded-xl border border-platinum-800">
+        {['L', 'M', 'M', 'G', 'V', 'S', 'D'].map((day, i) => (
+          <div key={i} className={`flex flex-col items-center justify-center w-8 h-10 rounded-md text-xs ${i === 3 ? 'bg-platinum-100 text-black font-bold shadow-glow' : 'text-platinum-500'}`}>
+            <span className="opacity-50">{day}</span>
+            <span>{12 + i}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-3">
+        <h4 className="text-xs text-platinum-400 uppercase font-bold mb-2">Prossimi Appuntamenti</h4>
+        {[
+          { name: "Giulia V.", time: "10:30", type: "Consulenza", status: "confirmed" },
+          { name: "Marco R.", time: "14:00", type: "Visita Immobile", status: "pending" },
+          { name: "Studio Legale", time: "16:45", type: "Demo Prodotto", status: "confirmed" },
+        ].map((apt, i) => (
+          <div key={i} className="flex items-center justify-between p-3 bg-platinum-950/30 border border-platinum-800 rounded-lg hover:border-platinum-600 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-platinum-700 to-platinum-900 flex items-center justify-center text-[10px] text-white font-bold">
+                {apt.name.charAt(0)}
+              </div>
+              <div>
+                <div className="text-white text-sm font-medium">{apt.name}</div>
+                <div className="text-platinum-500 text-xs flex items-center gap-1">
+                  <Clock size={10} /> {apt.time} • {apt.type}
+                </div>
+              </div>
+            </div>
+            <div>
+              {apt.status === 'confirmed' ? (
+                <span className="flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full border border-emerald-400/20">
+                  <CheckCircle size={10} /> Confirmed
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 text-[10px] text-amber-400 bg-amber-400/10 px-2 py-1 rounded-full border border-amber-400/20">
+                  <Clock size={10} /> Pending
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-auto pt-4 border-t border-platinum-800">
+        <div className="flex justify-between text-xs text-platinum-500">
+          <span>Slot Disponibili: 4</span>
+          <span className="text-platinum-300">Sync: Google Calendar</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const LeadsSlide: React.FC = () => {
+  return (
+    <div className="flex flex-col h-full relative p-6 bg-platinum-900/80 backdrop-blur-md">
+      <div className="flex items-center justify-between mb-6 border-b border-platinum-800 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-platinum-800 rounded-lg text-white"><Users size={20} /></div>
+          <div>
+            <h3 className="text-white font-serif text-lg">Lead Manager</h3>
+            <p className="text-xs text-platinum-500 uppercase tracking-wider">Contatti Raccolti</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button className="p-1.5 rounded bg-platinum-800 text-platinum-400 hover:text-white"><Filter size={14} /></button>
+          <button className="p-1.5 rounded bg-platinum-800 text-platinum-400 hover:text-white"><Download size={14} /></button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-12 gap-2 text-[10px] uppercase font-bold text-platinum-500 mb-2 px-2">
+        <div className="col-span-5">Contatto</div>
+        <div className="col-span-4">Interesse</div>
+        <div className="col-span-3 text-right">Score</div>
+      </div>
+
+      <div className="space-y-2">
+        {[
+          { name: "Alessandro M.", email: "ale.m@gmail.com", interest: "Sito Web", score: 90 },
+          { name: "Elena B.", email: "elena.b@corp.it", interest: "Chatbot", score: 75 },
+          { name: "Davide R.", email: "d.rossi@studio.com", interest: "Automazione", score: 40 },
+          { name: "Sara L.", email: "sara@agency.it", interest: "Sito Web", score: 85 },
+        ].map((lead, i) => (
+          <div key={i} className="grid grid-cols-12 gap-2 items-center p-2.5 bg-platinum-950/30 border border-platinum-800 rounded-lg hover:bg-platinum-800/30 transition-colors">
+            <div className="col-span-5 overflow-hidden">
+              <div className="text-white text-xs font-medium truncate">{lead.name}</div>
+              <div className="text-platinum-500 text-[10px] truncate">{lead.email}</div>
+            </div>
+            <div className="col-span-4">
+              <span className="px-2 py-0.5 rounded text-[10px] bg-platinum-800 text-platinum-300 border border-platinum-700">
+                {lead.interest}
+              </span>
+            </div>
+            <div className="col-span-3 text-right">
+              <span className={`text-xs font-bold ${lead.score > 80 ? 'text-emerald-400' : lead.score > 50 ? 'text-amber-400' : 'text-platinum-500'}`}>
+                {lead.score}%
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-auto text-center">
+        <button className="text-xs text-platinum-400 hover:text-white transition-colors flex items-center justify-center gap-1 w-full py-2 border border-dashed border-platinum-800 rounded hover:border-platinum-600">
+          View all 1,240 leads
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export const Hero: React.FC = () => {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const TOTAL_SLIDES = 4;
+
+  const nextSlide = () => setActiveSlide((prev) => (prev + 1) % TOTAL_SLIDES);
+  const prevSlide = () => setActiveSlide((prev) => (prev - 1 + TOTAL_SLIDES) % TOTAL_SLIDES);
+
+  return (
+    <section
+      id="home"
+      className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-platinum-950 pt-24 md:pt-0"
+      style={{ perspective: '2000px' }}
+    >
+      <div className="absolute inset-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-gradient-to-br from-platinum-400/10 to-transparent blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tl from-platinum-200/5 to-transparent blur-[100px] animate-pulse" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      </div>
+
+      <div className="z-10 container mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center h-full">
+
+        <div className="text-center lg:text-left mt-10 lg:mt-0 relative z-20">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex items-center justify-center lg:justify-start gap-2 mb-6"
+          >
+            <div className="relative overflow-hidden group bg-platinum-900/50 border border-platinum-700 rounded-full px-4 py-1.5 backdrop-blur-sm inline-flex items-center gap-2">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+              <Sparkles className="w-3 h-3 text-platinum-300 animate-pulse" />
+              <span className="text-platinum-300 text-xs uppercase tracking-[0.2em] font-medium">
+                Next Gen AI Architecture
+              </span>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+            className="mb-6"
+          >
+            <h1 className="font-serif text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-platinum-50 via-platinum-200 to-platinum-500 leading-[1.1]">
+              IL TUO BRAND <br />
+              <span className="relative inline-block">
+                AUTOMATIZZATO
+              </span>
+            </h1>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="max-w-xl mx-auto lg:mx-0 text-platinum-400 text-lg font-light leading-relaxed mb-10"
+          >
+            Non un semplice chatbot. Un assistente virtuale forgiato nel platino digitale. Integra l&apos;intelligenza artificiale su WhatsApp, Telegram e Web con un&apos;eleganza senza pari.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
+            className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4"
+          >
+            <Link
+              href="/auth/register"
+              className="relative px-8 py-3 bg-platinum-100 text-platinum-950 font-bold tracking-widest uppercase text-sm overflow-hidden group rounded-sm hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 active:scale-95 transform text-center"
+            >
+              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/80 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></span>
+              <span className="relative flex items-center justify-center gap-2 z-10">
+                <Bot className="w-4 h-4" />
+                Inizia Ora
+              </span>
+            </Link>
+            <a
+              href="#pricing"
+              className="relative px-8 py-3 border border-platinum-700 text-platinum-300 font-medium tracking-widest uppercase text-sm transition-all duration-300 rounded-sm backdrop-blur-sm group overflow-hidden hover:text-white hover:border-platinum-400 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] active:scale-95 transform text-center"
+            >
+              <span className="absolute inset-0 w-full h-full bg-platinum-800/0 group-hover:bg-platinum-800/40 transition-colors duration-300"></span>
+              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></span>
+              <span className="relative z-10">Scopri i Prezzi</span>
+            </a>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, x: 30, rotateY: 0, rotateX: 0 }}
+          animate={{ opacity: 1, x: 0, rotateY: -15, rotateX: 8 }}
+          transition={{ duration: 1, delay: 0.4 }}
+          className="relative w-full max-w-md mx-auto lg:mr-0 group/slider"
+          style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
+        >
+          <div className="absolute top-1/2 -left-12 -translate-y-1/2 z-30 opacity-50 hover:opacity-100 transition-opacity cursor-pointer hidden lg:block" onClick={prevSlide}>
+            <div className="p-2 rounded-full bg-platinum-900 border border-platinum-700 hover:bg-platinum-800 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+              <ChevronLeft className="text-platinum-200" />
+            </div>
+          </div>
+          <div className="absolute top-1/2 -right-12 -translate-y-1/2 z-30 opacity-50 hover:opacity-100 transition-opacity cursor-pointer hidden lg:block" onClick={nextSlide}>
+            <div className="p-2 rounded-full bg-platinum-900 border border-platinum-700 hover:bg-platinum-800 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+              <ChevronRight className="text-platinum-200" />
+            </div>
+          </div>
+
+          <div className={`absolute inset-0 rounded-2xl blur-[60px] opacity-50 transition-colors duration-700 ${activeSlide === 0 ? 'bg-blue-500/30' :
+            activeSlide === 1 ? 'bg-emerald-500/30' :
+              activeSlide === 2 ? 'bg-purple-500/30' : 'bg-amber-500/30'
+            }`} />
+
+          <div className="relative bg-platinum-950/90 backdrop-blur-xl border-t border-l border-platinum-700/50 p-0 rounded-2xl flex flex-col h-[500px] overflow-hidden border-r-[8px] border-b-[8px] border-r-platinum-900 border-b-platinum-900 shadow-[20px_30px_60px_rgba(0,0,0,0.9)]">
+
+            <AnimatePresence mode='wait'>
+              <motion.div
+                key={activeSlide}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="h-full w-full"
+              >
+                {activeSlide === 0 && <ChatSlide />}
+                {activeSlide === 1 && <DashboardSlide />}
+                {activeSlide === 2 && <BookingSlide />}
+                {activeSlide === 3 && <LeadsSlide />}
+              </motion.div>
+            </AnimatePresence>
+
+            <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-2 z-20">
+              {[0, 1, 2, 3].map(idx => (
+                <div
+                  key={idx}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${activeSlide === idx ? 'bg-white w-4' : 'bg-platinum-600'}`}
+                />
+              ))}
+            </div>
+
+          </div>
+        </motion.div>
+      </div>
+
+      <motion.div
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-platinum-500 hidden md:block cursor-pointer z-20"
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        onClick={() => document.getElementById('chi-siamo')?.scrollIntoView({ behavior: 'smooth' })}
+      >
+        <ArrowDown className="w-6 h-6 opacity-50 hover:opacity-100 transition-opacity" />
+      </motion.div>
+    </section>
+  );
+};
