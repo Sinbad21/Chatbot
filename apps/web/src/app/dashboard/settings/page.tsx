@@ -303,7 +303,7 @@ export default function SettingsPage() {
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
+                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                   required
                 />
               </div>
@@ -317,28 +317,28 @@ export default function SettingsPage() {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
+                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white/60 mb-2">{t('settings.authMethod')}</label>
-                <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white/60">
+                <label className="block text-sm font-medium text-purple-300/70 mb-2">{t('settings.authMethod')}</label>
+                <div className="px-4 py-3 bg-purple-900/30 border border-purple-500/20 rounded-lg text-purple-300/70">
                   {t('settings.emailPassword')}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white/60 mb-2">{t('settings.role')}</label>
-                <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white/60">
+                <label className="block text-sm font-medium text-purple-300/70 mb-2">{t('settings.role')}</label>
+                <div className="px-4 py-3 bg-purple-900/30 border border-purple-500/20 rounded-lg text-purple-300/70">
                   {user?.role || 'USER'}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white/60 mb-2">{t('settings.memberSince')}</label>
-                <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white/60">
+                <label className="block text-sm font-medium text-purple-300/70 mb-2">{t('settings.memberSince')}</label>
+                <div className="px-4 py-3 bg-purple-900/30 border border-purple-500/20 rounded-lg text-purple-300/70">
                   {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                 </div>
               </div>
@@ -346,7 +346,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full px-6 py-3 bg-white text-black rounded-lg hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg shadow-purple-500/25"
               >
                 {saving ? t('settings.saving') : t('settings.saveChanges')}
               </button>
@@ -366,7 +366,7 @@ export default function SettingsPage() {
                   id="currentPassword"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
+                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                   required
                 />
               </div>
@@ -380,7 +380,7 @@ export default function SettingsPage() {
                   id="newPassword"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
+                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                   required
                   minLength={8}
                 />
@@ -396,7 +396,7 @@ export default function SettingsPage() {
                   id="confirmPassword"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
+                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                   required
                 />
               </div>
@@ -404,7 +404,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full px-6 py-3 bg-white text-black rounded-lg hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg shadow-purple-500/25"
               >
                 {saving ? t('settings.changing') : t('settings.changePasswordBtn')}
               </button>
@@ -418,25 +418,25 @@ export default function SettingsPage() {
         <div className="space-y-8">
           {/* Generated Key Display */}
           {generatedKey && (
-            <div className="bg-emerald-400/10 border border-emerald-800 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-emerald-400 mb-2">{t('settings.apiKeyGenerated')}</h3>
-              <p className="text-sm text-emerald-400/80 mb-4">
+            <div className="bg-fuchsia-500/10 border border-fuchsia-500/30 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-fuchsia-300 mb-2">{t('settings.apiKeyGenerated')}</h3>
+              <p className="text-sm text-fuchsia-300/70 mb-4">
                 {t('settings.saveKeyNow')}
               </p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 px-4 py-3 bg-platinum-900 border border-emerald-800 rounded-lg text-sm font-mono text-platinum-100">
+                <code className="flex-1 px-4 py-3 bg-purple-900/50 border border-purple-500/30 rounded-lg text-sm font-mono text-white">
                   {generatedKey}
                 </code>
                 <button
                   onClick={() => handleCopyKey(generatedKey)}
-                  className="px-4 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium"
+                  className="px-4 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 font-medium shadow-lg shadow-purple-500/25"
                 >
                   {t('settings.copy')}
                 </button>
               </div>
               <button
                 onClick={() => setGeneratedKey(null)}
-                className="mt-4 text-sm text-emerald-400 hover:text-emerald-300 underline"
+                className="mt-4 text-sm text-fuchsia-400 hover:text-fuchsia-300 underline transition-colors"
               >
                 {t('common.close')}
               </button>
@@ -445,8 +445,8 @@ export default function SettingsPage() {
 
           {/* Create New Key */}
           <GlassCard>
-            <h2 className="text-xl font-semibold text-platinum-100 mb-4">{t('settings.createNewApiKey')}</h2>
-            <p className="text-sm text-platinum-400 mb-6">
+            <h2 className="text-xl font-semibold text-white mb-4">{t('settings.createNewApiKey')}</h2>
+            <p className="text-sm text-purple-300/70 mb-6">
               {t('settings.apiKeyDescription')}
             </p>
 
@@ -456,12 +456,12 @@ export default function SettingsPage() {
                 value={newKeyName}
                 onChange={(e) => setNewKeyName(e.target.value)}
                 placeholder={t('settings.keyNamePlaceholder')}
-                className="flex-1 px-4 py-2 border border-platinum-800 rounded-lg focus:ring-2 focus:ring-platinum-500 focus:border-transparent text-platinum-100 bg-platinum-900 placeholder:text-platinum-500"
+                className="flex-1 px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
               />
               <button
                 onClick={handleGenerateApiKey}
                 disabled={creatingKey || !newKeyName.trim()}
-                className="px-6 py-2 bg-white text-black rounded-lg hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg shadow-purple-500/25"
               >
                 {creatingKey ? t('settings.generating') : t('settings.generateKey')}
               </button>
@@ -519,12 +519,12 @@ export default function SettingsPage() {
 
             <div className="space-y-6">
               <div>
-                <label htmlFor="timezone" className="block text-sm font-medium text-platinum-400 mb-2">
+                <label htmlFor="timezone" className="block text-sm font-medium text-purple-300/70 mb-2">
                   {t('settings.timezone')}
                 </label>
                 <select
                   id="timezone"
-                  className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
+                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white transition-all"
                 >
                   <option>UTC</option>
                   <option>Europe/Rome</option>
@@ -535,12 +535,12 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label htmlFor="language" className="block text-sm font-medium text-platinum-400 mb-2">
+                <label htmlFor="language" className="block text-sm font-medium text-purple-300/70 mb-2">
                   {t('settings.language')}
                 </label>
                 <select
                   id="language"
-                  className="w-full px-4 py-2 border border-white/10 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
+                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white transition-all"
                 >
                   <option>English</option>
                   <option>Italiano</option>
@@ -551,43 +551,43 @@ export default function SettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-platinum-400 mb-4">{t('settings.emailNotifications')}</label>
+                <label className="block text-sm font-medium text-purple-300/70 mb-4">{t('settings.emailNotifications')}</label>
                 <div className="space-y-3">
                   <label className="flex items-center">
                     <input
                       type="checkbox"
                       defaultChecked
-                      className="w-4 h-4 text-platinum-300 border-platinum-800 rounded focus:ring-platinum-500 bg-platinum-900"
+                      className="w-4 h-4 text-fuchsia-600 border-purple-500/30 rounded focus:ring-fuchsia-500 bg-purple-900/30"
                     />
-                    <span className="ml-3 text-sm text-platinum-400">{t('settings.newConversations')}</span>
+                    <span className="ml-3 text-sm text-purple-300/70">{t('settings.newConversations')}</span>
                   </label>
                   <label className="flex items-center">
                     <input
                       type="checkbox"
                       defaultChecked
-                      className="w-4 h-4 text-platinum-300 border-platinum-800 rounded focus:ring-platinum-500 bg-platinum-900"
+                      className="w-4 h-4 text-fuchsia-600 border-purple-500/30 rounded focus:ring-fuchsia-500 bg-purple-900/30"
                     />
-                    <span className="ml-3 text-sm text-platinum-400">{t('settings.botOfflineAlerts')}</span>
+                    <span className="ml-3 text-sm text-purple-300/70">{t('settings.botOfflineAlerts')}</span>
                   </label>
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 text-platinum-300 border-platinum-800 rounded focus:ring-platinum-500 bg-platinum-900"
+                      className="w-4 h-4 text-fuchsia-600 border-purple-500/30 rounded focus:ring-fuchsia-500 bg-purple-900/30"
                     />
-                    <span className="ml-3 text-sm text-platinum-400">{t('settings.weeklyReports')}</span>
+                    <span className="ml-3 text-sm text-purple-300/70">{t('settings.weeklyReports')}</span>
                   </label>
                   <label className="flex items-center">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 text-platinum-300 border-platinum-800 rounded focus:ring-platinum-500 bg-platinum-900"
+                      className="w-4 h-4 text-fuchsia-600 border-purple-500/30 rounded focus:ring-fuchsia-500 bg-purple-900/30"
                     />
-                    <span className="ml-3 text-sm text-platinum-400">{t('settings.marketingEmails')}</span>
+                    <span className="ml-3 text-sm text-purple-300/70">{t('settings.marketingEmails')}</span>
                   </label>
                 </div>
               </div>
 
               <button
-                className="w-full px-6 py-3 bg-platinum-100 text-platinum-900 rounded-lg hover:bg-white font-medium"
+                className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 font-medium transition-all shadow-lg shadow-purple-500/25"
               >
                 {t('settings.savePreferences')}
               </button>
