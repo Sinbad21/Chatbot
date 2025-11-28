@@ -18,6 +18,7 @@ import {
   X,
   LogOut,
   Languages,
+  Star,
 } from 'lucide-react';
 import { useTranslation, LANGUAGES, type Language } from '@/lib/i18n';
 import { useSessionActivity } from '@/hooks/useSessionActivity';
@@ -37,6 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { nameKey: 'nav.bots', href: '/dashboard/bots', icon: Bot },
     { nameKey: 'nav.conversations', href: '/dashboard/conversations', icon: MessageSquare },
     { nameKey: 'nav.analytics', href: '/dashboard/analytics', icon: BarChart3 },
+    { nameKey: 'nav.reviewBot', href: '/dashboard/review-bot', icon: Star },
     { nameKey: 'nav.leads', href: '/dashboard/leads', icon: Users },
     { nameKey: 'nav.calendar', href: '/dashboard/calendar', icon: Calendar },
     { nameKey: 'nav.bookings', href: '/dashboard/bookings', icon: CalendarCheck },
