@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['@chatbot-studio/database'],
   images: {
     unoptimized: true,
   },
