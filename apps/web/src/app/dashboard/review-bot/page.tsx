@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useReviewBot } from "@/hooks/useReviewBot";
+import ReviewBotWizard from "@/components/review-bot/ReviewBotWizard";
+import { ReviewBotWizardConfig } from "@/types/review-bot";
 import {
   Star,
   MessageSquare,
@@ -47,19 +50,18 @@ export default function ReviewBotPage() {
   const [showWizard, setShowWizard] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showSnippet, setShowSnippet] = useState(false);
-  const [reviewBot, setReviewBot] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  
+  const { reviewBot, loading, createReviewBot, fetchReviewBots } = useReviewBot();
 
   useEffect(() => {
-    // Simulate loading review bot data
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  }, []);
+    fetchReviewBots();
+  }, [fetchReviewBots]);
 
-  const handleWizardComplete = (data: any) => {
-    setReviewBot(data);
-    setShowWizard(false);
+  const handleWizardComplete = async (config: ReviewBotWizardConfig) => {
+    const newBot = await createReviewBot(config);
+    if (newBot) {
+      setShowWizard(false);
+    }
   };
 
   // Loading state
@@ -311,21 +313,12 @@ export default function ReviewBotPage() {
         </div>
       </div>
 
-      {/* Modals - these components would need to be created */}
-      {showWizard && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[#1a0b2e] border border-purple-500/20 rounded-2xl p-6 max-w-2xl w-full">
-            <h3 className="text-xl font-bold text-white mb-4">Review Bot Wizard</h3>
-            <p className="text-purple-300/60 mb-4">Wizard component to be implemented</p>
-            <button
-              onClick={() => setShowWizard(false)}
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Modals */}
+      <ReviewBotWizard 
+        isOpen={showWizard} 
+        onClose={() => setShowWizard(false)} 
+        onComplete={handleWizardComplete} 
+      />
 
       {showSettings && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
