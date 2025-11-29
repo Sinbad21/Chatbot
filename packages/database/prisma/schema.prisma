@@ -1033,6 +1033,7 @@ enum SubscriptionStatus {
 model ReviewBot {
   id             String   @id @default(cuid())
   organizationId String
+  userId         String
   widgetId       String   @unique
   
   // Business info
@@ -1066,10 +1067,12 @@ model ReviewBot {
   
   // Relations
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id])
   ecommerceConnections EcommerceConnection[]
   reviewRequests ReviewRequest[]
   
   @@index([organizationId])
+  @@index([userId])
   @@index([widgetId])
   @@map("review_bots")
 }
