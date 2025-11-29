@@ -395,12 +395,7 @@ model Payment {
   @@map("payments")
 }
 
-enum SubscriptionStatus {
-  ACTIVE
-  CANCELED
-  PAST_DUE
-  TRIALING
-}
+
 
 enum PaymentStatus {
   PENDING
