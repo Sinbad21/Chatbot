@@ -1,0 +1,286 @@
+{
+  "meta": {
+    "title": "Chatbot Studio - Ajoutez un Chatbot IA Intelligent à Votre Site Web en Minutes",
+    "description": "Créez des chatbots IA personnalisés formés sur vos données. Aucun code requis. Intégrez avec votre site web, WhatsApp, Telegram et plus. Commencez gratuitement aujourd'hui."
+  },
+  "nav": {
+    "features": "Fonctionnalités",
+    "pricing": "Tarifs",
+    "docs": "Documentation",
+    "login": "Connexion",
+    "startFree": "Commencer Gratuitement"
+  },
+  "hero": {
+    "badge": "Essayer la Démo en Direct",
+    "headline": "Ajoutez un chatbot intelligent à votre site en minutes",
+    "subheadline": "Créez des chatbots alimentés par l'IA formés sur votre contenu. Déployez sur votre site web, WhatsApp, Telegram et plus. Aucun codage requis.",
+    "ctaPrimary": "Commencer Gratuitement",
+    "ctaSecondary": "Voir la Démo",
+    "microCopy": "Aucune carte de crédit • Annulez à tout moment"
+  },
+  "trust": {
+    "title": "Utilisé par des entreprises innovantes"
+  },
+  "valueProps": {
+    "title": "Todo lo que necesitas para construir chatbots inteligentes",
+    "items": [
+      {
+        "title": "Entrena con tus Datos",
+        "description": "Carga documentos, raspa sitios web o pega contenido. Tu bot aprende de tu base de conocimientos."
+      },
+      {
+        "title": "Soporte Multi-Modelo",
+        "description": "Elige entre OpenAI GPT-5, Claude 3.5, Google Gemini o Llama. Cambia en cualquier momento."
+      },
+      {
+        "title": "Widgets Sin Código",
+        "description": "Integra hermosos widgets de chat en tu sitio con una línea de código. Totalmente personalizable."
+      },
+      {
+        "title": "Analíticas y Costos",
+        "description": "Rastrea conversaciones, tokens, costos por modelo. Exporta datos y optimiza gastos."
+      },
+      {
+        "title": "22 Idiomas",
+        "description": "Detecta automáticamente el idioma del usuario o configúralo manualmente. Soporte completo i18n para alcance global."
+      },
+      {
+        "title": "Seguridad Empresarial",
+        "description": "Cumple con GDPR, cifrado en reposo, listo para SOC 2. Tus datos están seguros."
+      }
+    ]
+  },
+  "demo": {
+    "title": "Pruébalo tú mismo",
+    "subtitle": "Chatea con nuestro bot demo entrenado en la documentación de Chatbot Studio",
+    "placeholder": "Pregúntame cualquier cosa sobre Chatbot Studio...",
+    "themeToggle": "Cambiar tema"
+  },
+  "features": {
+    "title": "Funciones poderosas para chatbots modernos",
+    "subtitle": "Todo lo que necesitas para crear, entrenar y desplegar IA conversacional inteligente",
+    "items": [
+      {
+        "title": "Chat e Historial",
+        "description": "Historial completo de conversaciones con filtros, búsqueda y exportación. Entrena con respuestas para mejorar tu bot."
+      },
+      {
+        "title": "Entrenamiento con Documentos",
+        "description": "Carga PDF, DOCX, TXT, CSV hasta 25MB. Previsualiza, activa inclusión y gestiona tu base de conocimientos."
+      },
+      {
+        "title": "Web Scraping",
+        "description": "Descubre automáticamente sitemaps o rastrea sitios web. Previsualiza contenido antes de añadir a datos de entrenamiento."
+      },
+      {
+        "title": "Marca Personalizada",
+        "description": "Carga logo, personaliza colores (7 opciones de tema), coincide perfectamente con tu identidad de marca."
+      },
+      {
+        "title": "Multi-Canal Listo",
+        "description": "Despliega en WhatsApp, Telegram, Slack, Discord. Un bot, múltiples canales. (Próximamente)"
+      },
+      {
+        "title": "Plantillas de Prompt",
+        "description": "Plantillas preconstruidas para soporte al cliente, ventas, ayuda técnica. O escribe la tuya."
+      },
+      {
+        "title": "Analíticas de Uso",
+        "description": "Gráficos diarios de llamadas, tokens, costos. Desglose por modelo y proveedor. Exportación CSV incluida."
+      },
+      {
+        "title": "FAQs e Intenciones",
+        "description": "Crea respuestas basadas en patrones. Entrena desde el historial de conversaciones con un clic."
+      }
+    ]
+  },
+  "integrations": {
+    "title": "Se integra con tus herramientas favoritas",
+    "comingSoon": "Próximamente"
+  },
+  "pricing": {
+    "title": "Precios simples y transparentes",
+    "subtitle": "Elige el plan que se ajuste a tus necesidades. Actualiza o reduce en cualquier momento.",
+    "monthly": "Mensual",
+    "annually": "Anual",
+    "annualDiscount": "Ahorra 20%",
+    "plans": [
+      {
+        "name": "Starter",
+        "price": 29,
+        "priceAnnual": 23,
+        "description": "Perfecto para sitios web pequeños y blogs",
+        "features": [
+          "1 chatbot",
+          "1,000 mensajes/mes",
+          "10 MB almacenamiento de documentos",
+          "Solo GPT-5 Mini",
+          "Soporte por email",
+          "Integración de widget",
+          "Analíticas básicas"
+        ],
+        "cta": "Comenzar Prueba Gratis",
+        "popular": false
+      },
+      {
+        "name": "Pro",
+        "price": 99,
+        "priceAnnual": 79,
+        "description": "Para empresas en crecimiento y equipos",
+        "features": [
+          "5 chatbots",
+          "10,000 mensajes/mes",
+          "100 MB almacenamiento de documentos",
+          "Todos los modelos IA (GPT-5, Claude, Gemini)",
+          "Soporte prioritario",
+          "Marca personalizada",
+          "Analíticas avanzadas",
+          "Acceso API"
+        ],
+        "cta": "Comenzar Prueba Gratis",
+        "popular": true
+      },
+      {
+        "name": "Scale",
+        "price": 299,
+        "priceAnnual": 239,
+        "description": "Para empresas con alto volumen",
+        "features": [
+          "Chatbots ilimitados",
+          "100,000 mensajes/mes",
+          "1 GB almacenamiento de documentos",
+          "Todos los modelos IA",
+          "Soporte dedicado",
+          "Marca personalizada",
+          "Analíticas avanzadas",
+          "Acceso API",
+          "Multi-canal (WhatsApp, Telegram)",
+          "SSO y SAML",
+          "Garantía SLA"
+        ],
+        "cta": "Contactar Ventas",
+        "popular": false
+      }
+    ],
+    "perMonth": "/mes",
+    "billedAnnually": "facturado anualmente",
+    "billedMonthly": "facturado mensualmente"
+  },
+  "testimonials": {
+    "title": "Amado por equipos en todo el mundo",
+    "items": [
+      {
+        "name": "Sarah Chen",
+        "role": "Jefa de Soporte, TechCorp",
+        "avatar": "SC",
+        "rating": 5,
+        "text": "Chatbot Studio redujo nuestros tickets de soporte en un 60% en el primer mes. El entrenamiento con nuestros documentos fue perfecto."
+      },
+      {
+        "name": "Marcus Weber",
+        "role": "Fundador, StartupXYZ",
+        "avatar": "MW",
+        "rating": 5,
+        "text": "Desplegamos un chatbot en menos de 10 minutos. El ROI fue inmediato. Muy recomendable para cualquier SaaS."
+      },
+      {
+        "name": "Lisa Park",
+        "role": "Directora de Marketing, Acme Inc",
+        "avatar": "LP",
+        "rating": 5,
+        "text": "Las analíticas son fantásticas. Podemos ver exactamente qué preguntan los usuarios y mejorar nuestra estrategia de contenido."
+      },
+      {
+        "name": "Ahmed Hassan",
+        "role": "CTO, CloudSystems",
+        "avatar": "AH",
+        "rating": 5,
+        "text": "La seguridad era nuestra mayor preocupación. El cumplimiento GDPR y el cifrado de Chatbot Studio nos dieron tranquilidad."
+      },
+      {
+        "name": "Emma Thompson",
+        "role": "Gerente de Producto, DataCo",
+        "avatar": "ET",
+        "rating": 5,
+        "text": "El soporte multi-modelo es revolucionario. Podemos probar GPT vs Claude y elegir lo que funciona mejor."
+      }
+    ]
+  },
+  "faq": {
+    "title": "Preguntas Frecuentes",
+    "items": [
+      {
+        "question": "¿Cómo funciona la prueba gratuita?",
+        "answer": "Obtienes 7 días de acceso gratis a todas las funciones Pro. No se requiere tarjeta de crédito. Cancela en cualquier momento antes de que termine la prueba y no se te cobrará."
+      },
+      {
+        "question": "¿Puedo cambiar de plan más tarde?",
+        "answer": "Sí, puedes actualizar o reducir en cualquier momento. Si actualizas, se te cobrará la diferencia prorrateada. Si reduces, el crédito se aplica a tu próximo ciclo de facturación."
+      },
+      {
+        "question": "¿Qué modelos de IA soportan?",
+        "answer": "Soportamos OpenAI GPT-5 y GPT-4, Anthropic Claude 3.5, Google Gemini y Llama 3.1. Puedes cambiar de modelo en cualquier momento desde tu panel."
+      },
+      {
+        "question": "¿Cómo se calcula el precio?",
+        "answer": "El precio se basa en el número de mensajes por mes. Cada mensaje (entrada del usuario + respuesta del bot) cuenta como un mensaje. Los mensajes no utilizados no se acumulan."
+      },
+      {
+        "question": "¿Puedo entrenar el bot con mis documentos privados?",
+        "answer": "Absolutamente. Carga PDFs, documentos de Word, hojas de cálculo o pega texto. También puedes raspar tu sitio web automáticamente. Todos los datos están cifrados y nunca se comparten."
+      },
+      {
+        "question": "¿Ofrecen reembolsos?",
+        "answer": "Sí, ofrecemos una garantía de devolución de dinero de 30 días si no estás satisfecho. Solo envíanos un email y procesaremos tu reembolso en 5 días hábiles."
+      },
+      {
+        "question": "¿Mis datos están seguros y cumplen con GDPR?",
+        "answer": "Sí. Todos los datos están cifrados en reposo y en tránsito. Cumplimos con GDPR y estamos certificados SOC 2 Tipo II. Puedes exportar o eliminar tus datos en cualquier momento."
+      },
+      {
+        "question": "¿Puedo usar mi propia clave API de OpenAI?",
+        "answer": "En el plan Scale, sí. Puedes traer tus propias claves API para OpenAI, Anthropic o Google para controlar los costos directamente."
+      },
+      {
+        "question": "¿Qué idiomas soporta el chatbot?",
+        "answer": "El chatbot puede responder en 22 idiomas incluyendo inglés, español, francés, alemán, italiano, portugués, chino, japonés y más. Detecta automáticamente el idioma del usuario."
+      },
+      {
+        "question": "¿Cómo integro el chatbot en mi sitio web?",
+        "answer": "Copia una sola línea de código JavaScript de tu panel y pégala antes de la etiqueta </body>. Eso es todo. Estilos totalmente personalizables disponibles."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Construye tu chatbot IA en minutos",
+    "subtitle": "Únete a miles de empresas usando Chatbot Studio para automatizar soporte y aumentar el engagement.",
+    "cta": "Comenzar Prueba Gratis",
+    "microCopy": "Sin tarjeta de crédito requerida"
+  },
+  "footer": {
+    "tagline": "Chatbots inteligentes para sitios web modernos",
+    "product": "Producto",
+    "features": "Funciones",
+    "pricing": "Precios",
+    "docs": "Documentación",
+    "changelog": "Registro de Cambios",
+    "company": "Empresa",
+    "about": "Sobre Nosotros",
+    "blog": "Blog",
+    "careers": "Carreras",
+    "contact": "Contacto",
+    "legal": "Legal",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Servicio",
+    "gdpr": "GDPR",
+    "social": "Social",
+    "rights": "© 2025 Chatbot Studio. Todos los derechos reservados.",
+    "poweredBy": "Impulsado por",
+    "newsletter": {
+      "title": "Mantente actualizado",
+      "subtitle": "Obtén las últimas funciones y consejos",
+      "placeholder": "Ingresa tu email",
+      "cta": "Suscribirse"
+    }
+  }
+}
