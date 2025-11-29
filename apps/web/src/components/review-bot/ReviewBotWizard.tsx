@@ -10,7 +10,7 @@ import {
   X,
   Building2
 } from 'lucide-react';
-import { ReviewBotWizardConfig, SurveyType, WidgetPosition } from '@/types/review-bot';
+import { ReviewBotWizardConfig } from '@/types/review-bot';
 import { StripeIcon, WooCommerceIcon, ShopifyIcon, GoogleIcon } from '@/components/icons';
 
 interface ReviewBotWizardProps {
