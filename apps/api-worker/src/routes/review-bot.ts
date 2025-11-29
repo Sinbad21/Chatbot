@@ -193,6 +193,24 @@ reviewBotRoutes.post('/', async (c) => {
       return c.json({ success: false, error: 'Business name is required' }, 400);
     }
 
+    // Find a user to associate with the bot (Temporary fix for missing auth context)
+    const member = await prisma.organizationMember.findFirst({
+      where: { organizationId },
+      select: { userId: true }
+    });
+
+    if (!member) {
+      // Fallback: try to find any user if organization has no members (e.g. during dev/seed)
+      const anyUser = await prisma.user.findFirst();
+      if (!anyUser) {
+        return c.json({ success: false, error: 'No user found to associate with Review Bot' }, 400);
+      }
+      // Use the first found user
+      var userId = anyUser.id;
+    } else {
+      var userId = member.userId;
+    }
+
     // Generate unique widget ID
     const widgetId = `rb_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
@@ -200,6 +218,7 @@ reviewBotRoutes.post('/', async (c) => {
     const reviewBot = await prisma.reviewBot.create({
       data: {
         organizationId,
+        userId,
         widgetId,
         name: businessName,
         businessName,
