@@ -79,6 +79,22 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
     setConfig((prev: ReviewBotWizardConfig) => ({ ...prev, [key]: value }));
   };
 
+  const isStepValid = () => {
+    switch (step) {
+      case 1:
+        return config.businessName.trim().length > 0;
+      case 2:
+        if (config.ecommercePlatform === 'stripe') return !!config.stripeWebhookSecret;
+        if (config.ecommercePlatform === 'woocommerce') return !!config.wooUrl && !!config.wooConsumerKey && !!config.wooConsumerSecret;
+        if (config.ecommercePlatform === 'shopify') return !!config.shopifyDomain && !!config.shopifyAccessToken;
+        return true;
+      case 3:
+        return !!config.thankYouMessage && !!config.surveyQuestion && !!config.positiveMessage && !!config.negativeMessage;
+      default:
+        return true;
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <motion.div 
@@ -149,7 +165,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                 <div className="space-y-6">
                   <div className="space-y-4">
                     <label className="block">
-                      <span className="text-sm font-medium text-purple-200 mb-1 block">Business Name</span>
+                      <span className="text-sm font-medium text-purple-200 mb-1 block">Business Name <span className="text-red-400">*</span></span>
                       <input
                         type="text"
                         value={config.businessName}
@@ -495,7 +511,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
 
           <button
             onClick={step === 4 ? handleSubmit : handleNext}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isStepValid()}
             className="px-8 py-2.5 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white rounded-xl font-medium shadow-lg shadow-purple-500/25 flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
