@@ -37,11 +37,11 @@ const INITIAL_CONFIG: ReviewBotWizardConfig = {
   wooConsumerSecret: '',
   shopifyDomain: '',
   shopifyAccessToken: '',
-  thankYouMessage: '🎉 Grazie per il tuo acquisto!',
+  thankYouMessage: 'ðŸŽ‰ Grazie per il tuo acquisto!',
   surveyQuestion: 'Come valuteresti la tua esperienza?',
   positiveMessage: 'Fantastico! Ti andrebbe di condividere la tua opinione su Google?',
   negativeMessage: 'Grazie per il feedback! Cosa possiamo migliorare?',
-  completedMessage: 'Grazie mille per il tuo tempo! ❤️',
+  completedMessage: 'Grazie mille per il tuo tempo! â¤ï¸',
   surveyType: 'EMOJI',
   positiveThreshold: 4,
   widgetColor: '#6366f1',
@@ -76,7 +76,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
   };
 
   const updateConfig = (key: keyof ReviewBotWizardConfig, value: any) => {
-    setConfig(prev => ({ ...prev, [key]: value }));
+    setConfig((prev: ReviewBotWizardConfig) => ({ ...prev, [key]: value }));
   };
 
   return (
@@ -153,7 +153,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                       <input
                         type="text"
                         value={config.businessName}
-                        onChange={(e) => updateConfig('businessName', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('businessName', e.target.value)}
                         className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
                         placeholder="e.g. Acme Corp"
                       />
@@ -165,7 +165,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                         <input
                           type="text"
                           value={config.googlePlaceId}
-                          onChange={(e) => updateConfig('googlePlaceId', e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('googlePlaceId', e.target.value)}
                           className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors pl-10"
                           placeholder="ChIJ..."
                         />
@@ -181,7 +181,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                       <input
                         type="text"
                         value={config.googleReviewUrl}
-                        onChange={(e) => updateConfig('googleReviewUrl', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('googleReviewUrl', e.target.value)}
                         className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
                         placeholder="https://g.page/r/..."
                       />
@@ -220,7 +220,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                         <input
                           type="password"
                           value={config.stripeWebhookSecret}
-                          onChange={(e) => updateConfig('stripeWebhookSecret', e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('stripeWebhookSecret', e.target.value)}
                           className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
                           placeholder="whsec_..."
                         />
@@ -235,7 +235,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                         <input
                           type="text"
                           value={config.wooUrl}
-                          onChange={(e) => updateConfig('wooUrl', e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('wooUrl', e.target.value)}
                           className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
                           placeholder="https://yourstore.com"
                         />
@@ -246,7 +246,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                           <input
                             type="text"
                             value={config.wooConsumerKey}
-                            onChange={(e) => updateConfig('wooConsumerKey', e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('wooConsumerKey', e.target.value)}
                             className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
                             placeholder="ck_..."
                           />
@@ -256,7 +256,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                           <input
                             type="password"
                             value={config.wooConsumerSecret}
-                            onChange={(e) => updateConfig('wooConsumerSecret', e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('wooConsumerSecret', e.target.value)}
                             className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
                             placeholder="cs_..."
                           />
@@ -272,7 +272,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                         <input
                           type="text"
                           value={config.shopifyDomain}
-                          onChange={(e) => updateConfig('shopifyDomain', e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('shopifyDomain', e.target.value)}
                           className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
                           placeholder="your-store.myshopify.com"
                         />
@@ -282,7 +282,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                         <input
                           type="password"
                           value={config.shopifyAccessToken}
-                          onChange={(e) => updateConfig('shopifyAccessToken', e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('shopifyAccessToken', e.target.value)}
                           className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
                           placeholder="shpat_..."
                         />
@@ -300,7 +300,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                       <p className="text-xs text-purple-300/40 mb-2">Sent immediately after purchase</p>
                       <textarea
                         value={config.thankYouMessage}
-                        onChange={(e) => updateConfig('thankYouMessage', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateConfig('thankYouMessage', e.target.value)}
                         className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors h-20 resize-none"
                       />
                     </label>
@@ -310,7 +310,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                       <input
                         type="text"
                         value={config.surveyQuestion}
-                        onChange={(e) => updateConfig('surveyQuestion', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('surveyQuestion', e.target.value)}
                         className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors"
                       />
                     </label>
@@ -321,7 +321,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                         <p className="text-xs text-purple-300/40 mb-2">Shown when rating is high (asks for Google Review)</p>
                         <textarea
                           value={config.positiveMessage}
-                          onChange={(e) => updateConfig('positiveMessage', e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateConfig('positiveMessage', e.target.value)}
                           className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors h-24 resize-none"
                         />
                       </label>
@@ -331,7 +331,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                         <p className="text-xs text-purple-300/40 mb-2">Shown when rating is low (internal feedback only)</p>
                         <textarea
                           value={config.negativeMessage}
-                          onChange={(e) => updateConfig('negativeMessage', e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateConfig('negativeMessage', e.target.value)}
                           className="w-full bg-[#0f0518] border border-purple-500/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors h-24 resize-none"
                         />
                       </label>
@@ -372,7 +372,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                           max="5"
                           step="1"
                           value={config.positiveThreshold}
-                          onChange={(e) => updateConfig('positiveThreshold', parseInt(e.target.value))}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('positiveThreshold', parseInt(e.target.value))}
                           className="w-full accent-purple-500"
                         />
                         <div className="flex justify-between text-xs text-purple-300/40 mt-1">
@@ -400,7 +400,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                           <input
                             type="color"
                             value={config.widgetColor}
-                            onChange={(e) => updateConfig('widgetColor', e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig('widgetColor', e.target.value)}
                             className="w-8 h-8 rounded-full overflow-hidden cursor-pointer border-0 p-0"
                           />
                         </div>
@@ -447,7 +447,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                         <div className="flex justify-center gap-2">
                           {[1, 2, 3, 4, 5].map((i) => (
                             <button key={i} className="text-xl hover:scale-110 transition-transform">
-                              {config.surveyType === 'EMOJI' ? ['😠', '🙁', '😐', '🙂', '😍'][i-1] : '⭐'}
+                              {config.surveyType === 'EMOJI' ? ['ðŸ˜ ', 'ðŸ™', 'ðŸ˜', 'ðŸ™‚', 'ðŸ˜'][i-1] : 'â­'}
                             </button>
                           ))}
                         </div>
