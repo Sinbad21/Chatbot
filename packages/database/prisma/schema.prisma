@@ -1,4 +1,4 @@
-﻿// Chatbot Studio - Complete Database Schema (v1)
+// Chatbot Studio - Complete Database Schema (v2)
 // 23 Tables for Multi-Tenant SaaS Platform
 
 generator client {
