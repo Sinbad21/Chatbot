@@ -444,12 +444,30 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                           <button className="text-gray-400 hover:text-gray-600"><X size={14} /></button>
                         </div>
                         <p className="text-sm text-gray-600 mb-3">{config.surveyQuestion}</p>
-                        <div className="flex justify-center gap-2">
-                          {[1, 2, 3, 4, 5].map((i) => (
-                            <button key={i} className="text-xl hover:scale-110 transition-transform">
-                              {config.surveyType === 'EMOJI' ? ['ðŸ˜ ', 'ðŸ™', 'ðŸ˜', 'ðŸ™‚', 'ðŸ˜'][i-1] : 'â­'}
-                            </button>
-                          ))}
+                        <div className={`flex justify-center ${config.surveyType === 'NPS' ? 'gap-1 flex-wrap' : 'gap-2'}`}>
+                          {config.surveyType === 'NPS' ? (
+                            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                              <button 
+                                key={i} 
+                                className={`w-5 h-7 rounded flex items-center justify-center text-[10px] font-bold transition-transform hover:scale-110 ${
+                                  i <= 6 ? 'bg-red-100 text-red-600' :
+                                  i <= 8 ? 'bg-yellow-100 text-yellow-600' :
+                                  'bg-green-100 text-green-600'
+                                }`}
+                              >
+                                {i}
+                              </button>
+                            ))
+                          ) : (
+                            [1, 2, 3, 4, 5].map((i) => (
+                              <button key={i} className="text-xl hover:scale-110 transition-transform">
+                                {config.surveyType === 'EMOJI' 
+                                  ? ['😠', '🙁', '😐', '🙂', '😍'][i-1] 
+                                  : '⭐'
+                                }
+                              </button>
+                            ))
+                          )}
                         </div>
                       </div>
                     </div>
