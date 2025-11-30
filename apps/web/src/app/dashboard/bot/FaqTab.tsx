@@ -105,7 +105,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
         <div className="flex flex-col gap-4">
           <label className="text-sm font-medium text-white/70">Domanda</label>
           <input
-            className="border rounded-md px-8 py-6 text-sm text-white placeholder:text-white/40"
+            className="border rounded-md px-8 py-6 text-sm bg-white text-black placeholder:text-gray-400"
             placeholder="Es. Quali sono gli orari di supporto?"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
@@ -116,7 +116,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
         <div className="flex flex-col gap-4">
           <label className="text-sm font-medium text-white/70">Risposta</label>
           <textarea
-            className="border rounded-md px-8 py-6 text-sm text-white placeholder:text-white/40 min-h-[120px]"
+            className="border rounded-md px-8 py-6 text-sm bg-white text-black placeholder:text-gray-400 min-h-[120px]"
             placeholder="Inserisci la risposta dettagliata"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
