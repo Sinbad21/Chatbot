@@ -164,7 +164,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <button
-                  onClick={() => router.push(`/dashboard/bots/${bot.id}`)}
+                  onClick={() => router.push(`/dashboard/bot?id=${bot.id}`)}
                   className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 font-medium transition-all shadow-lg shadow-purple-500/25"
                 >
                   {t('dashboard.view')}
