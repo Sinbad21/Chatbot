@@ -52,7 +52,7 @@ function ReviewWidgetContent() {
 
     // Fetch config
     if (widgetId) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.chatbotstudio.io'}/api/review-bot/widget/${widgetId}`)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.chatbotstudio.io'}/api/review-widget/${widgetId}`)
         .then(res => res.json())
         .then(data => {
           if (data.success && data.data) {
@@ -91,7 +91,7 @@ function ReviewWidgetContent() {
     if (!widgetId) return;
 
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.chatbotstudio.io'}/api/review-bot/widget/${widgetId}/response`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.chatbotstudio.io'}/api/review-widget/${widgetId}/respond`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -122,7 +122,7 @@ function ReviewWidgetContent() {
     if (!widgetId) return;
     
     // Track click
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.chatbotstudio.io'}/api/review-bot/widget/${widgetId}/click`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.chatbotstudio.io'}/api/review-widget/${widgetId}/google-click`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sessionId })
