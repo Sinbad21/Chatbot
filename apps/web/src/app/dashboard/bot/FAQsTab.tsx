@@ -135,7 +135,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-gray-600">Loading FAQs...</div>
+        <div className="text-white/60">Loading FAQs...</div>
       </div>
     );
   }
