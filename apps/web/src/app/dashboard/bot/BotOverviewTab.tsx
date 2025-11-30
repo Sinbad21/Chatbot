@@ -466,7 +466,7 @@ export default function BotOverviewTab({ botId }: Props) {
         <select
           value={model}
           onChange={(e) => handleModelChange(e.target.value)}
-          className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-transparent text-white [&>option]:text-black"
+          className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/5 text-white [&>option]:text-black"
         >
           {MODELS.map((m) => (
             <option key={m.value} value={m.value}>
@@ -512,7 +512,7 @@ export default function BotOverviewTab({ botId }: Props) {
             </label>
             <select
               onChange={(e) => handleTemplateSelect(e.target.value)}
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-transparent text-white [&>option]:text-black"
+              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/5 text-white [&>option]:text-black"
               defaultValue=""
             >
               <option value="">{t('bot.overview.selectTemplate')}</option>
@@ -536,7 +536,7 @@ export default function BotOverviewTab({ botId }: Props) {
               value={welcomeMessage}
               onChange={(e) => handleWelcomeMessageChange(e.target.value)}
               placeholder="Hi! How can I help you today?"
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-transparent text-white"
+              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/5 text-white"
             />
             <p className="text-xs text-white/50 mt-1">
               {hasPromptChanges ? t('bot.overview.clickToSave') : t('bot.overview.welcomeMessageHelp')}
@@ -552,7 +552,7 @@ export default function BotOverviewTab({ botId }: Props) {
               onChange={(e) => handleSystemPromptChange(e.target.value)}
               placeholder="You are a helpful assistant..."
               rows={6}
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm bg-transparent text-white"
+              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm bg-white/5 text-white"
             />
             <p className="text-xs text-white/50 mt-1">
               {hasPromptChanges ? t('bot.overview.clickToSave') : t('bot.overview.systemPromptHelp')}
@@ -589,7 +589,7 @@ export default function BotOverviewTab({ botId }: Props) {
                   type="text"
                   value={theme[key as keyof typeof theme]}
                   onChange={(e) => handleThemeChange(key, e.target.value)}
-                  className="flex-1 px-3 py-2 border border-white/20 rounded-lg font-mono text-sm bg-transparent text-white"
+                  className="flex-1 px-3 py-2 border border-white/20 rounded-lg font-mono text-sm bg-white/5 text-white"
                 />
               </div>
             </div>
