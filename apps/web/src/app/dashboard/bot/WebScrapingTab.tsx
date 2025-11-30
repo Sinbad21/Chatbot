@@ -370,7 +370,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder={t('bot.scraping.urlPlaceholder')}
-              className="flex-1 px-3 py-2 border border-white/20 rounded-lg text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-transparent"
+              className="flex-1 px-3 py-2 border border-white/20 rounded-lg text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white/5"
               disabled={isScrapingLinks || isDiscoveringWithSitemap}
             />
             <button

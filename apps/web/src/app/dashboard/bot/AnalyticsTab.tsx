@@ -138,7 +138,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="px-3 py-1.5 text-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-transparent"
+              className="px-3 py-1.5 text-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -147,7 +147,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="px-3 py-1.5 text-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-transparent"
+              className="px-3 py-1.5 text-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
             />
           </div>
           <button

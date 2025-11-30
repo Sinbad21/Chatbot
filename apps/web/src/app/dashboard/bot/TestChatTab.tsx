@@ -240,7 +240,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
               value={editedPrompt}
               onChange={(e) => setEditedPrompt(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 text-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-white bg-transparent"
+              className="w-full px-3 py-2 text-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-white bg-white/5"
               placeholder={t('bot.test.enterSystemPrompt')}
             />
 
@@ -359,7 +359,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             onChange={(e) => setInput(e.target.value)}
             placeholder={t('bot.test.placeholder')}
             disabled={loading}
-            className="flex-1 px-4 py-2 text-white border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-white/40 bg-transparent"
+            className="flex-1 px-4 py-2 text-white border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-white/40 bg-white/5"
           />
           <button
             type="submit"

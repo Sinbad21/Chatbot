@@ -156,7 +156,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="e.g., What are your business hours?"
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-transparent text-white placeholder:text-white/40"
+              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/5 text-white placeholder:text-white/40"
               required
             />
           </div>
@@ -171,7 +171,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
               onChange={(e) => setAnswer(e.target.value)}
               placeholder="We're open Monday to Friday, 9 AM to 5 PM EST."
               rows={4}
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-transparent text-white placeholder:text-white/40"
+              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-white/5 text-white placeholder:text-white/40"
               required
             />
           </div>
@@ -186,7 +186,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="e.g., General, Pricing, Support"
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-transparent text-white placeholder:text-white/40"
+              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/5 text-white placeholder:text-white/40"
             />
           </div>
 
