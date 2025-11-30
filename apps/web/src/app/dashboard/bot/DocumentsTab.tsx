@@ -339,7 +339,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={t('bot.documents.titlePlaceholder')}
                 maxLength={200}
-                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white"
+                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-transparent"
                 required
               />
             </div>
@@ -358,7 +358,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                 placeholder={t('bot.documents.contentPlaceholder')}
                 rows={8}
                 maxLength={200000}
-                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-white"
+                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-white bg-transparent"
                 required
               />
             </div>
