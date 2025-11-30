@@ -199,6 +199,7 @@ reviewBotRoutes.post('/', async (c) => {
       select: { userId: true }
     });
 
+    let userId: string;
     if (!member) {
       // Fallback: try to find any user if organization has no members (e.g. during dev/seed)
       const anyUser = await prisma.user.findFirst();
@@ -206,12 +207,10 @@ reviewBotRoutes.post('/', async (c) => {
         return c.json({ success: false, error: 'No user found to associate with Review Bot' }, 400);
       }
       // Use the first found user
-      var userId = anyUser.id;
+      userId = anyUser.id;
     } else {
-      var userId = member.userId;
+      userId = member.userId;
     }
-
-    // Generate unique widget ID
     const widgetId = `rb_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
     // Create Review Bot
@@ -267,9 +266,9 @@ reviewBotRoutes.post('/', async (c) => {
     });
 
     return c.json({ success: true, data: completeBot }, 201);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating review bot:', error);
-    return c.json({ success: false, error: 'Failed to create review bot' }, 500);
+    return c.json({ success: false, error: error.message || 'Failed to create review bot' }, 500);
   }
 });
 
