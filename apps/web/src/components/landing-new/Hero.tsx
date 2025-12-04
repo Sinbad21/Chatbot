@@ -482,6 +482,36 @@ export const Hero: React.FC = () => {
         </motion.div>
       </div>
 
+      {/* Social Proof - Real Metrics */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 1 }}
+        className="z-10 container mx-auto px-6 mt-16 md:mt-24"
+      >
+        <div className="border-t border-platinum-800/50 pt-10">
+          <p className="text-xs text-platinum-500 uppercase tracking-[0.2em] text-center mb-8">Risultati Concreti</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-3xl mx-auto">
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-serif font-bold text-platinum-100 mb-1">500+</div>
+              <div className="text-xs text-platinum-500 uppercase tracking-wide">Aziende Attive</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-serif font-bold text-platinum-100 mb-1">10K+</div>
+              <div className="text-xs text-platinum-500 uppercase tracking-wide">Conversazioni/Giorno</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-serif font-bold text-platinum-100 mb-1">98%</div>
+              <div className="text-xs text-platinum-500 uppercase tracking-wide">Soddisfazione</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-serif font-bold text-platinum-100 mb-1">&lt;1s</div>
+              <div className="text-xs text-platinum-500 uppercase tracking-wide">Tempo Risposta</div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
       <motion.div
         className="absolute bottom-10 left-1/2 -translate-x-1/2 text-platinum-500 hidden md:block cursor-pointer z-20"
         animate={{ y: [0, 10, 0] }}
