@@ -62,10 +62,8 @@ function LoginForm() {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Store user data and tokens
+      // Store only non-sensitive user data (tokens are now in httpOnly cookies)
       localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("accessToken", data.tokens.accessToken);
-      localStorage.setItem("refreshToken", data.tokens.refreshToken);
 
       // Update last activity timestamp (non-httpOnly for client-side timeout checks)
       const now = Date.now();

@@ -24,6 +24,7 @@ import { useTranslation, LANGUAGES, type Language } from '@/lib/i18n';
 import { useSessionActivity } from '@/hooks/useSessionActivity';
 import { SpaceBackground } from '@/components/dashboard/ui';
 import { Command, Bell } from 'lucide-react';
+import { logout } from '@/lib/authHeaders';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -54,11 +55,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     // Immediate auth check - runs on mount
+    // Note: With httpOnly cookies, we can't check the token directly
+    // We rely on the auth_session cookie and user data in localStorage
     const checkAuth = () => {
-      const token = localStorage.getItem('accessToken');
       const userStr = localStorage.getItem('user');
+      const authSession = document.cookie.includes('auth_session=true');
 
-      if (!token || !userStr) {
+      if (!userStr || !authSession) {
         // Not authenticated - clear session cookie and redirect to login
         document.cookie = 'auth_session=; path=/; max-age=0';
         // Use replace to prevent back button access
@@ -88,15 +91,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [router]);
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-
-    // Remove auth session cookies
-    document.cookie = 'auth_session=; path=/; max-age=0';
-    document.cookie = 'last_activity=; path=/; max-age=0';
-
-    router.push('/auth/login');
+    // Use the centralized logout function that clears httpOnly cookies via API
+    logout();
   };
 
   // Show loading or nothing while checking auth
