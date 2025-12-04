@@ -9,6 +9,15 @@ import type {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.chatbotstudio.io';
 
+// Helper to get auth headers
+function getAuthHeaders(): HeadersInit {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
 // ============================================
 // HOOK: useReviewBot
 // ============================================
@@ -27,9 +36,7 @@ export function useReviewBot() {
     try {
       const res = await fetch(`${API_BASE}/api/review-bot`, {
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       });
       
       const data: ApiResponse<ReviewBot[]> = await res.json();
@@ -59,13 +66,11 @@ export function useReviewBot() {
     try {
       const res = await fetch(`${API_BASE}/api/review-bot/${id}`, {
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       });
-      
+
       const data: ApiResponse<ReviewBot> = await res.json();
-      
+
       if (data.success && data.data) {
         setReviewBot(data.data);
         return data.data;
@@ -91,9 +96,7 @@ export function useReviewBot() {
       const res = await fetch(`${API_BASE}/api/review-bot`, {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(config),
       });
       
@@ -125,9 +128,7 @@ export function useReviewBot() {
       const res = await fetch(`${API_BASE}/api/review-bot/${id}`, {
         method: 'PATCH',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(updates),
       });
       
@@ -159,9 +160,7 @@ export function useReviewBot() {
       const res = await fetch(`${API_BASE}/api/review-bot/${id}`, {
         method: 'DELETE',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       });
       
       const data: ApiResponse<void> = await res.json();
@@ -230,8 +229,9 @@ export function useReviewBotStats(reviewBotId: string | null) {
     try {
       const res = await fetch(`${API_BASE}/api/review-bot/${reviewBotId}`, {
         credentials: 'include',
+        headers: getAuthHeaders(),
       });
-      
+
       const data: ApiResponse<ReviewBot> = await res.json();
       
       if (data.success && data.data) {
@@ -276,7 +276,7 @@ export function useReviewActivity(reviewBotId: string | null, limit = 10) {
     try {
       const res = await fetch(
         `${API_BASE}/api/review-bot/${reviewBotId}?includeActivity=true&limit=${limit}`,
-        { credentials: 'include' }
+        { credentials: 'include', headers: getAuthHeaders() }
       );
       
       const data = await res.json();
