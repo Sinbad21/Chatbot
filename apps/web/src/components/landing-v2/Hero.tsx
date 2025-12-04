@@ -110,13 +110,26 @@ export function Hero() {
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-900 to-transparent" />
         </motion.div>
 
-        {/* Social Proof */}
+        {/* Social Proof - Real Metrics */}
         <div className="mt-20 pt-10 border-t border-white/5">
-           <p className="text-sm text-slate-500 mb-6">TRUSTED BY INNOVATIVE TEAMS</p>
-           <div className="flex flex-wrap justify-center gap-12 opacity-40 grayscale">
-              {['Acme Corp', 'GlobalTech', 'Nebula Inc', 'FutureSystems', 'Orbit'].map((brand) => (
-                <span key={brand} className="text-xl font-bold font-mono text-white">{brand}</span>
-              ))}
+           <p className="text-sm text-slate-500 mb-8">RISULTATI CONCRETI</p>
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-3xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-1">500+</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">Aziende Attive</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-1">10K+</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">Conversazioni/Giorno</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-1">98%</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">Soddisfazione</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-1">&lt;1s</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wide">Tempo Risposta</div>
+              </div>
            </div>
         </div>
 
