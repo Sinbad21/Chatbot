@@ -116,16 +116,39 @@ app.onError((err, c) => {
   return c.json({ error: 'Internal server error', message: err.message }, 500);
 });
 
-// Auth middleware
-const authMiddleware = async (c: any, next: any) => {
-  const authHeader = c.req.header('Authorization');
+// Helper to parse cookies
+const parseCookies = (cookieHeader: string | undefined): Record<string, string> => {
+  if (!cookieHeader) return {};
+  return cookieHeader.split(';').reduce((acc, cookie) => {
+    const [key, value] = cookie.trim().split('=');
+    if (key && value) acc[key] = value;
+    return acc;
+  }, {} as Record<string, string>);
+};
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+// Auth middleware - checks httpOnly cookie first, then Authorization header
+const authMiddleware = async (c: any, next: any) => {
+  let token: string | null = null;
+
+  // 1. Check httpOnly cookie first (more secure)
+  const cookies = parseCookies(c.req.header('Cookie'));
+  if (cookies['accessToken']) {
+    token = cookies['accessToken'];
+  }
+
+  // 2. Fall back to Authorization header (for API clients, mobile apps, etc.)
+  if (!token) {
+    const authHeader = c.req.header('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
+
+  if (!token) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
 
   try {
-    const token = authHeader.substring(7);
     const payload = jwt.verify(token, c.env.JWT_SECRET);
     c.set('user', payload);
     await next();
@@ -287,6 +310,13 @@ app.post('/api/v1/auth/register', async (c) => {
       },
     });
 
+    // Set httpOnly cookies for security (not accessible via JavaScript)
+    const isProduction = !c.req.url.includes('localhost');
+    const cookieOptions = `Path=/; HttpOnly; SameSite=Lax${isProduction ? '; Secure' : ''}`;
+
+    c.header('Set-Cookie', `accessToken=${accessToken}; ${cookieOptions}; Max-Age=86400`, { append: true });
+    c.header('Set-Cookie', `refreshToken=${refreshToken}; ${cookieOptions}; Max-Age=604800`, { append: true });
+
     return c.json({
       user: {
         id: result.user.id,
@@ -299,6 +329,7 @@ app.post('/api/v1/auth/register', async (c) => {
         name: result.organization.name,
         slug: result.organization.slug,
       },
+      // Still return tokens for backward compatibility (mobile apps, etc.)
       tokens: { accessToken, refreshToken },
     }, 201);
   } catch (error: any) {
@@ -348,6 +379,13 @@ app.post('/api/v1/auth/login', async (c) => {
       },
     });
 
+    // Set httpOnly cookies for security (not accessible via JavaScript)
+    const isProduction = !c.req.url.includes('localhost');
+    const cookieOptions = `Path=/; HttpOnly; SameSite=Lax${isProduction ? '; Secure' : ''}`;
+
+    c.header('Set-Cookie', `accessToken=${accessToken}; ${cookieOptions}; Max-Age=3600`, { append: true });
+    c.header('Set-Cookie', `refreshToken=${refreshToken}; ${cookieOptions}; Max-Age=604800`, { append: true });
+
     return c.json({
       user: {
         id: user.id,
@@ -355,11 +393,25 @@ app.post('/api/v1/auth/login', async (c) => {
         name: user.name,
         role: user.role,
       },
+      // Still return tokens for backward compatibility (mobile apps, etc.)
+      // Frontend should NOT store these in localStorage anymore
       tokens: { accessToken, refreshToken },
     });
   } catch (error: any) {
     return c.json({ error: error.message }, 500);
   }
+});
+
+// Logout - clear httpOnly cookies
+app.post('/api/v1/auth/logout', async (c) => {
+  const isProduction = !c.req.url.includes('localhost');
+  const cookieOptions = `Path=/; HttpOnly; SameSite=Lax${isProduction ? '; Secure' : ''}`;
+
+  // Clear cookies by setting them with Max-Age=0
+  c.header('Set-Cookie', `accessToken=; ${cookieOptions}; Max-Age=0`, { append: true });
+  c.header('Set-Cookie', `refreshToken=; ${cookieOptions}; Max-Age=0`, { append: true });
+
+  return c.json({ success: true, message: 'Logged out successfully' });
 });
 
 // Get current user

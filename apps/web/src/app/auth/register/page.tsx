@@ -84,6 +84,7 @@ export default function RegisterPage() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Required for httpOnly cookies
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,

@@ -36,29 +36,28 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem('accessToken');
-        if (!token) {
-          router.push('/auth/login');
-          return;
-        }
-
-        const headers = {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        };
-
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-        // Fetch analytics overview
-        const analyticsResponse = await fetch(`${apiUrl}/api/v1/analytics/overview`, { headers });
+        // Fetch analytics overview (auth via httpOnly cookies)
+        const analyticsResponse = await fetch(`${apiUrl}/api/v1/analytics/overview`, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
         if (!analyticsResponse.ok) {
+          if (analyticsResponse.status === 401) {
+            router.push('/auth/login');
+            return;
+          }
           throw new Error('Failed to fetch analytics data');
         }
         const analyticsData = await analyticsResponse.json();
         setAnalytics(analyticsData);
 
         // Fetch recent bots
-        const botsResponse = await fetch(`${apiUrl}/api/v1/analytics/recent-bots?limit=3`, { headers });
+        const botsResponse = await fetch(`${apiUrl}/api/v1/analytics/recent-bots?limit=3`, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
         if (!botsResponse.ok) {
           throw new Error('Failed to fetch recent bots');
         }
