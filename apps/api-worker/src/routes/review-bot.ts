@@ -2,12 +2,19 @@ import { Hono } from 'hono';
 import { PrismaClient } from '@prisma/client';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { Pool } from '@neondatabase/serverless';
+import * as jwt from 'jsonwebtoken';
 
 type Bindings = {
   DATABASE_URL: string;
+  JWT_SECRET: string;
 };
 
-const reviewBotRoutes = new Hono<{ Bindings: Bindings }>();
+type Variables = {
+  user: { userId: string; email: string };
+  organizationId: string;
+};
+
+const reviewBotRoutes = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 // Helper to get Prisma client
 function getPrisma(databaseUrl: string) {
@@ -16,13 +23,42 @@ function getPrisma(databaseUrl: string) {
   return new PrismaClient({ adapter });
 }
 
+// Auth middleware for review-bot routes
+reviewBotRoutes.use('*', async (c, next) => {
+  const authHeader = c.req.header('Authorization');
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ success: false, error: 'Unauthorized - Missing token' }, 401);
+  }
+
+  try {
+    const token = authHeader.substring(7);
+    const payload = jwt.verify(token, c.env.JWT_SECRET) as { userId: string; email: string };
+    c.set('user', payload);
+
+    // Get user's organization
+    const prisma = getPrisma(c.env.DATABASE_URL);
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: payload.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ success: false, error: 'User has no organization' }, 403);
+    }
+
+    c.set('organizationId', membership.organizationId);
+    await next();
+  } catch (error) {
+    return c.json({ success: false, error: 'Invalid token' }, 401);
+  }
+});
+
 // GET /api/review-bot - List all review bots for organization
 reviewBotRoutes.get('/', async (c) => {
   try {
     const prisma = getPrisma(c.env.DATABASE_URL);
-    
-    // TODO: Get organizationId from auth token
-    const organizationId = c.req.header('x-organization-id') || 'demo-org';
+    const organizationId = c.get('organizationId');
     
     const reviewBots = await prisma.reviewBot.findMany({
       where: { organizationId },
@@ -90,7 +126,7 @@ reviewBotRoutes.get('/:id', async (c) => {
   try {
     const prisma = getPrisma(c.env.DATABASE_URL);
     const id = c.req.param('id');
-    const organizationId = c.req.header('x-organization-id') || 'demo-org';
+    const organizationId = c.get('organizationId');
 
     const reviewBot = await prisma.reviewBot.findFirst({
       where: { id, organizationId },
@@ -163,7 +199,8 @@ reviewBotRoutes.post('/', async (c) => {
   try {
     const prisma = getPrisma(c.env.DATABASE_URL);
     const body = await c.req.json();
-    const organizationId = c.req.header('x-organization-id') || 'demo-org';
+    const organizationId = c.get('organizationId');
+    const user = c.get('user');
 
     const {
       businessName,
@@ -193,24 +230,8 @@ reviewBotRoutes.post('/', async (c) => {
       return c.json({ success: false, error: 'Business name is required' }, 400);
     }
 
-    // Find a user to associate with the bot (Temporary fix for missing auth context)
-    const member = await prisma.organizationMember.findFirst({
-      where: { organizationId },
-      select: { userId: true }
-    });
-
-    let userId: string;
-    if (!member) {
-      // Fallback: try to find any user if organization has no members (e.g. during dev/seed)
-      const anyUser = await prisma.user.findFirst();
-      if (!anyUser) {
-        return c.json({ success: false, error: 'No user found to associate with Review Bot' }, 400);
-      }
-      // Use the first found user
-      userId = anyUser.id;
-    } else {
-      userId = member.userId;
-    }
+    // Use authenticated user's ID
+    const userId = user.userId;
     const widgetId = `rb_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
     // Create Review Bot
@@ -278,7 +299,7 @@ reviewBotRoutes.patch('/:id', async (c) => {
     const prisma = getPrisma(c.env.DATABASE_URL);
     const id = c.req.param('id');
     const body = await c.req.json();
-    const organizationId = c.req.header('x-organization-id') || 'demo-org';
+    const organizationId = c.get('organizationId');
 
     // Verify ownership
     const existing = await prisma.reviewBot.findFirst({
@@ -334,7 +355,7 @@ reviewBotRoutes.delete('/:id', async (c) => {
   try {
     const prisma = getPrisma(c.env.DATABASE_URL);
     const id = c.req.param('id');
-    const organizationId = c.req.header('x-organization-id') || 'demo-org';
+    const organizationId = c.get('organizationId');
 
     // Verify ownership
     const existing = await prisma.reviewBot.findFirst({
