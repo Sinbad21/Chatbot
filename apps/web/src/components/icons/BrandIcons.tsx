@@ -74,6 +74,25 @@ export const StarIcon: React.FC<IconProps> = ({ size = 24, className = '' }) => 
   </svg>
 );
 
+// Google Calendar
+export const GoogleCalendarIcon: React.FC<IconProps> = ({ size = 24, className = '' }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} className={className}>
+    <path fill="#4285F4" d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12s4.48 10 10 10 10-4.48 10-10z" opacity="0.1"/>
+    <path fill="#4285F4" d="M18 4H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H6V9h12v9z"/>
+    <path fill="#EA4335" d="M8 11h3v3H8z"/>
+    <path fill="#FBBC05" d="M13 11h3v3h-3z"/>
+    <path fill="#34A853" d="M8 15h3v2H8z"/>
+    <path fill="#4285F4" d="M13 15h3v2h-3z"/>
+  </svg>
+);
+
+// HubSpot
+export const HubSpotIcon: React.FC<IconProps> = ({ size = 24, className = '' }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} className={className} fill="#FF7A59">
+    <path d="M18.164 7.93V5.084a2.198 2.198 0 001.267-1.984 2.21 2.21 0 00-2.212-2.212 2.21 2.21 0 00-2.212 2.212c0 .858.493 1.599 1.21 1.96v2.87a5.908 5.908 0 00-2.347 1.09l-6.26-4.865a2.93 2.93 0 00.097-.725 2.927 2.927 0 00-2.928-2.927A2.927 2.927 0 002.852 3.43a2.927 2.927 0 002.927 2.927c.486 0 .94-.123 1.342-.334l6.165 4.79a5.882 5.882 0 00-.856 3.047c0 1.115.313 2.155.85 3.046l-1.853 1.853a2.034 2.034 0 00-.592-.097 2.053 2.053 0 00-2.053 2.053 2.053 2.053 0 002.053 2.053 2.053 2.053 0 002.052-2.053c0-.213-.036-.417-.096-.612l1.83-1.83a5.88 5.88 0 003.536 1.19 5.91 5.91 0 005.908-5.909 5.906 5.906 0 00-4.901-5.822zm-1.012 8.755a2.966 2.966 0 01-2.971-2.972 2.966 2.966 0 012.97-2.971 2.966 2.966 0 012.972 2.97 2.966 2.966 0 01-2.971 2.973z"/>
+  </svg>
+);
+
 // Export all with brand colors
 export const BRAND_COLORS = {
   stripe: '#635BFF',
@@ -84,7 +103,11 @@ export const BRAND_COLORS = {
   telegram: '#0088cc',
   slack: '#4A154B',
   discord: '#5865F2',
+  hubspot: '#FF7A59',
 };
+
+// Alias for backwards compatibility
+export const brandColors = BRAND_COLORS;
 
 // Default export with all icons
 export default {
@@ -92,10 +115,13 @@ export default {
   WooCommerceIcon,
   ShopifyIcon,
   GoogleIcon,
+  GoogleCalendarIcon,
   WhatsAppIcon,
   TelegramIcon,
   SlackIcon,
   DiscordIcon,
   StarIcon,
+  HubSpotIcon,
   BRAND_COLORS,
+  brandColors,
 };
