@@ -33,17 +33,8 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
 
   const fetchFAQs = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        setError('No authentication token found');
-        setLoading(false);
-        return;
-      }
-
       const response = await fetch(`${apiUrl}/api/v1/bots/${botId}/faqs`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -70,12 +61,11 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
     setError(null);
 
     try {
-      const token = localStorage.getItem('accessToken');
       const res = await fetch(`${apiUrl}/api/v1/bots/${botId}/faqs`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           question,
@@ -106,12 +96,9 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
     }
 
     try {
-      const token = localStorage.getItem('accessToken');
       const res = await fetch(`${apiUrl}/api/v1/faqs/${faqId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (!res.ok) {

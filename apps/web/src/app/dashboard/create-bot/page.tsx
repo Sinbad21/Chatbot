@@ -24,17 +24,16 @@ export default function NewBotPage() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-      if (!apiUrl || !token) {
+      if (!apiUrl) {
         throw new Error(t('createBot.configError'));
       }
 
       const response = await fetch(`${apiUrl}/api/v1/bots`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),

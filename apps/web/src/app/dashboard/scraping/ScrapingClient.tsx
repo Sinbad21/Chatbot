@@ -96,13 +96,7 @@ export default function ScrapingClient() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
-
-      if (!token) {
-        setError(t('leadDiscovery.errors.noToken'));
-        return;
-      }
 
       const response = await axios.post(
         `${apiUrl}/api/v1/discovery/search`,
@@ -116,9 +110,7 @@ export default function ScrapingClient() {
           hasWebsite: hasWebsite !== 'any' ? hasWebsite === 'yes' : undefined,
           sources: selectedSources,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
 
       setCampaignId(response.data.campaignId);
@@ -135,7 +127,6 @@ export default function ScrapingClient() {
   const handleAnalyzeBusiness = async (business: Business) => {
     try {
       setAnalyzingId(business.id);
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       const response = await axios.post(
@@ -146,9 +137,7 @@ export default function ScrapingClient() {
           userProduct: userProduct || 'a solution to help businesses grow',
           language: currentLang,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
 
       const analysis = response.data.analysis;
@@ -173,7 +162,6 @@ export default function ScrapingClient() {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       const response = await axios.post(
@@ -188,9 +176,7 @@ export default function ScrapingClient() {
           },
           language: currentLang,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
 
       const outreachEmail = response.data;
@@ -219,7 +205,6 @@ export default function ScrapingClient() {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       const analyses = businesses.map((b) => b.analysis);
@@ -231,9 +216,7 @@ export default function ScrapingClient() {
           businesses,
           analyses,
         },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
 
       alert(t('leadDiscovery.success.savedLeads').replace('{count}', businesses.length.toString()));

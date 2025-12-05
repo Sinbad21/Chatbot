@@ -76,25 +76,21 @@ export default function ConversationsClient() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
-
-      if (!token) {
-        setError(t('conversations.authTokenNotFound'));
-        return;
-      }
 
       // Load conversations from API
       const response = await axios.get<ConversationListItem[]>(
         `${apiUrl}/api/v1/conversations?status=${filterStatus}&sort=${sortBy}&search=${searchQuery}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
 
       setConversations(response.data);
     } catch (err: any) {
       console.error('Error loading conversations:', err);
+      if (err.response?.status === 401) {
+        router.push('/auth/login');
+        return;
+      }
       setError(err.message || t('conversations.failedToLoad'));
     } finally {
       setLoading(false);
@@ -106,25 +102,21 @@ export default function ConversationsClient() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
-
-      if (!token) {
-        setError(t('conversations.authTokenNotFound'));
-        return;
-      }
 
       // Load conversation detail from API
       const response = await axios.get<ConversationDetail>(
         `${apiUrl}/api/v1/conversations/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
 
       setSelectedConversation(response.data);
     } catch (err: any) {
       console.error('Error loading conversation:', err);
+      if (err.response?.status === 401) {
+        router.push('/auth/login');
+        return;
+      }
       setError(err.message || t('conversations.failedToLoadConversation'));
     } finally {
       setLoading(false);
@@ -175,11 +167,10 @@ ${transcript}
     }
 
     try {
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       await axios.delete(`${apiUrl}/api/v1/conversations/${conversationId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
 
       // Navigate back to list
@@ -202,7 +193,6 @@ ${transcript}
 
     setIsSavingTraining(true);
     try {
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       if (trainingType === 'faq') {
@@ -213,9 +203,7 @@ ${transcript}
             answer: selectedMessage.bot,
             enabled: true,
           },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { withCredentials: true }
         );
       } else {
         // For intent, use the bot message as response
@@ -226,9 +214,7 @@ ${transcript}
             response: selectedMessage.bot,
             enabled: true,
           },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { withCredentials: true }
         );
       }
 

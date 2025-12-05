@@ -112,13 +112,10 @@ export default function AnalyticsPage() {
 
   const loadBots = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
-      if (!token) return;
-
       const response = await axios.get<Bot[]>(`${apiUrl}/api/v1/bots`, {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
 
       setBots(response.data);
@@ -132,10 +129,9 @@ export default function AnalyticsPage() {
 
   const loadUsageData = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
-      if (!token || !selectedBotId) return;
+      if (!selectedBotId) return;
 
       // Calculate date range
       const to = new Date();
@@ -156,7 +152,7 @@ export default function AnalyticsPage() {
       }
 
       const response = await axios.get<UsageData>(`${apiUrl}/api/v1/bots/${selectedBotId}/usage`, {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
         params: {
           from: from.toISOString(),
           to: to.toISOString(),
@@ -174,31 +170,23 @@ export default function AnalyticsPage() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
-
-      if (!token) {
-        setError(t('analytics.authTokenNotFound'));
-        return;
-      }
 
       // Load all analytics data in parallel
       const [overviewResponse, conversationsDataResponse, intentsDataResponse, conversationsListResponse] =
         await Promise.all([
           axios.get<AnalyticsOverview>(`${apiUrl}/api/v1/analytics/overview`, {
-            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
           }),
           axios.get<ConversationData[]>(
             `${apiUrl}/api/v1/analytics/conversations-over-time?range=${dateRange}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
+            { withCredentials: true }
           ),
           axios.get<IntentData[]>(`${apiUrl}/api/v1/analytics/top-intents?range=${dateRange}`, {
-            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
           }),
           axios.get<Conversation[]>(`${apiUrl}/api/v1/conversations?sort=recent&status=all`, {
-            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
           }),
         ]);
 
