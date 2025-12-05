@@ -61,8 +61,15 @@ const ChatSlide: React.FC = () => {
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [displayedMessages, setDisplayedMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [isInteractive, setIsInteractive] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const autoPlayRef = useRef<boolean>(true);
   const currentScenario = SCENARIOS[scenarioIndex];
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -74,36 +81,114 @@ const ChatSlide: React.FC = () => {
     }
   }, [displayedMessages, isTyping]);
 
+  // Auto-play demo scenarios
   useEffect(() => {
+    if (isInteractive) return; // Stop auto-play when user interacts
+
     let isMounted = true;
     const runScenario = async () => {
       setDisplayedMessages([]);
       const messages = currentScenario.messages;
 
       for (let i = 0; i < messages.length; i++) {
-        if (!isMounted) return;
+        if (!isMounted || !autoPlayRef.current) return;
         const msg = messages[i];
         if (msg.sender === 'user') {
           await new Promise(r => setTimeout(r, 1000));
-          if (!isMounted) return;
+          if (!isMounted || !autoPlayRef.current) return;
           setDisplayedMessages(prev => [...prev, { id: Date.now(), ...msg }]);
         } else {
           await new Promise(r => setTimeout(r, 600));
-          if (!isMounted) return;
+          if (!isMounted || !autoPlayRef.current) return;
           setIsTyping(true);
           await new Promise(r => setTimeout(r, 1500));
-          if (!isMounted) return;
+          if (!isMounted || !autoPlayRef.current) return;
           setIsTyping(false);
           setDisplayedMessages(prev => [...prev, { id: Date.now(), ...msg }]);
         }
       }
       await new Promise(r => setTimeout(r, 4000));
-      if (!isMounted) return;
+      if (!isMounted || !autoPlayRef.current) return;
       setScenarioIndex(prev => (prev + 1) % SCENARIOS.length);
     };
     runScenario();
     return () => { isMounted = false; };
-  }, [scenarioIndex, currentScenario.messages]);
+  }, [scenarioIndex, currentScenario.messages, isInteractive]);
+
+  // Handle user sending a message
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    // Switch to interactive mode
+    if (!isInteractive) {
+      setIsInteractive(true);
+      autoPlayRef.current = false;
+      setDisplayedMessages([]);
+    }
+
+    const userMessage = inputValue.trim();
+    setInputValue('');
+
+    // Add user message
+    setDisplayedMessages(prev => [...prev, {
+      id: Date.now(),
+      text: userMessage,
+      sender: 'user'
+    }]);
+
+    // Show typing indicator
+    setIsLoading(true);
+    setIsTyping(true);
+
+    try {
+      const response = await fetch(`${API_URL}/api/v1/chat/demo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userMessage,
+          scenario: currentScenario.id
+        }),
+      });
+
+      const data = await response.json();
+
+      setIsTyping(false);
+      setDisplayedMessages(prev => [...prev, {
+        id: Date.now(),
+        text: data.message || 'Grazie per il messaggio! Registrati per creare il tuo chatbot.',
+        sender: 'bot'
+      }]);
+    } catch {
+      setIsTyping(false);
+      setDisplayedMessages(prev => [...prev, {
+        id: Date.now(),
+        text: 'Interessante! Posso aiutarti a creare un chatbot personalizzato per la tua azienda. Registrati per iniziare!',
+        sender: 'bot'
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleInputFocus = () => {
+    if (!isInteractive) {
+      // Pause auto-play and show welcome message
+      autoPlayRef.current = false;
+      setIsInteractive(true);
+      setDisplayedMessages([{
+        id: Date.now(),
+        text: 'Ciao! Sono la demo live di ChatBot Studio. Scrivi qualsiasi domanda e ti mostrerò come funziona un chatbot AI!',
+        sender: 'bot'
+      }]);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full relative overflow-hidden">
@@ -121,11 +206,26 @@ const ChatSlide: React.FC = () => {
             <h3 className={`font-serif font-medium text-sm ${currentScenario.color}`}>{currentScenario.persona}</h3>
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-[pulse_2s_infinite]" />
-              <span className="text-[10px] text-emerald-400/80 uppercase tracking-wide font-semibold">Live Demo</span>
+              <span className="text-[10px] text-emerald-400/80 uppercase tracking-wide font-semibold">
+                {isInteractive ? 'Prova Live' : 'Live Demo'}
+              </span>
             </div>
           </div>
         </div>
-        <RefreshCw className="w-4 h-4 text-platinum-500 animate-[spin_8s_linear_infinite]" />
+        {isInteractive ? (
+          <button
+            onClick={() => {
+              setIsInteractive(false);
+              autoPlayRef.current = true;
+              setDisplayedMessages([]);
+            }}
+            className="text-[10px] text-platinum-500 hover:text-platinum-300 transition-colors"
+          >
+            Auto-play
+          </button>
+        ) : (
+          <RefreshCw className="w-4 h-4 text-platinum-500 animate-[spin_8s_linear_infinite]" />
+        )}
       </div>
 
       <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide z-10">
@@ -158,9 +258,25 @@ const ChatSlide: React.FC = () => {
       </div>
 
       <div className="p-4 border-t border-platinum-800/50 bg-platinum-900/50 backdrop-blur-md z-10">
-        <div className="w-full bg-platinum-950/50 border border-platinum-800 rounded-lg px-4 py-2 text-platinum-600 text-xs italic flex items-center justify-between">
-          <span>Scrivi un messaggio...</span>
-          <Sparkles className="w-3 h-3 text-platinum-500" />
+        <div className="w-full bg-platinum-950/50 border border-platinum-800 rounded-lg px-4 py-2 flex items-center gap-2">
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={handleInputFocus}
+            placeholder={isInteractive ? "Scrivi un messaggio..." : "Clicca per provare la demo..."}
+            className="flex-1 bg-transparent text-platinum-100 text-sm placeholder-platinum-600 outline-none"
+            disabled={isLoading}
+          />
+          <button
+            onClick={handleSendMessage}
+            disabled={!inputValue.trim() || isLoading}
+            className="p-1.5 rounded-md bg-platinum-700/50 hover:bg-platinum-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <Sparkles className={`w-3 h-3 ${inputValue.trim() ? 'text-platinum-200' : 'text-platinum-500'}`} />
+          </button>
         </div>
       </div>
     </div>
