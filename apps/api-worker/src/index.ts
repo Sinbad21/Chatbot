@@ -2131,6 +2131,85 @@ app.delete('/api/v1/faqs/:id', authMiddleware, async (c) => {
 // CHAT ROUTES (PUBLIC)
 // ============================================
 
+// Demo chat endpoint - no authentication required, uses OpenAI for realistic demo
+app.post('/api/v1/chat/demo', async (c) => {
+  try {
+    const { message, scenario } = await c.req.json();
+
+    if (!message) {
+      return c.json({ error: 'message is required' }, 400);
+    }
+
+    // Demo system prompts based on scenario
+    const scenarioPrompts: Record<string, string> = {
+      sales: `Sei un assistente AI specializzato in vendite e lead generation per un'agenzia immobiliare di lusso.
+Rispondi in italiano in modo professionale e conciso (max 2-3 frasi).
+Puoi aiutare con: qualificazione lead, informazioni su immobili, prenotazione appuntamenti, integrazione con Google Calendar.
+Mostra come un chatbot AI può automatizzare il processo di vendita.`,
+
+      realestate: `Sei un assistente AI per un'agenzia immobiliare di lusso a Milano.
+Rispondi in italiano in modo elegante e professionale (max 2-3 frasi).
+Puoi aiutare con: ricerca immobili, invio planimetrie su WhatsApp, tour virtuali, prenotazione visite.
+Mostra il valore di un chatbot AI nel settore immobiliare.`,
+
+      support: `Sei un assistente AI per il customer support di un e-commerce.
+Rispondi in italiano in modo amichevole e efficiente (max 2-3 frasi).
+Puoi aiutare con: tracking ordini, resi, domande sui prodotti, aggiornamenti via SMS.
+Mostra come un chatbot AI può migliorare il servizio clienti.`,
+
+      default: `Sei l'assistente AI di ChatBot Studio, una piattaforma per creare chatbot intelligenti.
+Rispondi in italiano in modo professionale e conciso (max 2-3 frasi).
+Puoi spiegare: funzionalità della piattaforma, integrazione con WhatsApp/Telegram, analytics, Google Calendar.
+Il tuo obiettivo è mostrare il valore di un chatbot AI per le aziende.`
+    };
+
+    const systemPrompt = scenarioPrompts[scenario || 'default'] || scenarioPrompts.default;
+
+    // Call OpenAI API
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${c.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
+        ],
+        max_tokens: 150,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!openaiResponse.ok) {
+      // Fallback response if OpenAI fails
+      return c.json({
+        message: 'Grazie per il tuo messaggio! Questa è una demo del nostro chatbot. Registrati per creare il tuo assistente AI personalizzato.',
+        isDemo: true,
+      });
+    }
+
+    const completion = await openaiResponse.json();
+    const response = completion.choices?.[0]?.message?.content ||
+      'Interessante! Posso aiutarti a scoprire come ChatBot Studio può automatizzare le conversazioni della tua azienda.';
+
+    return c.json({
+      message: response,
+      isDemo: true,
+    });
+
+  } catch (error: any) {
+    console.error('[DEMO CHAT] Error:', error);
+    // Return fallback response on any error
+    return c.json({
+      message: 'Grazie per aver provato la demo! Registrati per creare il tuo chatbot personalizzato con AI.',
+      isDemo: true,
+    });
+  }
+});
+
 app.post('/api/v1/chat', async (c) => {
   try {
     const prisma = getPrisma(c.env);
