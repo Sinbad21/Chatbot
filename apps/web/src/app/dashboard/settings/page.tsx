@@ -51,11 +51,10 @@ export default function SettingsPage() {
 
   const loadUserData = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       const response = await axios.get(`${apiUrl}/api/v1/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
 
       setUser(response.data);
@@ -70,15 +69,10 @@ export default function SettingsPage() {
 
   const loadApiKeys = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
-      if (!token) {
-        return;
-      }
-
       const response = await axios.get(`${apiUrl}/api/v1/api-keys`, {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
 
       setApiKeys(response.data);
@@ -146,21 +140,12 @@ export default function SettingsPage() {
     setMessage(null);
 
     try {
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
-
-      if (!token) {
-        setMessage({ type: 'error', text: t('analytics.authTokenNotFound') });
-        setCreatingKey(false);
-        return;
-      }
 
       const response = await axios.post(
         `${apiUrl}/api/v1/api-keys`,
         { name: newKeyName.trim() },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
 
       // Store the full key to display (only shown once)
@@ -190,16 +175,10 @@ export default function SettingsPage() {
     }
 
     try {
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
-      if (!token) {
-        setMessage({ type: 'error', text: t('analytics.authTokenNotFound') });
-        return;
-      }
-
       await axios.delete(`${apiUrl}/api/v1/api-keys/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
 
       setApiKeys(apiKeys.filter((key) => key.id !== id));

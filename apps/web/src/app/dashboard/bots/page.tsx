@@ -28,22 +28,23 @@ export default function BotsListPage() {
 
   const fetchBots = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-      if (!apiUrl || !token) {
+      if (!apiUrl) {
         setError(t('bots.configError'));
         setLoading(false);
         return;
       }
 
       const response = await fetch(`${apiUrl}/api/v1/bots`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = '/auth/login';
+          return;
+        }
         throw new Error(t('bots.failedToFetch'));
       }
 

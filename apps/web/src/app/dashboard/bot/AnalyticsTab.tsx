@@ -67,16 +67,13 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
     setError(null);
 
     try {
-      const token = localStorage.getItem('accessToken');
       const params = new URLSearchParams();
       if (fromDate) params.append('from', fromDate);
       if (toDate) params.append('to', toDate);
 
       const response = await fetch(
         `${apiBaseUrl}/api/v1/bots/${botId}/usage?${params.toString()}`,
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
+        { credentials: 'include' }
       );
 
       if (!response.ok) {

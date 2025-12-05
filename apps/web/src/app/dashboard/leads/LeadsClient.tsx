@@ -79,13 +79,7 @@ export default function LeadsClient() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
-
-      if (!token) {
-        setError(t('leads.authTokenNotFound'));
-        return;
-      }
 
       const params = new URLSearchParams({
         status: filterStatus,
@@ -96,14 +90,16 @@ export default function LeadsClient() {
 
       const response = await axios.get<Lead[]>(
         `${apiUrl}/api/v1/leads?${params}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
 
       setLeads(response.data);
     } catch (err: any) {
       console.error('Error loading leads:', err);
+      if (err.response?.status === 401) {
+        router.push('/auth/login');
+        return;
+      }
       setError(err.message || t('leads.failedToLoad'));
     } finally {
       setLoading(false);
@@ -115,24 +111,20 @@ export default function LeadsClient() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
-
-      if (!token) {
-        setError(t('leads.authTokenNotFound'));
-        return;
-      }
 
       const response = await axios.get<LeadDetail>(
         `${apiUrl}/api/v1/leads/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
 
       setSelectedLead(response.data);
     } catch (err: any) {
       console.error('Error loading lead:', err);
+      if (err.response?.status === 401) {
+        router.push('/auth/login');
+        return;
+      }
       setError(err.message || t('leads.failedToLoadLead'));
     } finally {
       setLoading(false);
@@ -141,13 +133,12 @@ export default function LeadsClient() {
 
   const handleStatusChange = async (leadId: string, newStatus: string) => {
     try {
-      const token = localStorage.getItem('accessToken');
       const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
 
       await axios.patch(
         `${apiUrl}/api/v1/leads/${leadId}`,
         { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { withCredentials: true }
       );
 
       setMessage({ type: 'success', text: t('leads.statusUpdated') });
