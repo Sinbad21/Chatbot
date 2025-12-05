@@ -3,6 +3,7 @@
 import { useTranslation } from '@/lib/i18n';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Onboarding from '@/components/dashboard/Onboarding';
 
 interface AnalyticsData {
   totalBots: number;
@@ -25,6 +26,13 @@ interface RecentBot {
   isPublished: boolean;
 }
 
+interface BotWithCounts {
+  id: string;
+  _count: {
+    documents: number;
+  };
+}
+
 export default function DashboardPage() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -32,6 +40,29 @@ export default function DashboardPage() {
   const [recentBots, setRecentBots] = useState<RecentBot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [userName, setUserName] = useState<string | undefined>();
+  const [hasDocuments, setHasDocuments] = useState(false);
+
+  // Check if onboarding should be shown
+  useEffect(() => {
+    const dismissed = localStorage.getItem('onboarding_dismissed');
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setUserName(user.name);
+      } catch {}
+    }
+    if (!dismissed) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleDismissOnboarding = () => {
+    localStorage.setItem('onboarding_dismissed', 'true');
+    setShowOnboarding(false);
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -63,6 +94,17 @@ export default function DashboardPage() {
         }
         const botsData = await botsResponse.json();
         setRecentBots(botsData);
+
+        // Fetch all bots to check for documents (for onboarding)
+        const allBotsResponse = await fetch(`${apiUrl}/api/v1/bots`, {
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (allBotsResponse.ok) {
+          const allBotsData: BotWithCounts[] = await allBotsResponse.json();
+          const hasAnyDocuments = allBotsData.some(bot => (bot._count?.documents ?? 0) > 0);
+          setHasDocuments(hasAnyDocuments);
+        }
 
         setLoading(false);
       } catch (err) {
@@ -108,6 +150,17 @@ export default function DashboardPage() {
 
   return (
     <div>
+      {/* Onboarding Wizard */}
+      {showOnboarding && (
+        <Onboarding
+          userName={userName}
+          hasBots={(analytics?.totalBots ?? 0) > 0}
+          hasDocuments={hasDocuments}
+          hasConversations={(analytics?.conversations ?? 0) > 0}
+          onDismiss={handleDismissOnboarding}
+        />
+      )}
+
       <h1 className="text-3xl font-bold mb-8 text-white">{t('dashboard.title')}</h1>
 
       {/* Stats */}
