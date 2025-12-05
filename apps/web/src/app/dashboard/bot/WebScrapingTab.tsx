@@ -54,7 +54,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        const response = await fetch(url, options);
+        const response = await fetch(url, { ...options, credentials: 'include' });
 
         // If rate limited, retry with exponential backoff
         if (response.status === 429 || response.status === 403) {
@@ -101,14 +101,12 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
     setSelectedUrls(new Set());
 
     try {
-      const token = localStorage.getItem("accessToken");
       const response = await fetchWithRetry(
         `${apiBaseUrl}/api/v1/scrape`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           body: JSON.stringify({ url: url.trim() }),
         }
@@ -154,14 +152,12 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
     setSelectedUrls(new Set());
 
     try {
-      const token = localStorage.getItem("accessToken");
       const response = await fetchWithRetry(
         `${apiBaseUrl}/api/v1/bots/${botId}/discover-links`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           body: JSON.stringify({ url: url.trim() }),
         }
@@ -201,14 +197,10 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
     setIsLoadingPreview(true);
 
     try {
-      const token = localStorage.getItem("accessToken");
       const response = await fetchWithRetry(
         `${apiBaseUrl}/api/v1/scrape?url=${encodeURIComponent(linkUrl)}`,
         {
           method: "GET",
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
         }
       );
 
@@ -256,8 +248,6 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
     let failCount = 0;
 
     try {
-      const token = localStorage.getItem("accessToken");
-
       for (const link of selectedLinks) {
         try {
           // First, get the content preview
@@ -265,9 +255,6 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
             `${apiBaseUrl}/api/v1/scrape?url=${encodeURIComponent(link.url)}`,
             {
               method: "GET",
-              headers: {
-                ...(token ? { Authorization: `Bearer ${token}` } : {}),
-              },
             }
           );
 
@@ -285,7 +272,6 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                ...(token ? { Authorization: `Bearer ${token}` } : {}),
               },
               body: JSON.stringify({
                 title: previewData.title || link.text || link.url,

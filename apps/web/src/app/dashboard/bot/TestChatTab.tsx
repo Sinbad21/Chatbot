@@ -65,9 +65,8 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
     // Fetch bot details to get logo and system prompt
     const fetchBotDetails = async () => {
       try {
-        const token = localStorage.getItem('accessToken');
         const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}`, {
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+          credentials: 'include',
         });
 
         if (response.ok) {
@@ -156,12 +155,11 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
     setIsSavingPrompt(true);
 
     try {
-      const token = localStorage.getItem('accessToken');
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ systemPrompt: editedPrompt.trim() }),
       });

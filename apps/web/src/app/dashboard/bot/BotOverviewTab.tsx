@@ -115,25 +115,21 @@ export default function BotOverviewTab({ botId }: Props) {
   useEffect(() => {
     const fetchBot = async () => {
       try {
-        const token = localStorage.getItem("accessToken");
         const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-        if (!token) {
-          router.push("/auth/login");
-          return;
-        }
 
         if (!apiUrl) {
           throw new Error("API URL not configured");
         }
 
         const response = await fetch(`${apiUrl}/api/v1/bots/${botId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: 'include',
         });
 
         if (!response.ok) {
+          if (response.status === 401) {
+            router.push("/auth/login");
+            return;
+          }
           throw new Error("Failed to fetch bot");
         }
 
@@ -168,17 +164,16 @@ export default function BotOverviewTab({ botId }: Props) {
 
   const updateBot = async (updates: Partial<Bot>) => {
     try {
-      const token = localStorage.getItem("accessToken");
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-      if (!token || !apiUrl) {
+      if (!apiUrl) {
         throw new Error("Invalid settings");
       }
 
       const response = await fetch(`${apiUrl}/api/v1/bots/${botId}`, {
         method: "PATCH",
+        credentials: 'include',
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(updates),
@@ -277,18 +272,15 @@ export default function BotOverviewTab({ botId }: Props) {
       const formData = new FormData();
       formData.append("logo", file);
 
-      const token = localStorage.getItem("accessToken");
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-      if (!token || !apiUrl) {
+      if (!apiUrl) {
         throw new Error("Invalid settings");
       }
 
       const response = await fetch(`${apiUrl}/api/v1/bots/${botId}/logo`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
         body: formData,
       });
 
@@ -315,18 +307,15 @@ export default function BotOverviewTab({ botId }: Props) {
     }
 
     try {
-      const token = localStorage.getItem("accessToken");
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-      if (!token || !apiUrl) {
+      if (!apiUrl) {
         throw new Error("Invalid settings");
       }
 
       const response = await fetch(`${apiUrl}/api/v1/bots/${bot.id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (!response.ok) {

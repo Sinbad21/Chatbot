@@ -96,12 +96,9 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       const formData = new FormData();
       formData.append('file', selectedFile);
 
-      const token = localStorage.getItem('accessToken');
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents/upload`, {
         method: 'POST',
-        headers: {
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-        },
+        credentials: 'include',
         body: formData,
       });
 
@@ -141,12 +138,11 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
     setError(null);
 
     try {
-      const token = localStorage.getItem('accessToken');
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ title, content, url: '', type: 'text' }),
       });
@@ -177,12 +173,11 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
 
   const handleToggleExclude = async (documentId: string, currentExcluded: boolean) => {
     try {
-      const token = localStorage.getItem('accessToken');
       const response = await fetch(`${apiBaseUrl}/api/v1/documents/${documentId}`, {
         method: 'PATCH',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ excluded: !currentExcluded }),
       });
