@@ -129,7 +129,13 @@ const ChatSlide: React.FC = () => {
     const userMessage = inputValue.trim();
     setInputValue('');
 
-    // Add user message
+    // Build conversation history for context
+    const conversationHistory = displayedMessages.map(msg => ({
+      role: msg.sender === 'user' ? 'user' : 'assistant',
+      content: msg.text
+    }));
+
+    // Add user message to display
     setDisplayedMessages(prev => [...prev, {
       id: Date.now(),
       text: userMessage,
@@ -146,7 +152,8 @@ const ChatSlide: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage,
-          scenario: currentScenario.id
+          scenario: currentScenario.id,
+          conversationHistory
         }),
       });
 
