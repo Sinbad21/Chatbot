@@ -67,9 +67,15 @@ const ChatSlide: React.FC = () => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const autoPlayRef = useRef<boolean>(true);
+  const messagesRef = useRef<Message[]>([]); // Track messages for API calls
   const currentScenario = SCENARIOS[scenarioIndex];
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
+  // Keep messagesRef in sync with displayedMessages
+  useEffect(() => {
+    messagesRef.current = displayedMessages;
+  }, [displayedMessages]);
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -119,28 +125,41 @@ const ChatSlide: React.FC = () => {
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
-    // Switch to interactive mode
-    if (!isInteractive) {
-      setIsInteractive(true);
-      autoPlayRef.current = false;
-      setDisplayedMessages([]);
-    }
-
     const userMessage = inputValue.trim();
     setInputValue('');
 
-    // Build conversation history for context
-    const conversationHistory = displayedMessages.map(msg => ({
+    // Get current messages from ref (more reliable than state)
+    const currentMessages = [...messagesRef.current];
+
+    // If first message, add welcome from bot
+    let newMessages: Message[] = [];
+    if (!isInteractive) {
+      setIsInteractive(true);
+      autoPlayRef.current = false;
+      const welcomeMsg: Message = {
+        id: Date.now(),
+        text: 'Ciao! Sono la demo live di ChatBot Studio. Come posso aiutarti?',
+        sender: 'bot'
+      };
+      newMessages = [welcomeMsg];
+    } else {
+      newMessages = currentMessages;
+    }
+
+    // Add user message
+    const userMsg: Message = {
+      id: Date.now() + 1,
+      text: userMessage,
+      sender: 'user'
+    };
+    newMessages = [...newMessages, userMsg];
+    setDisplayedMessages(newMessages);
+
+    // Build conversation history for API (include all previous messages)
+    const conversationHistory = newMessages.map(msg => ({
       role: msg.sender === 'user' ? 'user' : 'assistant',
       content: msg.text
     }));
-
-    // Add user message to display
-    setDisplayedMessages(prev => [...prev, {
-      id: Date.now(),
-      text: userMessage,
-      sender: 'user'
-    }]);
 
     // Show typing indicator
     setIsLoading(true);
@@ -153,7 +172,7 @@ const ChatSlide: React.FC = () => {
         body: JSON.stringify({
           message: userMessage,
           scenario: currentScenario.id,
-          conversationHistory
+          conversationHistory: conversationHistory.slice(0, -1) // Don't include current user message twice
         }),
       });
 
@@ -162,14 +181,14 @@ const ChatSlide: React.FC = () => {
       setIsTyping(false);
       setDisplayedMessages(prev => [...prev, {
         id: Date.now(),
-        text: data.message || 'Grazie per il messaggio! Registrati per creare il tuo chatbot.',
+        text: data.message || 'Come posso aiutarti con ChatBot Studio?',
         sender: 'bot'
       }]);
     } catch {
       setIsTyping(false);
       setDisplayedMessages(prev => [...prev, {
         id: Date.now(),
-        text: 'Interessante! Posso aiutarti a creare un chatbot personalizzato per la tua azienda. Registrati per iniziare!',
+        text: 'Interessante! Posso aiutarti a creare un chatbot personalizzato per la tua azienda. Cosa vorresti sapere?',
         sender: 'bot'
       }]);
     } finally {
@@ -189,11 +208,12 @@ const ChatSlide: React.FC = () => {
       // Pause auto-play and show welcome message
       autoPlayRef.current = false;
       setIsInteractive(true);
-      setDisplayedMessages([{
+      const welcomeMsg: Message = {
         id: Date.now(),
         text: 'Ciao! Sono la demo live di ChatBot Studio. Scrivi qualsiasi domanda e ti mostrerò come funziona un chatbot AI!',
         sender: 'bot'
-      }]);
+      };
+      setDisplayedMessages([welcomeMsg]);
     }
   };
 
