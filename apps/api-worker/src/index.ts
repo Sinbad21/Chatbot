@@ -414,6 +414,145 @@ app.post('/api/v1/auth/logout', async (c) => {
   return c.json({ success: true, message: 'Logged out successfully' });
 });
 
+// Forgot password - send reset email
+app.post('/api/v1/auth/forgot-password', async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const { email } = await c.req.json();
+
+    if (!email) {
+      return c.json({ error: 'Email is required' }, 400);
+    }
+
+    // Find user by email
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
+
+    // Always return success to prevent email enumeration
+    if (!user) {
+      console.log('[FORGOT-PASSWORD] No user found for email:', email);
+      return c.json({ success: true, message: 'If an account exists, a reset email has been sent' });
+    }
+
+    // Generate reset token (valid for 1 hour)
+    const resetToken = jwt.sign(
+      { userId: user.id, email: user.email, type: 'password_reset' },
+      c.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // Store token in database (using metadata field or a dedicated table)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        // Store reset token and expiry in a JSON field or add dedicated columns
+        // For now, we'll use the token directly in the URL
+      },
+    });
+
+    // Build reset URL
+    const frontendUrl = c.env.APP_URL || 'https://chatbotstudio-web.gabrypiritore.workers.dev';
+    const resetUrl = `${frontendUrl}/auth/reset-password?token=${resetToken}`;
+
+    console.log('[FORGOT-PASSWORD] Reset URL generated for:', email);
+    console.log('[FORGOT-PASSWORD] Reset URL:', resetUrl);
+
+    // TODO: Send email via Resend or other email service
+    // For now, log the URL (in production, this would be sent via email)
+    // Example with Resend:
+    // await resend.emails.send({
+    //   from: 'ChatBot Studio <noreply@chatbotstudio.com>',
+    //   to: email,
+    //   subject: 'Reimposta la tua password',
+    //   html: `<p>Clicca qui per reimpostare la password: <a href="${resetUrl}">${resetUrl}</a></p>`,
+    // });
+
+    return c.json({ success: true, message: 'If an account exists, a reset email has been sent' });
+  } catch (error: any) {
+    console.error('[FORGOT-PASSWORD] Error:', error);
+    // Still return success to prevent enumeration
+    return c.json({ success: true, message: 'If an account exists, a reset email has been sent' });
+  }
+});
+
+// Verify reset token
+app.post('/api/v1/auth/verify-reset-token', async (c) => {
+  try {
+    const { token } = await c.req.json();
+
+    if (!token) {
+      return c.json({ error: 'Token is required' }, 400);
+    }
+
+    // Verify the token
+    const decoded = jwt.verify(token, c.env.JWT_SECRET) as { userId: string; type: string };
+
+    if (decoded.type !== 'password_reset') {
+      return c.json({ error: 'Invalid token type' }, 400);
+    }
+
+    return c.json({ valid: true });
+  } catch (error: any) {
+    console.error('[VERIFY-RESET-TOKEN] Error:', error.message);
+    return c.json({ error: 'Invalid or expired token' }, 400);
+  }
+});
+
+// Reset password
+app.post('/api/v1/auth/reset-password', async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const { token, password } = await c.req.json();
+
+    if (!token || !password) {
+      return c.json({ error: 'Token and password are required' }, 400);
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return c.json({ error: 'Password must be at least 8 characters' }, 400);
+    }
+    if (!/[A-Z]/.test(password)) {
+      return c.json({ error: 'Password must contain at least one uppercase letter' }, 400);
+    }
+    if (!/[a-z]/.test(password)) {
+      return c.json({ error: 'Password must contain at least one lowercase letter' }, 400);
+    }
+    if (!/[0-9]/.test(password)) {
+      return c.json({ error: 'Password must contain at least one number' }, 400);
+    }
+
+    // Verify the token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, c.env.JWT_SECRET) as { userId: string; email: string; type: string };
+    } catch {
+      return c.json({ error: 'Invalid or expired token' }, 400);
+    }
+
+    if (decoded.type !== 'password_reset') {
+      return c.json({ error: 'Invalid token type' }, 400);
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update user password
+    await prisma.user.update({
+      where: { id: decoded.userId },
+      data: { password: hashedPassword },
+    });
+
+    console.log('[RESET-PASSWORD] Password updated for user:', decoded.email);
+
+    return c.json({ success: true, message: 'Password reset successfully' });
+  } catch (error: any) {
+    console.error('[RESET-PASSWORD] Error:', error);
+    return c.json({ error: 'Failed to reset password' }, 500);
+  }
+});
+
 // Get current user
 app.get('/api/v1/me', authMiddleware, async (c) => {
   try {
