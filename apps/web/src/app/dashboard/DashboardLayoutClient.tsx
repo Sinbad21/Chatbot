@@ -19,12 +19,28 @@ import {
   LogOut,
   Languages,
   Star,
+  ChevronDown,
+  Zap,
+  Megaphone,
 } from 'lucide-react';
 import { useTranslation, LANGUAGES, type Language } from '@/lib/i18n';
 import { useSessionActivity } from '@/hooks/useSessionActivity';
 import { SpaceBackground } from '@/components/dashboard/ui';
 import { Command, Bell } from 'lucide-react';
 import { logout } from '@/lib/authHeaders';
+
+interface NavItem {
+  nameKey: string;
+  href: string;
+  icon: React.ElementType;
+}
+
+interface NavGroup {
+  label: string;
+  icon: React.ElementType;
+  items: NavItem[];
+  defaultOpen?: boolean;
+}
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -34,37 +50,83 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Monitora l'attività dell'utente per mantenere la sessione attiva
   useSessionActivity();
 
-  const navigation = [
-    { nameKey: 'nav.dashboard', href: '/dashboard', icon: LayoutGrid },
-    { nameKey: 'nav.bots', href: '/dashboard/bots', icon: Bot },
-    { nameKey: 'nav.conversations', href: '/dashboard/conversations', icon: MessageSquare },
-    { nameKey: 'nav.analytics', href: '/dashboard/analytics', icon: BarChart3 },
-    { nameKey: 'nav.reviewBot', href: '/dashboard/review-bot', icon: Star },
-    { nameKey: 'nav.leads', href: '/dashboard/leads', icon: Users },
-    { nameKey: 'nav.calendar', href: '/dashboard/calendar', icon: Calendar },
-    { nameKey: 'nav.bookings', href: '/dashboard/bookings', icon: CalendarCheck },
-    { nameKey: 'nav.scraping', href: '/dashboard/scraping', icon: Globe },
-    { nameKey: 'nav.integrations', href: '/dashboard/integrations', icon: Puzzle },
-    { nameKey: 'nav.settings', href: '/dashboard/settings', icon: Settings },
+  // Grouped navigation
+  const navGroups: NavGroup[] = [
+    {
+      label: 'Chatbot',
+      icon: Bot,
+      defaultOpen: true,
+      items: [
+        { nameKey: 'nav.bots', href: '/dashboard/bots', icon: Bot },
+        { nameKey: 'nav.conversations', href: '/dashboard/conversations', icon: MessageSquare },
+        { nameKey: 'nav.reviewBot', href: '/dashboard/review-bot', icon: Star },
+      ]
+    },
+    {
+      label: 'Marketing',
+      icon: Megaphone,
+      defaultOpen: true,
+      items: [
+        { nameKey: 'nav.analytics', href: '/dashboard/analytics', icon: BarChart3 },
+        { nameKey: 'nav.leads', href: '/dashboard/leads', icon: Users },
+      ]
+    },
+    {
+      label: 'Scheduling',
+      icon: Calendar,
+      items: [
+        { nameKey: 'nav.calendar', href: '/dashboard/calendar', icon: Calendar },
+        { nameKey: 'nav.bookings', href: '/dashboard/bookings', icon: CalendarCheck },
+      ]
+    },
+    {
+      label: 'Tools',
+      icon: Zap,
+      items: [
+        { nameKey: 'nav.scraping', href: '/dashboard/scraping', icon: Globe },
+        { nameKey: 'nav.integrations', href: '/dashboard/integrations', icon: Puzzle },
+      ]
+    },
   ];
+
   const [userEmail, setUserEmail] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    navGroups.forEach(group => {
+      initial[group.label] = group.defaultOpen ?? false;
+    });
+    return initial;
+  });
+
+  // Auto-open group containing current page
+  useEffect(() => {
+    navGroups.forEach(group => {
+      const hasActiveItem = group.items.some(item =>
+        item.href === '/dashboard'
+          ? pathname === '/dashboard'
+          : pathname === item.href || pathname.startsWith(item.href + '/')
+      );
+      if (hasActiveItem) {
+        setOpenGroups(prev => ({ ...prev, [group.label]: true }));
+      }
+    });
+  }, [pathname]);
+
+  const toggleGroup = (label: string) => {
+    setOpenGroups(prev => ({ ...prev, [label]: !prev[label] }));
+  };
 
   useEffect(() => {
-    // Immediate auth check - runs on mount
-    // Note: With httpOnly cookies, we can't check the token directly
-    // We rely on the auth_session cookie and user data in localStorage
     const checkAuth = () => {
       const userStr = localStorage.getItem('user');
       const authSession = document.cookie.includes('auth_session=true');
 
       if (!userStr || !authSession) {
-        // Not authenticated - clear session cookie and redirect to login
         document.cookie = 'auth_session=; path=/; max-age=0';
-        // Use replace to prevent back button access
         router.replace('/auth/login');
         return false;
       }
@@ -75,7 +137,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setIsAuthenticated(true);
         return true;
       } catch (e) {
-        // Invalid user data - clear session cookie and redirect to login
         document.cookie = 'auth_session=; path=/; max-age=0';
         router.replace('/auth/login');
         return false;
@@ -86,16 +147,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setLoading(false);
 
     if (!isAuth) {
-      return; // Already redirecting
+      return;
     }
   }, [router]);
 
   const handleLogout = () => {
-    // Use the centralized logout function that clears httpOnly cookies via API
     logout();
   };
 
-  // Show loading or nothing while checking auth
   if (loading || !isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#050014] flex items-center justify-center">
@@ -103,6 +162,97 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
     );
   }
+
+  const renderNavItem = (item: NavItem, onClick?: () => void) => {
+    const Icon = item.icon;
+    const isActive = item.href === '/dashboard'
+      ? pathname === '/dashboard'
+      : pathname === item.href || pathname.startsWith(item.href + '/');
+    return (
+      <Link
+        key={item.nameKey}
+        href={item.href}
+        onClick={onClick}
+        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
+          isActive
+            ? 'bg-gradient-to-r from-purple-900/50 to-transparent border-l-2 border-fuchsia-500 text-white'
+            : 'text-purple-300/60 hover:text-purple-100 hover:bg-purple-500/10'
+        }`}
+      >
+        <Icon size={16} />
+        <span>{t(item.nameKey)}</span>
+      </Link>
+    );
+  };
+
+  const renderSidebar = (isMobile = false) => (
+    <nav className="space-y-1">
+      {/* Dashboard - always visible */}
+      <Link
+        href="/dashboard"
+        onClick={isMobile ? () => setSidebarOpen(false) : undefined}
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+          pathname === '/dashboard'
+            ? 'bg-gradient-to-r from-purple-900/50 to-transparent border-l-2 border-fuchsia-500 text-white'
+            : 'text-purple-300/60 hover:text-purple-100 hover:bg-purple-500/10'
+        }`}
+      >
+        <LayoutGrid size={18} />
+        <span>{t('nav.dashboard')}</span>
+      </Link>
+
+      {/* Grouped navigation */}
+      {navGroups.map(group => {
+        const GroupIcon = group.icon;
+        const isOpen = openGroups[group.label];
+        const hasActiveItem = group.items.some(item =>
+          pathname === item.href || pathname.startsWith(item.href + '/')
+        );
+
+        return (
+          <div key={group.label} className="pt-2">
+            <button
+              onClick={() => toggleGroup(group.label)}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+                hasActiveItem ? 'text-purple-200' : 'text-purple-400/60 hover:text-purple-200'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <GroupIcon size={16} />
+                <span>{group.label}</span>
+              </div>
+              <ChevronDown
+                size={14}
+                className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {isOpen && (
+              <div className="mt-1 ml-3 pl-3 border-l border-purple-500/20 space-y-0.5">
+                {group.items.map(item => renderNavItem(item, isMobile ? () => setSidebarOpen(false) : undefined))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Settings - always visible at bottom */}
+      <div className="pt-4 mt-4 border-t border-purple-500/20">
+        <Link
+          href="/dashboard/settings"
+          onClick={isMobile ? () => setSidebarOpen(false) : undefined}
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
+            pathname === '/dashboard/settings'
+              ? 'bg-gradient-to-r from-purple-900/50 to-transparent border-l-2 border-fuchsia-500 text-white'
+              : 'text-purple-300/60 hover:text-purple-100 hover:bg-purple-500/10'
+          }`}
+        >
+          <Settings size={16} />
+          <span>{t('nav.settings')}</span>
+        </Link>
+      </div>
+    </nav>
+  );
 
   return (
     <div className="relative min-h-screen overflow-x-hidden">
@@ -149,13 +299,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 {showLangMenu && (
                   <>
-                    {/* Backdrop */}
                     <div
                       className="fixed inset-0 z-10"
                       onClick={() => setShowLangMenu(false)}
                     />
-
-                    {/* Dropdown Menu */}
                     <div className="absolute right-0 mt-2 w-48 bg-black/90 backdrop-blur-md rounded-lg shadow-lg border border-white/10 py-2 z-20 max-h-96 overflow-y-auto">
                       {Object.entries(LANGUAGES).map(([code, name]) => (
                         <button
@@ -191,30 +338,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="relative z-10 container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar - Desktop */}
-          <aside className="hidden lg:block w-64 flex-shrink-0">
-            <nav className="space-y-1 bg-gradient-to-b from-[#1a0b2e] to-[#0a0510] backdrop-blur-xl rounded-xl border border-purple-500/10 p-3">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                // Special case for dashboard: only active when pathname is exactly '/dashboard'
-                const isActive = item.href === '/dashboard'
-                  ? pathname === '/dashboard'
-                  : pathname === item.href || pathname.startsWith(item.href + '/');
-                return (
-                  <Link
-                    key={item.nameKey}
-                    href={item.href}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-                      isActive
-                        ? 'bg-gradient-to-r from-purple-900/50 to-transparent border-l-2 border-fuchsia-500 text-white shadow-[0_0_20px_rgba(192,38,211,0.15)]'
-                        : 'text-purple-300/60 hover:text-purple-100 hover:bg-purple-500/10'
-                    }`}
-                  >
-                    <Icon size={18} />
-                    <span>{t(item.nameKey)}</span>
-                  </Link>
-                );
-              })}
-            </nav>
+          <aside className="hidden lg:block w-56 flex-shrink-0">
+            <div className="bg-gradient-to-b from-[#1a0b2e] to-[#0a0510] backdrop-blur-xl rounded-xl border border-purple-500/10 p-3 sticky top-24">
+              {renderSidebar()}
+            </div>
           </aside>
 
           {/* Sidebar - Mobile */}
@@ -238,30 +365,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </button>
                   </div>
                 </div>
-                <nav className="p-4 space-y-1">
-                  {navigation.map((item) => {
-                    const Icon = item.icon;
-                    // Special case for dashboard: only active when pathname is exactly '/dashboard'
-                    const isActive = item.href === '/dashboard'
-                      ? pathname === '/dashboard'
-                      : pathname === item.href || pathname.startsWith(item.href + '/');
-                    return (
-                      <Link
-                        key={item.nameKey}
-                        href={item.href}
-                        onClick={() => setSidebarOpen(false)}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-                          isActive
-                            ? 'bg-gradient-to-r from-purple-900/50 to-transparent border-l-2 border-fuchsia-500 text-white shadow-[0_0_20px_rgba(192,38,211,0.15)]'
-                            : 'text-purple-300/60 hover:text-purple-100 hover:bg-purple-500/10'
-                        }`}
-                      >
-                        <Icon size={18} />
-                        <span>{t(item.nameKey)}</span>
-                      </Link>
-                    );
-                  })}
-                </nav>
+                <div className="p-4">
+                  {renderSidebar(true)}
+                </div>
               </aside>
             </div>
           )}
