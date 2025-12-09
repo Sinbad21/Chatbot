@@ -10,7 +10,7 @@ import {
 
 const faqs = [
   {
-    question: 'Do I need programming knowledge to use Chatbot Studio?',
+    question: 'Do I need programming knowledge to use Axiom Studio?',
     answer: 'No. The interface is completely visual. You upload content, configure behavior and integrate the widget with copy-paste. If you want to use APIs, complete documentation is available.',
   },
   {
@@ -57,7 +57,7 @@ export function FAQ() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-slate-400"
           >
-            Everything you need to know about Chatbot Studio
+            Everything you need to know about Axiom Studio
           </motion.p>
         </div>
 

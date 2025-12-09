@@ -165,7 +165,7 @@ export function ValueProps() {
 export function DemoChat() {
   const { t } = useLandingTranslation();
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! Ask me anything about Chatbot Studio.' },
+    { role: 'assistant', content: 'Hello! Ask me anything about Axiom Studio.' },
   ]);
 
   return (

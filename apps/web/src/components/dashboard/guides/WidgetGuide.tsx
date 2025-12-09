@@ -13,7 +13,7 @@ interface WidgetGuideProps {
 export function WidgetGuide({ botId, onClose }: WidgetGuideProps) {
   const [copied, setCopied] = useState(false);
 
-  const widgetCode = `<!-- Chatbot Studio Widget -->
+  const widgetCode = `<!-- Axiom Studio Widget -->
 <script>
   window.chatbotConfig = {
     botId: '${botId}',

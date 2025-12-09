@@ -13,7 +13,7 @@ const blogPosts = [
     title: 'Getting Started with AI Chatbots: A Comprehensive Guide',
     excerpt:
       'Learn how to create your first AI chatbot and start automating customer support in minutes.',
-    author: 'Chatbot Studio Team',
+    author: 'Axiom Studio Team',
     date: '2025-01-15',
     readTime: '5 min read',
     category: 'Tutorial',
@@ -24,7 +24,7 @@ const blogPosts = [
     title: 'The Future of Customer Service: AI-Powered Support',
     excerpt:
       'Discover how AI is transforming customer service and what it means for your business.',
-    author: 'Chatbot Studio Team',
+    author: 'Axiom Studio Team',
     date: '2025-01-10',
     readTime: '7 min read',
     category: 'Insights',
@@ -35,7 +35,7 @@ const blogPosts = [
     title: 'RAG Technology Explained: How Chatbots Learn from Your Documents',
     excerpt:
       'A deep dive into Retrieval-Augmented Generation and how it powers intelligent chatbots.',
-    author: 'Chatbot Studio Team',
+    author: 'Axiom Studio Team',
     date: '2025-01-05',
     readTime: '10 min read',
     category: 'Technical',
@@ -60,7 +60,7 @@ export default function BlogPage() {
           <div className="mb-12">
             <h1 className="text-4xl font-bold mb-4">Blog</h1>
             <p className="text-xl text-muted-foreground">
-              Insights, tutorials, and updates from the Chatbot Studio team
+              Insights, tutorials, and updates from the Axiom Studio team
             </p>
           </div>
 

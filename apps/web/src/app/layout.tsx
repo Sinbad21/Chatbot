@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { LenisProvider } from '@/lib/lenis-provider';
 
 export const metadata: Metadata = {
-  title: 'Chatbot Studio - AI Chatbot Platform',
+  title: 'Axiom Studio - AI Chatbot Platform',
   description: 'Build and deploy AI-powered chatbots in minutes',
 };
 

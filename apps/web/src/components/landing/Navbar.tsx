@@ -43,11 +43,11 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#5B4BFF] to-[#8B7FFF] flex items-center justify-center">
-              <span className="text-white font-bold text-lg">C</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#9333EA] to-[#D946EF] flex items-center justify-center">
+              <span className="text-white font-bold text-lg">A</span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-[#5B4BFF] to-[#8B7FFF] bg-clip-text text-transparent">
-              Chatbot Studio
+            <span className="text-xl font-bold bg-gradient-to-r from-[#9333EA] to-[#D946EF] bg-clip-text text-transparent">
+              Axiom Studio
             </span>
           </Link>
 

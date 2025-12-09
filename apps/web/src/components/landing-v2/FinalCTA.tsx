@@ -38,7 +38,7 @@ export function FinalCTA() {
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              Join over 2,500 companies using Chatbot Studio to automate conversations and increase customer satisfaction.
+              Join over 2,500 companies using Axiom Studio to automate conversations and increase customer satisfaction.
             </motion.p>
 
             <motion.div

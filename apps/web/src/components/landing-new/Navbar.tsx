@@ -31,7 +31,7 @@ export const Navbar: React.FC = () => {
         <Link href="/" className="flex items-center gap-2 group cursor-pointer">
           <Diamond className="w-6 h-6 text-platinum-200 group-hover:text-white transition-colors duration-500" />
           <span className="text-xl md:text-2xl font-serif font-bold text-platinum-100 tracking-widest uppercase group-hover:text-white transition-colors duration-500">
-            Chatbot Studio
+            Axiom Studio
           </span>
         </Link>
 

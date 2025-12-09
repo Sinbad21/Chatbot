@@ -174,7 +174,7 @@ app.get('/health', (c) => {
   return c.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    service: 'Chatbot Studio API'
+    service: 'Axiom Studio API'
   });
 });
 
@@ -462,7 +462,7 @@ app.post('/api/v1/auth/forgot-password', async (c) => {
     // For now, log the URL (in production, this would be sent via email)
     // Example with Resend:
     // await resend.emails.send({
-    //   from: 'ChatBot Studio <noreply@chatbotstudio.com>',
+    //   from: 'Axiom Studio <noreply@chatbotstudio.com>',
     //   to: email,
     //   subject: 'Reimposta la tua password',
     //   html: `<p>Clicca qui per reimpostare la password: <a href="${resetUrl}">${resetUrl}</a></p>`,
@@ -2281,7 +2281,7 @@ app.post('/api/v1/chat/demo', async (c) => {
 
     // Comprehensive demo system prompts based on scenario
     const scenarioPrompts: Record<string, string> = {
-      sales: `Sei un assistente AI avanzato specializzato in vendite e lead generation, creato con ChatBot Studio.
+      sales: `Sei un assistente AI avanzato specializzato in vendite e lead generation, creato con Axiom Studio.
 
 CONTESTO: Stai dimostrando le capacità di un chatbot AI per un'agenzia immobiliare di lusso.
 
@@ -2298,9 +2298,9 @@ STILE DI RISPOSTA:
 - Offri sempre un prossimo passo concreto (prenotare visita, ricevere info, etc.)
 - Mostra entusiasmo per aiutare il cliente a trovare la casa dei suoi sogni
 
-IMPORTANTE: Questa è una demo live. Se l'utente chiede info su ChatBot Studio, spiega come questa piattaforma permette di creare chatbot come questo in pochi minuti, senza codice.`,
+IMPORTANTE: Questa è una demo live. Se l'utente chiede info su Axiom Studio, spiega come questa piattaforma permette di creare chatbot come questo in pochi minuti, senza codice.`,
 
-      realestate: `Sei un assistente AI sofisticato per un'agenzia immobiliare di lusso a Milano, creato con ChatBot Studio.
+      realestate: `Sei un assistente AI sofisticato per un'agenzia immobiliare di lusso a Milano, creato con Axiom Studio.
 
 CONTESTO: Rappresenti "Platinum Real Estate", specializzata in immobili di prestigio.
 
@@ -2319,7 +2319,7 @@ LE TUE CAPACITÀ:
 
 STILE: Elegante, competente, attento ai dettagli. Fai domande intelligenti per capire cosa cerca veramente il cliente.`,
 
-      support: `Sei un assistente AI per il customer support di "TechStore Italia", un e-commerce di elettronica premium, creato con ChatBot Studio.
+      support: `Sei un assistente AI per il customer support di "TechStore Italia", un e-commerce di elettronica premium, creato con Axiom Studio.
 
 CONTESTO: Gestisci richieste di clienti in modo rapido ed efficiente.
 
@@ -2337,10 +2337,10 @@ DATI SIMULATI:
 
 STILE: Amichevole, efficiente, risolutivo. Anticipa le esigenze del cliente. Se c'è un problema, proponi subito una soluzione.`,
 
-      default: `Sei l'assistente AI ufficiale di ChatBot Studio, la piattaforma italiana per creare chatbot intelligenti.
+      default: `Sei l'assistente AI ufficiale di Axiom Studio, la piattaforma italiana per creare chatbot intelligenti.
 
 CHI SIAMO:
-ChatBot Studio è una piattaforma SaaS che permette alle aziende di creare chatbot AI avanzati in pochi minuti, senza scrivere codice.
+Axiom Studio è una piattaforma SaaS che permette alle aziende di creare chatbot AI avanzati in pochi minuti, senza scrivere codice.
 
 FUNZIONALITÀ PRINCIPALI:
 1. **Creazione Chatbot**: Editor visuale drag-and-drop, training con documenti PDF/siti web
@@ -2405,14 +2405,14 @@ Se l'utente fa domande generiche o saluta, presentati e chiedi come puoi aiutarl
     if (!openaiResponse.ok) {
       // Fallback response if OpenAI fails
       return c.json({
-        message: 'Ciao! Sono l\'assistente AI di ChatBot Studio. Purtroppo ho un piccolo problema tecnico in questo momento. Registrati gratuitamente per creare il tuo chatbot personalizzato!',
+        message: 'Ciao! Sono l\'assistente AI di Axiom Studio. Purtroppo ho un piccolo problema tecnico in questo momento. Registrati gratuitamente per creare il tuo chatbot personalizzato!',
         isDemo: true,
       });
     }
 
     const completion = await openaiResponse.json();
     const response = completion.choices?.[0]?.message?.content ||
-      'Interessante domanda! Come posso aiutarti a scoprire le potenzialità di ChatBot Studio per la tua azienda?';
+      'Interessante domanda! Come posso aiutarti a scoprire le potenzialità di Axiom Studio per la tua azienda?';
 
     return c.json({
       message: response,
@@ -2423,7 +2423,7 @@ Se l'utente fa domande generiche o saluta, presentati e chiedi come puoi aiutarl
     console.error('[DEMO CHAT] Error:', error);
     // Return fallback response on any error
     return c.json({
-      message: 'Ciao! Benvenuto nella demo di ChatBot Studio. Come posso aiutarti oggi?',
+      message: 'Ciao! Benvenuto nella demo di Axiom Studio. Come posso aiutarti oggi?',
       isDemo: true,
     });
   }

@@ -26,14 +26,14 @@ export default function TermsPage() {
 
             <h2>1. Acceptance of Terms</h2>
             <p>
-              By accessing or using Chatbot Studio ("Service"), you agree to be bound by these
+              By accessing or using Axiom Studio ("Service"), you agree to be bound by these
               Terms of Service ("Terms"). If you do not agree to these Terms, do not use the
               Service.
             </p>
 
             <h2>2. Description of Service</h2>
             <p>
-              Chatbot Studio provides AI-powered chatbot creation and deployment tools. The
+              Axiom Studio provides AI-powered chatbot creation and deployment tools. The
               Service allows you to create, train, and deploy chatbots on your website and
               other platforms.
             </p>
@@ -83,7 +83,7 @@ export default function TermsPage() {
             <h3>Our IP</h3>
             <p>
               The Service, including all software, algorithms, and content, is owned by
-              Chatbot Studio and protected by copyright and other intellectual property laws.
+              Axiom Studio and protected by copyright and other intellectual property laws.
             </p>
 
             <h3>Your Content</h3>
@@ -121,7 +121,7 @@ export default function TermsPage() {
 
             <h2>11. Indemnification</h2>
             <p>
-              You agree to indemnify and hold harmless Chatbot Studio from any claims,
+              You agree to indemnify and hold harmless Axiom Studio from any claims,
               damages, or expenses arising from your use of the Service or violation of these
               Terms.
             </p>

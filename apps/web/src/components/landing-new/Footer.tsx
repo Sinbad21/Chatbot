@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
             <div className="flex items-center gap-2 mb-6">
               <Diamond className="w-5 h-5 text-platinum-100" />
               <span className="text-xl font-serif font-bold text-white tracking-widest uppercase">
-                CHATBOT STUDIO
+                AXIOM STUDIO
               </span>
             </div>
             <p className="text-sm text-platinum-500 leading-relaxed mb-6">
@@ -81,7 +81,7 @@ export const Footer: React.FC = () => {
 
         <div className="border-t border-platinum-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-platinum-700">
-            © {new Date().getFullYear()} Chatbot Studio. Engineered for excellence.
+            © {new Date().getFullYear()} Axiom Studio. Engineered for excellence.
           </p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Chatbot Studio - Añade un Chatbot IA Inteligente a tu Sitio Web en Minutos",
+    "title": "Axiom Studio - Añade un Chatbot IA Inteligente a tu Sitio Web en Minutos",
     "description": "Crea chatbots IA personalizados entrenados con tus datos. Sin código requerido. Integra con tu sitio web, WhatsApp, Telegram y más. Comienza gratis hoy."
   },
   "nav": {
@@ -52,8 +52,8 @@
   },
   "demo": {
     "title": "Pruébalo tú mismo",
-    "subtitle": "Chatea con nuestro bot demo entrenado en la documentación de Chatbot Studio",
-    "placeholder": "Pregúntame cualquier cosa sobre Chatbot Studio...",
+    "subtitle": "Chatea con nuestro bot demo entrenado en la documentación de Axiom Studio",
+    "placeholder": "Pregúntame cualquier cosa sobre Axiom Studio...",
     "themeToggle": "Cambiar tema"
   },
   "features": {
@@ -174,7 +174,7 @@
         "role": "Jefa de Soporte, TechCorp",
         "avatar": "SC",
         "rating": 5,
-        "text": "Chatbot Studio redujo nuestros tickets de soporte en un 60% en el primer mes. El entrenamiento con nuestros documentos fue perfecto."
+        "text": "Axiom Studio redujo nuestros tickets de soporte en un 60% en el primer mes. El entrenamiento con nuestros documentos fue perfecto."
       },
       {
         "name": "Marcus Weber",
@@ -195,7 +195,7 @@
         "role": "CTO, CloudSystems",
         "avatar": "AH",
         "rating": 5,
-        "text": "La seguridad era nuestra mayor preocupación. El cumplimiento GDPR y el cifrado de Chatbot Studio nos dieron tranquilidad."
+        "text": "La seguridad era nuestra mayor preocupación. El cumplimiento GDPR y el cifrado de Axiom Studio nos dieron tranquilidad."
       },
       {
         "name": "Emma Thompson",
@@ -253,7 +253,7 @@
   },
   "finalCta": {
     "title": "Construye tu chatbot IA en minutos",
-    "subtitle": "Únete a miles de empresas usando Chatbot Studio para automatizar soporte y aumentar el engagement.",
+    "subtitle": "Únete a miles de empresas usando Axiom Studio para automatizar soporte y aumentar el engagement.",
     "cta": "Comenzar Prueba Gratis",
     "microCopy": "Sin tarjeta de crédito requerida"
   },
@@ -274,7 +274,7 @@
     "terms": "Términos de Servicio",
     "gdpr": "GDPR",
     "social": "Social",
-    "rights": "© 2025 Chatbot Studio. Todos los derechos reservados.",
+    "rights": "© 2025 Axiom Studio. Todos los derechos reservados.",
     "poweredBy": "Impulsado por",
     "newsletter": {
       "title": "Mantente actualizado",

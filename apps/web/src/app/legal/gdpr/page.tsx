@@ -30,7 +30,7 @@ export default function GDPRPage() {
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Our Commitment to GDPR</h3>
                   <p className="text-sm text-muted-foreground">
-                    Chatbot Studio is fully compliant with the General Data Protection Regulation
+                    Axiom Studio is fully compliant with the General Data Protection Regulation
                     (GDPR) and takes your privacy rights seriously. We have implemented technical and
                     organizational measures to ensure the protection of your personal data.
                   </p>
@@ -239,7 +239,7 @@ export default function GDPRPage() {
               <li>
                 Email: <a href="mailto:dpo@chatbot-studio.com">dpo@chatbot-studio.com</a>
               </li>
-              <li>Address: Data Protection Officer, Chatbot Studio, 123 Innovation Street, San Francisco, CA 94105</li>
+              <li>Address: Data Protection Officer, Axiom Studio, 123 Innovation Street, San Francisco, CA 94105</li>
             </ul>
 
             <h2>10. Supervisory Authority</h2>

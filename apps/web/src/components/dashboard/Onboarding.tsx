@@ -166,7 +166,7 @@ export default function Onboarding({
         <div>
           <h2 className="text-lg font-semibold text-white flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-fuchsia-400" />
-            Inizia con ChatBot Studio
+            Inizia con Axiom Studio
           </h2>
           <p className="text-sm text-purple-300/70 mt-1">
             Completa questi passaggi per configurare il tuo primo chatbot

@@ -138,7 +138,7 @@ const ChatSlide: React.FC = () => {
       autoPlayRef.current = false;
       const welcomeMsg: Message = {
         id: Date.now(),
-        text: 'Ciao! Sono la demo live di ChatBot Studio. Come posso aiutarti?',
+        text: 'Ciao! Sono la demo live di Axiom Studio. Come posso aiutarti?',
         sender: 'bot'
       };
       newMessages = [welcomeMsg];
@@ -181,7 +181,7 @@ const ChatSlide: React.FC = () => {
       setIsTyping(false);
       setDisplayedMessages(prev => [...prev, {
         id: Date.now(),
-        text: data.message || 'Come posso aiutarti con ChatBot Studio?',
+        text: data.message || 'Come posso aiutarti con Axiom Studio?',
         sender: 'bot'
       }]);
     } catch {
@@ -210,7 +210,7 @@ const ChatSlide: React.FC = () => {
       setIsInteractive(true);
       const welcomeMsg: Message = {
         id: Date.now(),
-        text: 'Ciao! Sono la demo live di ChatBot Studio. Scrivi qualsiasi domanda e ti mostrerò come funziona un chatbot AI!',
+        text: 'Ciao! Sono la demo live di Axiom Studio. Scrivi qualsiasi domanda e ti mostrerò come funziona un chatbot AI!',
         sender: 'bot'
       };
       setDisplayedMessages([welcomeMsg]);
