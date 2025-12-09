@@ -11,21 +11,24 @@ const plans = [
     price: "49",
     desc: "Per startup e piccoli business.",
     features: ["1 Chatbot Attivo", "Risposte Automatiche Base", "Supporto Email", "Integrazione Web"],
-    highlight: false
+    highlight: false,
+    cta: "Inizia con Silver"
   },
   {
     name: "Platino",
     price: "149",
     desc: "La scelta per l'eccellenza.",
     features: ["3 Chatbot Attivi", "AI Avanzata GPT-4", "Supporto Prioritario 24/7", "WhatsApp & Telegram", "Analisi del Sentiment"],
-    highlight: true
+    highlight: true,
+    cta: "Scegli Platino"
   },
   {
     name: "Diamante",
     price: "299",
     desc: "Potenza illimitata.",
     features: ["Chatbot Illimitati", "Fine-Tuning Personalizzato", "API Access Completo", "Account Manager Dedicato", "SLA Garantito"],
-    highlight: false
+    highlight: false,
+    cta: "Passa a Diamante"
   }
 ];
 
@@ -95,7 +98,7 @@ export const Pricing: React.FC = () => {
                 }`}
               >
                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-in-out"></span>
-                <span className="relative z-10">Seleziona</span>
+                <span className="relative z-10">{plan.cta}</span>
               </Link>
             </motion.div>
           ))}
