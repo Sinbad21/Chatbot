@@ -557,7 +557,7 @@ export const Hero: React.FC = () => {
               <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/80 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></span>
               <span className="relative flex items-center justify-center gap-2 z-10">
                 <Bot className="w-4 h-4" />
-                Inizia Ora
+                Crea il Tuo Bot Gratis
               </span>
             </Link>
             <a
@@ -566,7 +566,7 @@ export const Hero: React.FC = () => {
             >
               <span className="absolute inset-0 w-full h-full bg-platinum-800/0 group-hover:bg-platinum-800/40 transition-colors duration-300"></span>
               <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></span>
-              <span className="relative z-10">Scopri i Prezzi</span>
+              <span className="relative z-10">Confronta i Piani</span>
             </a>
           </motion.div>
         </div>
