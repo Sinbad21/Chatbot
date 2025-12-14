@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -67,7 +67,7 @@ export default function NewBotPage() {
 
       <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 rounded-2xl p-8">
         <h1 className="text-3xl font-bold text-white mb-2">{t('createBot.title')}</h1>
-        <p className="text-purple-300/70 mb-8">
+        <p className="text-white/70 mb-8">
           {t('createBot.subtitle')}
         </p>
 
@@ -80,7 +80,7 @@ export default function NewBotPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Bot Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-purple-300/70 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-white/70 mb-2">
               {t('createBot.botName')}
             </label>
             <input
@@ -89,14 +89,14 @@ export default function NewBotPage() {
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
               placeholder={t('createBot.botNamePlaceholder')}
             />
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-purple-300/70 mb-2">
+            <label htmlFor="description" className="block text-sm font-medium text-white/70 mb-2">
               {t('createBot.description')}
             </label>
             <textarea
@@ -104,14 +104,14 @@ export default function NewBotPage() {
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
               placeholder={t('createBot.descriptionPlaceholder')}
             />
           </div>
 
           {/* Welcome Message */}
           <div>
-            <label htmlFor="welcomeMessage" className="block text-sm font-medium text-purple-300/70 mb-2">
+            <label htmlFor="welcomeMessage" className="block text-sm font-medium text-white/70 mb-2">
               {t('createBot.welcomeMessage')}
             </label>
             <textarea
@@ -119,17 +119,17 @@ export default function NewBotPage() {
               rows={2}
               value={formData.welcomeMessage}
               onChange={(e) => setFormData({ ...formData, welcomeMessage: e.target.value })}
-              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
               placeholder={t('createBot.welcomeMessagePlaceholder')}
             />
-            <p className="text-sm text-purple-400/50 mt-1">
+            <p className="text-sm text-white/60 mt-1">
               {t('createBot.welcomeMessageHelp')}
             </p>
           </div>
 
           {/* System Prompt */}
           <div>
-            <label htmlFor="systemPrompt" className="block text-sm font-medium text-purple-300/70 mb-2">
+            <label htmlFor="systemPrompt" className="block text-sm font-medium text-white/70 mb-2">
               {t('createBot.systemPrompt')}
             </label>
             <textarea
@@ -137,17 +137,17 @@ export default function NewBotPage() {
               rows={4}
               value={formData.systemPrompt}
               onChange={(e) => setFormData({ ...formData, systemPrompt: e.target.value })}
-              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
               placeholder={t('createBot.systemPromptPlaceholder')}
             />
-            <p className="text-sm text-purple-400/50 mt-1">
+            <p className="text-sm text-white/60 mt-1">
               {t('createBot.systemPromptHelp')}
             </p>
           </div>
 
           {/* Bot Color */}
           <div>
-            <label htmlFor="color" className="block text-sm font-medium text-purple-300/70 mb-2">
+            <label htmlFor="color" className="block text-sm font-medium text-white/70 mb-2">
               {t('createBot.botColor')}
             </label>
             <div className="flex items-center gap-4">
@@ -158,9 +158,9 @@ export default function NewBotPage() {
                 onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                 className="h-12 w-20 border border-purple-500/30 rounded-lg cursor-pointer bg-purple-900/30"
               />
-              <span className="text-sm text-purple-300/70">{formData.color}</span>
+              <span className="text-sm text-white/70">{formData.color}</span>
             </div>
-            <p className="text-sm text-purple-400/50 mt-1">
+            <p className="text-sm text-white/60 mt-1">
               {t('createBot.colorWillBeUsed')}
             </p>
           </div>
@@ -176,7 +176,7 @@ export default function NewBotPage() {
             </button>
             <Link
               href="/dashboard/bots"
-              className="px-6 py-3 border border-purple-500/30 text-purple-300 rounded-lg hover:bg-purple-500/10 font-medium text-center transition-all"
+              className="px-6 py-3 border border-purple-500/30 text-white/80 rounded-lg hover:bg-purple-500/10 font-medium text-center transition-all"
             >
               {t('common.cancel')}
             </Link>
@@ -186,3 +186,4 @@ export default function NewBotPage() {
     </div>
   );
 }
+

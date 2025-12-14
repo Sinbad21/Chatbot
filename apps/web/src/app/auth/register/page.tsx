@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -126,7 +126,7 @@ export default function RegisterPage() {
       <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 rounded-2xl shadow-2xl w-full max-w-md p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
-          <p className="text-purple-300/70">Start building amazing chatbots today</p>
+          <p className="text-white/70">Start building amazing chatbots today</p>
         </div>
 
         {error && (
@@ -137,7 +137,7 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-purple-300/70 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-white/70 mb-2">
               Full Name
             </label>
             <input
@@ -146,13 +146,13 @@ export default function RegisterPage() {
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
               placeholder="John Doe"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-purple-300/70 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-white/70 mb-2">
               Email Address
             </label>
             <input
@@ -161,13 +161,13 @@ export default function RegisterPage() {
               required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-purple-300/70 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-white/70 mb-2">
               Password
             </label>
             <input
@@ -176,14 +176,14 @@ export default function RegisterPage() {
               required
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
-              placeholder="••••••••"
+              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
             />
-            <p className="text-xs text-purple-400/50 mt-1">Must be at least 8 characters with uppercase, lowercase, number, and special character</p>
+            <p className="text-xs text-white/60 mt-1">Must be at least 8 characters with uppercase, lowercase, number, and special character</p>
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-purple-300/70 mb-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-white/70 mb-2">
               Confirm Password
             </label>
             <input
@@ -192,8 +192,8 @@ export default function RegisterPage() {
               required
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
-              placeholder="••••••••"
+              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
             />
           </div>
 
@@ -204,7 +204,7 @@ export default function RegisterPage() {
               required
               className="h-4 w-4 text-fuchsia-600 focus:ring-fuchsia-500 border-purple-500/30 rounded bg-purple-900/30 mt-1"
             />
-            <label htmlFor="terms" className="ml-2 block text-sm text-purple-300/70">
+            <label htmlFor="terms" className="ml-2 block text-sm text-white/70">
               I agree to the{' '}
               <Link href="/terms" className="text-fuchsia-400 hover:text-fuchsia-300 transition-colors">
                 Terms of Service
@@ -226,7 +226,7 @@ export default function RegisterPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-purple-300/70">
+          <p className="text-white/70">
             Already have an account?{' '}
             <Link href="/auth/login" className="text-fuchsia-400 font-semibold hover:text-fuchsia-300 transition-colors">
               Sign in
@@ -239,10 +239,11 @@ export default function RegisterPage() {
             href="/"
             className="block text-center text-fuchsia-400 hover:text-fuchsia-300 font-medium transition-colors"
           >
-            ← Back to home
+            â† Back to home
           </Link>
         </div>
       </div>
     </div>
   );
 }
+

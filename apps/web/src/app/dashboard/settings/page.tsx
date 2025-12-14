@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -226,7 +226,7 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      setMessage({ type: 'success', text: t('settings.savePreferences') + ' ✓' });
+      setMessage({ type: 'success', text: t('settings.savePreferences') + ' âœ“' });
     } catch {
       setMessage({ type: 'error', text: t('settings.failedToUpdate') });
     }
@@ -261,7 +261,7 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white font-serif">{t('settings.title')}</h1>
-        <p className="text-purple-300/60 mt-2">{t('settings.subtitle')}</p>
+        <p className="text-white/70 mt-2">{t('settings.subtitle')}</p>
       </div>
 
       {/* Message Banner */}
@@ -292,7 +292,7 @@ export default function SettingsPage() {
               className={`flex items-center gap-2 px-4 py-3 border-b-2 font-medium text-sm transition-all duration-200 ${
                 activeTab === tab.id
                   ? 'border-fuchsia-500 text-fuchsia-400 bg-fuchsia-500/5'
-                  : 'border-transparent text-purple-400 hover:text-purple-200 hover:border-purple-500/30 hover:bg-purple-500/5'
+                  : 'border-transparent text-white/70 hover:text-white hover:border-purple-500/30 hover:bg-purple-500/5'
               }`}
             >
               {tab.icon}
@@ -319,7 +319,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h2 className="text-xl font-semibold text-white">{t('settings.profileInformation')}</h2>
-                <p className="text-purple-300/60 text-sm mt-1">
+                <p className="text-white/70 text-sm mt-1">
                   {t('settings.memberSince')}: {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                 </p>
               </div>
@@ -328,7 +328,7 @@ export default function SettingsPage() {
             <form onSubmit={handleProfileSave} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-purple-300/80 mb-2">
+                  <label htmlFor="name" className="block text-sm font-medium text-white/80 mb-2">
                     Name
                   </label>
                   <input
@@ -336,13 +336,13 @@ export default function SettingsPage() {
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                    className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
                     required
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-purple-300/80 mb-2">
+                  <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">
                     {t('auth.email')}
                   </label>
                   <input
@@ -350,7 +350,7 @@ export default function SettingsPage() {
                     id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                    className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
                     required
                   />
                 </div>
@@ -358,16 +358,16 @@ export default function SettingsPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-purple-300/60 mb-2">{t('settings.authMethod')}</label>
-                  <div className="flex items-center gap-2 px-4 py-3 bg-purple-900/20 border border-purple-500/20 rounded-xl text-purple-300/70">
+                  <label className="block text-sm font-medium text-white/70 mb-2">{t('settings.authMethod')}</label>
+                  <div className="flex items-center gap-2 px-4 py-3 bg-purple-900/20 border border-purple-500/20 rounded-xl text-white/80">
                     <Mail className="w-4 h-4" />
                     <span>{t('settings.emailPassword')}</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-purple-300/60 mb-2">{t('settings.role')}</label>
-                  <div className="flex items-center gap-2 px-4 py-3 bg-purple-900/20 border border-purple-500/20 rounded-xl text-purple-300/70">
+                  <label className="block text-sm font-medium text-white/70 mb-2">{t('settings.role')}</label>
+                  <div className="flex items-center gap-2 px-4 py-3 bg-purple-900/20 border border-purple-500/20 rounded-xl text-white/80">
                     <Shield className="w-4 h-4" />
                     <span className="capitalize">{user?.role?.toLowerCase() || 'user'}</span>
                   </div>
@@ -399,7 +399,7 @@ export default function SettingsPage() {
             </h2>
             <form onSubmit={handlePasswordChange} className="space-y-5">
               <div>
-                <label htmlFor="currentPassword" className="block text-sm font-medium text-purple-300/80 mb-2">
+                <label htmlFor="currentPassword" className="block text-sm font-medium text-white/80 mb-2">
                   {t('settings.currentPassword')}
                 </label>
                 <input
@@ -407,14 +407,14 @@ export default function SettingsPage() {
                   id="currentPassword"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="newPassword" className="block text-sm font-medium text-purple-300/80 mb-2">
+                  <label htmlFor="newPassword" className="block text-sm font-medium text-white/80 mb-2">
                     {t('settings.newPassword')}
                   </label>
                   <input
@@ -422,15 +422,15 @@ export default function SettingsPage() {
                     id="newPassword"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                    className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
                     required
                     minLength={8}
                   />
-                  <p className="text-xs text-purple-400/60 mt-1.5">{t('settings.passwordMin8')}</p>
+                  <p className="text-xs text-white/60 mt-1.5">{t('settings.passwordMin8')}</p>
                 </div>
 
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-purple-300/80 mb-2">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-white/80 mb-2">
                     {t('settings.confirmNewPassword')}
                   </label>
                   <input
@@ -438,7 +438,7 @@ export default function SettingsPage() {
                     id="confirmPassword"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                    className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
                     required
                   />
                 </div>
@@ -505,7 +505,7 @@ export default function SettingsPage() {
               <Plus className="w-5 h-5 text-fuchsia-400" />
               {t('settings.createNewApiKey')}
             </h2>
-            <p className="text-sm text-purple-300/60 mb-6">{t('settings.apiKeyDescription')}</p>
+            <p className="text-sm text-white/70 mb-6">{t('settings.apiKeyDescription')}</p>
 
             <div className="flex gap-3">
               <input
@@ -513,7 +513,7 @@ export default function SettingsPage() {
                 value={newKeyName}
                 onChange={(e) => setNewKeyName(e.target.value)}
                 placeholder={t('settings.keyNamePlaceholder')}
-                className="flex-1 px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                className="flex-1 px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
                 onKeyDown={(e) => e.key === 'Enter' && handleGenerateApiKey()}
               />
               <button
@@ -545,7 +545,7 @@ export default function SettingsPage() {
                 <div className="w-16 h-16 rounded-full bg-purple-900/30 flex items-center justify-center mx-auto mb-4">
                   <Key className="w-8 h-8 text-purple-400" />
                 </div>
-                <p className="text-purple-300/60">{t('settings.noApiKeys')}</p>
+                <p className="text-white/70">{t('settings.noApiKeys')}</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -560,8 +560,8 @@ export default function SettingsPage() {
                           <Key className="w-4 h-4 text-fuchsia-400" />
                           {key.name}
                         </h3>
-                        <code className="text-sm text-purple-300/60 font-mono mt-1 block truncate">{key.key}</code>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-purple-400/60">
+                        <code className="text-sm text-white/70 font-mono mt-1 block truncate">{key.key}</code>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-white/60">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {t('settings.createdDate').replace('{date}', new Date(key.createdAt).toLocaleDateString())}
@@ -569,14 +569,14 @@ export default function SettingsPage() {
                           {key.lastUsed ? (
                             <span>{t('settings.lastUsed').replace('{date}', new Date(key.lastUsed).toLocaleDateString())}</span>
                           ) : (
-                            <span className="text-purple-500/50">{t('settings.neverUsed')}</span>
+                            <span className="text-white/50">{t('settings.neverUsed')}</span>
                           )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => handleCopyKey(key.key)}
-                          className="p-2 text-purple-300 hover:text-white hover:bg-purple-500/20 rounded-lg transition-all"
+                          className="p-2 text-white/70 hover:text-white hover:bg-purple-500/20 rounded-lg transition-all"
                           title={t('settings.copy')}
                         >
                           <Copy className="w-4 h-4" />
@@ -610,7 +610,7 @@ export default function SettingsPage() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="timezone" className="block text-sm font-medium text-purple-300/80 mb-2 flex items-center gap-2">
+                  <label htmlFor="timezone" className="block text-sm font-medium text-white/80 mb-2 flex items-center gap-2">
                     <Clock className="w-4 h-4" />
                     {t('settings.timezone')}
                   </label>
@@ -631,7 +631,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="language" className="block text-sm font-medium text-purple-300/80 mb-2 flex items-center gap-2">
+                  <label htmlFor="language" className="block text-sm font-medium text-white/80 mb-2 flex items-center gap-2">
                     <Globe className="w-4 h-4" />
                     {t('settings.language')}
                   </label>
@@ -643,15 +643,15 @@ export default function SettingsPage() {
                   >
                     <option value="English">English</option>
                     <option value="Italiano">Italiano</option>
-                    <option value="Español">Español</option>
-                    <option value="Français">Français</option>
+                    <option value="EspaÃ±ol">EspaÃ±ol</option>
+                    <option value="FranÃ§ais">FranÃ§ais</option>
                     <option value="Deutsch">Deutsch</option>
                   </select>
                 </div>
               </div>
 
               <div className="border-t border-purple-500/20 pt-6">
-                <label className="block text-sm font-medium text-purple-300/80 mb-4 flex items-center gap-2">
+                <label className="block text-sm font-medium text-white/80 mb-4 flex items-center gap-2">
                   <Bell className="w-4 h-4" />
                   {t('settings.emailNotifications')}
                 </label>
@@ -679,7 +679,7 @@ export default function SettingsPage() {
                           <Check className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
                         </div>
                       </div>
-                      <span className="text-purple-200 group-hover:text-white transition-colors">{item.label}</span>
+                      <span className="text-white/80 group-hover:text-white transition-colors">{item.label}</span>
                     </label>
                   ))}
                 </div>
@@ -723,12 +723,12 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <h3 className="font-medium text-white">{t('settings.twoFactorAuth')}</h3>
-                      <p className="text-sm text-purple-300/60 mt-1">{t('settings.twoFactorAuthDescription')}</p>
+                      <p className="text-sm text-white/70 mt-1">{t('settings.twoFactorAuthDescription')}</p>
                     </div>
                   </div>
                   <button
                     disabled
-                    className="px-4 py-2 bg-purple-800/50 text-purple-400 rounded-lg cursor-not-allowed font-medium text-sm"
+                    className="px-4 py-2 bg-purple-800/50 text-white/60 rounded-lg cursor-not-allowed font-medium text-sm"
                   >
                     {t('settings.enable2FA')}
                   </button>
@@ -741,7 +741,7 @@ export default function SettingsPage() {
                   <LogOut className="w-5 h-5 text-fuchsia-400" />
                   <h3 className="font-medium text-white">{t('settings.activeSessions')}</h3>
                 </div>
-                <p className="text-sm text-purple-300/60 mb-4">{t('settings.activeSessionsDescription')}</p>
+                <p className="text-sm text-white/70 mb-4">{t('settings.activeSessionsDescription')}</p>
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-4 bg-purple-900/20 border border-purple-500/20 rounded-xl">
@@ -751,7 +751,7 @@ export default function SettingsPage() {
                       </div>
                       <div>
                         <div className="font-medium text-white">{t('settings.currentSession')}</div>
-                        <div className="text-sm text-purple-300/60">Chrome on macOS - {new Date().toLocaleString()}</div>
+                        <div className="text-sm text-white/70">Chrome on macOS - {new Date().toLocaleString()}</div>
                       </div>
                     </div>
                     <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-full border border-emerald-500/30">
@@ -767,7 +767,7 @@ export default function SettingsPage() {
                   <AlertCircle className="w-5 h-5 text-red-400" />
                   <h3 className="font-medium text-red-400">{t('settings.dangerZone')}</h3>
                 </div>
-                <p className="text-sm text-purple-300/60 mb-4">{t('settings.irreversibleActions')}</p>
+                <p className="text-sm text-white/70 mb-4">{t('settings.irreversibleActions')}</p>
 
                 <button className="px-6 py-2.5 bg-red-600/20 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-600 hover:text-white hover:border-red-500 font-medium transition-all">
                   {t('settings.deleteAccount')}
@@ -780,3 +780,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

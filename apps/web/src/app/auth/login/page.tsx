@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
@@ -16,7 +16,7 @@ function LoginForm() {
   const [sessionExpired, setSessionExpired] = useState(false);
 
   useEffect(() => {
-    // Controlla se la sessione è scaduta per timeout
+    // Controlla se la sessione Ã¨ scaduta per timeout
     const timeout = searchParams.get('timeout');
     if (timeout === 'true') {
       setSessionExpired(true);
@@ -90,12 +90,12 @@ function LoginForm() {
       <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 rounded-2xl shadow-2xl w-full max-w-md p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-purple-300/70">Sign in to your Chatbot Studio account</p>
+          <p className="text-white/70">Sign in to your Chatbot Studio account</p>
         </div>
 
         {sessionExpired && (
-          <div className="bg-purple-500/20 border border-purple-500/30 text-purple-300 px-4 py-3 rounded-lg mb-6">
-            La tua sessione è scaduta dopo 30 minuti di inattività. Effettua nuovamente il login.
+          <div className="bg-purple-500/20 border border-purple-500/30 text-white px-4 py-3 rounded-lg mb-6">
+            La tua sessione Ã¨ scaduta dopo 30 minuti di inattivitÃ . Effettua nuovamente il login.
           </div>
         )}
 
@@ -107,7 +107,7 @@ function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-purple-300/70 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-white/70 mb-2">
               Email Address
             </label>
             <input
@@ -116,13 +116,13 @@ function LoginForm() {
               required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-purple-300/70 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-white/70 mb-2">
               Password
             </label>
             <input
@@ -131,8 +131,8 @@ function LoginForm() {
               required
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
-              placeholder="••••••••"
+              className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-white/40 transition-all"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
             />
           </div>
 
@@ -143,7 +143,7 @@ function LoginForm() {
                 type="checkbox"
                 className="h-4 w-4 text-fuchsia-600 focus:ring-fuchsia-500 border-purple-500/30 rounded bg-purple-900/30"
               />
-              <label htmlFor="remember" className="ml-2 block text-sm text-purple-300/70">
+              <label htmlFor="remember" className="ml-2 block text-sm text-white/70">
                 Remember me
               </label>
             </div>
@@ -163,7 +163,7 @@ function LoginForm() {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-purple-300/70">
+          <p className="text-white/70">
             Don't have an account?{' '}
             <Link href="/auth/register" className="text-fuchsia-400 font-semibold hover:text-fuchsia-300 transition-colors">
               Sign up for free
@@ -176,7 +176,7 @@ function LoginForm() {
             href="/"
             className="block text-center text-fuchsia-400 hover:text-fuchsia-300 font-medium transition-colors"
           >
-            ← Back to home
+            â† Back to home
           </Link>
         </div>
       </div>
@@ -188,10 +188,11 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gradient-to-br from-[#1a0f2e] via-[#150a25] to-[#0f0520] flex items-center justify-center">
-        <div className="text-purple-300">Loading...</div>
+        <div className="text-white/80">Loading...</div>
       </div>
     }>
       <LoginForm />
     </Suspense>
   );
 }
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslation } from '@/lib/i18n';
 import { useEffect, useState } from 'react';
@@ -122,7 +122,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-fuchsia-500 mx-auto mb-4"></div>
-          <p className="text-purple-300/70">Loading dashboard...</p>
+          <p className="text-white/70">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -166,7 +166,7 @@ export default function DashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 p-6 rounded-2xl min-w-0">
-          <div className="text-sm text-purple-300/70 font-medium mb-2">{t('dashboard.stats.totalBots')}</div>
+          <div className="text-sm text-white/70 font-medium mb-2">{t('dashboard.stats.totalBots')}</div>
           <div className="text-3xl font-bold text-fuchsia-400 truncate">{analytics.totalBots}</div>
           <div className="text-xs text-fuchsia-400/70 font-medium mt-1">
             {t('dashboard.growth.thisMonth').replace('{count}', analytics.botsThisMonth.toString())}
@@ -174,15 +174,15 @@ export default function DashboardPage() {
         </div>
 
         <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 p-6 rounded-2xl min-w-0">
-          <div className="text-sm text-purple-300/70 font-medium mb-2">{t('dashboard.stats.conversations')}</div>
-          <div className="text-3xl font-bold text-purple-400 truncate">{analytics.conversations.toLocaleString()}</div>
+          <div className="text-sm text-white/70 font-medium mb-2">{t('dashboard.stats.conversations')}</div>
+          <div className="text-3xl font-bold text-white truncate">{analytics.conversations.toLocaleString()}</div>
           <div className={`text-xs font-medium mt-1 ${formatGrowth(analytics.conversationsGrowth).color}`}>
             {formatGrowth(analytics.conversationsGrowth).text} vs last month
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 p-6 rounded-2xl min-w-0">
-          <div className="text-sm text-purple-300/70 font-medium mb-2">{t('dashboard.stats.leadsCaptured')}</div>
+          <div className="text-sm text-white/70 font-medium mb-2">{t('dashboard.stats.leadsCaptured')}</div>
           <div className="text-3xl font-bold text-emerald-400 truncate">{analytics.leads}</div>
           <div className={`text-xs font-medium mt-1 ${formatGrowth(analytics.leadsGrowth).color}`}>
             {formatGrowth(analytics.leadsGrowth).text} vs last month
@@ -190,7 +190,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 p-6 rounded-2xl min-w-0">
-          <div className="text-sm text-purple-300/70 font-medium mb-2">{t('dashboard.stats.activeUsers')}</div>
+          <div className="text-sm text-white/70 font-medium mb-2">{t('dashboard.stats.activeUsers')}</div>
           <div className="text-3xl font-bold text-fuchsia-400 truncate">{analytics.activeUsers}</div>
           <div className={`text-xs font-medium mt-1 ${formatGrowth(analytics.activeUsersGrowth).color}`}>
             {formatGrowth(analytics.activeUsersGrowth).text} vs last month
@@ -202,7 +202,7 @@ export default function DashboardPage() {
       <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 rounded-2xl p-6">
         <h2 className="text-xl font-bold text-white mb-4">{t('dashboard.recentBots')}</h2>
         {recentBots.length === 0 ? (
-          <p className="text-purple-300/70 text-center py-8">
+          <p className="text-white/70 text-center py-8">
             No bots yet. Create your first bot to get started!
           </p>
         ) : (
@@ -211,8 +211,8 @@ export default function DashboardPage() {
               <div key={bot.id} className="flex items-center justify-between border-b border-purple-500/20 pb-4 last:border-b-0">
                 <div>
                   <h3 className="font-semibold text-white">{bot.name}</h3>
-                  <p className="text-sm text-purple-300/70">
-                    Last active: {bot.lastActive} • {bot.conversationCount} conversation{bot.conversationCount !== 1 ? 's' : ''}
+                  <p className="text-sm text-white/70">
+                    Last active: {bot.lastActive} â€¢ {bot.conversationCount} conversation{bot.conversationCount !== 1 ? 's' : ''}
                   </p>
                 </div>
                 <button
@@ -229,3 +229,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

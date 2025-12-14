@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -47,7 +47,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const { t, currentLang, setLanguage } = useTranslation();
 
-  // Monitora l'attività dell'utente per mantenere la sessione attiva
+  // Monitora l'attivitÃ  dell'utente per mantenere la sessione attiva
   useSessionActivity();
 
   // Grouped navigation
@@ -158,7 +158,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (loading || !isAuthenticated) {
     return (
       <div className="min-h-screen bg-[#050014] flex items-center justify-center">
-        <div className="text-purple-300/80">Loading...</div>
+        <div className="text-white/80">Loading...</div>
       </div>
     );
   }
@@ -176,7 +176,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
           isActive
             ? 'bg-gradient-to-r from-purple-900/50 to-transparent border-l-2 border-fuchsia-500 text-white'
-            : 'text-purple-300/60 hover:text-purple-100 hover:bg-purple-500/10'
+            : 'text-white/70 hover:text-white hover:bg-purple-500/10'
         }`}
       >
         <Icon size={16} />
@@ -194,7 +194,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
           pathname === '/dashboard'
             ? 'bg-gradient-to-r from-purple-900/50 to-transparent border-l-2 border-fuchsia-500 text-white'
-            : 'text-purple-300/60 hover:text-purple-100 hover:bg-purple-500/10'
+            : 'text-white/70 hover:text-white hover:bg-purple-500/10'
         }`}
       >
         <LayoutGrid size={18} />
@@ -214,7 +214,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <button
               onClick={() => toggleGroup(group.label)}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-                hasActiveItem ? 'text-purple-200' : 'text-purple-400/60 hover:text-purple-200'
+                hasActiveItem ? 'text-white' : 'text-white/70 hover:text-white'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -244,7 +244,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
             pathname === '/dashboard/settings'
               ? 'bg-gradient-to-r from-purple-900/50 to-transparent border-l-2 border-fuchsia-500 text-white'
-              : 'text-purple-300/60 hover:text-purple-100 hover:bg-purple-500/10'
+              : 'text-white/70 hover:text-white hover:bg-purple-500/10'
           }`}
         >
           <Settings size={16} />

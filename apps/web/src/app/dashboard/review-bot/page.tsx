@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useReviewBot } from "@/hooks/useReviewBot";
@@ -80,7 +80,7 @@ export default function ReviewBotPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Review Bot</h1>
-            <p className="text-purple-300/60 mt-1">Raccogli recensioni Google automaticamente</p>
+            <p className="text-white/70 mt-1">Raccogli recensioni Google automaticamente</p>
           </div>
         </div>
 
@@ -94,7 +94,7 @@ export default function ReviewBotPage() {
             Inizia a raccogliere recensioni Google
           </h2>
 
-          <p className="text-purple-300/60 mb-8 max-w-2xl mx-auto">
+          <p className="text-white/70 mb-8 max-w-2xl mx-auto">
             Configura il Review Bot per inviare automaticamente richieste di recensione ai tuoi clienti
             dopo un acquisto su Stripe, WooCommerce o Shopify.
           </p>
@@ -106,7 +106,7 @@ export default function ReviewBotPage() {
                 <MessageSquare size={24} className="text-purple-400" />
               </div>
               <h3 className="text-white font-semibold mb-2">SMS Automatici</h3>
-              <p className="text-sm text-purple-200">Invia richieste via SMS dopo ogni acquisto</p>
+              <p className="text-sm text-white/80">Invia richieste via SMS dopo ogni acquisto</p>
             </div>
 
             <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-6">
@@ -114,7 +114,7 @@ export default function ReviewBotPage() {
                 <MousePointerClick size={24} className="text-fuchsia-400" />
               </div>
               <h3 className="text-white font-semibold mb-2">Link Diretto Google</h3>
-              <p className="text-sm text-purple-200">Link per lasciare recensioni con un click</p>
+              <p className="text-sm text-white/80">Link per lasciare recensioni con un click</p>
             </div>
 
             <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-6">
@@ -122,21 +122,21 @@ export default function ReviewBotPage() {
                 <TrendingUp size={24} className="text-emerald-400" />
               </div>
               <h3 className="text-white font-semibold mb-2">Analytics Dettagliati</h3>
-              <p className="text-sm text-purple-200">Analytics e metriche</p>
+              <p className="text-sm text-white/80">Analytics e metriche</p>
             </div>
           </div>
 
           {/* Supported Platforms */}
           <div className="flex items-center justify-center gap-6 mb-8">
-            <div className="flex items-center gap-2 text-purple-300/60">
+            <div className="flex items-center gap-2 text-white/70">
               <StripeIcon size={20} className="text-[#635BFF]" />
               <span className="text-sm">Stripe</span>
             </div>
-            <div className="flex items-center gap-2 text-purple-300/60">
+            <div className="flex items-center gap-2 text-white/70">
               <WooCommerceIcon size={20} className="text-[#96588a]" />
               <span className="text-sm">WooCommerce</span>
             </div>
-            <div className="flex items-center gap-2 text-purple-300/60">
+            <div className="flex items-center gap-2 text-white/70">
               <ShopifyIcon size={20} className="text-[#96bf48]" />
               <span className="text-sm">Shopify</span>
             </div>
@@ -160,12 +160,12 @@ export default function ReviewBotPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Review Bot</h1>
-          <p className="text-purple-300/60 mt-1">{reviewBot?.businessName}</p>
+          <p className="text-white/70 mt-1">{reviewBot?.businessName}</p>
         </div>
         <div className="flex gap-3">
           <button
             onClick={() => setShowSettings(true)}
-            className="px-4 py-2 border border-purple-500/30 text-purple-200 rounded-xl hover:bg-purple-500/20 transition-all inline-flex items-center gap-2"
+            className="px-4 py-2 border border-purple-500/30 text-white/80 rounded-xl hover:bg-purple-500/20 transition-all inline-flex items-center gap-2"
           >
             <Settings size={18} />
             Impostazioni
@@ -218,7 +218,7 @@ export default function ReviewBotPage() {
         <div className="lg:col-span-2 bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 border border-purple-500/20 rounded-2xl p-6">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <TrendingUp size={20} className="text-fuchsia-400" />
-            Attività Recente
+            AttivitÃ  Recente
           </h2>
 
           <div className="space-y-3">
@@ -250,7 +250,7 @@ export default function ReviewBotPage() {
             />
           </div>
 
-          <button className="mt-4 w-full py-2 border border-purple-500/30 text-purple-200 rounded-xl hover:bg-purple-500/20 transition-all text-sm">
+          <button className="mt-4 w-full py-2 border border-purple-500/30 text-white/80 rounded-xl hover:bg-purple-500/20 transition-all text-sm">
             Vedi tutto
           </button>
         </div>
@@ -284,7 +284,7 @@ export default function ReviewBotPage() {
             />
           </div>
 
-          <button className="mt-4 w-full py-2 border border-purple-500/30 text-purple-200 rounded-xl hover:bg-purple-500/20 transition-all text-sm">
+          <button className="mt-4 w-full py-2 border border-purple-500/30 text-white/80 rounded-xl hover:bg-purple-500/20 transition-all text-sm">
             Aggiungi Connessione
           </button>
         </div>
@@ -298,7 +298,7 @@ export default function ReviewBotPage() {
         </h2>
 
         <div className="bg-[#0a0a0f] rounded-xl p-8 flex items-center justify-center min-h-[300px] relative">
-          <p className="text-purple-300/40 text-sm">Anteprima widget in arrivo...</p>
+          <p className="text-white/60 text-sm">Anteprima widget in arrivo...</p>
 
           {/* Mini widget preview placeholder */}
           <div className="absolute bottom-4 right-4 bg-gradient-to-br from-purple-600/20 to-fuchsia-600/20 border border-purple-500/30 rounded-lg p-4 max-w-xs">
@@ -306,7 +306,7 @@ export default function ReviewBotPage() {
               <Star size={16} className="text-yellow-400" fill="currentColor" />
               <span className="text-white text-sm font-medium">Lascia una recensione</span>
             </div>
-            <p className="text-purple-200/60 text-xs">
+            <p className="text-white/80/60 text-xs">
               Clicca qui per lasciare una recensione su Google
             </p>
           </div>
@@ -324,7 +324,7 @@ export default function ReviewBotPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-[#1a0b2e] border border-purple-500/20 rounded-2xl p-6 max-w-2xl w-full">
             <h3 className="text-xl font-bold text-white mb-4">Settings</h3>
-            <p className="text-purple-300/60 mb-4">Settings component to be implemented</p>
+            <p className="text-white/70 mb-4">Settings component to be implemented</p>
             <button
               onClick={() => setShowSettings(false)}
               className="px-4 py-2 bg-purple-600 text-white rounded-lg"
@@ -339,7 +339,7 @@ export default function ReviewBotPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-[#1a0b2e] border border-purple-500/20 rounded-2xl p-6 max-w-2xl w-full">
             <h3 className="text-xl font-bold text-white mb-4">Widget Snippet</h3>
-            <p className="text-purple-300/60 mb-4">Widget snippet component to be implemented</p>
+            <p className="text-white/70 mb-4">Widget snippet component to be implemented</p>
             <button
               onClick={() => setShowSnippet(false)}
               className="px-4 py-2 bg-purple-600 text-white rounded-lg"
@@ -389,9 +389,9 @@ function StatCard({
         )}
       </div>
       <p className="text-2xl font-bold text-white mb-1">{value.toLocaleString()}</p>
-      <p className="text-purple-300/60 text-sm">{label}</p>
+      <p className="text-white/70 text-sm">{label}</p>
       {subtitle && (
-        <p className="text-purple-300/40 text-xs mt-1">{subtitle}</p>
+        <p className="text-white/60 text-xs mt-1">{subtitle}</p>
       )}
     </div>
   );
@@ -423,14 +423,14 @@ function ConnectionItem({
         <div>
           <p className="text-white font-medium">{name}</p>
           {lastSync && (
-            <p className="text-purple-300/40 text-xs">Sync: {lastSync}</p>
+            <p className="text-white/60 text-xs">Sync: {lastSync}</p>
           )}
         </div>
       </div>
       <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase border ${
         status === 'connected'
           ? 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30'
-          : 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+          : 'bg-purple-500/10 text-white/80 border-purple-500/20'
       }`}>
         {status}
       </span>
@@ -467,15 +467,16 @@ function ActivityItem({
       <div className="flex-1">
         <div className="flex items-center justify-between mb-1">
           <p className="text-white font-medium text-sm">{name}</p>
-          <span className="text-purple-300/40 text-xs">{time}</span>
+          <span className="text-white/60 text-xs">{time}</span>
         </div>
         {feedback && (
-          <p className="text-purple-200/60 text-sm mb-2">{feedback}</p>
+          <p className="text-white/80/60 text-sm mb-2">{feedback}</p>
         )}
         {clickedGoogle && (
-          <span className="text-xs text-emerald-400">✓ Google Review</span>
+          <span className="text-xs text-emerald-400">âœ“ Google Review</span>
         )}
       </div>
     </div>
   );
 }
+
