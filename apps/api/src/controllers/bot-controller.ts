@@ -1,4 +1,4 @@
-﻿import { Response } from 'express';
+import { Response } from 'express';
 import { prisma } from '@chatbot-studio/database';
 import { AppError } from '../middleware/error-handler';
 import { AuthRequest } from '../middleware/auth';
@@ -114,6 +114,16 @@ class BotController {
     const bot = await prisma.bot.update({
       where: { id },
       data: updateData,
+      include: {
+        _count: {
+          select: {
+            conversations: true,
+            documents: true,
+            intents: true,
+            faqs: true,
+          },
+        },
+      },
     });
 
     res.json(bot);
