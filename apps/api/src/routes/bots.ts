@@ -1,4 +1,4 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { body } from 'express-validator';
 import { authenticate } from '../middleware/auth';
 import { asyncHandler } from '../middleware/error-handler';
@@ -28,6 +28,9 @@ router.get('/:id', asyncHandler(botController.get));
 // PUT /api/v1/bots/:id - Update bot
 router.put('/:id', asyncHandler(botController.update));
 
+// PATCH /api/v1/bots/:id - Partial update bot (used by web dashboard)
+router.patch('/:id', asyncHandler(botController.update));
+
 // DELETE /api/v1/bots/:id - Delete bot
 router.delete('/:id', asyncHandler(botController.delete));
 
@@ -47,3 +50,4 @@ router.get('/:id/faqs', asyncHandler(botController.getFAQs));
 router.post('/:id/faqs', asyncHandler(botController.createFAQ));
 
 export default router;
+

@@ -167,7 +167,11 @@
       "widgetEmbedCode": "Widget Embed Code",
       "embedInstructions": "Copy this code and paste it before the closing </body> tag on your website:",
       "intents": "Intents",
-      "faqs": "FAQs"
+      "faqs": "FAQs",
+      "botName": "Bot name",
+      "botNamePlaceholder": "Enter bot name",
+      "botNameRequired": "Bot name is required",
+      "saving": "Saving..."
     },
     "documents": {
       "title": "Documents",

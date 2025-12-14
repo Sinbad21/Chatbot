@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Save, Upload, Check, AlertCircle } from "lucide-react";
+import { Save, Upload, Check, AlertCircle, Pencil } from "lucide-react";
 import { useTranslation } from '@/lib/i18n';
 
 interface Bot {
@@ -83,6 +83,11 @@ export default function BotOverviewTab({ botId }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Editable name
+  const [botName, setBotName] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [nameSaving, setNameSaving] = useState(false);
+
   // Editable fields
   const [systemPrompt, setSystemPrompt] = useState("");
   const [welcomeMessage, setWelcomeMessage] = useState("");
@@ -136,6 +141,8 @@ export default function BotOverviewTab({ botId }: Props) {
         const data = await response.json();
         setBot(data);
 
+        setBotName(data.name || "");
+
         // Initialize editable fields
         setSystemPrompt(data.systemPrompt || "");
         setWelcomeMessage(data.welcomeMessage || "");
@@ -185,6 +192,9 @@ export default function BotOverviewTab({ botId }: Props) {
 
       const updated = await response.json();
       setBot(updated);
+      if (typeof (updated as any)?.name === 'string') {
+        setBotName((updated as any).name);
+      }
       showToast(t('bot.overview.savedSuccessfully'), "success");
       return updated;
     } catch (err: any) {
@@ -216,6 +226,22 @@ export default function BotOverviewTab({ botId }: Props) {
       // Error already handled by updateBot
     } finally {
       setPromptsSaving(false);
+    }
+  };
+
+  const applyNameChange = async () => {
+    const trimmed = botName.trim();
+    if (!trimmed) {
+      showToast(t('bot.overview.botNameRequired'), 'error');
+      return;
+    }
+
+    setNameSaving(true);
+    try {
+      await updateBot({ name: trimmed } as any);
+      setIsEditingName(false);
+    } finally {
+      setNameSaving(false);
     }
   };
 
@@ -395,7 +421,49 @@ export default function BotOverviewTab({ botId }: Props) {
 
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-2xl font-bold text-white">{bot.name}</h1>
+                {isEditingName ? (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <label className="sr-only" htmlFor="bot-name">
+                      {t('bot.overview.botName')}
+                    </label>
+                    <input
+                      id="bot-name"
+                      value={botName}
+                      onChange={(e) => setBotName(e.target.value)}
+                      className="w-full sm:w-auto min-w-[220px] px-3 py-2 rounded-lg bg-white/5 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder={t('bot.overview.botNamePlaceholder')}
+                    />
+                    <button
+                      onClick={applyNameChange}
+                      disabled={nameSaving}
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white text-black text-sm font-medium disabled:opacity-60"
+                    >
+                      <Save size={16} />
+                      {nameSaving ? t('bot.overview.saving') : t('common.save')}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setBotName(bot.name || "");
+                        setIsEditingName(false);
+                      }}
+                      disabled={nameSaving}
+                      className="px-3 py-2 rounded-lg bg-black/40 border border-white/20 text-white/70 text-sm font-medium hover:bg-white/5 disabled:opacity-60"
+                    >
+                      {t('common.cancel')}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-white">{bot.name}</h1>
+                    <button
+                      onClick={() => setIsEditingName(true)}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-white/20 text-white/70 text-sm font-medium hover:bg-white/5"
+                    >
+                      <Pencil size={16} />
+                      {t('common.edit')}
+                    </button>
+                  </div>
+                )}
                 {bot.published ? (
                   <span className="px-3 py-1 bg-green-500/20 text-green-800 text-sm font-medium rounded-full">
                     {t('bots.published')}
@@ -610,3 +678,4 @@ export default function BotOverviewTab({ botId }: Props) {
     </div>
   );
 }
+

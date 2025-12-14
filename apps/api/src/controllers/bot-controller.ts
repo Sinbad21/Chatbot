@@ -1,4 +1,4 @@
-import { Response } from 'express';
+﻿import { Response } from 'express';
 import { prisma } from '@chatbot-studio/database';
 import { AppError } from '../middleware/error-handler';
 import { AuthRequest } from '../middleware/auth';
@@ -89,6 +89,15 @@ class BotController {
   async update(req: AuthRequest, res: Response) {
     const { id } = req.params;
     const updateData = req.body;
+
+    if (typeof updateData?.name === 'string') {
+      const trimmedName = updateData.name.trim();
+      if (!trimmedName) {
+        throw new AppError('Bot name is required', 400);
+      }
+      updateData.name = trimmedName;
+    }
+
 
     // Security: Verify bot exists and user owns it
     const existingBot = await prisma.bot.findFirst({
@@ -275,3 +284,4 @@ class BotController {
 }
 
 export const botController = new BotController();
+
