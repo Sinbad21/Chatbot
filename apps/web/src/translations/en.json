@@ -193,6 +193,7 @@
       "uploadDocument": "Upload Document",
       "addDocument": "Add Document",
       "loadingDocuments": "Loading documents...",
+      "failedToLoad": "Failed to load documents",
       "documentsCount": "Documents ({count})",
       "titlePlaceholder": "e.g., Product Guide, FAQ Document",
       "contentPlaceholder": "Paste your document content here...",

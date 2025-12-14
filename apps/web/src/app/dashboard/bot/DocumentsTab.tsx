@@ -45,6 +45,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
   const fetchDocuments = async () => {
     try {
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents`, {
+        credentials: 'include',
         headers: buildAuthHeaders(false),
       });
 
@@ -204,6 +205,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
     try {
       const response = await fetch(`${apiBaseUrl}/api/v1/documents/${documentId}`, {
         method: 'DELETE',
+        credentials: 'include',
         headers: buildAuthHeaders(false),
       });
 

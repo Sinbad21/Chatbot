@@ -193,6 +193,7 @@
       "uploadDocument": "Carica Documento",
       "addDocument": "Aggiungi Documento",
       "loadingDocuments": "Caricamento documenti...",
+      "failedToLoad": "Impossibile caricare i documenti",
       "documentsCount": "Documenti ({count})",
       "titlePlaceholder": "es., Guida Prodotto, Documento FAQ",
       "contentPlaceholder": "Incolla il contenuto del documento qui...",
