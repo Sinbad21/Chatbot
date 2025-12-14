@@ -753,6 +753,100 @@ app.patch('/api/v1/bots/:id', authMiddleware, async (c) => {
   }
 });
 
+app.post('/api/v1/bots/:id/prompt/generate', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const id = c.req.param('id');
+
+    const apiKey = (c.env.OPENAI_API_KEY || '').trim();
+    if (!apiKey) {
+      return c.json({
+        error: 'LLM API key not configured',
+        message: 'Configure OPENAI_API_KEY to enable prompt generation'
+      }, 503);
+    }
+
+    const body = await c.req.json<{ answers?: any }>().catch(() => ({} as any));
+    const answers = body?.answers || {};
+
+    // Verify user's organization membership
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      select: { organizationId: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'User has no organization' }, 403);
+    }
+
+    // Verify bot belongs to user's organization
+    const existingBot = await prisma.bot.findUnique({
+      where: { id },
+      select: { id: true, organizationId: true, name: true },
+    });
+
+    if (!existingBot) {
+      return c.json({ error: 'Bot not found' }, 404);
+    }
+
+    if (existingBot.organizationId !== membership.organizationId) {
+      return c.json({ error: 'Access denied' }, 403);
+    }
+
+    const openai = new OpenAI({ apiKey });
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      temperature: 0.4,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a prompt engineer. Create a strong, long, operational system prompt for a business chatbot. ' +
+            'Return ONLY valid JSON with keys: systemPrompt (string), welcomeMessage (string). ' +
+            'The systemPrompt must include: goals, behavior rules, escalation, privacy constraints, and style guidelines. ' +
+            'Do not include Markdown fences. Do not include additional keys.'
+        },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            botId: existingBot.id,
+            botName: existingBot.name,
+            answers
+          })
+        }
+      ]
+    });
+
+    const content = completion.choices?.[0]?.message?.content || '';
+    let parsed: any = null;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      return c.json({
+        error: 'Invalid model response',
+        message: 'The model did not return valid JSON'
+      }, 500);
+    }
+
+    const systemPrompt = typeof parsed?.systemPrompt === 'string' ? parsed.systemPrompt.trim() : '';
+    const welcomeMessage = typeof parsed?.welcomeMessage === 'string' ? parsed.welcomeMessage.trim() : '';
+
+    if (!systemPrompt) {
+      return c.json({
+        error: 'Invalid generated prompt',
+        message: 'Missing systemPrompt'
+      }, 500);
+    }
+
+    return c.json({ systemPrompt, welcomeMessage });
+  } catch (error: any) {
+    console.error('[prompt/generate] error', error);
+    return c.json({ error: error.message || 'Failed to generate prompt' }, 500);
+  }
+});
+
 app.delete('/api/v1/bots/:id', authMiddleware, async (c) => {
   try {
     const prisma = getPrisma(c.env);

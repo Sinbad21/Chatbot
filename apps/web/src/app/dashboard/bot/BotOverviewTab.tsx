@@ -51,33 +51,242 @@ const MODELS = [
 const PROMPT_TEMPLATES = [
   {
     name: "Customer Support",
-    systemPrompt: "You are a helpful customer support assistant. Be friendly, patient, and professional. Always aim to resolve customer issues efficiently. If you don't know the answer, offer to escalate to a human agent.",
-    welcomeMessage: "Hi! I'm here to help. What can I assist you with today?"
+    systemPrompt: `You are a customer support assistant for a business.
+
+GOAL
+- Resolve the customer's issue end-to-end with minimal back-and-forth.
+- If you cannot fully solve it, collect the right details and escalate clearly.
+
+OPERATING RULES
+1) Identify intent quickly (order/tracking, returns/refunds, billing, account, product info, technical issue, other).
+2) Ask only the minimum clarifying questions needed (usually 1–2 at a time).
+3) Provide a concrete next step (what you will do, what the customer should do, and what happens next).
+4) Use the knowledge base provided (documents/FAQs/intents). If information is missing, say so and propose escalation.
+5) Privacy & safety: never ask for passwords, full card numbers, or other sensitive data. If identity verification is needed, request only non-sensitive identifiers (e.g., order/reference number) and direct to secure channels when appropriate.
+6) When escalating, summarize: issue, steps tried, and required details.
+
+STYLE
+- Default to the user's language; if unclear, use Italian.
+- Be empathetic, calm, and professional.
+- For troubleshooting, use numbered steps and confirm the outcome.
+- End with a short summary and a question to proceed.
+`,
+    welcomeMessage: "Hi! I'm here to help. Please tell me what you need, and if it’s about an order include your order/reference number (if available)."
   },
   {
     name: "Sales Assistant",
-    systemPrompt: "You are a knowledgeable sales assistant. Help customers find the right products, answer questions about features and pricing, and guide them through the purchase process. Be enthusiastic but not pushy.",
-    welcomeMessage: "Welcome! I'd love to help you find exactly what you're looking for. What brings you here today?"
+    systemPrompt: `You are a high-performing sales assistant.
+
+GOAL
+- Help visitors find the right solution quickly and confidently.
+- Qualify leads with respectful questions and propose the best next step.
+
+SALES PLAYBOOK
+1) Clarify need: ask about the use case, constraints, and timeline.
+2) Recommend: suggest the best option(s) and explain "why" in plain language.
+3) Handle objections: budget, fit, complexity, trust, and timing.
+4) Convert: propose a concrete action (book a call/demo, get a quote, start a trial, receive a link).
+5) If the user is undecided: offer a short comparison and ask a single decision-driving question.
+
+GUARDRAILS
+- Do not invent prices/policies. If not in the knowledge base, ask for details or offer escalation.
+- Be persuasive but never pushy. Respect “no” and provide alternatives.
+
+STYLE
+- Default to the user's language; if unclear, use Italian.
+- Use short paragraphs and bullets; highlight benefits and outcomes.
+`,
+    welcomeMessage: "Welcome! What are you looking to achieve today, and what’s your main constraint (budget, time, or requirements)?"
   },
   {
     name: "Technical Support",
-    systemPrompt: "You are a technical support specialist. Provide clear, step-by-step instructions to help users troubleshoot issues. Use simple language and avoid jargon unless necessary. Always be patient and thorough.",
-    welcomeMessage: "Hello! I'm here to help you resolve any technical issues. Please describe what problem you're experiencing."
+    systemPrompt: `You are a technical support specialist.
+
+GOAL
+- Diagnose issues efficiently and provide safe, step-by-step fixes.
+
+DIAGNOSTIC FLOW
+1) Confirm context: product/service, environment (OS/browser/device/version), and exact error message.
+2) Reproduce mentally: ask for the last action before the issue and whether it’s intermittent.
+3) Propose steps in priority order: quickest/lowest-risk first.
+4) After each step, ask the user to confirm the result.
+5) If still failing, collect logs/screenshots (if possible) and escalate with a concise summary.
+
+SAFETY
+- Never ask for passwords or secrets.
+- Avoid dangerous commands unless clearly explained and appropriate.
+
+STYLE
+- Default to the user's language; if unclear, use Italian.
+- Use numbered steps, code blocks only when necessary, and keep explanations simple.
+`,
+    welcomeMessage: "Hi! Describe the issue and include any error text. Also tell me your device/OS and browser (if relevant)."
   },
   {
     name: "FAQ Assistant",
-    systemPrompt: "You are an FAQ assistant. Answer questions based on the knowledge base and documentation provided. Be concise and accurate. If information isn't available, politely let users know.",
-    welcomeMessage: "Hi! Ask me anything about our products, services, or policies."
+    systemPrompt: `You are an FAQ assistant.
+
+PRIMARY RULE
+- Answer using ONLY the provided knowledge base (documents/FAQs/intents). Do not guess.
+
+BEHAVIOR
+1) If the user question is clear: answer directly.
+2) If it’s ambiguous: ask a single clarifying question.
+3) If the information is not in the knowledge base: say you don’t have enough information and suggest the best next step (where to find it or how to contact support).
+
+STYLE
+- Default to the user's language; if unclear, use Italian.
+- Be concise but complete; use bullets for lists.
+`,
+    welcomeMessage: "Hi! Ask me anything about our products, services, or policies and I’ll answer from our documentation."
   },
   {
     name: "General Assistant",
-    systemPrompt: "You are a friendly and helpful assistant. Answer questions clearly and accurately. Be conversational while maintaining professionalism.",
+    systemPrompt: `You are a friendly and helpful assistant.
+
+GOAL
+- Help the user accomplish their task quickly with clear, accurate answers.
+
+STYLE
+- Default to the user's language; if unclear, use Italian.
+- Be warm and professional.
+- Ask clarifying questions when needed.
+- Provide actionable next steps.
+`,
     welcomeMessage: "Hello! How can I help you today?"
   }
 ];
 
+type PromptWizardAnswers = {
+  botType: 'customer_support' | 'sales' | 'technical_support' | 'faq' | 'general' | 'other';
+  businessContext: string;
+  targetUsers: string;
+  goals: string;
+  actionsAndData: string;
+  tone: string;
+  language: string;
+  knowledgeSources: string;
+  constraints: string;
+  escalation: string;
+};
+
+type PromptWizardStep = {
+  key: keyof PromptWizardAnswers;
+  title: string;
+  helper?: string;
+  input: 'select' | 'textarea';
+};
+
+function getPromptWizardCopy(isItalian: boolean) {
+  return {
+    generatePrompt: isItalian ? 'Genera prompt' : 'Generate prompt',
+    generatorTitle: isItalian ? 'Generatore prompt' : 'Prompt generator',
+    generatorSubtitle: isItalian
+      ? 'Rispondi a ~10 domande e genera un prompt su misura.'
+      : 'Answer ~10 questions and generate a tailored prompt.',
+    back: isItalian ? 'Indietro' : 'Back',
+    next: isItalian ? 'Avanti' : 'Next',
+    cancel: isItalian ? 'Annulla' : 'Cancel',
+    apply: isItalian ? 'Genera e applica' : 'Generate & apply',
+    generating: isItalian ? 'Generazione…' : 'Generating…',
+    apiKeyMissing: isItalian
+      ? 'Funzione disponibile solo dopo aver configurato la chiave API del provider LLM.'
+      : 'This feature is available only after configuring the LLM provider API key.',
+    generatedOk: isItalian ? 'Prompt generato e applicato.' : 'Prompt generated and applied.',
+    genericError: isItalian ? 'Impossibile generare il prompt.' : 'Unable to generate prompt.'
+  };
+}
+
+function getPromptWizardSteps(isItalian: boolean): PromptWizardStep[] {
+  return [
+    {
+      key: 'botType',
+      title: isItalian ? 'Tipo di assistente' : 'Assistant type',
+      helper: isItalian
+        ? 'Scegli lo scenario principale (supporto, vendite, tecnico…).'
+        : 'Pick the primary scenario (support, sales, technical…).',
+      input: 'select'
+    },
+    {
+      key: 'businessContext',
+      title: isItalian ? 'Contesto aziendale' : 'Business context',
+      helper: isItalian
+        ? 'Che azienda è? Cosa vendi/offri? Quali prodotti/servizi?'
+        : 'What business is this? What do you sell/offer?',
+      input: 'textarea'
+    },
+    {
+      key: 'targetUsers',
+      title: isItalian ? 'Utenti target' : 'Target users',
+      helper: isItalian
+        ? 'Chi ti contatta? (B2C/B2B, livello di competenza, segmenti).'
+        : 'Who will contact you? (B2C/B2B, expertise level, segments).',
+      input: 'textarea'
+    },
+    {
+      key: 'goals',
+      title: isItalian ? 'Obiettivi' : 'Goals',
+      helper: isItalian
+        ? 'Cosa deve ottenere il bot? (risolvere problemi, prenotare, vendere, ridurre ticket…).'
+        : 'What should the bot achieve? (resolve issues, book meetings, sell, reduce tickets…).',
+      input: 'textarea'
+    },
+    {
+      key: 'actionsAndData',
+      title: isItalian ? 'Azioni e dati' : 'Actions & data',
+      helper: isItalian
+        ? 'Cosa può fare il bot e che dati può chiedere? (es. ordine, email, riferimento).'
+        : 'What can the bot do and what info can it request? (e.g., order number, email, reference).',
+      input: 'textarea'
+    },
+    {
+      key: 'tone',
+      title: isItalian ? 'Tono di voce' : 'Tone of voice',
+      helper: isItalian
+        ? 'Es: professionale, amichevole, diretto, premium, ironico (se appropriato).'
+        : 'e.g., professional, friendly, direct, premium, witty (if appropriate).',
+      input: 'textarea'
+    },
+    {
+      key: 'language',
+      title: isItalian ? 'Lingua' : 'Language',
+      helper: isItalian
+        ? 'Lingua principale e cosa fare se l’utente scrive in un’altra lingua.'
+        : 'Primary language and what to do if the user writes in another language.',
+      input: 'textarea'
+    },
+    {
+      key: 'knowledgeSources',
+      title: isItalian ? 'Fonti/knowledge base' : 'Knowledge sources',
+      helper: isItalian
+        ? 'Cosa deve usare il bot? (FAQ, documenti, policy, listini, procedure).'
+        : 'What should the bot rely on? (FAQs, docs, policies, pricing, procedures).',
+      input: 'textarea'
+    },
+    {
+      key: 'constraints',
+      title: isItalian ? 'Vincoli e policy' : 'Constraints & policies',
+      helper: isItalian
+        ? 'Cosa NON deve fare/dire? Regole su privacy, pagamenti, garanzie, promesse.'
+        : 'What must it NOT do/say? Rules on privacy, payments, guarantees, promises.',
+      input: 'textarea'
+    },
+    {
+      key: 'escalation',
+      title: isItalian ? 'Escalation a umano' : 'Human escalation',
+      helper: isItalian
+        ? 'Quando deve passare a un umano e quali informazioni raccogliere prima.'
+        : 'When to hand off to a human and what to collect first.',
+      input: 'textarea'
+    }
+  ];
+}
+
 export default function BotOverviewTab({ botId }: Props) {
-  const { t } = useTranslation();
+  const { t, currentLang } = useTranslation();
+  const isItalian = currentLang === 'it';
+  const wizardCopy = getPromptWizardCopy(isItalian);
+  const wizardSteps = getPromptWizardSteps(isItalian);
   const router = useRouter();
   const [bot, setBot] = useState<Bot | null>(null);
   const [loading, setLoading] = useState(true);
@@ -105,6 +314,23 @@ export default function BotOverviewTab({ botId }: Props) {
   // Track if prompts have unsaved changes
   const [hasPromptChanges, setHasPromptChanges] = useState(false);
   const [promptsSaving, setPromptsSaving] = useState(false);
+
+  // Prompt generator wizard
+  const [showPromptWizard, setShowPromptWizard] = useState(false);
+  const [promptWizardStepIndex, setPromptWizardStepIndex] = useState(0);
+  const [promptWizardGenerating, setPromptWizardGenerating] = useState(false);
+  const [promptWizardAnswers, setPromptWizardAnswers] = useState<PromptWizardAnswers>({
+    botType: 'customer_support',
+    businessContext: '',
+    targetUsers: '',
+    goals: '',
+    actionsAndData: '',
+    tone: '',
+    language: isItalian ? 'Italiano' : 'English',
+    knowledgeSources: '',
+    constraints: '',
+    escalation: ''
+  });
 
   // Toast state
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
@@ -254,6 +480,78 @@ export default function BotOverviewTab({ botId }: Props) {
       setSystemPrompt(template.systemPrompt);
       setWelcomeMessage(template.welcomeMessage);
       setHasPromptChanges(true);
+    }
+  };
+
+  const resetPromptWizard = () => {
+    setPromptWizardStepIndex(0);
+    setPromptWizardGenerating(false);
+    setPromptWizardAnswers({
+      botType: 'customer_support',
+      businessContext: '',
+      targetUsers: '',
+      goals: '',
+      actionsAndData: '',
+      tone: '',
+      language: isItalian ? 'Italiano' : 'English',
+      knowledgeSources: '',
+      constraints: '',
+      escalation: ''
+    });
+  };
+
+  const handleGeneratePrompt = async () => {
+    if (promptWizardGenerating) return;
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) {
+      showToast(wizardCopy.genericError, 'error');
+      return;
+    }
+
+    try {
+      setPromptWizardGenerating(true);
+      const response = await fetch(`${apiUrl}/api/v1/bots/${botId}/prompt/generate`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ answers: promptWizardAnswers })
+      });
+
+      if (response.status === 401) {
+        router.push('/auth/login');
+        return;
+      }
+
+      const json = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const message = json?.error || json?.message;
+        if (response.status === 503) {
+          showToast(message || wizardCopy.apiKeyMissing, 'error');
+          return;
+        }
+        showToast(message || wizardCopy.genericError, 'error');
+        return;
+      }
+
+      if (typeof json?.systemPrompt === 'string' && json.systemPrompt.length > 0) {
+        setSystemPrompt(json.systemPrompt);
+      }
+      if (typeof json?.welcomeMessage === 'string' && json.welcomeMessage.length > 0) {
+        setWelcomeMessage(json.welcomeMessage);
+      }
+
+      setHasPromptChanges(true);
+      showToast(wizardCopy.generatedOk, 'success');
+      setShowPromptWizard(false);
+    } catch (err) {
+      console.error(err);
+      showToast(wizardCopy.genericError, 'error');
+    } finally {
+      setPromptWizardGenerating(false);
     }
   };
 
@@ -567,21 +865,128 @@ export default function BotOverviewTab({ botId }: Props) {
             <label className="block text-sm font-medium text-white/70 mb-2">
               {t('bot.overview.promptTemplate')}
             </label>
-            <select
-              onChange={(e) => handleTemplateSelect(e.target.value)}
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/5 text-white [&>option]:text-black"
-              defaultValue=""
-            >
-              <option value="">{t('bot.overview.selectTemplate')}</option>
-              {PROMPT_TEMPLATES.map((template) => (
-                <option key={template.name} value={template.name}>
-                  {template.name}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center gap-3">
+              <select
+                onChange={(e) => handleTemplateSelect(e.target.value)}
+                className="flex-1 px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/5 text-white [&>option]:text-black"
+                defaultValue=""
+              >
+                <option value="">{t('bot.overview.selectTemplate')}</option>
+                {PROMPT_TEMPLATES.map((template) => (
+                  <option key={template.name} value={template.name}>
+                    {template.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => {
+                  resetPromptWizard();
+                  setShowPromptWizard((v) => !v);
+                }}
+                className="px-4 py-2 border border-white/20 rounded-lg bg-white/5 text-white hover:bg-white/10"
+              >
+                {wizardCopy.generatePrompt}
+              </button>
+            </div>
             <p className="text-xs text-white/50 mt-1">
               {t('bot.overview.promptTemplateHelp')}
             </p>
+
+            {showPromptWizard && (
+              <div className="mt-3 rounded-lg border border-white/20 bg-white/5 p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="text-white font-medium">{wizardCopy.generatorTitle}</div>
+                    <div className="text-white/70 text-sm">{wizardCopy.generatorSubtitle}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPromptWizard(false)}
+                    className="text-white/70 hover:text-white"
+                  >
+                    {wizardCopy.cancel}
+                  </button>
+                </div>
+
+                <div className="mt-4">
+                  <div className="text-white/60 text-sm">
+                    {promptWizardStepIndex + 1} / {wizardSteps.length}
+                  </div>
+                  <div className="mt-1 text-white font-medium">
+                    {wizardSteps[promptWizardStepIndex].title}
+                  </div>
+                  {wizardSteps[promptWizardStepIndex].helper && (
+                    <div className="mt-1 text-white/70 text-sm">{wizardSteps[promptWizardStepIndex].helper}</div>
+                  )}
+
+                  <div className="mt-3">
+                    {wizardSteps[promptWizardStepIndex].input === 'select' ? (
+                      <select
+                        value={promptWizardAnswers.botType}
+                        onChange={(e) =>
+                          setPromptWizardAnswers((prev) => ({
+                            ...prev,
+                            botType: e.target.value as PromptWizardAnswers['botType']
+                          }))
+                        }
+                        className="w-full px-4 py-2 border border-white/20 rounded-lg bg-white/5 text-white [&>option]:text-black"
+                      >
+                        <option value="customer_support">{isItalian ? 'Customer support' : 'Customer support'}</option>
+                        <option value="sales">{isItalian ? 'Vendite' : 'Sales'}</option>
+                        <option value="technical_support">{isItalian ? 'Supporto tecnico' : 'Technical support'}</option>
+                        <option value="faq">{isItalian ? 'FAQ' : 'FAQ'}</option>
+                        <option value="general">{isItalian ? 'Generico' : 'General'}</option>
+                        <option value="other">{isItalian ? 'Altro' : 'Other'}</option>
+                      </select>
+                    ) : (
+                      <textarea
+                        value={String(promptWizardAnswers[wizardSteps[promptWizardStepIndex].key] ?? '')}
+                        onChange={(e) =>
+                          setPromptWizardAnswers((prev) => ({
+                            ...prev,
+                            [wizardSteps[promptWizardStepIndex].key]: e.target.value
+                          }))
+                        }
+                        rows={4}
+                        className="w-full px-4 py-2 border border-white/20 rounded-lg bg-white/5 text-white"
+                      />
+                    )}
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setPromptWizardStepIndex((i) => Math.max(0, i - 1))}
+                      disabled={promptWizardStepIndex === 0 || promptWizardGenerating}
+                      className="px-3 py-2 border border-white/20 rounded-lg bg-transparent text-white hover:bg-white/5 disabled:opacity-50"
+                    >
+                      {wizardCopy.back}
+                    </button>
+
+                    {promptWizardStepIndex < wizardSteps.length - 1 ? (
+                      <button
+                        type="button"
+                        onClick={() => setPromptWizardStepIndex((i) => Math.min(wizardSteps.length - 1, i + 1))}
+                        disabled={promptWizardGenerating}
+                        className="px-3 py-2 border border-white/20 rounded-lg bg-white/10 text-white hover:bg-white/15 disabled:opacity-50"
+                      >
+                        {wizardCopy.next}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleGeneratePrompt}
+                        disabled={promptWizardGenerating}
+                        className="px-3 py-2 border border-white/20 rounded-lg bg-white/10 text-white hover:bg-white/15 disabled:opacity-50"
+                      >
+                        {promptWizardGenerating ? wizardCopy.generating : wizardCopy.apply}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
