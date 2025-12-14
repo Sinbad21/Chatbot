@@ -129,6 +129,75 @@
       "modelHelp": "Select the AI model that will power your chatbot responses",
       "promptTemplate": "Prompt Template (Optional)",
       "promptTemplateHelp": "Choose a pre-made template to quickly set up your bot's personality",
+      "promptGenerator": {
+        "button": "Generate prompt",
+        "title": "Prompt generator",
+        "subtitle": "Answer ~10 questions and generate a tailored prompt.",
+        "back": "Back",
+        "next": "Next",
+        "cancel": "Cancel",
+        "apply": "Generate & apply",
+        "generating": "Generating...",
+        "apiKeyMissing": "This feature is available only after configuring the LLM provider API key.",
+        "generatedOk": "Prompt generated and applied.",
+        "genericError": "Unable to generate prompt.",
+        "steps": {
+          "botType": {
+            "title": "Assistant type",
+            "helper": "Pick the primary scenario (support, sales, technical…)."
+          },
+          "businessContext": {
+            "title": "Business context",
+            "helper": "What business is this? What do you sell/offer?"
+          },
+          "targetUsers": {
+            "title": "Target users",
+            "helper": "Who will contact you? (B2C/B2B, expertise level, segments)."
+          },
+          "goals": {
+            "title": "Goals",
+            "helper": "What should the bot achieve? (resolve issues, book meetings, sell, reduce tickets…)."
+          },
+          "actionsAndData": {
+            "title": "Actions & data",
+            "helper": "What can the bot do and what info can it request? (e.g., order number, email, reference)."
+          },
+          "tone": {
+            "title": "Tone of voice",
+            "helper": "e.g., professional, friendly, direct, premium, witty (if appropriate)."
+          },
+          "language": {
+            "title": "Language",
+            "helper": "Choose the main language for the bot's responses."
+          },
+          "knowledgeSources": {
+            "title": "Knowledge sources",
+            "helper": "What should the bot rely on? (FAQs, docs, policies, pricing, procedures)."
+          },
+          "constraints": {
+            "title": "Constraints & policies",
+            "helper": "What must it NOT do/say? Rules on privacy, payments, guarantees, promises."
+          },
+          "escalation": {
+            "title": "Human escalation",
+            "helper": "When to hand off to a human and what to collect first."
+          }
+        },
+        "options": {
+          "botType": {
+            "customer_support": "Customer support",
+            "sales": "Sales",
+            "technical_support": "Technical support",
+            "faq": "FAQ",
+            "general": "General",
+            "other": "Other"
+          },
+          "language": {
+            "it": "Italian",
+            "en": "English"
+          }
+        }
+      },
       "selectTemplate": "-- Select a template to get started --",
       "theme": "Chat Theme",
       "applyChanges": "Apply Changes",
