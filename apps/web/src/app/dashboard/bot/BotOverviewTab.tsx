@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -501,19 +501,19 @@ export default function BotOverviewTab({ botId }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-black/40 backdrop-blur-md p-6 rounded-lg shadow">
           <div className="text-sm text-white/60 font-medium mb-2">{t('nav.conversations')}</div>
-          <div className="text-3xl font-bold text-indigo-600">{bot._count.conversations}</div>
+          <div className="text-3xl font-bold text-indigo-600">{bot._count?.conversations ?? 0}</div>
         </div>
         <div className="bg-black/40 backdrop-blur-md p-6 rounded-lg shadow">
           <div className="text-sm text-white/60 font-medium mb-2">{t('nav.documents')}</div>
-          <div className="text-3xl font-bold text-indigo-600">{bot._count.documents}</div>
+          <div className="text-3xl font-bold text-indigo-600">{bot._count?.documents ?? 0}</div>
         </div>
         <div className="bg-black/40 backdrop-blur-md p-6 rounded-lg shadow">
           <div className="text-sm text-white/60 font-medium mb-2">{t('bot.overview.intents')}</div>
-          <div className="text-3xl font-bold text-indigo-600">{bot._count.intents}</div>
+          <div className="text-3xl font-bold text-indigo-600">{bot._count?.intents ?? 0}</div>
         </div>
         <div className="bg-black/40 backdrop-blur-md p-6 rounded-lg shadow">
           <div className="text-sm text-white/60 font-medium mb-2">{t('bot.overview.faqs')}</div>
-          <div className="text-3xl font-bold text-indigo-600">{bot._count.faqs}</div>
+          <div className="text-3xl font-bold text-indigo-600">{bot._count?.faqs ?? 0}</div>
         </div>
       </div>
 

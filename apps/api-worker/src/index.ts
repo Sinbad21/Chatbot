@@ -698,6 +698,15 @@ app.patch('/api/v1/bots/:id', authMiddleware, async (c) => {
     const id = c.req.param('id');
     const updates = await c.req.json();
 
+    // Trim/validate name updates
+    if (typeof (updates as any)?.name === 'string') {
+      const trimmedName = (updates as any).name.trim();
+      if (!trimmedName) {
+        return c.json({ error: 'Bot name is required' }, 400);
+      }
+      (updates as any).name = trimmedName;
+    }
+
     // Verify user's organization membership
     const membership = await prisma.organizationMember.findFirst({
       where: { userId: user.userId },
@@ -726,6 +735,16 @@ app.patch('/api/v1/bots/:id', authMiddleware, async (c) => {
     const bot = await prisma.bot.update({
       where: { id },
       data: updates,
+      include: {
+        _count: {
+          select: {
+            conversations: true,
+            documents: true,
+            intents: true,
+            faqs: true,
+          },
+        },
+      },
     });
 
     return c.json(bot);
