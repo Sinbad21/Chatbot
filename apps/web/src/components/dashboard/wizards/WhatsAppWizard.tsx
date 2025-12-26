@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -9,19 +9,22 @@ interface WhatsAppWizardProps {
   botId: string;
   onClose: () => void;
   onSave: (config: any) => void;
+  initialConfig?: any;
+  onDisconnect?: () => void | Promise<void>;
 }
 
-export function WhatsAppWizard({ botId, onClose, onSave }: WhatsAppWizardProps) {
+export function WhatsAppWizard({ botId, onClose, onSave, initialConfig, onDisconnect }: WhatsAppWizardProps) {
   const [step, setStep] = useState(1);
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState(() => ({
     apiKey: '',
     phoneNumberId: '',
     webhookToken: '',
-  });
+    ...(initialConfig ?? {}),
+  }));
   const [copied, setCopied] = useState<string | null>(null);
 
   const apiBaseUrl = (process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
-  const webhookUrl = ${apiBaseUrl}/webhooks/whatsapp;
+  const webhookUrl = `${apiBaseUrl}/webhooks/whatsapp`;
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -119,7 +122,7 @@ export function WhatsAppWizard({ botId, onClose, onSave }: WhatsAppWizardProps) 
                     className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                   />
                   <p className="text-xs text-purple-400/50 mt-1">
-                    Trovalo in: WhatsApp → API Setup → Temporary access token (o genera un token permanente)
+                    Trovalo in: WhatsApp ? API Setup ? Temporary access token (o genera un token permanente)
                   </p>
                 </div>
 
@@ -135,7 +138,7 @@ export function WhatsAppWizard({ botId, onClose, onSave }: WhatsAppWizardProps) 
                     className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
                   />
                   <p className="text-xs text-purple-400/50 mt-1">
-                    Trovalo in: WhatsApp → API Setup → Phone Number ID
+                    Trovalo in: WhatsApp ? API Setup ? Phone Number ID
                   </p>
                 </div>
 
@@ -215,7 +218,7 @@ export function WhatsAppWizard({ botId, onClose, onSave }: WhatsAppWizardProps) 
                 <div className="bg-purple-900/30 border border-purple-500/20 rounded-lg p-4">
                   <p className="text-sm font-medium text-white mb-2">Passaggi su Meta:</p>
                   <ol className="list-decimal list-inside space-y-2 text-sm text-purple-300/70">
-                    <li>Vai su WhatsApp → Configuration → Webhook</li>
+                    <li>Vai su WhatsApp ? Configuration ? Webhook</li>
                     <li>Clicca "Edit"</li>
                     <li>Incolla il Callback URL copiato sopra</li>
                     <li>Incolla il Verify Token copiato sopra</li>
@@ -241,7 +244,7 @@ export function WhatsAppWizard({ botId, onClose, onSave }: WhatsAppWizardProps) 
                     Integrazione WhatsApp configurata
                   </h4>
                   <p className="text-purple-300/70">
-                    Il tuo chatbot è ora collegato a WhatsApp e può ricevere e inviare messaggi.
+                    Il tuo chatbot � ora collegato a WhatsApp e pu� ricevere e inviare messaggi.
                   </p>
                 </div>
 

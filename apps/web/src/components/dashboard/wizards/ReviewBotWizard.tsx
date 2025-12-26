@@ -378,9 +378,9 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
               <div className="flex flex-col items-center gap-2">
                 <div
                   className="p-3 rounded-lg"
-                  style={{ background: `${platform.color}20` }}
+                  style={{ background: `${platform.color}20`, color: platform.color }}
                 >
-                  <Icon size={28} style={{ color: platform.color }} />
+                  <Icon size={28} className="text-current" />
                 </div>
                 <span className="text-white font-medium">{platform.name}</span>
               </div>

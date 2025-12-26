@@ -1,4 +1,4 @@
-Ôªø'use client';
+'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -8,17 +8,18 @@ import { X, Copy, Check } from 'lucide-react';
 interface WidgetGuideProps {
   botId: string;
   onClose: () => void;
+  onDisconnect?: () => void | Promise<void>;
 }
 
-export function WidgetGuide({ botId, onClose }: WidgetGuideProps) {
+export function WidgetGuide({ botId, onClose, onDisconnect }: WidgetGuideProps) {
   const [copied, setCopied] = useState(false);
 
-  const apiBaseUrl = (process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\\/$/, '');
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 const widgetCode = `<!-- Chatbot Studio Widget -->
 <script>
   window.chatbotConfig = {
     botId: '${botId}',
-    apiUrl: '',
+    apiUrl: '${apiBaseUrl}',
     position: 'bottom-right',
     theme: 'light'
   };
@@ -76,10 +77,10 @@ const widgetCode = `<!-- Chatbot Studio Widget -->
 
           <div className="bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-lg p-4">
             <p className="text-sm text-fuchsia-300 font-medium mb-2">
-              ‚úì Il widget √® gi√† configurato con il tuo Bot ID
+              ? Il widget Ë gi‡ configurato con il tuo Bot ID
             </p>
             <p className="text-sm text-fuchsia-300/70">
-              Apparir√† automaticamente nell'angolo in basso a destra del tuo sito.
+              Apparir‡ automaticamente nell'angolo in basso a destra del tuo sito.
             </p>
           </div>
 
@@ -112,22 +113,31 @@ const widgetCode = `<!-- Chatbot Studio Widget -->
           <div className="bg-purple-900/30 border border-purple-500/20 rounded-lg p-4">
             <h4 className="font-medium text-white mb-2">Piattaforme supportate:</h4>
             <ul className="grid grid-cols-2 gap-2 text-sm text-purple-300/70">
-              <li>‚Ä¢ HTML/CSS/JavaScript</li>
-              <li>‚Ä¢ React</li>
-              <li>‚Ä¢ Vue.js</li>
-              <li>‚Ä¢ Angular</li>
-              <li>‚Ä¢ WordPress</li>
-              <li>‚Ä¢ Shopify</li>
-              <li>‚Ä¢ Wix</li>
-              <li>‚Ä¢ Webflow</li>
+              <li>ï HTML/CSS/JavaScript</li>
+              <li>ï React</li>
+              <li>ï Vue.js</li>
+              <li>ï Angular</li>
+              <li>ï WordPress</li>
+              <li>ï Shopify</li>
+              <li>ï Wix</li>
+              <li>ï Webflow</li>
             </ul>
           </div>
         </div>
 
-        <div className="sticky bottom-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-t border-purple-500/20 p-6">
-          <Button onClick={onClose} className="w-full bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white shadow-lg shadow-purple-500/25">
+        <div className="sticky bottom-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-t border-purple-500/20 p-6 flex gap-3 justify-between">
+          <Button onClick={onClose} className="flex-1 bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white shadow-lg shadow-purple-500/25">
             Chiudi
           </Button>
+          {onDisconnect && (
+            <Button
+              variant="outline"
+              onClick={() => void onDisconnect()}
+              className="border-red-500/30 text-red-300 hover:bg-red-500/10"
+            >
+              Disconnetti
+            </Button>
+          )}
         </div>
       </Card>
     </div>
