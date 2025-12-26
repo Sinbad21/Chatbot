@@ -4,7 +4,7 @@ import { useTranslation } from '@/lib/i18n';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Onboarding from '@/components/dashboard/Onboarding';
-
+import { ensureClientUser } from '@/lib/ensureClientUser';
 interface AnalyticsData {
   totalBots: number;
   botsThisMonth: number;
@@ -47,13 +47,10 @@ export default function DashboardPage() {
   // Check if onboarding should be shown
   useEffect(() => {
     const dismissed = localStorage.getItem('onboarding_dismissed');
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        setUserName(user.name);
-      } catch {}
-    }
+    void (async () => {
+      const user = await ensureClientUser();
+      if (user?.name) setUserName(user.name);
+    })();
     if (!dismissed) {
       setShowOnboarding(true);
     }

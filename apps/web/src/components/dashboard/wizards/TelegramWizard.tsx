@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,8 @@ export function TelegramWizard({ botId, onClose, onSave }: TelegramWizardProps) 
   });
   const [copied, setCopied] = useState(false);
 
-  const webhookUrl = `https://api.yourdomain.com/webhooks/telegram`;
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+  const webhookUrl = ${apiBaseUrl}/webhooks/telegram;
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);

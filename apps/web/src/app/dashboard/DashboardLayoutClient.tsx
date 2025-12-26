@@ -28,7 +28,7 @@ import { useSessionActivity } from '@/hooks/useSessionActivity';
 import { SpaceBackground } from '@/components/dashboard/ui';
 import { Command, Bell } from 'lucide-react';
 import { logout } from '@/lib/authHeaders';
-
+import { ensureClientUser } from '@/lib/ensureClientUser';
 interface NavItem {
   nameKey: string;
   href: string;
@@ -121,34 +121,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   useEffect(() => {
-    const checkAuth = () => {
-      const userStr = localStorage.getItem('user');
-      const authSession = document.cookie.includes('auth_session=true');
-
-      if (!userStr || !authSession) {
+    const checkAuth = async () => {
+      const user = await ensureClientUser();
+      if (!user) {
         document.cookie = 'auth_session=; path=/; max-age=0';
         router.replace('/auth/login');
-        return false;
+        return;
       }
 
-      try {
-        const user = JSON.parse(userStr);
-        setUserEmail(user.email || 'user@example.com');
-        setIsAuthenticated(true);
-        return true;
-      } catch (e) {
-        document.cookie = 'auth_session=; path=/; max-age=0';
-        router.replace('/auth/login');
-        return false;
-      }
+      setUserEmail(user.email || 'user@example.com');
+      setIsAuthenticated(true);
+      setLoading(false);
     };
 
-    const isAuth = checkAuth();
-    setLoading(false);
-
-    if (!isAuth) {
-      return;
-    }
+    void checkAuth();
   }, [router]);
 
   const handleLogout = () => {

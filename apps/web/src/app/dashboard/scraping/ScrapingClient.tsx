@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from '@/lib/i18n';
 import { GlassCard } from '@/components/dashboard/ui';
-
+import { ensureClientUser } from '@/lib/ensureClientUser';
 interface Business {
   id: string;
   name: string;
@@ -75,15 +75,18 @@ export default function ScrapingClient() {
   const [userCompany, setUserCompany] = useState('');
 
   useEffect(() => {
-    // Load user info from localStorage
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        setUserName(user.name || '');
-        setUserCompany(user.company || '');
-      } catch (e) {}
-    }
+    void (async () => {
+      const user = await ensureClientUser();
+      if (user?.name) setUserName(user.name);
+      // `User` model currently has no company field; keep existing behavior if present in stored payloads.
+      const stored = localStorage.getItem('user');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          setUserCompany(parsed.company || '');
+        } catch {}
+      }
+    })();
   }, []);
 
   const handleSearch = async () => {
