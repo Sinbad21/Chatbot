@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -120,6 +120,7 @@ export default function IntegrationsPage() {
   const router = useRouter();
   const [activeWizard, setActiveWizard] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initError, setInitError] = useState<string | null>(null);
   const [organization, setOrganization] = useState<OrganizationMembership['organization'] | null>(null);
   const [integrationsDb, setIntegrationsDb] = useState<Integration[]>([]);
   const [configured, setConfigured] = useState<IntegrationConfig[]>([]);
@@ -167,6 +168,7 @@ export default function IntegrationsPage() {
     void (async () => {
       try {
         setLoading(true);
+        setInitError(null);
 
         const orgRes = await authFetch('/api/v1/organizations');
         if (!orgRes.ok) throw new Error('Failed to load organizations');
@@ -193,6 +195,7 @@ export default function IntegrationsPage() {
         }
       } catch (error) {
         console.error('Failed to init integrations page:', error);
+        setInitError(error instanceof Error ? error.message : 'Failed to load integrations');
       } finally {
         setLoading(false);
       }
@@ -248,6 +251,17 @@ export default function IntegrationsPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/60 mx-auto mb-4"></div>
           <p className="text-white/60">Loading integrations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!loading && integrationsDb.length === 0 && initError) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center space-y-2">
+          <p className="text-white/80 font-semibold">Could not load integrations</p>
+          <p className="text-white/60 text-sm">{initError}</p>
         </div>
       </div>
     );
