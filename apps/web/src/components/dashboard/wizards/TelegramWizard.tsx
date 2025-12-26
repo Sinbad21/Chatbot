@@ -1,4 +1,4 @@
-Ôªø'use client';
+'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -9,18 +9,21 @@ interface TelegramWizardProps {
   botId: string;
   onClose: () => void;
   onSave: (config: any) => void;
+  initialConfig?: any;
+  onDisconnect?: () => void | Promise<void>;
 }
 
-export function TelegramWizard({ botId, onClose, onSave }: TelegramWizardProps) {
+export function TelegramWizard({ botId, onClose, onSave, initialConfig, onDisconnect }: TelegramWizardProps) {
   const [step, setStep] = useState(1);
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState(() => ({
     botToken: '',
     webhookSecret: '',
-  });
+    ...(initialConfig ?? {}),
+  }));
   const [copied, setCopied] = useState(false);
 
   const apiBaseUrl = (process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
-  const webhookUrl = ${apiBaseUrl}/webhooks/telegram;
+  const webhookUrl = `${apiBaseUrl}/webhooks/telegram`;
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -69,7 +72,7 @@ export function TelegramWizard({ botId, onClose, onSave }: TelegramWizardProps) 
                 <li>Invia il comando <code className="bg-purple-900/50 px-2 py-1 rounded text-purple-200">/newbot</code></li>
                 <li>Scegli un nome per il bot (es. "Il mio Chatbot")</li>
                 <li>Scegli un username (deve finire con "bot", es. "MioAssistenteBot")</li>
-                <li>BotFather ti invier√† il <strong className="text-white">Bot Token</strong> - copialo!</li>
+                <li>BotFather ti invier‡ il <strong className="text-white">Bot Token</strong> - copialo!</li>
               </ol>
               <a
                 href="https://core.telegram.org/bots#6-botfather"
@@ -142,7 +145,7 @@ export function TelegramWizard({ botId, onClose, onSave }: TelegramWizardProps) 
                   Integrazione Telegram completata!
                 </h4>
                 <p className="text-purple-300/70">
-                  Il webhook verr√† configurato automaticamente al salvataggio.
+                  Il webhook verr‡ configurato automaticamente al salvataggio.
                 </p>
               </div>
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useReviewBot } from "@/hooks/useReviewBot";
@@ -205,7 +205,7 @@ export default function ReviewBotPage() {
         />
         <StatCard
           label="Click su Google"
-          value={reviewBot?.googleClicks || 0}
+          value={reviewBot?.totalGoogleClicks || 0}
           icon={MousePointerClick}
           color="yellow"
           subtitle={`${reviewBot?.googleClickRate || 0}% click rate`}
@@ -218,7 +218,7 @@ export default function ReviewBotPage() {
         <div className="lg:col-span-2 bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 border border-purple-500/20 rounded-2xl p-6">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <TrendingUp size={20} className="text-fuchsia-400" />
-            AttivitÃ  Recente
+            Attività Recente
           </h2>
 
           <div className="space-y-3">
@@ -473,7 +473,7 @@ function ActivityItem({
           <p className="text-white/80/60 text-sm mb-2">{feedback}</p>
         )}
         {clickedGoogle && (
-          <span className="text-xs text-emerald-400">âœ“ Google Review</span>
+          <span className="text-xs text-emerald-400">✓ Google Review</span>
         )}
       </div>
     </div>

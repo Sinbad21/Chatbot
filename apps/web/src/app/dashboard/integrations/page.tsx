@@ -1,164 +1,292 @@
-'use client';
+﻿'use client';
 
-import { useState } from 'react';
-import { IntegrationCard } from '@/components/dashboard/IntegrationCard';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { WhatsAppWizard } from '@/components/dashboard/wizards/WhatsAppWizard';
 import { TelegramWizard } from '@/components/dashboard/wizards/TelegramWizard';
+import { SlackWizard } from '@/components/dashboard/wizards/SlackWizard';
+import { HubSpotWizard } from '@/components/dashboard/wizards/HubSpotWizard';
 import { WidgetGuide } from '@/components/dashboard/guides/WidgetGuide';
-import { 
-  WhatsAppIcon, 
-  TelegramIcon, 
-  SlackIcon, 
-  StripeIcon, 
-  HubSpotIcon, 
+import { GenericIntegrationWizard } from '@/components/dashboard/wizards/GenericIntegrationWizard';
+import { authFetch } from '@/lib/authHeaders';
+import {
   GoogleCalendarIcon,
-  brandColors 
+  HubSpotIcon,
+  SlackIcon,
+  StripeIcon,
+  TelegramIcon,
+  WhatsAppIcon,
+  WooCommerceIcon,
+  ShopifyIcon,
+  brandColors,
 } from '@/components/icons/BrandIcons';
+import { Puzzle, Globe } from 'lucide-react';
+
+type OrganizationMembership = {
+  role: string;
+  organization: {
+    id: string;
+    name: string;
+    slug: string;
+    logo?: string | null;
+    plan: string;
+  };
+};
+
+type Integration = {
+  id: string;
+  slug: string;
+  name: string;
+  description?: string | null;
+  active: boolean;
+};
+
+type IntegrationConfig = {
+  id: string;
+  integrationId: string;
+  enabled: boolean;
+  config: any;
+  integration: Integration;
+};
+
+type Bot = {
+  id: string;
+  name: string;
+};
+
+const displayOrder = [
+  'widget',
+  'whatsapp',
+  'telegram',
+  'google-calendar',
+  'hubspot',
+  'stripe',
+  'slack',
+  'woocommerce',
+  'shopify',
+  'wordpress',
+] as const;
+
+function iconForSlug(slug: string) {
+  switch (slug) {
+    case 'whatsapp':
+      return <WhatsAppIcon className="w-6 h-6" />;
+    case 'telegram':
+      return <TelegramIcon className="w-6 h-6" />;
+    case 'slack':
+      return <SlackIcon className="w-6 h-6" />;
+    case 'stripe':
+      return <StripeIcon className="w-6 h-6" />;
+    case 'hubspot':
+      return <HubSpotIcon className="w-6 h-6" />;
+    case 'google-calendar':
+      return <GoogleCalendarIcon className="w-6 h-6" />;
+    case 'woocommerce':
+      return <WooCommerceIcon className="w-6 h-6" />;
+    case 'shopify':
+      return <ShopifyIcon className="w-6 h-6" />;
+    case 'wordpress':
+      return <Globe className="w-6 h-6" />;
+    case 'widget':
+    default:
+      return <Puzzle className="w-6 h-6" />;
+  }
+}
+
+function colorForSlug(slug: string) {
+  switch (slug) {
+    case 'whatsapp':
+      return brandColors.whatsapp;
+    case 'telegram':
+      return brandColors.telegram;
+    case 'slack':
+      return brandColors.slack;
+    case 'stripe':
+      return brandColors.stripe;
+    case 'hubspot':
+      return brandColors.hubspot;
+    case 'woocommerce':
+      return brandColors.woocommerce;
+    case 'shopify':
+      return brandColors.shopify;
+    case 'google-calendar':
+      return brandColors.google;
+    default:
+      return brandColors.google;
+  }
+}
 
 export default function IntegrationsPage() {
+  const router = useRouter();
   const [activeWizard, setActiveWizard] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [organization, setOrganization] = useState<OrganizationMembership['organization'] | null>(null);
+  const [integrationsDb, setIntegrationsDb] = useState<Integration[]>([]);
+  const [configured, setConfigured] = useState<IntegrationConfig[]>([]);
+  const [botId, setBotId] = useState<string>('');
 
-  // TODO: Get from API/Context
-  const userPlan: string = 'professional'; // or 'starter', 'enterprise'
-  const botId = 'bot_123456789';
-  const configuredIntegrations = ['widget']; // IDs of configured integrations
+  const integrationsBySlug = useMemo(() => {
+    const map = new Map<string, Integration>();
+    for (const i of integrationsDb) map.set(i.slug, i);
+    return map;
+  }, [integrationsDb]);
 
-  const integrations = [
-    {
-      id: 'whatsapp',
-      name: 'WhatsApp',
-      description: 'Messaging',
-      icon: <WhatsAppIcon className="w-6 h-6" />,
-      color: brandColors.whatsapp,
-      requiredPlan: 'professional' as const,
-      wizard: 'whatsapp',
-      status: 'Connected',
-    },
-    {
-      id: 'telegram',
-      name: 'Telegram',
-      description: 'Bot Channels',
-      icon: <TelegramIcon className="w-6 h-6" />,
-      color: brandColors.telegram,
-      requiredPlan: 'professional' as const,
-      wizard: 'telegram',
-      status: 'Disconnected',
-    },
-    {
-      id: 'google',
-      name: 'Google Calendar',
-      description: 'Calendar Sync',
-      icon: <GoogleCalendarIcon className="w-6 h-6" />,
-      color: brandColors.google,
-      isMultiColor: true,
-      requiredPlan: 'starter' as const,
-      wizard: 'google',
-      status: 'Connected',
-    },
-    {
-      id: 'hubspot',
-      name: 'HubSpot',
-      description: 'CRM Sync',
-      icon: <HubSpotIcon className="w-6 h-6" />,
-      color: brandColors.hubspot,
-      requiredPlan: 'professional' as const,
-      wizard: 'hubspot',
-      status: 'Connected',
-    },
-    {
-      id: 'stripe',
-      name: 'Stripe',
-      description: 'Payments',
-      icon: <StripeIcon className="w-6 h-6" />,
-      color: brandColors.stripe,
-      requiredPlan: 'enterprise' as const,
-      wizard: 'stripe',
-      status: 'Disconnected',
-    },
-    {
-      id: 'slack',
-      name: 'Slack',
-      description: 'Notifications',
-      icon: <SlackIcon className="w-6 h-6" />,
-      color: brandColors.slack,
-      requiredPlan: 'enterprise' as const,
-      wizard: 'slack',
-      status: 'Disconnected',
-    },
-  ];
+  const configuredBySlug = useMemo(() => {
+    const map = new Map<string, IntegrationConfig>();
+    for (const c of configured) map.set(c.integration.slug, c);
+    return map;
+  }, [configured]);
 
-  const handleSave = (integrationId: string, config: any) => {
-    console.log('Saving config for', integrationId, config);
-    // TODO: Save to API
-    setActiveWizard(null);
-  };
+  const uiIntegrations = useMemo(() => {
+    const list = integrationsDb.filter((i) => i.active);
+    const bySlug = new Map(list.map((i) => [i.slug, i] as const));
+    const ordered = displayOrder
+      .map((slug) => bySlug.get(slug))
+      .filter(Boolean) as Integration[];
 
-  const getPlanMessage = () => {
-    switch (userPlan) {
-      case 'starter':
-        return {
-          title: 'Piano Starter',
-          message: 'Passa a Professional per sbloccare WhatsApp e Telegram',
-          available: 1,
-          total: 6,
-        };
-      case 'professional':
-        return {
-          title: 'Piano Professional',
-          message: 'Passa a Enterprise per sbloccare Slack, WordPress e Shopify',
-          available: 3,
-          total: 6,
-        };
-      case 'enterprise':
-        return {
-          title: 'Piano Enterprise',
-          message: 'Hai accesso a tutte le integrazioni disponibili',
-          available: 6,
-          total: 6,
-        };
-      default:
-        return {
-          title: 'Piano Free',
-          message: 'Passa a Starter per iniziare con il Website Widget',
-          available: 0,
-          total: 6,
-        };
+    const rest = list
+      .filter((i) => !displayOrder.includes(i.slug as any))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    return [...ordered, ...rest].map((integration) => {
+      const cfg = configuredBySlug.get(integration.slug);
+      const status = cfg ? 'Connected' : 'Disconnected';
+      return {
+        slug: integration.slug,
+        name: integration.name,
+        description: integration.description || '',
+        icon: iconForSlug(integration.slug),
+        color: colorForSlug(integration.slug),
+        isMultiColor: integration.slug === 'google-calendar',
+        status,
+      };
+    });
+  }, [integrationsDb, configuredBySlug]);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        setLoading(true);
+
+        const orgRes = await authFetch('/api/v1/organizations');
+        if (!orgRes.ok) throw new Error('Failed to load organizations');
+        const memberships = (await orgRes.json()) as OrganizationMembership[];
+        const primaryOrg = memberships[0]?.organization;
+        if (!primaryOrg) throw new Error('No organization found for this user');
+        setOrganization(primaryOrg);
+
+        const [integrationsRes, botsRes, cfgRes] = await Promise.all([
+          authFetch('/api/v1/integrations'),
+          authFetch(`/api/v1/bots?organizationId=${encodeURIComponent(primaryOrg.id)}`),
+          authFetch(`/api/v1/integrations/configured?organizationId=${encodeURIComponent(primaryOrg.id)}`),
+        ]);
+
+        if (integrationsRes.ok) {
+          setIntegrationsDb((await integrationsRes.json()) as Integration[]);
+        }
+        if (botsRes.ok) {
+          const bots = (await botsRes.json()) as Bot[];
+          setBotId(bots[0]?.id || '');
+        }
+        if (cfgRes.ok) {
+          setConfigured((await cfgRes.json()) as IntegrationConfig[]);
+        }
+      } catch (error) {
+        console.error('Failed to init integrations page:', error);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const refreshConfigured = async () => {
+    if (!organization) return;
+    const cfgRes = await authFetch(
+      `/api/v1/integrations/configured?organizationId=${encodeURIComponent(organization.id)}`
+    );
+    if (cfgRes.ok) {
+      setConfigured((await cfgRes.json()) as IntegrationConfig[]);
     }
   };
 
-  const planInfo = getPlanMessage();
+  const handleSave = async (slug: string, config: any) => {
+    if (!organization) return;
+    const integration = integrationsBySlug.get(slug);
+    if (!integration) return;
+
+    const res = await authFetch('/api/v1/integrations/configure', {
+      method: 'POST',
+      body: JSON.stringify({
+        organizationId: organization.id,
+        integrationId: integration.id,
+        config,
+      }),
+    });
+
+    if (res.ok) {
+      await refreshConfigured();
+      setActiveWizard(null);
+    }
+  };
+
+  const handleDisconnect = async (slug: string) => {
+    if (!organization) return;
+    const cfg = configuredBySlug.get(slug);
+    if (!cfg) return;
+    if (!confirm('Sei sicuro di voler disconnettere questo account?')) return;
+
+    const res = await authFetch(`/api/v1/integrations/${cfg.id}`, { method: 'DELETE' });
+    if (res.ok) {
+      await refreshConfigured();
+      setActiveWizard(null);
+    }
+  };
+
+  if (loading && integrationsDb.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/60 mx-auto mb-4"></div>
+          <p className="text-white/60">Loading integrations...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Integrations Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-        {integrations.map((integration) => (
+        {uiIntegrations.map((integration) => (
           <div
-            key={integration.id}
-            onClick={() => setActiveWizard(integration.wizard)}
+            key={integration.slug}
+            onClick={() => {
+              if (integration.slug === 'google-calendar') {
+                router.push('/dashboard/calendar');
+                return;
+              }
+              setActiveWizard(integration.slug);
+            }}
             className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-md hover:border-fuchsia-500/40 hover:shadow-[0_0_15px_rgba(192,38,211,0.15)] transition-all duration-500 cursor-pointer group"
           >
             <div className="flex justify-between items-start mb-6">
-              <div 
+              <div
                 className="p-3 rounded-xl border border-purple-500/20 transition-all group-hover:scale-110"
                 style={{
-                  background: (integration as any).isMultiColor 
-                    ? 'rgba(255,255,255,0.1)' 
-                    : `linear-gradient(135deg, ${integration.color}25 0%, ${integration.color}10 100%)`
+                  background: integration.isMultiColor
+                    ? 'rgba(255,255,255,0.1)'
+                    : `linear-gradient(135deg, ${integration.color}25 0%, ${integration.color}10 100%)`,
                 }}
               >
-                <div style={(integration as any).isMultiColor ? {} : { color: integration.color }}>
-                  {integration.icon}
-                </div>
+                <div style={integration.isMultiColor ? {} : { color: integration.color }}>{integration.icon}</div>
               </div>
               <span
                 className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
-                  (integration as any).status === 'Connected'
+                  integration.status === 'Connected'
                     ? 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30'
                     : 'bg-purple-500/10 text-purple-300 border-purple-500/20'
                 }`}
               >
-                {(integration as any).status || 'Disconnected'}
+                {integration.status}
               </span>
             </div>
 
@@ -168,28 +296,64 @@ export default function IntegrationsPage() {
         ))}
       </div>
 
-      {/* Wizards */}
       {activeWizard === 'widget' && (
         <WidgetGuide
-          botId={botId}
+          botId={botId || 'YOUR_BOT_ID'}
           onClose={() => setActiveWizard(null)}
+          onDisconnect={configuredBySlug.get('widget') ? () => handleDisconnect('widget') : undefined}
         />
       )}
+
       {activeWizard === 'whatsapp' && (
         <WhatsAppWizard
-          botId={botId}
+          botId={botId || 'YOUR_BOT_ID'}
           onClose={() => setActiveWizard(null)}
-          onSave={(config) => handleSave('whatsapp', config)}
+          initialConfig={configuredBySlug.get('whatsapp')?.config}
+          onSave={(config) => void handleSave('whatsapp', config)}
+          onDisconnect={configuredBySlug.get('whatsapp') ? () => handleDisconnect('whatsapp') : undefined}
         />
       )}
+
       {activeWizard === 'telegram' && (
         <TelegramWizard
-          botId={botId}
+          botId={botId || 'YOUR_BOT_ID'}
           onClose={() => setActiveWizard(null)}
-          onSave={(config) => handleSave('telegram', config)}
+          initialConfig={configuredBySlug.get('telegram')?.config}
+          onSave={(config) => void handleSave('telegram', config)}
+          onDisconnect={configuredBySlug.get('telegram') ? () => handleDisconnect('telegram') : undefined}
         />
       )}
-      {/* TODO: Add Slack, WordPress, Shopify wizards */}
+
+      {activeWizard === 'slack' && (
+        <SlackWizard
+          botId={botId || 'YOUR_BOT_ID'}
+          onClose={() => setActiveWizard(null)}
+          initialConfig={configuredBySlug.get('slack')?.config}
+          onSave={(config) => void handleSave('slack', config)}
+          onDisconnect={configuredBySlug.get('slack') ? () => handleDisconnect('slack') : undefined}
+        />
+      )}
+
+      {activeWizard === 'hubspot' && (
+        <HubSpotWizard
+          botId={botId || 'YOUR_BOT_ID'}
+          onClose={() => setActiveWizard(null)}
+          initialConfig={configuredBySlug.get('hubspot')?.config}
+          onSave={(config) => void handleSave('hubspot', config)}
+          onDisconnect={configuredBySlug.get('hubspot') ? () => handleDisconnect('hubspot') : undefined}
+        />
+      )}
+
+      {activeWizard && !['widget', 'whatsapp', 'telegram', 'slack', 'hubspot'].includes(activeWizard) && (
+        <GenericIntegrationWizard
+          title={integrationsBySlug.get(activeWizard)?.name || 'Integrazione'}
+          description={integrationsBySlug.get(activeWizard)?.description || null}
+          onClose={() => setActiveWizard(null)}
+          initialConfig={configuredBySlug.get(activeWizard)?.config}
+          onSave={(config) => handleSave(activeWizard, config)}
+          onDisconnect={configuredBySlug.get(activeWizard) ? () => handleDisconnect(activeWizard) : undefined}
+        />
+      )}
     </div>
   );
 }
