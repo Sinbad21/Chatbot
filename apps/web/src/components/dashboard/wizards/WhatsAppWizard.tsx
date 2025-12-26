@@ -244,7 +244,7 @@ export function WhatsAppWizard({ botId, onClose, onSave, initialConfig, onDiscon
                     Integrazione WhatsApp configurata
                   </h4>
                   <p className="text-purple-300/70">
-                    Il tuo chatbot è ora collegato a WhatsApp e può ricevere e inviare messaggi.
+                    Il tuo chatbot Ã¨ ora collegato a WhatsApp e puÃ² ricevere e inviare messaggi.
                   </p>
                 </div>
 

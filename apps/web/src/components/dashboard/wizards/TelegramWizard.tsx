@@ -72,7 +72,7 @@ export function TelegramWizard({ botId, onClose, onSave, initialConfig, onDiscon
                 <li>Invia il comando <code className="bg-purple-900/50 px-2 py-1 rounded text-purple-200">/newbot</code></li>
                 <li>Scegli un nome per il bot (es. "Il mio Chatbot")</li>
                 <li>Scegli un username (deve finire con "bot", es. "MioAssistenteBot")</li>
-                <li>BotFather ti invier‡ il <strong className="text-white">Bot Token</strong> - copialo!</li>
+                <li>BotFather ti invier√† il <strong className="text-white">Bot Token</strong> - copialo!</li>
               </ol>
               <a
                 href="https://core.telegram.org/bots#6-botfather"
@@ -145,7 +145,7 @@ export function TelegramWizard({ botId, onClose, onSave, initialConfig, onDiscon
                   Integrazione Telegram completata!
                 </h4>
                 <p className="text-purple-300/70">
-                  Il webhook verr‡ configurato automaticamente al salvataggio.
+                  Il webhook verr√† configurato automaticamente al salvataggio.
                 </p>
               </div>
 

@@ -77,10 +77,10 @@ const widgetCode = `<!-- Chatbot Studio Widget -->
 
           <div className="bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-lg p-4">
             <p className="text-sm text-fuchsia-300 font-medium mb-2">
-              ? Il widget Ë gi‡ configurato con il tuo Bot ID
+              ? Il widget √® gi√† configurato con il tuo Bot ID
             </p>
             <p className="text-sm text-fuchsia-300/70">
-              Apparir‡ automaticamente nell'angolo in basso a destra del tuo sito.
+              Apparir√† automaticamente nell'angolo in basso a destra del tuo sito.
             </p>
           </div>
 
@@ -113,14 +113,14 @@ const widgetCode = `<!-- Chatbot Studio Widget -->
           <div className="bg-purple-900/30 border border-purple-500/20 rounded-lg p-4">
             <h4 className="font-medium text-white mb-2">Piattaforme supportate:</h4>
             <ul className="grid grid-cols-2 gap-2 text-sm text-purple-300/70">
-              <li>ï HTML/CSS/JavaScript</li>
-              <li>ï React</li>
-              <li>ï Vue.js</li>
-              <li>ï Angular</li>
-              <li>ï WordPress</li>
-              <li>ï Shopify</li>
-              <li>ï Wix</li>
-              <li>ï Webflow</li>
+              <li>‚Ä¢ HTML/CSS/JavaScript</li>
+              <li>‚Ä¢ React</li>
+              <li>‚Ä¢ Vue.js</li>
+              <li>‚Ä¢ Angular</li>
+              <li>‚Ä¢ WordPress</li>
+              <li>‚Ä¢ Shopify</li>
+              <li>‚Ä¢ Wix</li>
+              <li>‚Ä¢ Webflow</li>
             </ul>
           </div>
         </div>
