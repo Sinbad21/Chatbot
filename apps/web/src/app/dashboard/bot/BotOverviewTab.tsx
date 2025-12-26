@@ -80,7 +80,7 @@ REGOLA PRINCIPALE
 
 SE NON SAI
 - Dillo e indica come ottenere l'informazione corretta.`,
-        welcomeMessage: 'Ciao! Fai una domanda e risponder� usando la documentazione disponibile.'
+        welcomeMessage: 'Ciao! Fai una domanda e risponderò usando la documentazione disponibile.'
       },
       {
         name: 'General Assistant',
@@ -182,7 +182,7 @@ function getPromptWizardCopy(isItalian: boolean) {
     next: isItalian ? 'Avanti' : 'Next',
     cancel: isItalian ? 'Annulla' : 'Cancel',
     apply: isItalian ? 'Genera e applica' : 'Generate & apply',
-    generating: isItalian ? 'Generazione…' : 'Generating…',
+    generating: isItalian ? 'Generazioneâ€¦' : 'Generatingâ€¦',
     apiKeyMissing: isItalian
       ? 'Funzione disponibile solo dopo aver configurato la chiave API del provider LLM.'
       : 'This feature is available only after configuring the LLM provider API key.',
@@ -197,15 +197,15 @@ function getPromptWizardSteps(isItalian: boolean): PromptWizardStep[] {
       key: 'botType',
       title: isItalian ? 'Tipo di assistente' : 'Assistant type',
       helper: isItalian
-        ? 'Scegli lo scenario principale (supporto, vendite, tecnico…).'
-        : 'Pick the primary scenario (support, sales, technical…).',
+        ? 'Scegli lo scenario principale (supporto, vendite, tecnicoâ€¦).'
+        : 'Pick the primary scenario (support, sales, technicalâ€¦).',
       input: 'select'
     },
     {
       key: 'businessContext',
       title: isItalian ? 'Contesto aziendale' : 'Business context',
       helper: isItalian
-        ? 'Che azienda è? Cosa vendi/offri? Quali prodotti/servizi?'
+        ? 'Che azienda Ã¨? Cosa vendi/offri? Quali prodotti/servizi?'
         : 'What business is this? What do you sell/offer?',
       input: 'textarea'
     },
@@ -221,15 +221,15 @@ function getPromptWizardSteps(isItalian: boolean): PromptWizardStep[] {
       key: 'goals',
       title: isItalian ? 'Obiettivi' : 'Goals',
       helper: isItalian
-        ? 'Cosa deve ottenere il bot? (risolvere problemi, prenotare, vendere, ridurre ticket…).'
-        : 'What should the bot achieve? (resolve issues, book meetings, sell, reduce tickets…).',
+        ? 'Cosa deve ottenere il bot? (risolvere problemi, prenotare, vendere, ridurre ticketâ€¦).'
+        : 'What should the bot achieve? (resolve issues, book meetings, sell, reduce ticketsâ€¦).',
       input: 'textarea'
     },
     {
       key: 'actionsAndData',
       title: isItalian ? 'Azioni e dati' : 'Actions & data',
       helper: isItalian
-        ? 'Cosa può fare il bot e che dati può chiedere? (es. ordine, email, riferimento).'
+        ? 'Cosa puÃ² fare il bot e che dati puÃ² chiedere? (es. ordine, email, riferimento).'
         : 'What can the bot do and what info can it request? (e.g., order number, email, reference).',
       input: 'textarea'
     },
@@ -245,7 +245,7 @@ function getPromptWizardSteps(isItalian: boolean): PromptWizardStep[] {
       key: 'language',
       title: isItalian ? 'Lingua' : 'Language',
       helper: isItalian
-        ? 'Lingua principale e cosa fare se l’utente scrive in un’altra lingua.'
+        ? 'Lingua principale e cosa fare se lâ€™utente scrive in unâ€™altra lingua.'
         : 'Primary language and what to do if the user writes in another language.',
       input: 'textarea'
     },
