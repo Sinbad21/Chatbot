@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -13,11 +13,12 @@ interface WidgetGuideProps {
 export function WidgetGuide({ botId, onClose }: WidgetGuideProps) {
   const [copied, setCopied] = useState(false);
 
-  const widgetCode = `<!-- Chatbot Studio Widget -->
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\\/$/, '');
+const widgetCode = `<!-- Chatbot Studio Widget -->
 <script>
   window.chatbotConfig = {
     botId: '${botId}',
-    apiUrl: 'https://api.yourdomain.com',
+    apiUrl: '',
     position: 'bottom-right',
     theme: 'light'
   };

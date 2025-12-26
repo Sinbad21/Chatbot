@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,8 @@ export function WhatsAppWizard({ botId, onClose, onSave }: WhatsAppWizardProps) 
   });
   const [copied, setCopied] = useState<string | null>(null);
 
-  const webhookUrl = `https://api.yourdomain.com/webhooks/whatsapp`;
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
+  const webhookUrl = ${apiBaseUrl}/webhooks/whatsapp;
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
