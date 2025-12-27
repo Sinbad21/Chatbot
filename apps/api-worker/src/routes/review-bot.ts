@@ -16,6 +16,17 @@ type Variables = {
 
 const reviewBotRoutes = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
+// Helper to parse cookies
+const parseCookies = (cookieHeader: string | undefined): Record<string, string> => {
+  if (!cookieHeader) return {};
+  return cookieHeader.split(';').reduce((acc, cookie) => {
+    const [key, value] = cookie.trim().split('=');
+    if (key && value) acc[key] = value;
+    return acc;
+  }, {} as Record<string, string>);
+};
+
+
 // Helper to get Prisma client
 function getPrisma(databaseUrl: string) {
   const pool = new Pool({ connectionString: databaseUrl });
@@ -25,14 +36,27 @@ function getPrisma(databaseUrl: string) {
 
 // Auth middleware for review-bot routes
 reviewBotRoutes.use('*', async (c, next) => {
-  const authHeader = c.req.header('Authorization');
+  let token: string | null = null;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  // 1) Prefer httpOnly cookie token (browser)
+  const cookies = parseCookies(c.req.header('Cookie'));
+  if (cookies['accessToken']) {
+    token = cookies['accessToken'];
+  }
+
+  // 2) Fall back to Authorization header (API clients)
+  if (!token) {
+    const authHeader = c.req.header('Authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    }
+  }
+
+  if (!token) {
     return c.json({ success: false, error: 'Unauthorized - Missing token' }, 401);
   }
 
   try {
-    const token = authHeader.substring(7);
     const payload = jwt.verify(token, c.env.JWT_SECRET) as { userId: string; email: string };
     c.set('user', payload);
 
@@ -244,11 +268,11 @@ reviewBotRoutes.post('/', async (c) => {
         businessName,
         googlePlaceId: googlePlaceId || null,
         googleReviewUrl: googleReviewUrl || null,
-        thankYouMessage: thankYouMessage || '🎉 Grazie per il tuo acquisto!',
+        thankYouMessage: thankYouMessage || 'ðŸŽ‰ Grazie per il tuo acquisto!',
         surveyQuestion: surveyQuestion || 'Come valuteresti la tua esperienza?',
         positiveMessage: positiveMessage || 'Fantastico! Ti andrebbe di condividere la tua opinione su Google?',
         negativeMessage: negativeMessage || 'Grazie per il feedback! Cosa possiamo migliorare?',
-        completedMessage: completedMessage || 'Grazie mille per il tuo tempo! ❤️',
+        completedMessage: completedMessage || 'Grazie mille per il tuo tempo! â¤ï¸',
         surveyType: surveyType || 'EMOJI',
         positiveThreshold: positiveThreshold || 4,
         widgetColor: widgetColor || '#6366f1',
@@ -395,3 +419,4 @@ reviewBotRoutes.delete('/:id', async (c) => {
 });
 
 export { reviewBotRoutes };
+

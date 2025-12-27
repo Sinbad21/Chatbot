@@ -7,16 +7,8 @@ import type {
   ApiResponse,
 } from '@/types/review-bot';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.chatbotstudio.io';
+import { authFetch } from '@/lib/authHeaders';
 
-// Helper to get auth headers
-function getAuthHeaders(): HeadersInit {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
 
 // ============================================
 // HOOK: useReviewBot

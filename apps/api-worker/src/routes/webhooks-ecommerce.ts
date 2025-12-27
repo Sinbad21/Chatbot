@@ -31,6 +31,51 @@ async function createHmacSignature(secret: string, payload: string): Promise<str
   return btoa(String.fromCharCode(...new Uint8Array(signature)));
 }
 
+function bytesToHex(bytes: Uint8Array): string {
+  let hex = '';
+  for (let i = 0; i < bytes.length; i++) {
+    hex += bytes[i].toString(16).padStart(2, '0');
+  }
+  return hex;
+}
+
+function hexToBytes(hex: string): Uint8Array {
+  const cleaned = hex.trim().toLowerCase();
+  if (cleaned.length % 2 !== 0) return new Uint8Array();
+  const bytes = new Uint8Array(cleaned.length / 2);
+  for (let i = 0; i < cleaned.length; i += 2) {
+    const byte = Number.parseInt(cleaned.slice(i, i + 2), 16);
+    if (Number.isNaN(byte)) return new Uint8Array();
+    bytes[i / 2] = byte;
+  }
+  return bytes;
+}
+
+function timingSafeEqualHex(aHex: string, bHex: string): boolean {
+  const a = hexToBytes(aHex);
+  const b = hexToBytes(bHex);
+  if (a.length === 0 || b.length === 0 || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a[i] ^ b[i];
+  }
+  return diff === 0;
+}
+
+// Stripe expects v1 signature as hex(HMAC_SHA256(secret, ${timestamp}.))
+async function hmacSha256Hex(secret: string, payload: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+  return bytesToHex(new Uint8Array(signature));
+}
+
 // Helper to verify Stripe signature
 async function verifyStripeSignature(
   payload: string,
@@ -45,10 +90,10 @@ async function verifyStripeSignature(
     if (!timestamp || !v1Signature) return false;
 
     const signedPayload = `${timestamp}.${payload}`;
-    const expectedSignature = await createHmacSignature(secret, signedPayload);
+    const expectedSignature = await hmacSha256Hex(secret, signedPayload);
     
     // Compare signatures (timing-safe comparison would be better in production)
-    return v1Signature === expectedSignature;
+    return timingSafeEqualHex(v1Signature, expectedSignature);
   } catch {
     return false;
   }
@@ -97,8 +142,9 @@ webhooksEcommerceRoutes.post('/stripe/review', async (c) => {
     const rawBody = await c.req.text();
     const signature = c.req.header('stripe-signature');
 
-    // Get webhook secret from environment or find from connections
-    let webhookSecret = c.env.STRIPE_WEBHOOK_SECRET;
+    if (!signature) {
+      return c.json({ error: 'Missing stripe-signature header' }, 400);
+    }
 
     // Parse event
     let event: any;
@@ -146,9 +192,8 @@ webhooksEcommerceRoutes.post('/stripe/review', async (c) => {
       amount = eventData.amount ? eventData.amount / 100 : undefined;
       currency = eventData.currency?.toUpperCase();
     }
-
-    // Find eCommerce connection for Stripe
-    const connection = await prisma.ecommerceConnection.findFirst({
+    // Find eCommerce connections for Stripe (multi-tenant safe selection)
+    const connections = await prisma.ecommerceConnection.findMany({
       where: {
         platform: 'STRIPE',
         isActive: true,
@@ -156,24 +201,46 @@ webhooksEcommerceRoutes.post('/stripe/review', async (c) => {
       include: {
         reviewBot: true,
       },
+      orderBy: { createdAt: 'asc' },
     });
 
-    if (!connection || !connection.reviewBot) {
+    if (!connections.length) {
       console.log('[Stripe Webhook] No active Stripe connection found');
       return c.json({ received: true, skipped: true, reason: 'No connection found' });
     }
 
-    // Verify signature if webhook secret is available
-    if (connection.webhookSecret && signature) {
-      const isValid = await verifyStripeSignature(rawBody, signature, connection.webhookSecret);
+    // Select the connection whose webhookSecret validates the signature
+    let selected = connections.find((conn: any) => conn.reviewBot) as any;
+
+    const candidates = connections.filter((conn: any) => conn.reviewBot && conn.webhookSecret);
+    if (candidates.length > 0) {
+      selected = null;
+      for (const conn of candidates) {
+        const isValid = await verifyStripeSignature(rawBody, signature, conn.webhookSecret);
+        if (isValid) {
+          selected = conn;
+          break;
+        }
+      }
+      if (!selected) {
+        console.error('[Stripe Webhook] Invalid signature (no matching connection)');
+        return c.json({ error: 'Invalid signature' }, 401);
+      }
+    } else if (c.env.STRIPE_WEBHOOK_SECRET) {
+      const isValid = await verifyStripeSignature(rawBody, signature, c.env.STRIPE_WEBHOOK_SECRET);
       if (!isValid) {
-        console.error('[Stripe Webhook] Invalid signature');
+        console.error('[Stripe Webhook] Invalid signature (env secret)');
         return c.json({ error: 'Invalid signature' }, 401);
       }
     }
 
+    if (!selected || !selected.reviewBot) {
+      console.log('[Stripe Webhook] No usable Stripe connection found');
+      return c.json({ received: true, skipped: true, reason: 'No connection found' });
+    }
+
     // Create review request
-    const reviewRequest = await createReviewRequest(prisma, connection.reviewBotId, {
+    const reviewRequest = await createReviewRequest(prisma, selected.reviewBotId, {
       orderId,
       orderAmount: amount,
       currency,
