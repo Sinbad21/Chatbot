@@ -15,6 +15,30 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   hoverEffect = true,
   ...props
 }) => {
+  const baseStyle = 'bg-pearl-50/80 border-silver-200/70 text-charcoal backdrop-blur-md shadow-pearl';
+
+  const hoverStyle = hoverEffect
+    ? 'hover:border-fuchsia-500/40 hover:shadow-[0_0_15px_rgba(192,38,211,0.15)]'
+    : '';
+
+  return (
+    <div
+      {...props}
+      className={`border rounded-2xl p-6 transition-all duration-500 ${baseStyle} ${hoverStyle} ${className}`}
+    >
+      {children}
+    </div>
+  );
+};
+
+
+// Preserva lo stile precedente (space / purple) come punto di partenza
+export const SpaceGlassCard: React.FC<GlassCardProps> = ({
+  children,
+  className = '',
+  hoverEffect = true,
+  ...props
+}) => {
   const baseStyle = 'bg-gradient-to-br from-[#2d1b4e]/90 to-[#150a25]/90 border-purple-500/20 shadow-purple-900/10 text-purple-50 backdrop-blur-md';
 
   const hoverStyle = hoverEffect
@@ -41,7 +65,7 @@ export const GradientText: React.FC<GradientTextProps> = ({
   children,
   className = '',
 }) => {
-  const gradient = 'from-fuchsia-400 via-purple-400 to-pink-400';
+  const gradient = 'from-charcoal via-pearl-600 to-charcoal';
 
   return (
     <span className={`bg-clip-text text-transparent bg-gradient-to-r ${gradient} ${className}`}>
@@ -63,11 +87,11 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
     status === 'Hot' ||
     status === 'Connected'
   ) {
-    colors = 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30';
+    colors = 'bg-emerald/10 text-emerald border-emerald/20';
   } else if (status === 'Pending' || status === 'Training' || status === 'Warm') {
-    colors = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+    colors = 'bg-silver-100 text-silver-700 border-silver-200';
   } else {
-    colors = 'bg-purple-500/10 text-purple-300 border-purple-500/20';
+    colors = 'bg-silver-50 text-silver-600 border-silver-200/70';
   }
 
   return (
@@ -76,6 +100,18 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
     >
       {status}
     </span>
+  );
+};
+
+
+// --- PEARL BACKGROUND ---
+export const PearlBackground: React.FC = () => {
+  return (
+    <div className="fixed inset-0 z-0 pointer-events-none bg-pearl-50 overflow-hidden">
+      <div className="absolute inset-0 pearl-surface opacity-70" />
+      <div className="absolute inset-0 opacity-25 bg-grid-silver-200 [mask-image:radial-gradient(ellipse_60%_60%_at_50%_20%,black_35%,transparent_100%)]" />
+      <div className="absolute inset-0 bg-silver-radial opacity-60" />
+    </div>
   );
 };
 
