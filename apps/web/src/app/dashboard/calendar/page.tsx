@@ -129,7 +129,7 @@ export default function CalendarPage() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/60 mx-auto mb-4"></div>
-          <p className="text-white/60">Loading calendar connections...</p>
+          <p className="text-silver-600">Loading calendar connections...</p>
         </div>
       </div>
     );
@@ -145,8 +145,8 @@ export default function CalendarPage() {
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0" />
               <div>
-                <p className="font-semibold text-white">Upgrade Required</p>
-                <p className="text-sm text-white/60 mt-1">
+                <p className="font-semibold text-charcoal">Upgrade Required</p>
+                <p className="text-sm text-silver-600 mt-1">
                   Calendar integration is available on Advanced and Custom plans.
                 </p>
               </div>
@@ -160,12 +160,12 @@ export default function CalendarPage() {
 
       {/* Connection Status */}
       {hasAccess && connections.length === 0 && (
-        <div className="bg-black/40 border border-white/10 rounded-2xl p-8 text-center backdrop-blur-md">
-          <Calendar className="w-16 h-16 text-white/30 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">
+        <div className="glass-effect border border-silver-200/70 rounded-2xl p-8 text-center backdrop-blur-md">
+          <Calendar className="w-16 h-16 text-charcoal/30 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-charcoal mb-2">
             No Calendar Connected
           </h3>
-          <p className="text-white/60 mb-6 max-w-md mx-auto">
+          <p className="text-silver-600 mb-6 max-w-md mx-auto">
             Connect your Google Calendar to start accepting appointment bookings through your chatbot.
           </p>
           <Button
@@ -182,12 +182,12 @@ export default function CalendarPage() {
       {hasAccess && connections.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white">Connected Calendars</h2>
+            <h2 className="text-xl font-semibold text-charcoal">Connected Calendars</h2>
             <Button
               onClick={handleConnectGoogle}
               variant="outline"
               size="sm"
-              className="border-white/20 text-white hover:bg-white/10"
+              className="border-silver-200/70 text-charcoal hover:bg-pearl-100/60"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Calendar
@@ -195,15 +195,15 @@ export default function CalendarPage() {
           </div>
 
           {connections.map((connection) => (
-            <div key={connection.id} className="bg-black/40 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
+            <div key={connection.id} className="glass-effect border border-silver-200/70 rounded-2xl p-6 backdrop-blur-md">
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
-                    <Calendar className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-silver-200/70 flex items-center justify-center flex-shrink-0">
+                    <Calendar className="w-6 h-6 text-charcoal" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-lg font-semibold text-white">
+                      <h3 className="text-lg font-semibold text-charcoal">
                         {connection.calendarName}
                       </h3>
                       {connection.isActive ? (
@@ -217,7 +217,7 @@ export default function CalendarPage() {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-white/60">
+                    <div className="flex items-center gap-4 text-sm text-silver-600">
                       <span>{connection.provider}</span>
                       <span>•</span>
                       <span>{connection.timeZone}</span>
@@ -238,7 +238,7 @@ export default function CalendarPage() {
                       setSelectedConnection(connection);
                       setEditMode(true);
                     }}
-                    className="border-white/20 text-white hover:bg-white/10"
+                    className="border-silver-200/70 text-charcoal hover:bg-pearl-100/60"
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Configure
@@ -247,7 +247,7 @@ export default function CalendarPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleDeleteConnection(connection.id)}
-                    className="border-white/20 text-white hover:bg-white/10"
+                    className="border-silver-200/70 text-charcoal hover:bg-pearl-100/60"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -255,28 +255,28 @@ export default function CalendarPage() {
               </div>
 
               {/* Connection Details */}
-              <div className="grid md:grid-cols-3 gap-4 pt-4 border-t border-white/10">
+              <div className="grid md:grid-cols-3 gap-4 pt-4 border-t border-silver-200/70">
                 <div>
-                  <p className="text-sm font-medium text-white mb-1">Slot Duration</p>
-                  <p className="text-sm text-white/60">{connection.slotDuration} minutes</p>
+                  <p className="text-sm font-medium text-charcoal mb-1">Slot Duration</p>
+                  <p className="text-sm text-silver-600">{connection.slotDuration} minutes</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white mb-1">Buffer Time</p>
-                  <p className="text-sm text-white/60">{connection.bufferTime} minutes</p>
+                  <p className="text-sm font-medium text-charcoal mb-1">Buffer Time</p>
+                  <p className="text-sm text-silver-600">{connection.bufferTime} minutes</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-white mb-1">Daily Limit</p>
-                  <p className="text-sm text-white/60">{connection.maxDailyBookings} bookings</p>
+                  <p className="text-sm font-medium text-charcoal mb-1">Daily Limit</p>
+                  <p className="text-sm text-silver-600">{connection.maxDailyBookings} bookings</p>
                 </div>
               </div>
 
               {/* Widget Embed Section */}
               {connection.widgetId && (
-                <div className="mt-4 pt-4 border-t border-white/10">
+                <div className="mt-4 pt-4 border-t border-silver-200/70">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <ExternalLink className="w-4 h-4 text-white" />
-                      <h4 className="text-sm font-semibold text-white">Widget Embed Code</h4>
+                      <ExternalLink className="w-4 h-4 text-charcoal" />
+                      <h4 className="text-sm font-semibold text-charcoal">Widget Embed Code</h4>
                     </div>
                     <Button
                       variant="outline"
@@ -286,18 +286,18 @@ export default function CalendarPage() {
                         navigator.clipboard.writeText(code);
                         alert('Embed code copied to clipboard!');
                       }}
-                      className="text-xs border-white/20 text-white hover:bg-white/10"
+                      className="text-xs border-silver-200/70 text-charcoal hover:bg-pearl-100/60"
                     >
                       Copy Embed Code
                     </Button>
                   </div>
-                  <div className="bg-black/60 rounded-lg p-3 overflow-x-auto border border-white/10">
+                  <div className="bg-black/60 rounded-lg p-3 overflow-x-auto border border-silver-200/70">
                     <code className="text-xs text-emerald-400 font-mono">
                       {`<script src="${window.location.origin}/booking-widget.js" data-widget-id="${connection.widgetId}"></script>`}
                     </code>
                   </div>
-                  <p className="text-xs text-white/40 mt-2">
-                    Add this code to your website to embed the booking widget. Widget ID: <span className="font-mono font-semibold text-white/60">{connection.widgetId}</span>
+                  <p className="text-xs text-silver-400 mt-2">
+                    Add this code to your website to embed the booking widget. Widget ID: <span className="font-mono font-semibold text-silver-600">{connection.widgetId}</span>
                   </p>
                 </div>
               )}
@@ -309,15 +309,15 @@ export default function CalendarPage() {
       {/* Configuration Modal */}
       {editMode && selectedConnection && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-gradient-to-br from-[#2d1b4e] to-[#150a25] border border-purple-500/20">
-            <div className="sticky top-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-b border-purple-500/20 p-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">Calendar Configuration</h2>
+          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-gradient-to-br from-[#2d1b4e] to-[#150a25] border border-silver-200/70">
+            <div className="sticky top-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-b border-silver-200/70 p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-charcoal">Calendar Configuration</h2>
               <button
                 onClick={() => {
                   setEditMode(false);
                   setSelectedConnection(null);
                 }}
-                className="text-purple-300/70 hover:text-white transition-colors"
+                className="text-silver-600 hover:text-charcoal transition-colors"
               >
                 ✕
               </button>
@@ -326,7 +326,7 @@ export default function CalendarPage() {
             <div className="p-6 space-y-6">
               {/* Slot Duration */}
               <div>
-                <label className="block text-sm font-medium text-purple-300/70 mb-2">
+                <label className="block text-sm font-medium text-silver-600 mb-2">
                   Slot Duration (minutes)
                 </label>
                 <input
@@ -341,16 +341,16 @@ export default function CalendarPage() {
                   min="15"
                   max="240"
                   step="15"
-                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                  className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
                 />
-                <p className="text-xs text-purple-400/50 mt-1">
+                <p className="text-xs text-silver-500 mt-1">
                   How long each appointment slot should be
                 </p>
               </div>
 
               {/* Buffer Time */}
               <div>
-                <label className="block text-sm font-medium text-purple-300/70 mb-2">
+                <label className="block text-sm font-medium text-silver-600 mb-2">
                   Buffer Time (minutes)
                 </label>
                 <input
@@ -365,16 +365,16 @@ export default function CalendarPage() {
                   min="0"
                   max="60"
                   step="5"
-                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                  className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
                 />
-                <p className="text-xs text-purple-400/50 mt-1">
+                <p className="text-xs text-silver-500 mt-1">
                   Time between appointments for preparation
                 </p>
               </div>
 
               {/* Max Daily Bookings */}
               <div>
-                <label className="block text-sm font-medium text-purple-300/70 mb-2">
+                <label className="block text-sm font-medium text-silver-600 mb-2">
                   Maximum Daily Bookings
                 </label>
                 <input
@@ -388,16 +388,16 @@ export default function CalendarPage() {
                   }
                   min="1"
                   max="100"
-                  className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                  className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
                 />
-                <p className="text-xs text-purple-400/50 mt-1">
+                <p className="text-xs text-silver-500 mt-1">
                   Maximum number of appointments allowed per day
                 </p>
               </div>
 
               {/* Working Hours */}
               <div>
-                <label className="block text-sm font-medium text-purple-300/70 mb-3">
+                <label className="block text-sm font-medium text-silver-600 mb-3">
                   Working Hours
                 </label>
                 <div className="space-y-3">
@@ -407,7 +407,7 @@ export default function CalendarPage() {
                     const dayHours = workingHours[day] || { start: '09:00', end: '18:00', enabled: day !== 'sunday' };
 
                     return (
-                      <div key={day} className="flex items-center gap-3 p-3 bg-purple-900/30 border border-purple-500/20 rounded-lg">
+                      <div key={day} className="flex items-center gap-3 p-3 bg-pearl-50 border border-silver-200/70 rounded-lg">
                         <label className="flex items-center gap-2 w-28">
                           <input
                             type="checkbox"
@@ -420,9 +420,9 @@ export default function CalendarPage() {
                                 workingHours: newWorkingHours,
                               });
                             }}
-                            className="w-4 h-4 text-fuchsia-600 border-purple-500/30 rounded focus:ring-fuchsia-500 bg-purple-900/30"
+                            className="w-4 h-4 text-emerald border-silver-200/70 rounded focus:ring-emerald/30 bg-pearl-50"
                           />
-                          <span className="text-sm font-medium text-white">{dayLabel}</span>
+                          <span className="text-sm font-medium text-charcoal">{dayLabel}</span>
                         </label>
 
                         {dayHours.enabled !== false && (
@@ -438,9 +438,9 @@ export default function CalendarPage() {
                                   workingHours: newWorkingHours,
                                 });
                               }}
-                              className="px-3 py-1.5 bg-purple-900/50 border border-purple-500/30 rounded-lg text-sm text-white focus:ring-2 focus:ring-fuchsia-500/50"
+                              className="px-3 py-1.5 bg-pearl-50 border border-silver-200/70 rounded-lg text-sm text-charcoal focus:ring-2 focus:ring-emerald/30"
                             />
-                            <span className="text-purple-300/70">-</span>
+                            <span className="text-silver-600">-</span>
                             <input
                               type="time"
                               value={dayHours.end || '18:00'}
@@ -452,7 +452,7 @@ export default function CalendarPage() {
                                   workingHours: newWorkingHours,
                                 });
                               }}
-                              className="px-3 py-1.5 bg-purple-900/50 border border-purple-500/30 rounded-lg text-sm text-white focus:ring-2 focus:ring-fuchsia-500/50"
+                              className="px-3 py-1.5 bg-pearl-50 border border-silver-200/70 rounded-lg text-sm text-charcoal focus:ring-2 focus:ring-emerald/30"
                             />
                           </>
                         )}
@@ -460,18 +460,18 @@ export default function CalendarPage() {
                     );
                   })}
                 </div>
-                <p className="text-xs text-purple-400/50 mt-2">
+                <p className="text-xs text-silver-500 mt-2">
                   Set your available hours for each day of the week
                 </p>
               </div>
 
               {/* Widget Customization */}
-              <div className="border-t border-purple-500/20 pt-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Widget Customization</h3>
+              <div className="border-t border-silver-200/70 pt-6">
+                <h3 className="text-lg font-semibold text-charcoal mb-4">Widget Customization</h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-purple-300/70 mb-2">
+                    <label className="block text-sm font-medium text-silver-600 mb-2">
                       Widget Title
                     </label>
                     <input
@@ -484,12 +484,12 @@ export default function CalendarPage() {
                         } as any)
                       }
                       placeholder="Book an Appointment"
-                      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-purple-300/70 mb-2">
+                    <label className="block text-sm font-medium text-silver-600 mb-2">
                       Widget Subtitle
                     </label>
                     <input
@@ -502,12 +502,12 @@ export default function CalendarPage() {
                         } as any)
                       }
                       placeholder="Choose a date and time that works for you"
-                      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-purple-300/70 mb-2">
+                    <label className="block text-sm font-medium text-silver-600 mb-2">
                       Confirmation Message
                     </label>
                     <textarea
@@ -520,19 +520,19 @@ export default function CalendarPage() {
                       }
                       placeholder="Your appointment has been confirmed!"
                       rows={2}
-                      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all resize-none"
+                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all resize-none"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Email Notifications */}
-              <div className="border-t border-purple-500/20 pt-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Email Notifications</h3>
+              <div className="border-t border-silver-200/70 pt-6">
+                <h3 className="text-lg font-semibold text-charcoal mb-4">Email Notifications</h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-purple-300/70 mb-2">
+                    <label className="block text-sm font-medium text-silver-600 mb-2">
                       Owner Email
                     </label>
                     <input
@@ -545,17 +545,17 @@ export default function CalendarPage() {
                         } as any)
                       }
                       placeholder="your-email@example.com"
-                      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all"
+                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
                     />
-                    <p className="text-xs text-purple-400/50 mt-1">
+                    <p className="text-xs text-silver-500 mt-1">
                       Email address to receive booking notifications
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-purple-900/30 border border-purple-500/20 rounded-lg">
+                  <div className="flex items-center justify-between p-4 bg-pearl-50 border border-silver-200/70 rounded-lg">
                     <div>
-                      <p className="font-medium text-white">Notify on New Bookings</p>
-                      <p className="text-sm text-purple-300/70">
+                      <p className="font-medium text-charcoal">Notify on New Bookings</p>
+                      <p className="text-sm text-silver-600">
                         Receive email when someone books an appointment
                       </p>
                     </div>
@@ -571,26 +571,26 @@ export default function CalendarPage() {
                         }
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-purple-900/50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-fuchsia-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-purple-500/30 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-fuchsia-500"></div>
+                      <div className="w-11 h-6 bg-pearl-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald/30/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-silver-200/70 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked: peer-checked:to-fuchsia-500"></div>
                     </label>
                   </div>
                 </div>
               </div>
 
               {/* Blocked Dates */}
-              <div className="border-t border-purple-500/20 pt-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Giorni Bloccati / Festività</h3>
+              <div className="border-t border-silver-200/70 pt-6">
+                <h3 className="text-lg font-semibold text-charcoal mb-4">Giorni Bloccati / Festività</h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-purple-300/70 mb-2">
+                    <label className="block text-sm font-medium text-silver-600 mb-2">
                       Aggiungi Data Bloccata
                     </label>
                     <div className="flex gap-2">
                       <input
                         type="date"
                         id="blocked-date-input"
-                        className="flex-1 px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white transition-all"
+                        className="flex-1 px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal transition-all"
                       />
                       <Button
                         onClick={() => {
@@ -606,27 +606,27 @@ export default function CalendarPage() {
                             }
                           }
                         }}
-                        className="bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white shadow-lg shadow-purple-500/25"
+                        className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
                       >
                         Aggiungi
                       </Button>
                     </div>
-                    <p className="text-xs text-purple-400/50 mt-1">
+                    <p className="text-xs text-silver-500 mt-1">
                       Le date bloccate non saranno disponibili per le prenotazioni
                     </p>
                   </div>
 
                   {/* List of blocked dates */}
                   {((selectedConnection as any).blockedDates || []).length > 0 && (
-                    <div className="bg-purple-900/30 border border-purple-500/20 rounded-lg p-4">
-                      <p className="text-sm font-medium text-white mb-3">Date Bloccate:</p>
+                    <div className="bg-pearl-50 border border-silver-200/70 rounded-lg p-4">
+                      <p className="text-sm font-medium text-charcoal mb-3">Date Bloccate:</p>
                       <div className="flex flex-wrap gap-2">
                         {((selectedConnection as any).blockedDates || []).map((date: string, index: number) => (
                           <div
                             key={index}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-900/50 border border-purple-500/30 rounded-lg text-sm"
+                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-pearl-50 border border-silver-200/70 rounded-lg text-sm"
                           >
-                            <span className="text-white">
+                            <span className="text-charcoal">
                               {new Date(date + 'T00:00:00').toLocaleDateString('it-IT', {
                                 day: 'numeric',
                                 month: 'short',
@@ -654,10 +654,10 @@ export default function CalendarPage() {
               </div>
 
               {/* Active Status */}
-              <div className="flex items-center justify-between p-4 bg-purple-900/30 border border-purple-500/20 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-pearl-50 border border-silver-200/70 rounded-lg">
                 <div>
-                  <p className="font-medium text-white">Calendar Active</p>
-                  <p className="text-sm text-purple-300/70">
+                  <p className="font-medium text-charcoal">Calendar Active</p>
+                  <p className="text-sm text-silver-600">
                     Allow bookings through this calendar
                   </p>
                 </div>
@@ -673,25 +673,25 @@ export default function CalendarPage() {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-purple-900/50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-fuchsia-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-purple-500/30 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-fuchsia-500"></div>
+                  <div className="w-11 h-6 bg-pearl-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald/30/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-silver-200/70 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked: peer-checked:to-fuchsia-500"></div>
                 </label>
               </div>
             </div>
 
-            <div className="sticky bottom-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-t border-purple-500/20 p-6 flex justify-end gap-3">
+            <div className="sticky bottom-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-t border-silver-200/70 p-6 flex justify-end gap-3">
               <Button
                 variant="outline"
                 onClick={() => {
                   setEditMode(false);
                   setSelectedConnection(null);
                 }}
-                className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+                className="border-silver-200/70 text-silver-600 hover:bg-pearl-100/60"
               >
                 Cancel
               </Button>
               <Button
                 onClick={() => handleUpdateConnection(selectedConnection.id, selectedConnection)}
-                className="bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white shadow-lg shadow-purple-500/25"
+                className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
               >
                 Save Changes
               </Button>
@@ -702,35 +702,35 @@ export default function CalendarPage() {
 
       {/* Features Info */}
       {hasAccess && (
-        <div className="bg-black/40 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-          <h3 className="font-semibold text-white mb-4">Calendar Features</h3>
+        <div className="glass-effect border border-silver-200/70 rounded-2xl p-6 backdrop-blur-md">
+          <h3 className="font-semibold text-charcoal mb-4">Calendar Features</h3>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
             <div className="flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-white">Automatic Availability</p>
-                <p className="text-white/60">Checks your calendar for free/busy times</p>
+                <p className="font-medium text-charcoal">Automatic Availability</p>
+                <p className="text-silver-600">Checks your calendar for free/busy times</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-white">Google Meet Integration</p>
-                <p className="text-white/60">Automatic video conference links</p>
+                <p className="font-medium text-charcoal">Google Meet Integration</p>
+                <p className="text-silver-600">Automatic video conference links</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-white">Email Notifications</p>
-                <p className="text-white/60">Automatic reminders to attendees</p>
+                <p className="font-medium text-charcoal">Email Notifications</p>
+                <p className="text-silver-600">Automatic reminders to attendees</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-white">Working Hours</p>
-                <p className="text-white/60">Customize available booking times</p>
+                <p className="font-medium text-charcoal">Working Hours</p>
+                <p className="text-silver-600">Customize available booking times</p>
               </div>
             </div>
           </div>

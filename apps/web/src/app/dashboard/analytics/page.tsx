@@ -300,7 +300,7 @@ export default function AnalyticsPage() {
           </select>
           <button
             onClick={handleExportCSV}
-            className="px-6 py-3 bg-charcoal text-white rounded-lg hover:bg-charcoal/90 text-sm font-medium transition-all shadow-lg"
+            className="px-6 py-3 bg-charcoal text-charcoal rounded-lg hover:bg-charcoal/90 text-sm font-medium transition-all shadow-lg"
           >
             {t('analytics.exportCSV')}
           </button>
@@ -414,13 +414,13 @@ export default function AnalyticsPage() {
       {/* Recent Conversations Table */}
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">{t('analytics.table.recentConversations')}</h3>
+          <h3 className="text-lg font-semibold text-charcoal">{t('analytics.table.recentConversations')}</h3>
           <input
             type="text"
             placeholder={t('analytics.searchByBotOrStatus')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg text-sm text-white placeholder-purple-400/50 focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 transition-all"
+            className="px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg text-sm text-charcoal placeholder-purple-400/50 focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 transition-all"
           />
         </div>
 
@@ -468,10 +468,10 @@ export default function AnalyticsPage() {
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           conv.status === 'completed'
-                            ? 'bg-fuchsia-500/20 text-fuchsia-300'
+                            ? 'bg-fuchsia-500/20 text-silver-600'
                             : conv.status === 'active'
-                            ? 'bg-purple-500/20 text-purple-300'
-                            : 'bg-purple-900/50 text-purple-400'
+                            ? 'bg-purple-500/20 text-silver-600'
+                            : 'bg-pearl-50 text-purple-400'
                         }`}
                       >
                         {conv.status}

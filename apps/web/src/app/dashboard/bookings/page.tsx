@@ -169,7 +169,7 @@ export default function BookingsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'CONFIRMED':
-        return <Badge className="bg-emerald text-white">Confermato</Badge>;
+        return <Badge className="bg-emerald text-charcoal">Confermato</Badge>;
       case 'CANCELLED':
         return <Badge variant="outline" className="text-red-600 border-red-600">Cancellato</Badge>;
       case 'RESCHEDULED':
@@ -184,7 +184,7 @@ export default function BookingsPage() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/60 mx-auto mb-4"></div>
-          <p className="text-white/60">Caricamento prenotazioni...</p>
+          <p className="text-silver-600">Caricamento prenotazioni...</p>
         </div>
       </div>
     );
@@ -194,22 +194,22 @@ export default function BookingsPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-black/40 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
+        <div className="glass-effect border border-silver-200/70 rounded-2xl p-4 backdrop-blur-md">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white/60 mb-1">Totali</p>
-              <p className="text-2xl font-bold text-white">{bookings.length}</p>
+              <p className="text-sm text-silver-600 mb-1">Totali</p>
+              <p className="text-2xl font-bold text-charcoal">{bookings.length}</p>
             </div>
-            <div className="w-12 h-12 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center">
-              <Calendar className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 bg-pearl-50 rounded-xl border border-silver-200/70 flex items-center justify-center">
+              <Calendar className="w-6 h-6 text-charcoal" />
             </div>
           </div>
         </div>
 
-        <div className="bg-black/40 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
+        <div className="glass-effect border border-silver-200/70 rounded-2xl p-4 backdrop-blur-md">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white/60 mb-1">Prossime</p>
+              <p className="text-sm text-silver-600 mb-1">Prossime</p>
               <p className="text-2xl font-bold text-emerald-400">
                 {bookings.filter(b => new Date(b.startTime) > new Date() && b.status !== 'CANCELLED').length}
               </p>
@@ -220,10 +220,10 @@ export default function BookingsPage() {
           </div>
         </div>
 
-        <div className="bg-black/40 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
+        <div className="glass-effect border border-silver-200/70 rounded-2xl p-4 backdrop-blur-md">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white/60 mb-1">Completate</p>
+              <p className="text-sm text-silver-600 mb-1">Completate</p>
               <p className="text-2xl font-bold text-blue-400">
                 {bookings.filter(b => new Date(b.startTime) <= new Date() && b.status !== 'CANCELLED').length}
               </p>
@@ -234,10 +234,10 @@ export default function BookingsPage() {
           </div>
         </div>
 
-        <div className="bg-black/40 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
+        <div className="glass-effect border border-silver-200/70 rounded-2xl p-4 backdrop-blur-md">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white/60 mb-1">Cancellate</p>
+              <p className="text-sm text-silver-600 mb-1">Cancellate</p>
               <p className="text-2xl font-bold text-red-400">
                 {bookings.filter(b => b.status === 'CANCELLED').length}
               </p>
@@ -250,17 +250,17 @@ export default function BookingsPage() {
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-black/40 border border-white/10 rounded-2xl p-4 backdrop-blur-md">
+      <div className="glass-effect border border-silver-200/70 rounded-2xl p-4 backdrop-blur-md">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-silver-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cerca per nome, email o telefono..."
-              className="w-full pl-10 pr-4 py-2 bg-black/20 border border-white/10 rounded-lg focus:outline-none focus:border-white/30 text-white placeholder-white/40"
+              className="w-full pl-10 pr-4 py-2 bg-pearl-50 border border-silver-200/70 rounded-lg focus:outline-none focus:border-white/30 text-charcoal placeholder-white/40"
             />
           </div>
 
@@ -268,25 +268,25 @@ export default function BookingsPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === 'all' ? 'bg-white text-black' : 'border border-white/20 text-white/60 hover:bg-white/10'}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === 'all' ? 'bg-white text-black' : 'border border-silver-200/70 text-silver-600 hover:bg-pearl-100/60'}`}
             >
               Tutte
             </button>
             <button
               onClick={() => setFilter('upcoming')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === 'upcoming' ? 'bg-white text-black' : 'border border-white/20 text-white/60 hover:bg-white/10'}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === 'upcoming' ? 'bg-white text-black' : 'border border-silver-200/70 text-silver-600 hover:bg-pearl-100/60'}`}
             >
               Prossime
             </button>
             <button
               onClick={() => setFilter('past')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === 'past' ? 'bg-white text-black' : 'border border-white/20 text-white/60 hover:bg-white/10'}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === 'past' ? 'bg-white text-black' : 'border border-silver-200/70 text-silver-600 hover:bg-pearl-100/60'}`}
             >
               Passate
             </button>
             <button
               onClick={() => setFilter('cancelled')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === 'cancelled' ? 'bg-white text-black' : 'border border-white/20 text-white/60 hover:bg-white/10'}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === 'cancelled' ? 'bg-white text-black' : 'border border-silver-200/70 text-silver-600 hover:bg-pearl-100/60'}`}
             >
               Cancellate
             </button>
@@ -296,30 +296,30 @@ export default function BookingsPage() {
 
       {/* Bookings List */}
       {filteredBookings.length === 0 ? (
-        <div className="bg-black/40 border border-white/10 rounded-2xl p-12 text-center backdrop-blur-md">
-          <Calendar className="w-16 h-16 text-white/30 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">
+        <div className="glass-effect border border-silver-200/70 rounded-2xl p-12 text-center backdrop-blur-md">
+          <Calendar className="w-16 h-16 text-charcoal/30 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-charcoal mb-2">
             Nessuna prenotazione
           </h3>
-          <p className="text-white/60">
+          <p className="text-silver-600">
             {searchQuery ? 'Nessun risultato per la ricerca' : 'Non ci sono prenotazioni in questa categoria'}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
           {filteredBookings.map((booking) => (
-            <div key={booking.id} className="bg-black/40 border border-white/10 rounded-2xl p-5 backdrop-blur-md hover:bg-white/5 transition-all">
+            <div key={booking.id} className="glass-effect border border-silver-200/70 rounded-2xl p-5 backdrop-blur-md hover:bg-pearl-100/60 transition-all">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-white/10 to-white/5 border border-white/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <User className="w-6 h-6 text-white" />
+                    <div className="w-12 h-12 bg-gradient-to-br from-white/10 to-white/5 border border-silver-200/70 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <User className="w-6 h-6 text-charcoal" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white">
+                      <h3 className="text-lg font-semibold text-charcoal">
                         {booking.attendeeFirstName} {booking.attendeeLastName}
                       </h3>
-                      <div className="flex items-center gap-4 text-sm text-white/60 mt-1">
+                      <div className="flex items-center gap-4 text-sm text-silver-600 mt-1">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           {formatDate(booking.startTime)}
@@ -334,17 +334,17 @@ export default function BookingsPage() {
 
                   <div className="grid md:grid-cols-2 gap-3 text-sm">
                     {booking.attendeeEmail && (
-                      <div className="flex items-center gap-2 text-white/80">
-                        <Mail className="w-4 h-4 text-white/40" />
-                        <a href={`mailto:${booking.attendeeEmail}`} className="hover:text-white">
+                      <div className="flex items-center gap-2 text-silver-700">
+                        <Mail className="w-4 h-4 text-silver-400" />
+                        <a href={`mailto:${booking.attendeeEmail}`} className="hover:text-charcoal">
                           {booking.attendeeEmail}
                         </a>
                       </div>
                     )}
                     {booking.attendeePhone && (
-                      <div className="flex items-center gap-2 text-white/80">
-                        <Phone className="w-4 h-4 text-white/40" />
-                        <a href={`tel:${booking.attendeePhone}`} className="hover:text-white">
+                      <div className="flex items-center gap-2 text-silver-700">
+                        <Phone className="w-4 h-4 text-silver-400" />
+                        <a href={`tel:${booking.attendeePhone}`} className="hover:text-charcoal">
                           {booking.attendeePhone}
                         </a>
                       </div>
@@ -352,8 +352,8 @@ export default function BookingsPage() {
                   </div>
 
                   {booking.description && (
-                    <div className="mt-3 p-3 bg-white/5 border border-white/10 rounded-lg">
-                      <p className="text-sm text-white/80"><strong className="text-white">Note:</strong> {booking.description}</p>
+                    <div className="mt-3 p-3 bg-pearl-50 border border-silver-200/70 rounded-lg">
+                      <p className="text-sm text-silver-700"><strong className="text-charcoal">Note:</strong> {booking.description}</p>
                     </div>
                   )}
                 </div>
@@ -370,7 +370,7 @@ export default function BookingsPage() {
                   {booking.status !== 'CANCELLED' && (
                     <button
                       onClick={() => handleCancelBooking(booking.id)}
-                      className="p-2 border border-white/20 rounded-lg text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition-all"
+                      className="p-2 border border-silver-200/70 rounded-lg text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition-all"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

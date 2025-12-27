@@ -337,16 +337,16 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
 
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold text-white mb-2">{t('bot.scraping.title')}</h2>
-        <p className="text-sm text-white/60">
+        <h2 className="text-xl font-semibold text-charcoal mb-2">{t('bot.scraping.title')}</h2>
+        <p className="text-sm text-silver-600">
           {t('bot.scraping.subtitleDetailed')}
         </p>
       </div>
 
       {/* Scrape Form */}
-      <form onSubmit={handleScrapeLinks} className="bg-black/40 backdrop-blur-md rounded-lg border p-6">
+      <form onSubmit={handleScrapeLinks} className="glass-effect backdrop-blur-md rounded-lg border p-6">
         <div className="flex flex-col gap-4">
-          <label htmlFor="url" className="text-sm font-medium text-white/70">
+          <label htmlFor="url" className="text-sm font-medium text-silver-600">
             {t('bot.scraping.url')}
           </label>
           <div className="flex gap-3">
@@ -356,13 +356,13 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder={t('bot.scraping.urlPlaceholder')}
-              className="flex-1 px-3 py-2 border border-white/20 rounded-lg text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white/5"
+              className="flex-1 px-3 py-2 border border-silver-200/70 rounded-lg text-sm text-charcoal placeholder:text-silver-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-pearl-50"
               disabled={isScrapingLinks || isDiscoveringWithSitemap}
             />
             <button
               type="submit"
               disabled={isScrapingLinks || isDiscoveringWithSitemap}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2 bg-indigo-600 text-charcoal rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isScrapingLinks ? (
                 <>
@@ -380,7 +380,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               type="button"
               onClick={handleDiscoverWithSitemap}
               disabled={isScrapingLinks || isDiscoveringWithSitemap}
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2 bg-purple-600 text-charcoal rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isDiscoveringWithSitemap ? (
                 <>
@@ -395,7 +395,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               )}
             </button>
           </div>
-          <p className="text-xs text-white/50">
+          <p className="text-xs text-silver-500">
             {t('bot.scraping.instructions')}
           </p>
         </div>
@@ -403,29 +403,29 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
 
       {/* Links Table */}
       {links.length > 0 && (
-        <div className="bg-black/40 backdrop-blur-md rounded-lg border">
+        <div className="glass-effect backdrop-blur-md rounded-lg border">
           {/* Header with Select All and Add to Training */}
-          <div className="px-6 py-4 border-b bg-white/5 flex items-center justify-between">
+          <div className="px-6 py-4 border-b bg-pearl-50 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={selectedUrls.size === links.length && links.length > 0}
                   onChange={handleSelectAll}
-                  className="w-4 h-4 text-indigo-600 rounded border-white/20 focus:ring-indigo-500"
+                  className="w-4 h-4 text-indigo-600 rounded border-silver-200/70 focus:ring-indigo-500"
                 />
-                <span className="text-sm font-medium text-white/70">
+                <span className="text-sm font-medium text-silver-600">
                   {t('bot.scraping.selectAll').replace('{count}', String(links.length))}
                 </span>
               </label>
-              <span className="text-sm text-white/50">
+              <span className="text-sm text-silver-500">
                 {t('bot.scraping.selected').replace('{count}', String(selectedUrls.size))}
               </span>
             </div>
             <button
               onClick={handleAddToTraining}
               disabled={selectedUrls.size === 0 || isSaving}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 py-2 bg-green-600 text-charcoal rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSaving ? (
                 <>
@@ -443,16 +443,16 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
             {links.map((link, index) => (
               <div
                 key={`${link.url}-${index}`}
-                className="px-6 py-4 hover:bg-white/5 flex items-start gap-4"
+                className="px-6 py-4 hover:bg-pearl-100/60 flex items-start gap-4"
               >
                 <input
                   type="checkbox"
                   checked={selectedUrls.has(link.url)}
                   onChange={() => handleToggleSelect(link.url)}
-                  className="mt-1 w-4 h-4 text-indigo-600 rounded border-white/20 focus:ring-indigo-500 flex-shrink-0"
+                  className="mt-1 w-4 h-4 text-indigo-600 rounded border-silver-200/70 focus:ring-indigo-500 flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white break-words">
+                  <p className="text-sm font-medium text-charcoal break-words">
                     {link.title || link.text || "No title"}
                   </p>
                   <a
@@ -464,14 +464,14 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                     {link.url}
                   </a>
                   {link.snippet && (
-                    <p className="text-xs text-white/60 mt-1 line-clamp-2">
+                    <p className="text-xs text-silver-600 mt-1 line-clamp-2">
                       {link.snippet}
                     </p>
                   )}
                 </div>
                 <button
                   onClick={() => handlePreview(link.url)}
-                  className="flex-shrink-0 px-3 py-1.5 border border-white/20 rounded-lg text-xs font-medium text-white/70 hover:bg-white/5 flex items-center gap-1.5"
+                  className="flex-shrink-0 px-3 py-1.5 border border-silver-200/70 rounded-lg text-xs font-medium text-silver-600 hover:bg-pearl-100/60 flex items-center gap-1.5"
                 >
                   <Eye size={14} />
                   {t('bot.scraping.preview')}
@@ -485,13 +485,13 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
       {/* Preview Modal */}
       {previewUrl && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+          <div className="glass-effect backdrop-blur-md rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white">{t('bot.scraping.contentPreview')}</h3>
+              <h3 className="text-lg font-semibold text-charcoal">{t('bot.scraping.contentPreview')}</h3>
               <button
                 onClick={() => setPreviewUrl(null)}
-                className="p-2 hover:bg-white/10 rounded-lg"
+                className="p-2 hover:bg-pearl-100/60 rounded-lg"
               >
                 <X size={20} />
               </button>
@@ -506,7 +506,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               ) : preview ? (
                 <div className="flex flex-col gap-4">
                   <div>
-                    <h4 className="text-xl font-semibold text-white mb-2">
+                    <h4 className="text-xl font-semibold text-charcoal mb-2">
                       {preview.title}
                     </h4>
                     <a
@@ -521,30 +521,30 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
 
                   {preview.description && (
                     <div>
-                      <p className="text-sm font-medium text-white/70 mb-1">Description</p>
-                      <p className="text-sm text-white/60">{preview.description}</p>
+                      <p className="text-sm font-medium text-silver-600 mb-1">Description</p>
+                      <p className="text-sm text-silver-600">{preview.description}</p>
                     </div>
                   )}
 
                   <div>
-                    <p className="text-sm font-medium text-white/70 mb-1">{t('bot.scraping.contentPreview')}</p>
-                    <div className="text-sm text-white/60 whitespace-pre-wrap bg-white/5 p-4 rounded-lg border">
+                    <p className="text-sm font-medium text-silver-600 mb-1">{t('bot.scraping.contentPreview')}</p>
+                    <div className="text-sm text-silver-600 whitespace-pre-wrap bg-pearl-50 p-4 rounded-lg border">
                       {preview.contentPreview || t('bot.scraping.noContent')}
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center text-white/60 py-12">
+                <div className="text-center text-silver-600 py-12">
                   {t('bot.scraping.failedToLoad')}
                 </div>
               )}
             </div>
 
             {/* Modal Footer */}
-            <div className="px-6 py-4 border-t bg-white/5 flex justify-end">
+            <div className="px-6 py-4 border-t bg-pearl-50 flex justify-end">
               <button
                 onClick={() => setPreviewUrl(null)}
-                className="px-4 py-2 bg-gray-200 text-white rounded-lg text-sm font-medium hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-200 text-charcoal rounded-lg text-sm font-medium hover:bg-gray-300"
               >
                 {t('common.close')}
               </button>

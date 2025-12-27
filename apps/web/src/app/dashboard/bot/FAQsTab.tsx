@@ -122,7 +122,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-white/60">Loading FAQs...</div>
+        <div className="text-silver-600">Loading FAQs...</div>
       </div>
     );
   }
@@ -130,11 +130,11 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
   return (
     <div className="space-y-6">
       {/* Add FAQ Form */}
-      <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Add New FAQ</h3>
+      <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-6">
+        <h3 className="text-lg font-semibold text-charcoal mb-4">Add New FAQ</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="question" className="block text-sm font-medium text-white/70 mb-1">
+            <label htmlFor="question" className="block text-sm font-medium text-silver-600 mb-1">
               Question
             </label>
             <input
@@ -143,13 +143,13 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="e.g., What are your business hours?"
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white text-black placeholder:text-gray-400"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white text-black placeholder:text-gray-400"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="answer" className="block text-sm font-medium text-white/70 mb-1">
+            <label htmlFor="answer" className="block text-sm font-medium text-silver-600 mb-1">
               Answer
             </label>
             <textarea
@@ -158,13 +158,13 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
               onChange={(e) => setAnswer(e.target.value)}
               placeholder="We're open Monday to Friday, 9 AM to 5 PM EST."
               rows={4}
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-white text-black placeholder:text-gray-400"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-white text-black placeholder:text-gray-400"
               required
             />
           </div>
 
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-white/70 mb-1">
+            <label htmlFor="category" className="block text-sm font-medium text-silver-600 mb-1">
               Category (optional)
             </label>
             <input
@@ -173,7 +173,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="e.g., General, Pricing, Support"
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white text-black placeholder:text-gray-400"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white text-black placeholder:text-gray-400"
             />
           </div>
 
@@ -186,7 +186,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="w-full px-4 py-2 bg-indigo-600 text-charcoal rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
             {submitting ? 'Adding...' : 'Add FAQ'}
           </button>
@@ -194,35 +194,35 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
       </div>
 
       {/* FAQs List */}
-      <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">
+      <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-6">
+        <h3 className="text-lg font-semibold text-charcoal mb-4">
           FAQs ({faqs.length})
         </h3>
 
         {faqs.length === 0 ? (
-          <p className="text-white/50 text-center py-8">
+          <p className="text-silver-500 text-center py-8">
             No FAQs yet. Add your first FAQ above to provide quick answers to common questions.
           </p>
         ) : (
           <div className="space-y-6">
             {Object.entries(groupedFAQs).map(([categoryName, categoryFaqs]) => (
               <div key={categoryName}>
-                <h4 className="font-medium text-white/70 mb-3 flex items-center gap-2">
+                <h4 className="font-medium text-silver-600 mb-3 flex items-center gap-2">
                   <span className="bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded text-xs">
                     {categoryName}
                   </span>
-                  <span className="text-xs text-white/50">({categoryFaqs.length})</span>
+                  <span className="text-xs text-silver-500">({categoryFaqs.length})</span>
                 </h4>
                 <div className="space-y-3">
                   {categoryFaqs.map((faq) => (
                     <div
                       key={faq.id}
-                      className="border border-white/10 rounded-lg p-4 hover:border-indigo-500/50 transition-colors"
+                      className="border border-silver-200/70 rounded-lg p-4 hover:border-indigo-500/50 transition-colors"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">
-                          <h5 className="font-medium text-white">Q: {faq.question}</h5>
-                          <span className="text-xs text-white/50">
+                          <h5 className="font-medium text-charcoal">Q: {faq.question}</h5>
+                          <span className="text-xs text-silver-500">
                             {new Date(faq.createdAt).toLocaleDateString()}
                           </span>
                         </div>
@@ -233,8 +233,8 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
                           Delete
                         </button>
                       </div>
-                      <p className="text-sm text-white/60 mt-2">
-                        <span className="font-medium text-white/80">A:</span> {faq.answer}
+                      <p className="text-sm text-silver-600 mt-2">
+                        <span className="font-medium text-silver-700">A:</span> {faq.answer}
                       </p>
                     </div>
                   ))}

@@ -101,7 +101,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-white/60">{t('analytics.loadingAnalytics')}</div>
+        <div className="text-silver-600">{t('analytics.loadingAnalytics')}</div>
       </div>
     );
   }
@@ -123,33 +123,33 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
   return (
     <div className="space-y-6">
       {/* Date Range Picker */}
-      <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-4">
+      <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-4">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-white/60" />
-            <span className="text-sm font-medium text-white">{t('analytics.dateRange')}</span>
+            <Calendar className="w-5 h-5 text-silver-600" />
+            <span className="text-sm font-medium text-charcoal">{t('analytics.dateRange')}</span>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm text-white/60">{t('analytics.from')}</label>
+            <label className="text-sm text-silver-600">{t('analytics.from')}</label>
             <input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="px-3 py-1.5 text-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
+              className="px-3 py-1.5 text-sm border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-charcoal bg-pearl-50"
             />
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm text-white/60">{t('analytics.to')}</label>
+            <label className="text-sm text-silver-600">{t('analytics.to')}</label>
             <input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="px-3 py-1.5 text-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
+              className="px-3 py-1.5 text-sm border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-charcoal bg-pearl-50"
             />
           </div>
           <button
             onClick={handleApplyDateRange}
-            className="px-4 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700"
+            className="px-4 py-1.5 bg-indigo-600 text-charcoal text-sm font-medium rounded-lg hover:bg-indigo-700"
           >
             {t('analytics.apply')}
           </button>
@@ -157,19 +157,19 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
       </div>
 
       {!hasData ? (
-        <div className="bg-white/5 border border-white/10 rounded-lg p-12 text-center">
-          <Activity className="w-12 h-12 text-white/40 mx-auto mb-3" />
-          <p className="text-white/60 text-sm">{t('analytics.noUsageData')}</p>
+        <div className="bg-pearl-50 border border-silver-200/70 rounded-lg p-12 text-center">
+          <Activity className="w-12 h-12 text-silver-400 mx-auto mb-3" />
+          <p className="text-silver-600 text-sm">{t('analytics.noUsageData')}</p>
         </div>
       ) : (
         <>
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-4">
+            <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/60">{t('analytics.stats.totalRequests')}</p>
-                  <p className="text-2xl font-bold text-white mt-1">
+                  <p className="text-sm text-silver-600">{t('analytics.stats.totalRequests')}</p>
+                  <p className="text-2xl font-bold text-charcoal mt-1">
                     {data.total.requests.toLocaleString()}
                   </p>
                 </div>
@@ -179,11 +179,11 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
               </div>
             </div>
 
-            <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-4">
+            <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/60">{t('analytics.stats.inputTokens')}</p>
-                  <p className="text-2xl font-bold text-white mt-1">
+                  <p className="text-sm text-silver-600">{t('analytics.stats.inputTokens')}</p>
+                  <p className="text-2xl font-bold text-charcoal mt-1">
                     {data.total.inputTokens.toLocaleString()}
                   </p>
                 </div>
@@ -193,11 +193,11 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
               </div>
             </div>
 
-            <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-4">
+            <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/60">{t('analytics.stats.outputTokens')}</p>
-                  <p className="text-2xl font-bold text-white mt-1">
+                  <p className="text-sm text-silver-600">{t('analytics.stats.outputTokens')}</p>
+                  <p className="text-2xl font-bold text-charcoal mt-1">
                     {data.total.outputTokens.toLocaleString()}
                   </p>
                 </div>
@@ -207,11 +207,11 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
               </div>
             </div>
 
-            <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-4">
+            <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-white/60">{t('analytics.stats.totalCost')}</p>
-                  <p className="text-2xl font-bold text-white mt-1">
+                  <p className="text-sm text-silver-600">{t('analytics.stats.totalCost')}</p>
+                  <p className="text-2xl font-bold text-charcoal mt-1">
                     ${data.total.cost.toFixed(4)}
                   </p>
                 </div>
@@ -226,8 +226,8 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
           {data.byDate.length > 0 && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Requests Over Time */}
-              <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-4">
-                <h3 className="text-lg font-semibold text-white mb-4">{t('analytics.charts.requestsOverTime')}</h3>
+              <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-4">
+                <h3 className="text-lg font-semibold text-charcoal mb-4">{t('analytics.charts.requestsOverTime')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={data.byDate}>
                     <defs>
@@ -263,8 +263,8 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
               </div>
 
               {/* Cost Over Time */}
-              <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-4">
-                <h3 className="text-lg font-semibold text-white mb-4">{t('analytics.charts.costOverTime')}</h3>
+              <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-4">
+                <h3 className="text-lg font-semibold text-charcoal mb-4">{t('analytics.charts.costOverTime')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={data.byDate}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -295,8 +295,8 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
               </div>
 
               {/* Tokens Over Time */}
-              <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-4">
-                <h3 className="text-lg font-semibold text-white mb-4">{t('analytics.charts.tokensOverTime')}</h3>
+              <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-4">
+                <h3 className="text-lg font-semibold text-charcoal mb-4">{t('analytics.charts.tokensOverTime')}</h3>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={data.byDate}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -335,8 +335,8 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
 
               {/* Model Distribution */}
               {data.byModel.length > 0 && (
-                <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-4">
-                  <h3 className="text-lg font-semibold text-white mb-4">{t('analytics.charts.usageByModel')}</h3>
+                <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-4">
+                  <h3 className="text-lg font-semibold text-charcoal mb-4">{t('analytics.charts.usageByModel')}</h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
@@ -371,47 +371,47 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
 
           {/* Model Details Table */}
           {data.byModel.length > 0 && (
-            <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 overflow-hidden">
-              <div className="p-4 border-b border-white/10">
-                <h3 className="text-lg font-semibold text-white">{t('analytics.modelDetails')}</h3>
+            <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 overflow-hidden">
+              <div className="p-4 border-b border-silver-200/70">
+                <h3 className="text-lg font-semibold text-charcoal">{t('analytics.modelDetails')}</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-white/5">
+                  <thead className="bg-pearl-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-white/60 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-left text-xs font-medium text-silver-600 uppercase tracking-wider">
                         {t('analytics.table.model')}
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-white/60 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-medium text-silver-600 uppercase tracking-wider">
                         {t('analytics.table.requests')}
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-white/60 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-medium text-silver-600 uppercase tracking-wider">
                         {t('analytics.stats.inputTokens')}
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-white/60 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-medium text-silver-600 uppercase tracking-wider">
                         {t('analytics.stats.outputTokens')}
                       </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-white/60 uppercase tracking-wider">
+                      <th className="px-4 py-3 text-right text-xs font-medium text-silver-600 uppercase tracking-wider">
                         {t('analytics.stats.totalCost')}
                       </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {data.byModel.map((model, idx) => (
-                      <tr key={idx} className="hover:bg-white/5">
-                        <td className="px-4 py-3 text-sm font-medium text-white">
+                      <tr key={idx} className="hover:bg-pearl-100/60">
+                        <td className="px-4 py-3 text-sm font-medium text-charcoal">
                           {model.model}
                         </td>
-                        <td className="px-4 py-3 text-sm text-white text-right">
+                        <td className="px-4 py-3 text-sm text-charcoal text-right">
                           {model.requests.toLocaleString()}
                         </td>
-                        <td className="px-4 py-3 text-sm text-white text-right">
+                        <td className="px-4 py-3 text-sm text-charcoal text-right">
                           {model.inputTokens.toLocaleString()}
                         </td>
-                        <td className="px-4 py-3 text-sm text-white text-right">
+                        <td className="px-4 py-3 text-sm text-charcoal text-right">
                           {model.outputTokens.toLocaleString()}
                         </td>
-                        <td className="px-4 py-3 text-sm text-white text-right">
+                        <td className="px-4 py-3 text-sm text-charcoal text-right">
                           ${model.cost.toFixed(4)}
                         </td>
                       </tr>
