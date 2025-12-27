@@ -282,8 +282,8 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white font-serif">{t('analytics.title')}</h1>
-          <p className="text-sm text-white/60 mt-1">
+          <h1 className="text-2xl font-bold text-charcoal font-serif">{t('analytics.title')}</h1>
+          <p className="text-sm text-silver-600 mt-1">
             {t('analytics.subtitle')}
           </p>
         </div>
@@ -291,7 +291,7 @@ export default function AnalyticsPage() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value as DateRange)}
-            className="px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg text-sm text-white focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 transition-all"
+            className="px-4 py-3 bg-pearl-50 border border-silver-200 rounded-lg text-sm text-charcoal focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 transition-all"
           >
             <option value="7d">{t('analytics.dateRanges.7d')}</option>
             <option value="30d">{t('analytics.dateRanges.30d')}</option>
@@ -300,7 +300,7 @@ export default function AnalyticsPage() {
           </select>
           <button
             onClick={handleExportCSV}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 text-sm font-medium transition-all shadow-lg shadow-purple-500/25"
+            className="px-6 py-3 bg-charcoal text-white rounded-lg hover:bg-charcoal/90 text-sm font-medium transition-all shadow-lg"
           >
             {t('analytics.exportCSV')}
           </button>
@@ -311,14 +311,14 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <GlassCard>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-white/60">{t('analytics.stats.totalConversations')}</h3>
+            <h3 className="text-sm font-medium text-silver-600">{t('analytics.stats.totalConversations')}</h3>
             <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
               <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
             </div>
           </div>
-          <div className="text-3xl font-bold text-white">
+          <div className="text-3xl font-bold text-charcoal">
             {(overview?.conversations ?? 0).toLocaleString()}
           </div>
           <p className="text-xs text-emerald-400 mt-2">{t('analytics.growth.fromLastPeriod').replace('{percent}', '12')}</p>
@@ -326,14 +326,14 @@ export default function AnalyticsPage() {
 
         <GlassCard>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-white/60">{t('analytics.stats.totalMessages')}</h3>
+            <h3 className="text-sm font-medium text-silver-600">{t('analytics.stats.totalMessages')}</h3>
             <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
               <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
               </svg>
             </div>
           </div>
-          <div className="text-3xl font-bold text-white">
+          <div className="text-3xl font-bold text-charcoal">
             {(overview?.messages ?? 0).toLocaleString()}
           </div>
           <p className="text-xs text-emerald-400 mt-2">{t('analytics.growth.fromLastPeriod').replace('{percent}', '8')}</p>
@@ -341,14 +341,14 @@ export default function AnalyticsPage() {
 
         <GlassCard>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-white/60">{t('analytics.stats.totalLeads')}</h3>
+            <h3 className="text-sm font-medium text-silver-600">{t('analytics.stats.totalLeads')}</h3>
             <div className="w-10 h-10 rounded-full bg-emerald-400/10 flex items-center justify-center">
               <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
           </div>
-          <div className="text-3xl font-bold text-white">
+          <div className="text-3xl font-bold text-charcoal">
             {(overview?.leads ?? 0).toLocaleString()}
           </div>
           <p className="text-xs text-emerald-400 mt-2">{t('analytics.growth.fromLastPeriod').replace('{percent}', '24')}</p>
@@ -357,7 +357,7 @@ export default function AnalyticsPage() {
 
       {/* Conversations Over Time Chart */}
       <GlassCard>
-        <h3 className="text-lg font-semibold text-white mb-4">{t('analytics.charts.conversationsOverTime')}</h3>
+        <h3 className="text-lg font-semibold text-charcoal mb-4">{t('analytics.charts.conversationsOverTime')}</h3>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={conversationsData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
@@ -393,7 +393,7 @@ export default function AnalyticsPage() {
 
       {/* Top Intents Chart */}
       <GlassCard>
-        <h3 className="text-lg font-semibold text-white mb-4">{t('analytics.charts.topIntents')}</h3>
+        <h3 className="text-lg font-semibold text-charcoal mb-4">{t('analytics.charts.topIntents')}</h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={intentsData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
@@ -504,7 +504,7 @@ export default function AnalyticsPage() {
             <select
               value={selectedBotId}
               onChange={(e) => setSelectedBotId(e.target.value)}
-              className="px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg text-sm text-white focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 transition-all"
+              className="px-4 py-3 bg-pearl-50 border border-silver-200 rounded-lg text-sm text-charcoal focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 transition-all"
             >
               {bots.map((bot) => (
                 <option key={bot.id} value={bot.id}>
