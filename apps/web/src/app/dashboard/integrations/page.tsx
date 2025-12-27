@@ -6,6 +6,8 @@ import { WhatsAppWizard } from '@/components/dashboard/wizards/WhatsAppWizard';
 import { TelegramWizard } from '@/components/dashboard/wizards/TelegramWizard';
 import { SlackWizard } from '@/components/dashboard/wizards/SlackWizard';
 import { HubSpotWizard } from '@/components/dashboard/wizards/HubSpotWizard';
+import { StripeWizard } from '@/components/dashboard/wizards/StripeWizard';
+import { WooCommerceWizard } from '@/components/dashboard/wizards/WooCommerceWizard';
 import { WidgetGuide } from '@/components/dashboard/guides/WidgetGuide';
 import { ShopifyGuide } from '@/components/dashboard/guides/ShopifyGuide';
 import { WordPressGuide } from '@/components/dashboard/guides/WordPressGuide';
@@ -294,12 +296,7 @@ export default function IntegrationsPage() {
               if (integration.slug === 'google-calendar') {
                 router.push('/dashboard/calendar');
                 return;
-              }
-              if (integration.slug === 'stripe' || integration.slug === 'woocommerce') {
-                router.push('/dashboard/review-bot');
-                return;
-              }
-              setActiveWizard(integration.slug);
+              }setActiveWizard(integration.slug);
             }}
             
             className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-md hover:border-fuchsia-500/40 hover:shadow-[0_0_15px_rgba(192,38,211,0.15)] transition-all duration-500 cursor-pointer group"
@@ -387,17 +384,28 @@ export default function IntegrationsPage() {
         />
       )}
 
-      {activeWizard === 'hubspot' && (
-        <HubSpotWizard
+      
+      {activeWizard === 'stripe' && (
+        <StripeWizard
           botId={botId || 'YOUR_BOT_ID'}
           onClose={() => setActiveWizard(null)}
-          initialConfig={configuredBySlug.get('hubspot')?.config}
-          onSave={(config) => void handleSave('hubspot', config)}
-          onDisconnect={configuredBySlug.get('hubspot') ? () => handleDisconnect('hubspot') : undefined}
+          initialConfig={configuredBySlug.get('stripe')?.config}
+          onSave={(config) => void handleSave('stripe', config)}
+          onDisconnect={configuredBySlug.get('stripe') ? () => handleDisconnect('stripe') : undefined}
         />
       )}
 
-      {activeWizard && !['widget', 'shopify', 'wordpress', 'whatsapp', 'telegram', 'slack', 'hubspot'].includes(activeWizard) && (
+      {activeWizard === 'woocommerce' && (
+        <WooCommerceWizard
+          botId={botId || 'YOUR_BOT_ID'}
+          onClose={() => setActiveWizard(null)}
+          initialConfig={configuredBySlug.get('woocommerce')?.config}
+          onSave={(config) => void handleSave('woocommerce', config)}
+          onDisconnect={configuredBySlug.get('woocommerce') ? () => handleDisconnect('woocommerce') : undefined}
+        />
+      )}
+
+      {activeWizard && !['widget', 'shopify', 'wordpress', 'whatsapp', 'telegram', 'slack', 'hubspot', 'stripe', 'woocommerce'].includes(activeWizard) && (
         <GenericIntegrationWizard
           title={integrationsBySlug.get(activeWizard)?.name || 'Integrazione'}
           description={integrationsBySlug.get(activeWizard)?.description || null}
