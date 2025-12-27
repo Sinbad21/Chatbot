@@ -1,4 +1,4 @@
-import { Hono } from 'hono';
+﻿import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
@@ -757,29 +757,76 @@ async function ensureDefaultIntegrations(prisma: any) {
     },
   ] as const;
 
-  await Promise.all(
-    defaults.map((i) =>
-      prisma.integration.upsert({
-        where: { slug: i.slug },
-        create: {
-          slug: i.slug,
-          name: i.name,
-          description: i.description,
-          category: i.category,
-          config: i.config,
-          active: true,
-        },
-        update: {
-          name: i.name,
-          description: i.description,
-          category: i.category,
-          config: i.config,
-          active: true,
-        },
-      })
-    )
-  );
+  // Avoid multiple DB writes per request. This is a single insert with skipDuplicates.
+  await prisma.integration.createMany({
+    data: defaults.map((i) => ({
+      slug: i.slug,
+      name: i.name,
+      description: i.description,
+      category: i.category,
+      config: i.config,
+      active: true,
+    })),
+    skipDuplicates: true,
+  });
 }
+
+app.get('/api/v1/integrations/bootstrap', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+
+    const memberships = await prisma.organizationMember.findMany({
+      where: { userId: user.userId },
+      include: {
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
+            plan: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const primaryOrg = memberships[0]?.organization;
+    if (!primaryOrg) {
+      return c.json({ error: 'No organization found for this user' }, 404);
+    }
+
+    await ensureDefaultIntegrations(prisma);
+
+    const [integrations, bots, configured] = await Promise.all([
+      prisma.integration.findMany({
+        where: { active: true },
+        orderBy: { name: 'asc' },
+      }),
+      prisma.bot.findMany({
+        where: { organizationId: primaryOrg.id },
+        select: { id: true, name: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.integrationConfig.findMany({
+        where: { organizationId: primaryOrg.id },
+        include: { integration: true },
+      }),
+    ]);
+
+    return c.json({
+      organization: primaryOrg,
+      integrations,
+      bots,
+      configured,
+    });
+  } catch (error: any) {
+    console.error('[GET /api/v1/integrations/bootstrap] Error:', error);
+    return c.json({ error: error.message || 'Failed to load integrations bootstrap' }, 500);
+  }
+});
 
 app.get('/api/v1/integrations', authMiddleware, async (c) => {
   try {
@@ -1421,7 +1468,7 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     });
 
     if (!membership || !membership.organizationId) {
-      console.log('[GET /documents] ⚠️  User has no organization - returning empty array');
+      console.log('[GET /documents] âš ï¸  User has no organization - returning empty array');
       // Return empty array instead of error to allow UI to load
       return c.json([], 200);
     }
@@ -1439,12 +1486,12 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     });
 
     if (!bot) {
-      console.log('[GET /documents] ❌ Bot not found');
+      console.log('[GET /documents] âŒ Bot not found');
       return c.json({ error: 'Bot not found' }, 404);
     }
 
     if (!bot.organizationId) {
-      console.log('[GET /documents] ❌ Bot has no organizationId - database inconsistency!');
+      console.log('[GET /documents] âŒ Bot has no organizationId - database inconsistency!');
       return c.json({
         error: 'Bot configuration error',
         message: 'This bot is not associated with any organization',
@@ -1453,7 +1500,7 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     }
 
     if (bot.organizationId !== membership.organizationId) {
-      console.log('[GET /documents] ❌ Organization mismatch:', {
+      console.log('[GET /documents] âŒ Organization mismatch:', {
         botOrg: bot.organizationId,
         userOrg: membership.organizationId,
       });
@@ -1464,7 +1511,7 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       }, 403);
     }
 
-    console.log('[GET /documents] ✅ Tenant check passed - fetching documents...');
+    console.log('[GET /documents] âœ… Tenant check passed - fetching documents...');
 
     // Fetch documents
     const documents = await prisma.document.findMany({
@@ -1483,7 +1530,7 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       },
     });
 
-    console.log('[GET /documents] ✅ Found documents:', documents.length);
+    console.log('[GET /documents] âœ… Found documents:', documents.length);
 
     // Transform documents to match frontend interface
     const transformedDocuments = documents.map(doc => ({
@@ -1496,7 +1543,7 @@ app.get('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
 
     return c.json(transformedDocuments);
   } catch (error: any) {
-    console.error('[GET /documents] ❌ EXCEPTION:', error);
+    console.error('[GET /documents] âŒ EXCEPTION:', error);
 
     // Handle Prisma-specific errors
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -1621,7 +1668,7 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     });
 
     if (!membership || !membership.organizationId) {
-      console.log('[POST /documents] ❌ User has no organization - needs onboarding');
+      console.log('[POST /documents] âŒ User has no organization - needs onboarding');
       return c.json({
         error: 'User not associated with any organization',
         message: 'Please run the multi-tenant fix script: npm run db:fix-multi-tenant',
@@ -1642,12 +1689,12 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     });
 
     if (!bot) {
-      console.log('[POST /documents] ❌ Bot not found');
+      console.log('[POST /documents] âŒ Bot not found');
       return c.json({ error: 'Bot not found' }, 404);
     }
 
     if (!bot.organizationId) {
-      console.log('[POST /documents] ❌ Bot has no organizationId - database inconsistency!');
+      console.log('[POST /documents] âŒ Bot has no organizationId - database inconsistency!');
       return c.json({
         error: 'Bot configuration error',
         message: 'This bot is not associated with any organization. Please run: npm run db:fix-multi-tenant',
@@ -1656,7 +1703,7 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
     }
 
     if (bot.organizationId !== membership.organizationId) {
-      console.log('[POST /documents] ❌ Organization mismatch:', {
+      console.log('[POST /documents] âŒ Organization mismatch:', {
         botOrg: bot.organizationId,
         userOrg: membership.organizationId,
       });
@@ -1667,7 +1714,7 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       }, 403);
     }
 
-    console.log('[POST /documents] ✅ Tenant check passed - creating document...');
+    console.log('[POST /documents] âœ… Tenant check passed - creating document...');
     console.log('[POST /documents] Final validation:', {
       userOrg: membership.organizationId,
       botOrg: bot.organizationId,
@@ -1689,7 +1736,7 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
       },
     });
 
-    console.log('[POST /documents] ✅ Document created successfully:', document.id);
+    console.log('[POST /documents] âœ… Document created successfully:', document.id);
 
     // Transform document to match frontend interface
     const transformedDocument = {
@@ -1706,7 +1753,7 @@ app.post('/api/v1/bots/:botId/documents', authMiddleware, async (c) => {
 
     return c.json(transformedDocument, 201);
   } catch (error: any) {
-    console.error('[POST /documents] ❌ EXCEPTION:', error);
+    console.error('[POST /documents] âŒ EXCEPTION:', error);
 
     // Handle Prisma-specific errors
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -1958,7 +2005,7 @@ This PDF appears to contain no extractable text. This can happen when:
 
 Consider using a text-based PDF or converting images to text first.`;
 
-          console.log('[POST /documents/upload] ⚠️ No text extracted from PDF');
+          console.log('[POST /documents/upload] âš ï¸ No text extracted from PDF');
         }
       } catch (pdfError: any) {
         console.error('[POST /documents/upload] PDF extraction failed:', pdfError);
@@ -1993,7 +2040,7 @@ Consider using a text-based PDF or converting images to text first.`;
       },
     });
 
-    console.log('[POST /documents/upload] ✅ Document created:', document.id);
+    console.log('[POST /documents/upload] âœ… Document created:', document.id);
 
     return c.json({
       success: true,
@@ -2027,7 +2074,7 @@ app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
     const botId = c.req.param('botId');
     const { url } = await c.req.json();
 
-    console.log('🌐 [SCRAPE] Request:', { botId, url });
+    console.log('ðŸŒ [SCRAPE] Request:', { botId, url });
 
     // Validate URL
     if (!url || typeof url !== 'string') {
@@ -2075,7 +2122,7 @@ app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
       return c.json({ error: 'Bot not found or access denied' }, 404);
     }
 
-    console.log('🌐 [SCRAPE] Fetching URL:', url);
+    console.log('ðŸŒ [SCRAPE] Fetching URL:', url);
 
     // Fetch the webpage
     const response = await fetch(url, {
@@ -2141,7 +2188,7 @@ app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
       },
     });
 
-    console.log('✅ [SCRAPE] Document created:', document.id);
+    console.log('âœ… [SCRAPE] Document created:', document.id);
 
     return c.json({
       success: true,
@@ -2153,7 +2200,7 @@ app.post('/api/v1/bots/:botId/scrape', authMiddleware, async (c) => {
       },
     });
   } catch (error: any) {
-    console.error('❌ [SCRAPE] Error:', error);
+    console.error('âŒ [SCRAPE] Error:', error);
     return c.json({
       error: 'Scraping failed',
       message: error.message || 'Unknown error',
@@ -2304,7 +2351,7 @@ const crawlWebsite = async (
     }
 
     if (visited.size % 50 === 0) {
-      console.log(`🔍 [CRAWLER] Progress: ${visited.size} visited, ${discovered.size} discovered`);
+      console.log(`ðŸ” [CRAWLER] Progress: ${visited.size} visited, ${discovered.size} discovered`);
     }
   }
 
@@ -2319,7 +2366,7 @@ app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
     const botId = c.req.param('botId');
     const { url: baseUrl } = await c.req.json();
 
-    console.log('🔍 [DISCOVER] Request:', { botId, baseUrl });
+    console.log('ðŸ” [DISCOVER] Request:', { botId, baseUrl });
 
     // Validate URL
     if (!baseUrl || typeof baseUrl !== 'string') {
@@ -2357,7 +2404,7 @@ app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
     let robotsRules: RobotsRules = { sitemaps: [], disallowedPaths: [] };
 
     // Fetch and parse robots.txt
-    console.log('🔍 [DISCOVER] Fetching robots.txt');
+    console.log('ðŸ” [DISCOVER] Fetching robots.txt');
     try {
       const robotsResponse = await fetch(`${origin}/robots.txt`, {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
@@ -2366,13 +2413,13 @@ app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
       if (robotsResponse.ok) {
         const robotsTxt = await robotsResponse.text();
         robotsRules = parseRobotsTxt(robotsTxt);
-        console.log('✅ [DISCOVER] Parsed robots.txt:', {
+        console.log('âœ… [DISCOVER] Parsed robots.txt:', {
           sitemaps: robotsRules.sitemaps.length,
           disallowedPaths: robotsRules.disallowedPaths.length,
         });
       }
     } catch (err) {
-      console.log('⚠️ [DISCOVER] Failed to fetch robots.txt:', err);
+      console.log('âš ï¸ [DISCOVER] Failed to fetch robots.txt:', err);
     }
 
     // Try to find sitemap
@@ -2387,7 +2434,7 @@ app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
 
     for (const sitemapUrl of sitemapsToTry) {
       try {
-        console.log('🔍 [DISCOVER] Trying sitemap:', sitemapUrl);
+        console.log('ðŸ” [DISCOVER] Trying sitemap:', sitemapUrl);
         const response = await fetch(sitemapUrl, {
           headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ChatbotStudio/1.0)' },
         });
@@ -2407,18 +2454,18 @@ app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
 
           if (discoveredUrls.size > 0) {
             foundSitemap = true;
-            console.log(`✅ [DISCOVER] Found sitemap with ${discoveredUrls.size} URLs`);
+            console.log(`âœ… [DISCOVER] Found sitemap with ${discoveredUrls.size} URLs`);
             break; // Use ONLY sitemap URLs as per requirements
           }
         }
       } catch (err) {
-        console.log('⚠️ [DISCOVER] Failed to fetch sitemap:', err);
+        console.log('âš ï¸ [DISCOVER] Failed to fetch sitemap:', err);
       }
     }
 
     // If NO sitemap found, do full crawl
     if (!foundSitemap) {
-      console.log('🔍 [DISCOVER] No sitemap found, starting full crawl (max 2000 pages)');
+      console.log('ðŸ” [DISCOVER] No sitemap found, starting full crawl (max 2000 pages)');
       discoveredUrls = await crawlWebsite(
         baseUrl,
         origin,
@@ -2426,7 +2473,7 @@ app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
         2000, // maxPages
         5     // concurrency
       );
-      console.log(`✅ [DISCOVER] Crawl complete: ${discoveredUrls.size} URLs discovered`);
+      console.log(`âœ… [DISCOVER] Crawl complete: ${discoveredUrls.size} URLs discovered`);
     }
 
     // Convert to array and return (preview will be fetched on-demand)
@@ -2438,7 +2485,7 @@ app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
         snippet: '', // Empty - will be fetched on-demand
       }));
 
-    console.log(`✅ [DISCOVER] Returning ${links.length} links`);
+    console.log(`âœ… [DISCOVER] Returning ${links.length} links`);
 
     return c.json({
       success: true,
@@ -2447,7 +2494,7 @@ app.post('/api/v1/bots/:botId/discover-links', authMiddleware, async (c) => {
       strategy: foundSitemap ? 'sitemap' : 'crawl',
     });
   } catch (error: any) {
-    console.error('❌ [DISCOVER] Error:', error);
+    console.error('âŒ [DISCOVER] Error:', error);
     return c.json({
       error: 'Discovery failed',
       message: error.message || 'Unknown error',
@@ -2704,9 +2751,9 @@ app.post('/api/v1/chat/demo', async (c) => {
     const scenarioPrompts: Record<string, string> = {
       sales: `Sei un assistente AI avanzato specializzato in vendite e lead generation, creato con ChatBot Studio.
 
-CONTESTO: Stai dimostrando le capacità di un chatbot AI per un'agenzia immobiliare di lusso.
+CONTESTO: Stai dimostrando le capacitÃ  di un chatbot AI per un'agenzia immobiliare di lusso.
 
-LE TUE CAPACITÀ:
+LE TUE CAPACITÃ€:
 - Qualificare i lead chiedendo budget, zona preferita, tipologia immobile
 - Prenotare appuntamenti integrandoti con Google Calendar
 - Inviare informazioni dettagliate su WhatsApp o email
@@ -2719,19 +2766,19 @@ STILE DI RISPOSTA:
 - Offri sempre un prossimo passo concreto (prenotare visita, ricevere info, etc.)
 - Mostra entusiasmo per aiutare il cliente a trovare la casa dei suoi sogni
 
-IMPORTANTE: Questa è una demo live. Se l'utente chiede info su ChatBot Studio, spiega come questa piattaforma permette di creare chatbot come questo in pochi minuti, senza codice.`,
+IMPORTANTE: Questa Ã¨ una demo live. Se l'utente chiede info su ChatBot Studio, spiega come questa piattaforma permette di creare chatbot come questo in pochi minuti, senza codice.`,
 
       realestate: `Sei un assistente AI sofisticato per un'agenzia immobiliare di lusso a Milano, creato con ChatBot Studio.
 
 CONTESTO: Rappresenti "Platinum Real Estate", specializzata in immobili di prestigio.
 
 IMMOBILI DISPONIBILI (usa questi come esempi):
-- Attico Brera: 280mq, terrazza 50mq, vista Duomo, 2.8M€
-- Villa Monza: 450mq, giardino 2000mq, piscina, 3.5M€
-- Loft Navigli: 180mq, soffitti 5m, design contemporaneo, 1.2M€
-- Penthouse CityLife: 200mq, domotica completa, 2.2M€
+- Attico Brera: 280mq, terrazza 50mq, vista Duomo, 2.8Mâ‚¬
+- Villa Monza: 450mq, giardino 2000mq, piscina, 3.5Mâ‚¬
+- Loft Navigli: 180mq, soffitti 5m, design contemporaneo, 1.2Mâ‚¬
+- Penthouse CityLife: 200mq, domotica completa, 2.2Mâ‚¬
 
-LE TUE CAPACITÀ:
+LE TUE CAPACITÃ€:
 - Suggerire immobili in base alle esigenze del cliente
 - Inviare planimetrie e foto su WhatsApp
 - Organizzare tour virtuali 3D
@@ -2744,7 +2791,7 @@ STILE: Elegante, competente, attento ai dettagli. Fai domande intelligenti per c
 
 CONTESTO: Gestisci richieste di clienti in modo rapido ed efficiente.
 
-LE TUE CAPACITÀ:
+LE TUE CAPACITÃ€:
 - Tracking ordini in tempo reale (simula numeri ordine come #TS-4092)
 - Gestione resi e rimborsi
 - Supporto tecnico prodotti
@@ -2756,14 +2803,14 @@ DATI SIMULATI:
 - Ordine #TS-3821: MacBook Air, consegnato ieri
 - Ordine #TS-4156: AirPods Pro, in preparazione
 
-STILE: Amichevole, efficiente, risolutivo. Anticipa le esigenze del cliente. Se c'è un problema, proponi subito una soluzione.`,
+STILE: Amichevole, efficiente, risolutivo. Anticipa le esigenze del cliente. Se c'Ã¨ un problema, proponi subito una soluzione.`,
 
       default: `Sei l'assistente AI ufficiale di ChatBot Studio, la piattaforma italiana per creare chatbot intelligenti.
 
 CHI SIAMO:
-ChatBot Studio è una piattaforma SaaS che permette alle aziende di creare chatbot AI avanzati in pochi minuti, senza scrivere codice.
+ChatBot Studio Ã¨ una piattaforma SaaS che permette alle aziende di creare chatbot AI avanzati in pochi minuti, senza scrivere codice.
 
-FUNZIONALITÀ PRINCIPALI:
+FUNZIONALITÃ€ PRINCIPALI:
 1. **Creazione Chatbot**: Editor visuale drag-and-drop, training con documenti PDF/siti web
 2. **Multi-canale**: Integrazione con WhatsApp Business, Telegram, Slack, widget web
 3. **AI Avanzata**: Powered by GPT-4, risposte contestuali, memoria conversazioni
@@ -2773,8 +2820,8 @@ FUNZIONALITÀ PRINCIPALI:
 
 PIANI E PREZZI:
 - Starter: Gratis, 1 bot, 100 messaggi/mese
-- Professional: 49€/mese, 5 bot, 5000 messaggi, WhatsApp
-- Business: 149€/mese, illimitato, priorità, API
+- Professional: 49â‚¬/mese, 5 bot, 5000 messaggi, WhatsApp
+- Business: 149â‚¬/mese, illimitato, prioritÃ , API
 - Enterprise: Custom, on-premise, SLA garantito
 
 CASI D'USO:
@@ -2785,7 +2832,7 @@ CASI D'USO:
 
 STILE: Professionale ma accessibile. Spiega con esempi concreti. Invita sempre a provare gratuitamente o a registrarsi.
 
-Se l'utente fa domande generiche o saluta, presentati e chiedi come puoi aiutarlo. Sii entusiasta nel mostrare le potenzialità della piattaforma!`
+Se l'utente fa domande generiche o saluta, presentati e chiedi come puoi aiutarlo. Sii entusiasta nel mostrare le potenzialitÃ  della piattaforma!`
     };
 
     const systemPrompt = scenarioPrompts[scenario || 'default'] || scenarioPrompts.default;
@@ -2833,7 +2880,7 @@ Se l'utente fa domande generiche o saluta, presentati e chiedi come puoi aiutarl
 
     const completion = await openaiResponse.json();
     const response = completion.choices?.[0]?.message?.content ||
-      'Interessante domanda! Come posso aiutarti a scoprire le potenzialità di ChatBot Studio per la tua azienda?';
+      'Interessante domanda! Come posso aiutarti a scoprire le potenzialitÃ  di ChatBot Studio per la tua azienda?';
 
     return c.json({
       message: response,
@@ -2860,7 +2907,7 @@ app.post('/api/v1/chat', async (c) => {
       return c.json({ error: 'botId and message are required' }, 400);
     }
 
-    console.log('💬 [CHAT] Request:', { botId, message, sessionId });
+    console.log('ðŸ’¬ [CHAT] Request:', { botId, message, sessionId });
 
     // Get bot with documents
     const bot = await prisma.bot.findUnique({
@@ -2959,7 +3006,7 @@ Important guidelines:
 
     // Use bot's configured model, fallback to gpt-5-mini
     const modelToUse = bot.model || 'gpt-5-mini';
-    console.log(`🤖 [CHAT] Calling OpenAI with model: ${modelToUse}`);
+    console.log(`ðŸ¤– [CHAT] Calling OpenAI with model: ${modelToUse}`);
 
     // Prepare request body
     const requestBody: any = {
@@ -2990,7 +3037,7 @@ Important guidelines:
 
     if (!openaiResponse.ok) {
       const errorData = await openaiResponse.json().catch(() => ({}));
-      console.error('❌ [CHAT] OpenAI API Error:', errorData);
+      console.error('âŒ [CHAT] OpenAI API Error:', errorData);
 
       // Check if it's a bad request error (invalid parameters, etc.)
       const isBadRequest = errorData.error?.type === 'invalid_request_error' ||
@@ -3006,7 +3053,7 @@ Important guidelines:
     const completion = await openaiResponse.json();
     const response = completion.choices?.[0]?.message?.content || bot.welcomeMessage;
 
-    console.log('✅ [CHAT] GPT-5 Response received');
+    console.log('âœ… [CHAT] GPT-5 Response received');
 
     // Extract usage data
     const usage = completion.usage || {};
@@ -3037,9 +3084,9 @@ Important guidelines:
           cost,
         },
       });
-      console.log(`📊 [USAGE] Logged: ${inputTokens} in, ${outputTokens} out, $${cost.toFixed(6)}`);
+      console.log(`ðŸ“Š [USAGE] Logged: ${inputTokens} in, ${outputTokens} out, $${cost.toFixed(6)}`);
     } catch (usageError) {
-      console.error('⚠️ [USAGE] Failed to log usage:', usageError);
+      console.error('âš ï¸ [USAGE] Failed to log usage:', usageError);
       // Don't fail the request if usage logging fails
     }
 
@@ -3058,7 +3105,7 @@ Important guidelines:
       botName: bot.name,
     });
   } catch (error: any) {
-    console.error('❌ [CHAT] Error:', {
+    console.error('âŒ [CHAT] Error:', {
       error: error.message,
       code: error.code,
       meta: error.meta,
@@ -3669,7 +3716,7 @@ app.get('/api/v1/api-keys', authMiddleware, async (c) => {
     const data = apiKeys.map(key => ({
       id: key.id,
       name: key.name,
-      key: key.key.substring(0, 20) + '••••••••••••',
+      key: key.key.substring(0, 20) + 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
       lastUsed: key.lastUsed?.toISOString() || null,
       createdAt: key.createdAt.toISOString(),
     }));
@@ -5103,7 +5150,7 @@ app.get('/api/v1/debug/db', async (c) => {
     // Test 1: Basic connection
     console.log('[DEBUG /db] Test 1: Running SELECT 1');
     await prisma.$queryRaw`SELECT 1 as result`;
-    console.log('[DEBUG /db] ✅ SELECT 1 succeeded');
+    console.log('[DEBUG /db] âœ… SELECT 1 succeeded');
 
     // Test 2: Check tables exist
     console.log('[DEBUG /db] Test 2: Checking tables');
@@ -5113,7 +5160,7 @@ app.get('/api/v1/debug/db', async (c) => {
       WHERE table_schema = 'public'
       AND table_type = 'BASE TABLE'
     `;
-    console.log('[DEBUG /db] ✅ Found tables:', tables);
+    console.log('[DEBUG /db] âœ… Found tables:', tables);
 
     // Test 3: Count records in key tables
     console.log('[DEBUG /db] Test 3: Counting records');
@@ -5130,7 +5177,7 @@ app.get('/api/v1/debug/db', async (c) => {
       bots: botCount,
       documents: docCount,
     };
-    console.log('[DEBUG /db] ✅ Record counts:', counts);
+    console.log('[DEBUG /db] âœ… Record counts:', counts);
 
     return c.json({
       ok: true,
@@ -5140,7 +5187,7 @@ app.get('/api/v1/debug/db', async (c) => {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error('[DEBUG /db] ❌ FAILED:', error);
+    console.error('[DEBUG /db] âŒ FAILED:', error);
     console.error('[DEBUG /db] Error code:', error.code);
     console.error('[DEBUG /db] Error message:', error.message);
     console.error('[DEBUG /db] Stack:', error.stack);

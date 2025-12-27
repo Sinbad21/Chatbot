@@ -171,6 +171,21 @@ export default function IntegrationsPage() {
       try {
         setLoading(true);
         setInitError(null);
+        const bootstrapRes = await authFetch('/api/v1/integrations/bootstrap');
+        if (bootstrapRes.ok) {
+          const bootstrap = (await bootstrapRes.json()) as {
+            organization: OrganizationMembership['organization'];
+            integrations: Integration[];
+            configured: IntegrationConfig[];
+            bots: Bot[];
+          };
+
+          setOrganization(bootstrap.organization);
+          setIntegrationsDb(bootstrap.integrations);
+          setConfigured(bootstrap.configured);
+          setBotId(bootstrap.bots?.[0]?.id || '');
+          return;
+        }
 
         const orgRes = await authFetch('/api/v1/organizations');
         if (!orgRes.ok) throw new Error('Failed to load organizations');
