@@ -1,4 +1,4 @@
-﻿import { Hono } from 'hono';
+import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
@@ -878,6 +878,122 @@ app.get('/api/v1/integrations/configured', authMiddleware, async (c) => {
   }
 });
 
+
+async function ensureDefaultReviewBotForOrganization(
+  prisma: any,
+  organizationId: string,
+  userId: string
+): Promise<{ id: string }> {
+  const existing = await prisma.reviewBot.findFirst({
+    where: { organizationId },
+    select: { id: true },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  if (existing) return existing;
+
+  const org = await prisma.organization.findUnique({
+    where: { id: organizationId },
+    select: { name: true },
+  });
+
+  const businessName = org?.name || 'Business';
+  const widgetId = `rb_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+  return prisma.reviewBot.create({
+    data: {
+      organizationId,
+      userId,
+      widgetId,
+      name: businessName,
+      businessName,
+      googlePlaceId: null,
+      googleReviewUrl: null,
+      thankYouMessage: '🎉 Grazie per il tuo acquisto!',
+      surveyQuestion: 'Come valuteresti la tua esperienza?',
+      positiveMessage: 'Fantastico! Ti andrebbe di condividere la tua opinione su Google?',
+      negativeMessage: 'Grazie per il feedback! Cosa possiamo migliorare?',
+      completedMessage: 'Grazie mille per il tuo tempo! ❤️',
+      surveyType: 'EMOJI',
+      positiveThreshold: 4,
+      widgetColor: '#6366f1',
+      widgetPosition: 'bottom-right',
+      delaySeconds: 2,
+      isActive: true,
+    },
+    select: { id: true },
+  });
+}
+
+async function syncEcommerceConnectionFromIntegrationConfig(
+  prisma: any,
+  params: {
+    organizationId: string;
+    userId: string;
+    integrationSlug: string;
+    config: any;
+  }
+) {
+  const slug = (params.integrationSlug || '').toLowerCase();
+  if (!['stripe', 'woocommerce', 'shopify'].includes(slug)) return;
+
+  const reviewBot = await ensureDefaultReviewBotForOrganization(prisma, params.organizationId, params.userId);
+
+  const platform = slug === 'stripe' ? 'STRIPE' : slug === 'woocommerce' ? 'WOOCOMMERCE' : 'SHOPIFY';
+
+  const cfg = params.config ?? {};
+  const updateData: any = { isActive: true };
+  let shopDomain: string | null = null;
+
+  if (slug === 'stripe') {
+    if (typeof cfg.webhookSecret === 'string' && cfg.webhookSecret.trim()) {
+      updateData.webhookSecret = cfg.webhookSecret.trim();
+    }
+  }
+
+  if (slug === 'woocommerce') {
+    if (typeof cfg.storeUrl === 'string' && cfg.storeUrl.trim()) shopDomain = cfg.storeUrl.trim();
+    if (typeof cfg.webhookSecret === 'string' && cfg.webhookSecret.trim()) updateData.webhookSecret = cfg.webhookSecret.trim();
+    if (typeof cfg.consumerKey === 'string' && cfg.consumerKey.trim()) updateData.apiKey = cfg.consumerKey.trim();
+    if (typeof cfg.consumerSecret === 'string' && cfg.consumerSecret.trim()) updateData.apiSecret = cfg.consumerSecret.trim();
+  }
+
+  if (slug === 'shopify') {
+    if (typeof cfg.shopDomain === 'string' && cfg.shopDomain.trim()) shopDomain = cfg.shopDomain.trim();
+    if (typeof cfg.accessToken === 'string' && cfg.accessToken.trim()) updateData.accessToken = cfg.accessToken.trim();
+  }
+
+  const existing = await prisma.ecommerceConnection.findFirst({
+    where: {
+      reviewBotId: reviewBot.id,
+      platform,
+      ...(shopDomain ? { shopDomain } : {}),
+    },
+    select: { id: true },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  if (existing) {
+    await prisma.ecommerceConnection.update({
+      where: { id: existing.id },
+      data: {
+        ...updateData,
+        ...(shopDomain ? { shopDomain } : {}),
+      },
+    });
+    return;
+  }
+
+  await prisma.ecommerceConnection.create({
+    data: {
+      reviewBotId: reviewBot.id,
+      platform,
+      ...(shopDomain ? { shopDomain } : {}),
+      ...updateData,
+    },
+  });
+}
+
 app.post('/api/v1/integrations/configure', authMiddleware, async (c) => {
   try {
     const prisma = getPrisma(c.env);
@@ -906,6 +1022,22 @@ app.post('/api/v1/integrations/configure', authMiddleware, async (c) => {
       update: { config: config ?? {} },
     });
 
+
+    // Keep Review Bot ecommerce connections in sync for ecommerce integrations
+    const integration = await prisma.integration.findUnique({
+      where: { id: integrationId },
+      select: { slug: true },
+    });
+
+    if (integration?.slug) {
+      await syncEcommerceConnectionFromIntegrationConfig(prisma, {
+        organizationId,
+        userId: user.userId,
+        integrationSlug: integration.slug,
+        config,
+      });
+    }
+
     return c.json(integrationConfig, 201);
   } catch (error: any) {
     console.error('[POST /api/v1/integrations/configure] Error:', error);
@@ -928,7 +1060,11 @@ app.delete('/api/v1/integrations/:id', authMiddleware, async (c) => {
           },
         },
       },
-      select: { id: true },
+      select: {
+        id: true,
+        organizationId: true,
+        integration: { select: { slug: true } },
+      },
     });
 
     if (!integrationConfig) {
@@ -936,6 +1072,17 @@ app.delete('/api/v1/integrations/:id', authMiddleware, async (c) => {
     }
 
     await prisma.integrationConfig.delete({ where: { id } });
+
+    const slug = (integrationConfig.integration?.slug || '').toLowerCase();
+    if (['stripe', 'woocommerce', 'shopify'].includes(slug)) {
+      const platform = slug === 'stripe' ? 'STRIPE' : slug === 'woocommerce' ? 'WOOCOMMERCE' : 'SHOPIFY';
+      await prisma.ecommerceConnection.deleteMany({
+        where: {
+          platform,
+          reviewBot: { organizationId: integrationConfig.organizationId },
+        },
+      });
+    }
     return c.json({ message: 'Integration removed' });
   } catch (error: any) {
     console.error('[DELETE /api/v1/integrations/:id] Error:', error);
