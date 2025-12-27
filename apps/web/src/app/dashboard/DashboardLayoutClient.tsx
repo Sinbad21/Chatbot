@@ -200,7 +200,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <button
               onClick={() => toggleGroup(group.label)}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
-                hasActiveItem ? 'text-white' : 'text-white/70 hover:text-white'
+                hasActiveItem ? 'text-charcoal' : 'text-silver-600 hover:text-charcoal'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -253,7 +253,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {/* Mobile menu button */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden p-2 rounded-lg hover:bg-white/10 text-white/60"
+                className="lg:hidden p-2 rounded-lg hover:bg-pearl-100/60 text-silver-600"
               >
                 {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
@@ -268,7 +268,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="p-2 rounded-full cursor-pointer hover:bg-pearl-100/60">
                 <Bell size={20} className="text-silver-700" />
               </div>
-              <span className="text-sm text-white/60 font-medium hidden sm:block">
+              <span className="text-sm text-silver-600 font-medium hidden sm:block">
                 {userEmail}
               </span>
 

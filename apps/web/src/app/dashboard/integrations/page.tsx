@@ -268,8 +268,8 @@ export default function IntegrationsPage() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/60 mx-auto mb-4"></div>
-          <p className="text-white/60">Loading integrations...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-silver-400 mx-auto mb-4"></div>
+          <p className="text-silver-600">Loading integrations...</p>
         </div>
       </div>
     );
@@ -279,8 +279,8 @@ export default function IntegrationsPage() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center space-y-2">
-          <p className="text-white/80 font-semibold">Could not load integrations</p>
-          <p className="text-white/60 text-sm">{initError}</p>
+          <p className="text-charcoal font-semibold">Could not load integrations</p>
+          <p className="text-silver-600 text-sm">{initError}</p>
         </div>
       </div>
     );
@@ -299,7 +299,7 @@ export default function IntegrationsPage() {
               }setActiveWizard(integration.slug);
             }}
             
-            className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-md hover:border-fuchsia-500/40 hover:shadow-[0_0_15px_rgba(192,38,211,0.15)] transition-all duration-500 cursor-pointer group"
+            className="glass-effect border border-silver-200/70 rounded-2xl p-6 hover:border-silver-300 hover:shadow-silver transition-all duration-500 cursor-pointer group"
           >
             <div className="flex justify-between items-start mb-6">
               <div
@@ -315,16 +315,16 @@ export default function IntegrationsPage() {
               <span
                 className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
                   integration.status === 'Connected'
-                    ? 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30'
-                    : 'bg-purple-500/10 text-purple-300 border-purple-500/20'
+                    ? 'bg-emerald/10 text-emerald border-emerald/20'
+                    : 'bg-silver-50 text-silver-700 border-silver-200/70'
                 }`}
               >
                 {integration.status}
               </span>
             </div>
 
-            <h3 className="text-lg font-bold mb-1 text-white">{integration.name}</h3>
-            <p className="text-xs text-purple-300/50">{integration.description}</p>
+            <h3 className="text-lg font-bold mb-1 text-charcoal">{integration.name}</h3>
+            <p className="text-xs text-silver-600">{integration.description}</p>
           </div>
         ))}
       </div>

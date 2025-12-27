@@ -60,10 +60,10 @@ export default function BotsListPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-white font-serif">{t('bots.myBots')}</h1>
+        <h1 className="text-3xl font-bold text-charcoal font-serif">{t('bots.myBots')}</h1>
         <Link
           href="/dashboard/create-bot"
-          className="px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 font-medium transition-all shadow-lg shadow-purple-500/25"
+          className="px-6 py-3 bg-charcoal text-white rounded-lg hover:bg-charcoal/90 font-medium transition-all shadow-lg"
         >
           {t('bots.createNew')}
         </Link>
@@ -81,7 +81,7 @@ export default function BotsListPage() {
         </div>
       ) : bots.length === 0 ? (
         <GlassCard className="text-center" hoverEffect={false}>
-          <div className="text-white/40 mb-4">
+          <div className="text-silver-500 mb-4">
             <svg
               className="mx-auto h-12 w-12"
               fill="none"
@@ -96,13 +96,13 @@ export default function BotsListPage() {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-white mb-2">{t('bots.noBots')}</h3>
-          <p className="text-white/60 mb-6">
+          <h3 className="text-lg font-semibold text-charcoal mb-2">{t('bots.noBots')}</h3>
+          <p className="text-silver-600 mb-6">
             {t('bots.getStarted')}
           </p>
           <Link
             href="/dashboard/create-bot"
-            className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg hover:from-purple-500 hover:to-fuchsia-500 font-medium transition-all shadow-lg shadow-purple-500/25"
+            className="inline-block px-6 py-3 bg-charcoal text-white rounded-lg hover:bg-charcoal/90 font-medium transition-all shadow-lg"
           >
             {t('bots.createYourFirstBot')}
           </Link>
@@ -113,8 +113,8 @@ export default function BotsListPage() {
             <GlassCard key={bot.id}>
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-white mb-2">{bot.name}</h3>
-                  <p className="text-sm text-white/60 line-clamp-2">{bot.description}</p>
+                  <h3 className="text-lg font-semibold text-charcoal mb-2">{bot.name}</h3>
+                  <p className="text-sm text-silver-600 line-clamp-2">{bot.description}</p>
                 </div>
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium ${
