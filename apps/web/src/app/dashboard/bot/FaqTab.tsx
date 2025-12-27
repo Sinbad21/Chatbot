@@ -98,12 +98,12 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
     <div className="flex flex-col gap-24">
       <form
         onSubmit={handleCreate}
-        className="rounded-xl border p-16 flex flex-col gap-12 bg-black/40 backdrop-blur-md shadow-sm"
+        className="rounded-xl border p-16 flex flex-col gap-12 glass-effect backdrop-blur-md shadow-sm"
       >
-        <div className="text-lg font-semibold text-white">Aggiungi FAQ</div>
+        <div className="text-lg font-semibold text-charcoal">Aggiungi FAQ</div>
 
         <div className="flex flex-col gap-4">
-          <label className="text-sm font-medium text-white/70">Domanda</label>
+          <label className="text-sm font-medium text-silver-600">Domanda</label>
           <input
             className="border rounded-md px-8 py-6 text-sm bg-white text-black placeholder:text-gray-400"
             placeholder="Es. Quali sono gli orari di supporto?"
@@ -114,7 +114,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
         </div>
 
         <div className="flex flex-col gap-4">
-          <label className="text-sm font-medium text-white/70">Risposta</label>
+          <label className="text-sm font-medium text-silver-600">Risposta</label>
           <textarea
             className="border rounded-md px-8 py-6 text-sm bg-white text-black placeholder:text-gray-400 min-h-[120px]"
             placeholder="Inserisci la risposta dettagliata"
@@ -129,19 +129,19 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
         <button
           type="submit"
           disabled={saving}
-          className="bg-black text-white text-sm font-medium rounded-md px-12 py-8 disabled:opacity-50"
+          className="bg-black text-charcoal text-sm font-medium rounded-md px-12 py-8 disabled:opacity-50"
         >
           {saving ? "Salvo..." : "Salva FAQ"}
         </button>
       </form>
 
-      <div className="rounded-xl border p-16 bg-black/40 backdrop-blur-md shadow-sm">
-        <div className="text-lg font-semibold text-white mb-12">FAQ configurate</div>
+      <div className="rounded-xl border p-16 glass-effect backdrop-blur-md shadow-sm">
+        <div className="text-lg font-semibold text-charcoal mb-12">FAQ configurate</div>
 
         {loading ? (
-          <div className="text-sm text-white/50">Caricamento…</div>
+          <div className="text-sm text-silver-500">Caricamento…</div>
         ) : faqs.length === 0 ? (
-          <div className="text-sm text-white/50">
+          <div className="text-sm text-silver-500">
             Nessuna FAQ ancora. Aggiungine una sopra.
           </div>
         ) : (
@@ -149,10 +149,10 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
             {faqs.map((faq) => (
               <li
                 key={faq.id}
-                className="border rounded-md p-12 flex flex-col gap-6 bg-white/5"
+                className="border rounded-md p-12 flex flex-col gap-6 bg-pearl-50"
               >
                 <div className="flex items-start justify-between gap-8">
-                  <div className="font-medium text-white">{faq.question}</div>
+                  <div className="font-medium text-charcoal">{faq.question}</div>
                   <button
                     onClick={() => handleDelete(faq.id)}
                     className="text-xs text-red-600 hover:underline"
@@ -162,11 +162,11 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
                   </button>
                 </div>
 
-                <div className="text-xs text-white/70 whitespace-pre-wrap">
+                <div className="text-xs text-silver-600 whitespace-pre-wrap">
                   {faq.answer}
                 </div>
 
-                <div className="text-[10px] text-white/40">
+                <div className="text-[10px] text-silver-400">
                   {new Date(faq.createdAt).toLocaleString()}
                 </div>
               </li>

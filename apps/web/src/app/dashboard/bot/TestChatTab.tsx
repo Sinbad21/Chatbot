@@ -249,11 +249,11 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
   return (
     <div className="space-y-4">
       {/* Prompt Editor */}
-      <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-4">
+      <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-white/60" />
-            <h3 className="text-sm font-semibold text-white">{t('bot.test.botSystemPrompt')}</h3>
+            <Settings className="w-5 h-5 text-silver-600" />
+            <h3 className="text-sm font-semibold text-charcoal">{t('bot.test.botSystemPrompt')}</h3>
           </div>
           <button
             onClick={() => {
@@ -274,22 +274,22 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             <div className="relative">
               <button
                 onClick={() => setShowTemplates(!showTemplates)}
-                className="w-full px-3 py-2 text-sm border border-white/20 rounded-lg hover:bg-white/5 flex items-center justify-between"
+                className="w-full px-3 py-2 text-sm border border-silver-200/70 rounded-lg hover:bg-pearl-100/60 flex items-center justify-between"
               >
-                <span className="text-white/70">{t('bot.test.chooseTemplate')}</span>
-                <ChevronDown className="w-4 h-4 text-white/50" />
+                <span className="text-silver-600">{t('bot.test.chooseTemplate')}</span>
+                <ChevronDown className="w-4 h-4 text-silver-500" />
               </button>
 
               {showTemplates && (
-                <div className="absolute z-10 w-full mt-1 bg-black/40 backdrop-blur-md border border-white/20 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-10 w-full mt-1 glass-effect backdrop-blur-md border border-silver-200/70 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   {PROMPT_TEMPLATES.map((template, idx) => (
                     <button
                       key={idx}
                       onClick={() => applyTemplate(template)}
-                      className="w-full px-4 py-3 text-left hover:bg-white/5 border-b border-gray-100 last:border-0"
+                      className="w-full px-4 py-3 text-left hover:bg-pearl-100/60 border-b border-gray-100 last:border-0"
                     >
-                      <div className="font-medium text-sm text-white">{template.name}</div>
-                      <div className="text-xs text-white/60 mt-1 line-clamp-2">{template.prompt}</div>
+                      <div className="font-medium text-sm text-charcoal">{template.name}</div>
+                      <div className="text-xs text-silver-600 mt-1 line-clamp-2">{template.prompt}</div>
                     </button>
                   ))}
                 </div>
@@ -301,7 +301,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
               value={editedPrompt}
               onChange={(e) => setEditedPrompt(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 text-sm border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-white bg-white/5"
+              className="w-full px-3 py-2 text-sm border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-charcoal bg-pearl-50"
               placeholder={t('bot.test.enterSystemPrompt')}
             />
 
@@ -310,7 +310,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
               <button
                 onClick={applyPrompt}
                 disabled={isSavingPrompt || editedPrompt.trim() === systemPrompt}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-4 py-2 bg-indigo-600 text-charcoal rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isSavingPrompt ? (
                   <>{t('bot.test.applying')}</>
@@ -324,14 +324,14 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             </div>
           </div>
         ) : (
-          <p className="text-sm text-white/60 line-clamp-2">{systemPrompt}</p>
+          <p className="text-sm text-silver-600 line-clamp-2">{systemPrompt}</p>
         )}
       </div>
 
       {/* Chat Container */}
-      <div className="flex flex-col h-[600px] bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10">
+      <div className="flex flex-col h-[600px] glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-silver-200/70">
           <div className="flex items-center gap-3">
           {botLogoUrl ? (
             <img
@@ -341,21 +341,21 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             />
           ) : (
             <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">
+              <span className="text-charcoal font-bold text-lg">
                 {botName ? botName.charAt(0).toUpperCase() : 'B'}
               </span>
             </div>
           )}
           <div>
-            <h3 className="text-lg font-semibold text-white">{botLogoUrl ? botName : t('bot.test.testChat')}</h3>
-            <p className="text-sm text-white/60">
+            <h3 className="text-lg font-semibold text-charcoal">{botLogoUrl ? botName : t('bot.test.testChat')}</h3>
+            <p className="text-sm text-silver-600">
               {t('bot.test.subtitle')}
             </p>
           </div>
         </div>
         <button
           onClick={clearChat}
-          className="px-3 py-1 text-sm text-white/70 border border-white/20 rounded-lg hover:bg-white/5"
+          className="px-3 py-1 text-sm text-silver-600 border border-silver-200/70 rounded-lg hover:bg-pearl-100/60"
         >
           {t('bot.test.clearChat')}
         </button>
@@ -365,10 +365,10 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full">
-            <svg className="w-16 h-16 mb-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-16 h-16 mb-4 text-silver-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <p className="text-sm text-white/60">{t('bot.test.startConversation')}</p>
+            <p className="text-sm text-silver-600">{t('bot.test.startConversation')}</p>
           </div>
         ) : (
           <>
@@ -377,14 +377,14 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
                 key={idx}
                 className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
               >
-                <p className="text-xs font-medium text-white/60 mb-1 px-1">
+                <p className="text-xs font-medium text-silver-600 mb-1 px-1">
                   {msg.role === 'user' ? t('bot.test.you') : botName}
                 </p>
                 <div
                   className={`max-w-[70%] rounded-lg px-4 py-2 ${
                     msg.role === 'user'
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-white/10 text-white'
+                      ? 'bg-indigo-600 text-charcoal'
+                      : 'bg-pearl-50/60 text-charcoal'
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
@@ -395,12 +395,12 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             {/* Typing indicator */}
             {loading && (
               <div className="flex justify-start">
-                <div className="max-w-[70%] rounded-lg px-4 py-3 bg-white/10">
+                <div className="max-w-[70%] rounded-lg px-4 py-3 bg-pearl-50/60">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                     <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                     <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                    <span className="text-sm text-white ml-2">{t('bot.test.isTyping').replace('{botName}', botName)}</span>
+                    <span className="text-sm text-charcoal ml-2">{t('bot.test.isTyping').replace('{botName}', botName)}</span>
                   </div>
                 </div>
               </div>
@@ -412,7 +412,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-silver-200/70">
         <form onSubmit={sendMessage} className="flex gap-2">
           <input
             type="text"
@@ -420,12 +420,12 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             onChange={(e) => setInput(e.target.value)}
             placeholder={t('bot.test.placeholder')}
             disabled={loading}
-            className="flex-1 px-4 py-2 text-white border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-white/40 bg-white/5"
+            className="flex-1 px-4 py-2 text-charcoal border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-silver-400 bg-pearl-50"
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+            className="p-2 bg-indigo-600 text-charcoal rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
             aria-label="Send message"
           >
             <ArrowUp className="w-5 h-5" />

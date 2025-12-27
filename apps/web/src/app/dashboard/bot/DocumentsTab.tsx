@@ -228,7 +228,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-white/60">{t('bot.documents.loadingDocuments')}</div>
+        <div className="text-silver-600">{t('bot.documents.loadingDocuments')}</div>
       </div>
     );
   }
@@ -236,8 +236,8 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
   return (
     <div className="space-y-6">
       {/* Add Document Form */}
-      <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">{t('bot.documents.addNew')}</h3>
+      <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-6">
+        <h3 className="text-lg font-semibold text-charcoal mb-4">{t('bot.documents.addNew')}</h3>
 
         {/* Mode Toggle */}
         <div className="flex gap-2 mb-6">
@@ -246,8 +246,8 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
             onClick={() => setUploadMode('file')}
             className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
               uploadMode === 'file'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
+                ? 'bg-indigo-600 text-charcoal'
+                : 'bg-pearl-50/60 text-silver-600 hover:bg-white/20'
             }`}
           >
             <Upload className="inline-block w-4 h-4 mr-2" />
@@ -258,8 +258,8 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
             onClick={() => setUploadMode('text')}
             className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
               uploadMode === 'text'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
+                ? 'bg-indigo-600 text-charcoal'
+                : 'bg-pearl-50/60 text-silver-600 hover:bg-white/20'
             }`}
           >
             <FileText className="inline-block w-4 h-4 mr-2" />
@@ -271,7 +271,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
         {uploadMode === 'file' && (
           <div className="space-y-4">
             <div>
-              <label htmlFor="file-upload" className="block text-sm font-medium text-white/70 mb-2">
+              <label htmlFor="file-upload" className="block text-sm font-medium text-silver-600 mb-2">
                 {t('bot.documents.selectFile')}
               </label>
               <input
@@ -279,7 +279,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                 id="file-upload"
                 accept=".pdf,.txt,.md"
                 onChange={handleFileSelect}
-                className="block w-full text-sm text-white border border-white/20 rounded-lg cursor-pointer bg-white/5 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/10 file:text-indigo-700 hover:file:bg-indigo-500/20"
+                className="block w-full text-sm text-charcoal border border-silver-200/70 rounded-lg cursor-pointer bg-pearl-50 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-500/10 file:text-indigo-700 hover:file:bg-indigo-500/20"
               />
             </div>
 
@@ -288,14 +288,14 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                 <div className="flex items-center gap-3">
                   <File className="w-5 h-5 text-indigo-600" />
                   <div>
-                    <p className="font-medium text-white">{selectedFile.name}</p>
-                    <p className="text-sm text-white/60">{formatFileSize(selectedFile.size)}</p>
+                    <p className="font-medium text-charcoal">{selectedFile.name}</p>
+                    <p className="text-sm text-silver-600">{formatFileSize(selectedFile.size)}</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedFile(null)}
-                  className="text-white/50 hover:text-white/70"
+                  className="text-silver-500 hover:text-silver-600"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -312,7 +312,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
               type="button"
               onClick={handleFileUpload}
               disabled={!selectedFile || submitting}
-              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              className="w-full px-4 py-2 bg-indigo-600 text-charcoal rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
               {submitting ? t('bot.documents.uploading') : t('bot.documents.uploadDocument')}
             </button>
@@ -323,9 +323,9 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
         {uploadMode === 'text' && (
           <form onSubmit={handleTextSubmit} className="space-y-4">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-white/70 mb-1">
+              <label htmlFor="title" className="block text-sm font-medium text-silver-600 mb-1">
                 {t('bot.documents.documentTitle')}
-                <span className="text-xs text-white/50 ml-2">
+                <span className="text-xs text-silver-500 ml-2">
                   ({title.length}/200)
                 </span>
               </label>
@@ -336,15 +336,15 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={t('bot.documents.titlePlaceholder')}
                 maxLength={200}
-                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white bg-white/5"
+                className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-charcoal bg-pearl-50"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="content" className="block text-sm font-medium text-white/70 mb-1">
+              <label htmlFor="content" className="block text-sm font-medium text-silver-600 mb-1">
                 {t('bot.documents.content')}
-                <span className="text-xs text-white/50 ml-2">
+                <span className="text-xs text-silver-500 ml-2">
                   ({content.length.toLocaleString()}/200,000)
                 </span>
               </label>
@@ -355,7 +355,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                 placeholder={t('bot.documents.contentPlaceholder')}
                 rows={8}
                 maxLength={200000}
-                className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-white bg-white/5"
+                className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-charcoal bg-pearl-50"
                 required
               />
             </div>
@@ -369,7 +369,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              className="w-full px-4 py-2 bg-indigo-600 text-charcoal rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
               {submitting ? t('bot.documents.adding') : t('bot.documents.addDocument')}
             </button>
@@ -378,13 +378,13 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       </div>
 
       {/* Documents List */}
-      <div className="bg-black/40 backdrop-blur-md rounded-lg shadow-sm border border-white/10 p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">
+      <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-6">
+        <h3 className="text-lg font-semibold text-charcoal mb-4">
           {t('bot.documents.documentsCount').replace('{count}', documents.length.toString())}
         </h3>
 
         {documents.length === 0 ? (
-          <p className="text-white/50 text-center py-8">
+          <p className="text-silver-500 text-center py-8">
             {t('bot.documents.noDocuments')}
           </p>
         ) : (
@@ -394,14 +394,14 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                 key={doc.id}
                 className={`border rounded-lg p-4 transition-colors ${
                   doc.excluded
-                    ? 'border-white/20 bg-white/5'
-                    : 'border-white/10 hover:border-indigo-500/50'
+                    ? 'border-silver-200/70 bg-pearl-50'
+                    : 'border-silver-200/70 hover:border-indigo-500/50'
                 }`}
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h4 className={`font-medium ${doc.excluded ? 'text-white/50' : 'text-white'}`}>
+                      <h4 className={`font-medium ${doc.excluded ? 'text-silver-500' : 'text-charcoal'}`}>
                         {doc.title}
                       </h4>
                       {doc.excluded && (
@@ -411,7 +411,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                       )}
                     </div>
                     <div className="flex items-center gap-3 mt-1 flex-wrap">
-                      <span className="text-xs text-white/50">
+                      <span className="text-xs text-silver-500">
                         {new Date(doc.createdAt).toLocaleDateString()}
                       </span>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
@@ -423,10 +423,10 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                       }`}>
                         {doc.status}
                       </span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-pearl-50/60 text-silver-600">
                         {doc.type ? doc.type.toUpperCase() : 'UNKNOWN'}
                       </span>
-                      <span className="text-xs text-white/50">
+                      <span className="text-xs text-silver-500">
                         {formatFileSize(doc.size)}
                       </span>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
@@ -439,10 +439,10 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                     </div>
                   </div>
                 </div>
-                <p className={`text-sm mb-3 line-clamp-2 ${doc.excluded ? 'text-white/50' : 'text-white/60'}`}>
+                <p className={`text-sm mb-3 line-clamp-2 ${doc.excluded ? 'text-silver-500' : 'text-silver-600'}`}>
                   {doc.content}
                 </p>
-                <div className="flex items-center gap-2 pt-2 border-t border-white/10">
+                <div className="flex items-center gap-2 pt-2 border-t border-silver-200/70">
                   <button
                     onClick={() => setViewingDocument(doc)}
                     className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
@@ -476,22 +476,22 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       {/* View Full Content Modal */}
       {viewingDocument && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-black/40 backdrop-blur-md rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-white/10">
-              <h3 className="text-xl font-semibold text-white">{viewingDocument.title}</h3>
+          <div className="glass-effect backdrop-blur-md rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-silver-200/70">
+              <h3 className="text-xl font-semibold text-charcoal">{viewingDocument.title}</h3>
               <button
                 onClick={() => setViewingDocument(null)}
-                className="text-white/50 hover:text-white/70"
+                className="text-silver-500 hover:text-silver-600"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
             <div className="p-6 overflow-y-auto flex-1">
               <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <span className="text-xs px-2 py-1 rounded-full bg-white/10 text-white/70">
+                <span className="text-xs px-2 py-1 rounded-full bg-pearl-50/60 text-silver-600">
                   {viewingDocument.type ? viewingDocument.type.toUpperCase() : 'UNKNOWN'}
                 </span>
-                <span className="text-xs text-white/50">
+                <span className="text-xs text-silver-500">
                   {formatFileSize(viewingDocument.size)}
                 </span>
                 <span className={`text-xs px-2 py-1 rounded-full ${
@@ -501,28 +501,28 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
                 }`}>
                   {viewingDocument.source}
                 </span>
-                <span className="text-xs text-white/50">
+                <span className="text-xs text-silver-500">
                   {new Date(viewingDocument.createdAt).toLocaleDateString()}
                 </span>
               </div>
-              <pre className="whitespace-pre-wrap text-sm text-white/70 font-mono bg-white/5 p-4 rounded-lg">
+              <pre className="whitespace-pre-wrap text-sm text-silver-600 font-mono bg-pearl-50 p-4 rounded-lg">
                 {viewingDocument.content}
               </pre>
             </div>
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-white/10">
+            <div className="flex items-center justify-end gap-3 p-6 border-t border-silver-200/70">
               <button
                 onClick={() => handleToggleExclude(viewingDocument.id, viewingDocument.excluded)}
                 className={`px-4 py-2 rounded-lg font-medium ${
                   viewingDocument.excluded
-                    ? 'bg-green-600 text-white hover:bg-green-700'
-                    : 'bg-yellow-600 text-white hover:bg-yellow-700'
+                    ? 'bg-green-600 text-charcoal hover:bg-green-700'
+                    : 'bg-yellow-600 text-charcoal hover:bg-yellow-700'
                 }`}
               >
                 {viewingDocument.excluded ? t('bot.documents.includeInTraining') : t('bot.documents.excludeFromTraining')}
               </button>
               <button
                 onClick={() => setViewingDocument(null)}
-                className="px-4 py-2 bg-gray-200 text-white/70 rounded-lg hover:bg-gray-300 font-medium"
+                className="px-4 py-2 bg-gray-200 text-silver-600 rounded-lg hover:bg-gray-300 font-medium"
               >
                 {t('common.close')}
               </button>

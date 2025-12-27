@@ -182,7 +182,7 @@ function getPromptWizardCopy(isItalian: boolean) {
     next: isItalian ? 'Avanti' : 'Next',
     cancel: isItalian ? 'Annulla' : 'Cancel',
     apply: isItalian ? 'Genera e applica' : 'Generate & apply',
-    generating: isItalian ? 'Generazioneâ€¦' : 'Generatingâ€¦',
+    generating: isItalian ? 'Generazione€¦' : 'Generating€¦',
     apiKeyMissing: isItalian
       ? 'Funzione disponibile solo dopo aver configurato la chiave API del provider LLM.'
       : 'This feature is available only after configuring the LLM provider API key.',
@@ -197,8 +197,8 @@ function getPromptWizardSteps(isItalian: boolean): PromptWizardStep[] {
       key: 'botType',
       title: isItalian ? 'Tipo di assistente' : 'Assistant type',
       helper: isItalian
-        ? 'Scegli lo scenario principale (supporto, vendite, tecnicoâ€¦).'
-        : 'Pick the primary scenario (support, sales, technicalâ€¦).',
+        ? 'Scegli lo scenario principale (supporto, vendite, tecnico€¦).'
+        : 'Pick the primary scenario (support, sales, technical€¦).',
       input: 'select'
     },
     {
@@ -221,8 +221,8 @@ function getPromptWizardSteps(isItalian: boolean): PromptWizardStep[] {
       key: 'goals',
       title: isItalian ? 'Obiettivi' : 'Goals',
       helper: isItalian
-        ? 'Cosa deve ottenere il bot? (risolvere problemi, prenotare, vendere, ridurre ticketâ€¦).'
-        : 'What should the bot achieve? (resolve issues, book meetings, sell, reduce ticketsâ€¦).',
+        ? 'Cosa deve ottenere il bot? (risolvere problemi, prenotare, vendere, ridurre ticket€¦).'
+        : 'What should the bot achieve? (resolve issues, book meetings, sell, reduce tickets€¦).',
       input: 'textarea'
     },
     {
@@ -245,7 +245,7 @@ function getPromptWizardSteps(isItalian: boolean): PromptWizardStep[] {
       key: 'language',
       title: isItalian ? 'Lingua' : 'Language',
       helper: isItalian
-        ? 'Lingua principale e cosa fare se lâ€™utente scrive in unâ€™altra lingua.'
+        ? 'Lingua principale e cosa fare se l€™utente scrive in un€™altra lingua.'
         : 'Primary language and what to do if the user writes in another language.',
       input: 'textarea'
     },
@@ -650,7 +650,7 @@ export default function BotOverviewTab({ botId }: Props) {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[240px]">
-        <div className="text-white/90 font-medium">{t('bot.overview.loadingBotDetails')}</div>
+        <div className="text-charcoal font-medium">{t('bot.overview.loadingBotDetails')}</div>
       </div>
     );
   }
@@ -687,7 +687,7 @@ export default function BotOverviewTab({ botId }: Props) {
       )}
 
       {/* Header */}
-      <div className="bg-black/40 backdrop-blur-md rounded-lg shadow p-6">
+      <div className="glass-effect backdrop-blur-md rounded-lg shadow p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4 flex-1">
             {/* Logo */}
@@ -696,12 +696,12 @@ export default function BotOverviewTab({ botId }: Props) {
                 {bot.logoUrl ? (
                   <img src={bot.logoUrl} alt={bot.name} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-2xl font-bold text-white/60">
+                  <span className="text-2xl font-bold text-silver-600">
                     {bot.name ? bot.name.charAt(0).toUpperCase() : 'B'}
                   </span>
                 )}
               </div>
-              <label className="absolute -bottom-2 -right-2 p-1.5 bg-indigo-600 text-white rounded-full cursor-pointer hover:bg-indigo-700 shadow-lg">
+              <label className="absolute -bottom-2 -right-2 p-1.5 bg-indigo-600 text-charcoal rounded-full cursor-pointer hover:bg-indigo-700 shadow-lg">
                 <Upload size={14} />
                 <input
                   type="file"
@@ -723,7 +723,7 @@ export default function BotOverviewTab({ botId }: Props) {
                       id="bot-name"
                       value={botName}
                       onChange={(e) => setBotName(e.target.value)}
-                      className="w-full sm:w-auto min-w-[220px] px-3 py-2 rounded-lg bg-white/5 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full sm:w-auto min-w-[220px] px-3 py-2 rounded-lg bg-pearl-50 border border-silver-200/70 text-charcoal placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       placeholder={t('bot.overview.botNamePlaceholder')}
                     />
                     <button
@@ -740,17 +740,17 @@ export default function BotOverviewTab({ botId }: Props) {
                         setIsEditingName(false);
                       }}
                       disabled={nameSaving}
-                      className="px-3 py-2 rounded-lg bg-black/40 border border-white/20 text-white/70 text-sm font-medium hover:bg-white/5 disabled:opacity-60"
+                      className="px-3 py-2 rounded-lg glass-effect border border-silver-200/70 text-silver-600 text-sm font-medium hover:bg-pearl-100/60 disabled:opacity-60"
                     >
                       {t('common.cancel')}
                     </button>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <h1 className="text-2xl font-bold text-white">{bot.name}</h1>
+                    <h1 className="text-2xl font-bold text-charcoal">{bot.name}</h1>
                     <button
                       onClick={() => setIsEditingName(true)}
-                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-white/20 text-white/70 text-sm font-medium hover:bg-white/5"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg glass-effect border border-silver-200/70 text-silver-600 text-sm font-medium hover:bg-pearl-100/60"
                     >
                       <Pencil size={16} />
                       {t('common.edit')}
@@ -762,13 +762,13 @@ export default function BotOverviewTab({ botId }: Props) {
                     {t('bots.published')}
                   </span>
                 ) : (
-                  <span className="px-3 py-1 bg-white/10 text-white/90 text-sm font-medium rounded-full">
+                  <span className="px-3 py-1 bg-pearl-50/60 text-charcoal text-sm font-medium rounded-full">
                     {t('bots.draft')}
                   </span>
                 )}
               </div>
               {bot.description && (
-                <p className="text-white/60 text-sm">{bot.description}</p>
+                <p className="text-silver-600 text-sm">{bot.description}</p>
               )}
             </div>
           </div>
@@ -776,13 +776,13 @@ export default function BotOverviewTab({ botId }: Props) {
           <div className="flex gap-2">
             <button
               onClick={handlePublishToggle}
-              className="px-4 py-2 bg-black/40 backdrop-blur-md border border-white/20 text-white/70 rounded-lg hover:bg-white/5 font-medium text-sm"
+              className="px-4 py-2 glass-effect backdrop-blur-md border border-silver-200/70 text-silver-600 rounded-lg hover:bg-pearl-100/60 font-medium text-sm"
             >
               {bot.published ? t('bot.overview.unpublish') : t('bot.overview.publish')}
             </button>
             <button
               onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm"
+              className="px-4 py-2 bg-red-600 text-charcoal rounded-lg hover:bg-red-700 font-medium text-sm"
             >
               {t('common.delete')}
             </button>
@@ -792,31 +792,31 @@ export default function BotOverviewTab({ botId }: Props) {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-black/40 backdrop-blur-md p-6 rounded-lg shadow">
-          <div className="text-sm text-white/60 font-medium mb-2">{t('nav.conversations')}</div>
+        <div className="glass-effect backdrop-blur-md p-6 rounded-lg shadow">
+          <div className="text-sm text-silver-600 font-medium mb-2">{t('nav.conversations')}</div>
           <div className="text-3xl font-bold text-indigo-600">{bot._count?.conversations ?? 0}</div>
         </div>
-        <div className="bg-black/40 backdrop-blur-md p-6 rounded-lg shadow">
-          <div className="text-sm text-white/60 font-medium mb-2">{t('nav.documents')}</div>
+        <div className="glass-effect backdrop-blur-md p-6 rounded-lg shadow">
+          <div className="text-sm text-silver-600 font-medium mb-2">{t('nav.documents')}</div>
           <div className="text-3xl font-bold text-indigo-600">{bot._count?.documents ?? 0}</div>
         </div>
-        <div className="bg-black/40 backdrop-blur-md p-6 rounded-lg shadow">
-          <div className="text-sm text-white/60 font-medium mb-2">{t('bot.overview.intents')}</div>
+        <div className="glass-effect backdrop-blur-md p-6 rounded-lg shadow">
+          <div className="text-sm text-silver-600 font-medium mb-2">{t('bot.overview.intents')}</div>
           <div className="text-3xl font-bold text-indigo-600">{bot._count?.intents ?? 0}</div>
         </div>
-        <div className="bg-black/40 backdrop-blur-md p-6 rounded-lg shadow">
-          <div className="text-sm text-white/60 font-medium mb-2">{t('bot.overview.faqs')}</div>
+        <div className="glass-effect backdrop-blur-md p-6 rounded-lg shadow">
+          <div className="text-sm text-silver-600 font-medium mb-2">{t('bot.overview.faqs')}</div>
           <div className="text-3xl font-bold text-indigo-600">{bot._count?.faqs ?? 0}</div>
         </div>
       </div>
 
       {/* Model Selection */}
-      <div className="bg-black/40 backdrop-blur-md rounded-lg shadow p-6">
-        <h2 className="text-lg font-bold text-white mb-4">{t('bot.overview.model')}</h2>
+      <div className="glass-effect backdrop-blur-md rounded-lg shadow p-6">
+        <h2 className="text-lg font-bold text-charcoal mb-4">{t('bot.overview.model')}</h2>
         <select
           value={model}
           onChange={(e) => handleModelChange(e.target.value)}
-          className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/5 text-white [&>option]:text-black"
+          className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-pearl-50 text-charcoal [&>option]:text-black"
         >
           {MODELS.map((m) => (
             <option key={m.value} value={m.value}>
@@ -824,20 +824,20 @@ export default function BotOverviewTab({ botId }: Props) {
             </option>
           ))}
         </select>
-        <p className="text-sm text-white/60 mt-2">
+        <p className="text-sm text-silver-600 mt-2">
           {t('bot.overview.modelHelp')}
         </p>
       </div>
 
       {/* Prompts */}
-      <div className="bg-black/40 backdrop-blur-md rounded-lg shadow p-6">
+      <div className="glass-effect backdrop-blur-md rounded-lg shadow p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-white">{t('bot.overview.promptsAndMessages')}</h2>
+          <h2 className="text-lg font-bold text-charcoal">{t('bot.overview.promptsAndMessages')}</h2>
           {hasPromptChanges && (
             <button
               onClick={applyPromptChanges}
               disabled={promptsSaving}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm flex items-center gap-2"
+              className="px-4 py-2 bg-indigo-600 text-charcoal rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm flex items-center gap-2"
             >
               {promptsSaving ? (
                 <>
@@ -857,13 +857,13 @@ export default function BotOverviewTab({ botId }: Props) {
         <div className="space-y-4">
           {/* Prompt Templates Dropdown */}
           <div>
-            <label className="block text-sm font-medium text-white/70 mb-2">
+            <label className="block text-sm font-medium text-silver-600 mb-2">
               {t('bot.overview.promptTemplate')}
             </label>
             <div className="flex items-center gap-3">
               <select
                 onChange={(e) => handleTemplateSelect(e.target.value)}
-                className="flex-1 px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/5 text-white [&>option]:text-black"
+                className="flex-1 px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-pearl-50 text-charcoal [&>option]:text-black"
                 defaultValue=""
               >
                 <option value="">{t('bot.overview.selectTemplate')}</option>
@@ -879,40 +879,40 @@ export default function BotOverviewTab({ botId }: Props) {
                   resetPromptWizard();
                   setShowPromptWizard((v) => !v);
                 }}
-                className="px-4 py-2 border border-white/20 rounded-lg bg-white/5 text-white hover:bg-white/10"
+                className="px-4 py-2 border border-silver-200/70 rounded-lg bg-pearl-50 text-charcoal hover:bg-pearl-100/60"
               >
                 {wizardCopy.generatePrompt}
               </button>
             </div>
-            <p className="text-xs text-white/50 mt-1">
+            <p className="text-xs text-silver-500 mt-1">
               {t('bot.overview.promptTemplateHelp')}
             </p>
 
             {showPromptWizard && (
-              <div className="mt-3 rounded-lg border border-white/20 bg-white/5 p-4">
+              <div className="mt-3 rounded-lg border border-silver-200/70 bg-pearl-50 p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <div className="text-white font-medium">{wizardCopy.generatorTitle}</div>
-                    <div className="text-white/70 text-sm">{wizardCopy.generatorSubtitle}</div>
+                    <div className="text-charcoal font-medium">{wizardCopy.generatorTitle}</div>
+                    <div className="text-silver-600 text-sm">{wizardCopy.generatorSubtitle}</div>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowPromptWizard(false)}
-                    className="text-white/70 hover:text-white"
+                    className="text-silver-600 hover:text-charcoal"
                   >
                     {wizardCopy.cancel}
                   </button>
                 </div>
 
                 <div className="mt-4">
-                  <div className="text-white/60 text-sm">
+                  <div className="text-silver-600 text-sm">
                     {promptWizardStepIndex + 1} / {wizardSteps.length}
                   </div>
-                  <div className="mt-1 text-white font-medium">
+                  <div className="mt-1 text-charcoal font-medium">
                     {wizardSteps[promptWizardStepIndex].title}
                   </div>
                   {wizardSteps[promptWizardStepIndex].helper && (
-                    <div className="mt-1 text-white/70 text-sm">{wizardSteps[promptWizardStepIndex].helper}</div>
+                    <div className="mt-1 text-silver-600 text-sm">{wizardSteps[promptWizardStepIndex].helper}</div>
                   )}
 
                   <div className="mt-3">
@@ -925,7 +925,7 @@ export default function BotOverviewTab({ botId }: Props) {
                             botType: e.target.value as PromptWizardAnswers['botType']
                           }))
                         }
-                        className="w-full px-4 py-2 border border-white/20 rounded-lg bg-white/5 text-white [&>option]:text-black"
+                        className="w-full px-4 py-2 border border-silver-200/70 rounded-lg bg-pearl-50 text-charcoal [&>option]:text-black"
                       >
                         <option value="customer_support">{isItalian ? 'Customer support' : 'Customer support'}</option>
                         <option value="sales">{isItalian ? 'Vendite' : 'Sales'}</option>
@@ -944,7 +944,7 @@ export default function BotOverviewTab({ botId }: Props) {
                           }))
                         }
                         rows={4}
-                        className="w-full px-4 py-2 border border-white/20 rounded-lg bg-white/5 text-white"
+                        className="w-full px-4 py-2 border border-silver-200/70 rounded-lg bg-pearl-50 text-charcoal"
                       />
                     )}
                   </div>
@@ -954,7 +954,7 @@ export default function BotOverviewTab({ botId }: Props) {
                       type="button"
                       onClick={() => setPromptWizardStepIndex((i) => Math.max(0, i - 1))}
                       disabled={promptWizardStepIndex === 0 || promptWizardGenerating}
-                      className="px-3 py-2 border border-white/20 rounded-lg bg-transparent text-white hover:bg-white/5 disabled:opacity-50"
+                      className="px-3 py-2 border border-silver-200/70 rounded-lg bg-transparent text-charcoal hover:bg-pearl-100/60 disabled:opacity-50"
                     >
                       {wizardCopy.back}
                     </button>
@@ -964,7 +964,7 @@ export default function BotOverviewTab({ botId }: Props) {
                         type="button"
                         onClick={() => setPromptWizardStepIndex((i) => Math.min(wizardSteps.length - 1, i + 1))}
                         disabled={promptWizardGenerating}
-                        className="px-3 py-2 border border-white/20 rounded-lg bg-white/10 text-white hover:bg-white/15 disabled:opacity-50"
+                        className="px-3 py-2 border border-silver-200/70 rounded-lg bg-pearl-50/60 text-charcoal hover:bg-white/15 disabled:opacity-50"
                       >
                         {wizardCopy.next}
                       </button>
@@ -973,7 +973,7 @@ export default function BotOverviewTab({ botId }: Props) {
                         type="button"
                         onClick={handleGeneratePrompt}
                         disabled={promptWizardGenerating}
-                        className="px-3 py-2 border border-white/20 rounded-lg bg-white/10 text-white hover:bg-white/15 disabled:opacity-50"
+                        className="px-3 py-2 border border-silver-200/70 rounded-lg bg-pearl-50/60 text-charcoal hover:bg-white/15 disabled:opacity-50"
                       >
                         {promptWizardGenerating ? wizardCopy.generating : wizardCopy.apply}
                       </button>
@@ -985,7 +985,7 @@ export default function BotOverviewTab({ botId }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white/70 mb-2">
+            <label className="block text-sm font-medium text-silver-600 mb-2">
               {t('bot.overview.welcomeMessage')}
             </label>
             <input
@@ -993,15 +993,15 @@ export default function BotOverviewTab({ botId }: Props) {
               value={welcomeMessage}
               onChange={(e) => handleWelcomeMessageChange(e.target.value)}
               placeholder="Hi! How can I help you today?"
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white/5 text-white"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-pearl-50 text-charcoal"
             />
-            <p className="text-xs text-white/50 mt-1">
+            <p className="text-xs text-silver-500 mt-1">
               {hasPromptChanges ? t('bot.overview.clickToSave') : t('bot.overview.welcomeMessageHelp')}
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-white/70 mb-2">
+            <label className="block text-sm font-medium text-silver-600 mb-2">
               {t('bot.overview.systemPrompt')}
             </label>
             <textarea
@@ -1009,9 +1009,9 @@ export default function BotOverviewTab({ botId }: Props) {
               onChange={(e) => handleSystemPromptChange(e.target.value)}
               placeholder="You are a helpful assistant..."
               rows={6}
-              className="w-full px-4 py-2 border border-white/20 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm bg-white/5 text-white"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm bg-pearl-50 text-charcoal"
             />
-            <p className="text-xs text-white/50 mt-1">
+            <p className="text-xs text-silver-500 mt-1">
               {hasPromptChanges ? t('bot.overview.clickToSave') : t('bot.overview.systemPromptHelp')}
             </p>
           </div>
@@ -1019,8 +1019,8 @@ export default function BotOverviewTab({ botId }: Props) {
       </div>
 
       {/* Theme Customization */}
-      <div className="bg-black/40 backdrop-blur-md rounded-lg shadow p-6">
-        <h2 className="text-lg font-bold text-white mb-4">{t('bot.overview.theme')}</h2>
+      <div className="glass-effect backdrop-blur-md rounded-lg shadow p-6">
+        <h2 className="text-lg font-bold text-charcoal mb-4">{t('bot.overview.theme')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {Object.entries({
             bg: t('bot.overview.background'),
@@ -1032,7 +1032,7 @@ export default function BotOverviewTab({ botId }: Props) {
             topbarText: t('bot.overview.headerTextColor'),
           }).map(([key, label]) => (
             <div key={key}>
-              <label className="block text-sm font-medium text-white/70 mb-2">
+              <label className="block text-sm font-medium text-silver-600 mb-2">
                 {label}
               </label>
               <div className="flex items-center gap-3">
@@ -1040,28 +1040,28 @@ export default function BotOverviewTab({ botId }: Props) {
                   type="color"
                   value={theme[key as keyof typeof theme]}
                   onChange={(e) => handleThemeChange(key, e.target.value)}
-                  className="w-12 h-12 rounded-lg border-2 border-white/20 cursor-pointer"
+                  className="w-12 h-12 rounded-lg border-2 border-silver-200/70 cursor-pointer"
                 />
                 <input
                   type="text"
                   value={theme[key as keyof typeof theme]}
                   onChange={(e) => handleThemeChange(key, e.target.value)}
-                  className="flex-1 px-3 py-2 border border-white/20 rounded-lg font-mono text-sm bg-white/5 text-white"
+                  className="flex-1 px-3 py-2 border border-silver-200/70 rounded-lg font-mono text-sm bg-pearl-50 text-charcoal"
                 />
               </div>
             </div>
           ))}
         </div>
-        <p className="text-xs text-white/50 mt-4">
+        <p className="text-xs text-silver-500 mt-4">
           {t('bot.overview.themeAutoSave')}
         </p>
       </div>
 
       {/* Widget Code */}
       {bot.published && (
-        <div className="bg-black/40 backdrop-blur-md rounded-lg shadow p-6">
-          <h2 className="text-lg font-bold text-white mb-4">{t('bot.overview.widgetEmbedCode')}</h2>
-          <p className="text-white/60 mb-3 text-sm">
+        <div className="glass-effect backdrop-blur-md rounded-lg shadow p-6">
+          <h2 className="text-lg font-bold text-charcoal mb-4">{t('bot.overview.widgetEmbedCode')}</h2>
+          <p className="text-silver-600 mb-3 text-sm">
             {t('bot.overview.embedInstructions')}
           </p>
           <pre className="bg-gray-900 text-white text-xs p-4 rounded-lg overflow-x-auto">
