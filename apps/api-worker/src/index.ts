@@ -602,6 +602,300 @@ app.get('/api/v1/me', authMiddleware, async (c) => {
   }
 });
 
+
+// Back-compat alias used by the web app
+app.get('/api/v1/auth/me', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+
+    const userData = await prisma.user.findUnique({
+      where: { id: user.userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        provider: true,
+      },
+    });
+
+    if (!userData) {
+      return c.json({ error: 'User not found' }, 404);
+    }
+
+    return c.json({
+      id: userData.id,
+      email: userData.email,
+      name: userData.name,
+      role: userData.role,
+      provider: userData.provider,
+    });
+  } catch (error: any) {
+    console.error('[GET /api/v1/auth/me] Error:', error);
+    return c.json({ error: 'Failed to fetch user data' }, 500);
+  }
+});
+
+// ============================================
+// ORGANIZATION ROUTES
+// ============================================
+
+/**
+ * GET /api/v1/organizations
+ * List organizations the current user belongs to.
+ */
+app.get('/api/v1/organizations', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+
+    const memberships = await prisma.organizationMember.findMany({
+      where: { userId: user.userId },
+      include: {
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
+            plan: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return c.json(
+      memberships.map((m) => ({
+        role: m.role,
+        organization: m.organization,
+      }))
+    );
+  } catch (error: any) {
+    console.error('[GET /api/v1/organizations] Error:', error);
+    return c.json({ error: error.message || 'Failed to load organizations' }, 500);
+  }
+});
+
+// ============================================
+// INTEGRATIONS ROUTES
+// ============================================
+
+async function ensureDefaultIntegrations(prisma: any) {
+  const defaults = [
+    {
+      slug: 'widget',
+      name: 'Website Widget',
+      description: 'Embed the chatbot on your website.',
+      category: 'CHANNEL',
+      config: {},
+    },
+    {
+      slug: 'whatsapp',
+      name: 'WhatsApp',
+      description: 'Connect WhatsApp Business API.',
+      category: 'CHANNEL',
+      config: {},
+    },
+    {
+      slug: 'telegram',
+      name: 'Telegram',
+      description: 'Connect a Telegram Bot.',
+      category: 'CHANNEL',
+      config: {},
+    },
+    {
+      slug: 'slack',
+      name: 'Slack',
+      description: 'Send and receive messages in Slack.',
+      category: 'CHANNEL',
+      config: {},
+    },
+    {
+      slug: 'google-calendar',
+      name: 'Google Calendar',
+      description: 'Sync bookings with Google Calendar.',
+      category: 'INTEGRATION',
+      config: {},
+    },
+    {
+      slug: 'hubspot',
+      name: 'HubSpot',
+      description: 'Sync contacts and leads to HubSpot.',
+      category: 'INTEGRATION',
+      config: {},
+    },
+    {
+      slug: 'stripe',
+      name: 'Stripe',
+      description: 'Connect Stripe to track payments.',
+      category: 'INTEGRATION',
+      config: {},
+    },
+    {
+      slug: 'woocommerce',
+      name: 'WooCommerce',
+      description: 'Connect a WooCommerce store.',
+      category: 'INTEGRATION',
+      config: {},
+    },
+    {
+      slug: 'shopify',
+      name: 'Shopify',
+      description: 'Connect a Shopify store.',
+      category: 'INTEGRATION',
+      config: {},
+    },
+    {
+      slug: 'wordpress',
+      name: 'WordPress',
+      description: 'Embed the widget in WordPress.',
+      category: 'INTEGRATION',
+      config: {},
+    },
+  ] as const;
+
+  await Promise.all(
+    defaults.map((i) =>
+      prisma.integration.upsert({
+        where: { slug: i.slug },
+        create: {
+          slug: i.slug,
+          name: i.name,
+          description: i.description,
+          category: i.category,
+          config: i.config,
+          active: true,
+        },
+        update: {
+          name: i.name,
+          description: i.description,
+          category: i.category,
+          config: i.config,
+          active: true,
+        },
+      })
+    )
+  );
+}
+
+app.get('/api/v1/integrations', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    await ensureDefaultIntegrations(prisma);
+
+    const integrations = await prisma.integration.findMany({
+      where: { active: true },
+      orderBy: { name: 'asc' },
+    });
+
+    return c.json(integrations);
+  } catch (error: any) {
+    console.error('[GET /api/v1/integrations] Error:', error);
+    return c.json({ error: error.message || 'Failed to load integrations' }, 500);
+  }
+});
+
+app.get('/api/v1/integrations/configured', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const organizationId = c.req.query('organizationId');
+
+    if (!organizationId) {
+      return c.json({ error: 'organizationId is required' }, 400);
+    }
+
+    const membership = await prisma.organizationMember.findFirst({
+      where: {
+        userId: user.userId,
+        organizationId,
+      },
+    });
+
+    if (!membership) {
+      return c.json({ error: "You do not have permission to view this organization's integrations" }, 403);
+    }
+
+    const configs = await prisma.integrationConfig.findMany({
+      where: { organizationId },
+      include: { integration: true },
+    });
+
+    return c.json(configs);
+  } catch (error: any) {
+    console.error('[GET /api/v1/integrations/configured] Error:', error);
+    return c.json({ error: error.message || 'Failed to load configured integrations' }, 500);
+  }
+});
+
+app.post('/api/v1/integrations/configure', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const { organizationId, integrationId, config } = await c.req.json();
+
+    if (!organizationId || !integrationId) {
+      return c.json({ error: 'organizationId and integrationId are required' }, 400);
+    }
+
+    const membership = await prisma.organizationMember.findFirst({
+      where: {
+        userId: user.userId,
+        organizationId,
+      },
+      select: { id: true },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'You do not have permission to configure integrations for this organization' }, 403);
+    }
+
+    const integrationConfig = await prisma.integrationConfig.upsert({
+      where: { organizationId_integrationId: { organizationId, integrationId } },
+      create: { organizationId, integrationId, config: config ?? {} },
+      update: { config: config ?? {} },
+    });
+
+    return c.json(integrationConfig, 201);
+  } catch (error: any) {
+    console.error('[POST /api/v1/integrations/configure] Error:', error);
+    return c.json({ error: error.message || 'Failed to configure integration' }, 500);
+  }
+});
+
+app.delete('/api/v1/integrations/:id', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+    const id = c.req.param('id');
+
+    const integrationConfig = await prisma.integrationConfig.findFirst({
+      where: {
+        id,
+        organization: {
+          members: {
+            some: { userId: user.userId },
+          },
+        },
+      },
+      select: { id: true },
+    });
+
+    if (!integrationConfig) {
+      return c.json({ error: 'Integration configuration not found' }, 404);
+    }
+
+    await prisma.integrationConfig.delete({ where: { id } });
+    return c.json({ message: 'Integration removed' });
+  } catch (error: any) {
+    console.error('[DELETE /api/v1/integrations/:id] Error:', error);
+    return c.json({ error: error.message || 'Failed to remove integration' }, 500);
+  }
+});
+
 // ============================================
 // BOT ROUTES
 // ============================================
