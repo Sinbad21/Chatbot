@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { useTranslation, LANGUAGES, type Language } from '@/lib/i18n';
 import { useSessionActivity } from '@/hooks/useSessionActivity';
-import { SpaceBackground } from '@/components/dashboard/ui';
+import { PearlBackground } from '@/components/dashboard/ui';
 import { Command, Bell } from 'lucide-react';
 import { logout } from '@/lib/authHeaders';
 import { ensureClientUser } from '@/lib/ensureClientUser';
@@ -47,7 +47,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const { t, currentLang, setLanguage } = useTranslation();
 
-  // Monitora l'attivitÃ  dell'utente per mantenere la sessione attiva
+  // Monitora l'attività  dell'utente per mantenere la sessione attiva
   useSessionActivity();
 
   // Grouped navigation
@@ -143,8 +143,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#050014] flex items-center justify-center">
-        <div className="text-white/80">Loading...</div>
+      <div className="min-h-screen bg-pearl-50 flex items-center justify-center">
+        <div className="text-silver-700">Loading...</div>
       </div>
     );
   }
@@ -161,8 +161,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         onClick={onClick}
         className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
           isActive
-            ? 'bg-gradient-to-r from-purple-900/50 to-transparent border-l-2 border-fuchsia-500 text-white'
-            : 'text-white/70 hover:text-white hover:bg-purple-500/10'
+            ? 'bg-pearl-100 border-l-2 border-emerald text-charcoal'
+            : 'text-silver-700 hover:text-charcoal hover:bg-pearl-100/60'
         }`}
       >
         <Icon size={16} />
@@ -214,7 +214,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
 
             {isOpen && (
-              <div className="mt-1 ml-3 pl-3 border-l border-purple-500/20 space-y-0.5">
+              <div className="mt-1 ml-3 pl-3 border-l border-silver-200 space-y-0.5">
                 {group.items.map(item => renderNavItem(item, isMobile ? () => setSidebarOpen(false) : undefined))}
               </div>
             )}
@@ -223,7 +223,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       })}
 
       {/* Settings - always visible at bottom */}
-      <div className="pt-4 mt-4 border-t border-purple-500/20">
+      <div className="pt-4 mt-4 border-t border-silver-200">
         <Link
           href="/dashboard/settings"
           onClick={isMobile ? () => setSidebarOpen(false) : undefined}
@@ -242,11 +242,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="relative min-h-screen overflow-x-hidden">
-      {/* Space Background */}
-      <SpaceBackground />
+      {/* Dashboard Background */}
+      <PearlBackground />
 
       {/* Header */}
-      <header className="relative z-40 bg-[#0a0510]/80 backdrop-blur-md border-b border-purple-500/10 sticky top-0">
+      <header className="relative z-40 glass-effect sticky top-0">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -261,12 +261,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg bg-white text-black">
                   <Command size={16} />
                 </div>
-                <span className="font-serif font-bold text-lg tracking-wide text-white">Studio</span>
+                <span className="font-serif font-bold text-lg tracking-wide text-charcoal">Studio</span>
               </Link>
             </div>
             <div className="flex items-center gap-4">
-              <div className="p-2 rounded-full cursor-pointer hover:bg-white/10">
-                <Bell size={20} className="text-white/60" />
+              <div className="p-2 rounded-full cursor-pointer hover:bg-pearl-100/60">
+                <Bell size={20} className="text-silver-700" />
               </div>
               <span className="text-sm text-white/60 font-medium hidden sm:block">
                 {userEmail}
@@ -276,7 +276,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="relative">
                 <button
                   onClick={() => setShowLangMenu(!showLangMenu)}
-                  className="flex items-center gap-2 text-sm text-white/40 hover:text-white font-medium p-2 rounded-lg hover:bg-white/10"
+                  className="flex items-center gap-2 text-sm text-silver-600 hover:text-charcoal font-medium p-2 rounded-lg hover:bg-pearl-100/60"
                   aria-label="Select Language"
                 >
                   <Languages size={16} />
@@ -289,7 +289,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       className="fixed inset-0 z-10"
                       onClick={() => setShowLangMenu(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-48 bg-black/90 backdrop-blur-md rounded-lg shadow-lg border border-white/10 py-2 z-20 max-h-96 overflow-y-auto">
+                    <div className="absolute right-0 mt-2 w-48 glass-effect rounded-lg shadow-lg py-2 z-20 max-h-96 overflow-y-auto">
                       {Object.entries(LANGUAGES).map(([code, name]) => (
                         <button
                           key={code}
@@ -311,7 +311,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 text-sm text-white/40 hover:text-red-400 hover:bg-red-500/10 font-medium p-2 rounded-lg transition-colors"
+                className="flex items-center gap-2 text-sm text-silver-600 hover:text-red-600 hover:bg-red-500/10 font-medium p-2 rounded-lg transition-colors"
               >
                 <LogOut size={16} />
                 <span className="hidden sm:inline">{t('auth.logout')}</span>
@@ -325,7 +325,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar - Desktop */}
           <aside className="hidden lg:block w-56 flex-shrink-0">
-            <div className="bg-gradient-to-b from-[#1a0b2e] to-[#0a0510] backdrop-blur-xl rounded-xl border border-purple-500/10 p-3 sticky top-24">
+            <div className="glass-effect rounded-xl p-3 sticky top-24">
               {renderSidebar()}
             </div>
           </aside>
@@ -334,19 +334,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {sidebarOpen && (
             <div className="fixed inset-0 z-50 lg:hidden">
               <div
-                className="absolute inset-0 bg-black/80"
+                className="absolute inset-0 bg-charcoal/30"
                 onClick={() => setSidebarOpen(false)}
               />
-              <aside className="absolute left-0 top-0 bottom-0 w-64 bg-gradient-to-b from-[#1a0b2e]/95 to-[#0a0510]/95 backdrop-blur-xl shadow-xl border-r border-purple-500/10">
-                <div className="p-4 border-b border-purple-500/10">
+              <aside className="absolute left-0 top-0 bottom-0 w-64 glass-effect shadow-xl">
+                <div className="p-4 border-b border-silver-200/70">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg bg-white text-black">
                         <Command size={16} />
                       </div>
-                      <span className="font-serif font-bold text-lg tracking-wide text-white">Studio</span>
+                      <span className="font-serif font-bold text-lg tracking-wide text-charcoal">Studio</span>
                     </div>
-                    <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-white/10 rounded-lg text-white/60">
+                    <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-pearl-100/60 rounded-lg text-silver-700">
                       <X size={20} />
                     </button>
                   </div>
