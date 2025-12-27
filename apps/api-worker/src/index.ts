@@ -48,8 +48,20 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3000'
 ];
 
+const getAllowedOrigins = (c: any): string[] => {
+  const fromEnvRaw = (c?.env?.FRONTEND_URLS || c?.env?.FRONTEND_URL || '') as string;
+  const fromEnv = fromEnvRaw
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  const fromAppUrl = c?.env?.APP_URL ? [String(c.env.APP_URL).trim()].filter(Boolean) : [];
+  return Array.from(new Set([...fromEnv, ...fromAppUrl, ...ALLOWED_ORIGINS]));
+};
 app.use('*', cors({
-  origin: (origin) => (ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]),
+  origin: (origin, c) => {
+    const allowed = getAllowedOrigins(c);
+    return allowed.includes(origin) ? origin : allowed[0];
+  },
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposeHeaders: ['Content-Length'],
@@ -60,12 +72,13 @@ app.use('*', cors({
 // Middleware to ensure CORS headers on ALL responses (including errors)
 app.use('*', async (c, next) => {
   const origin = c.req.header('Origin') || '';
+  const allowed = getAllowedOrigins(c);
 
   // Set CORS headers before processing the request
-  if (ALLOWED_ORIGINS.includes(origin)) {
+  if (allowed.includes(origin)) {
     c.header('Access-Control-Allow-Origin', origin);
   } else {
-    c.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+    c.header('Access-Control-Allow-Origin', allowed[0]);
   }
   c.header('Access-Control-Allow-Credentials', 'true');
   c.header('Vary', 'Origin');
@@ -77,10 +90,10 @@ app.use('*', async (c, next) => {
     console.error('[Middleware Error Catch]', err);
 
     // Ensure CORS headers are still set
-    if (ALLOWED_ORIGINS.includes(origin)) {
+    if (allowed.includes(origin)) {
       c.header('Access-Control-Allow-Origin', origin);
     } else {
-      c.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+      c.header('Access-Control-Allow-Origin', allowed[0]);
     }
     c.header('Access-Control-Allow-Credentials', 'true');
     c.header('Vary', 'Origin');
@@ -101,13 +114,14 @@ app.onError((err, c) => {
 
   // Get the origin from the request
   const origin = c.req.header('Origin');
+  const allowed = getAllowedOrigins(c);
 
   // Set CORS headers based on the request origin
-  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+  if (origin && allowed.includes(origin)) {
     c.header('Access-Control-Allow-Origin', origin);
   } else {
     // Fallback to first allowed origin
-    c.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+    c.header('Access-Control-Allow-Origin', allowed[0]);
   }
 
   c.header('Access-Control-Allow-Credentials', 'true');
@@ -312,7 +326,7 @@ app.post('/api/v1/auth/register', async (c) => {
 
     // Set httpOnly cookies for security (not accessible via JavaScript)
     const isProduction = !c.req.url.includes('localhost');
-    const cookieOptions = `Path=/; HttpOnly; SameSite=Lax${isProduction ? '; Secure' : ''}`;
+    const cookieOptions = `Path=/; HttpOnly; SameSite=${isProduction ? 'None' : 'Lax'}${isProduction ? '; Secure' : ''}`;
 
     c.header('Set-Cookie', `accessToken=${accessToken}; ${cookieOptions}; Max-Age=86400`, { append: true });
     c.header('Set-Cookie', `refreshToken=${refreshToken}; ${cookieOptions}; Max-Age=604800`, { append: true });
@@ -381,7 +395,7 @@ app.post('/api/v1/auth/login', async (c) => {
 
     // Set httpOnly cookies for security (not accessible via JavaScript)
     const isProduction = !c.req.url.includes('localhost');
-    const cookieOptions = `Path=/; HttpOnly; SameSite=Lax${isProduction ? '; Secure' : ''}`;
+    const cookieOptions = `Path=/; HttpOnly; SameSite=${isProduction ? 'None' : 'Lax'}${isProduction ? '; Secure' : ''}`;
 
     c.header('Set-Cookie', `accessToken=${accessToken}; ${cookieOptions}; Max-Age=3600`, { append: true });
     c.header('Set-Cookie', `refreshToken=${refreshToken}; ${cookieOptions}; Max-Age=604800`, { append: true });
@@ -405,7 +419,7 @@ app.post('/api/v1/auth/login', async (c) => {
 // Logout - clear httpOnly cookies
 app.post('/api/v1/auth/logout', async (c) => {
   const isProduction = !c.req.url.includes('localhost');
-  const cookieOptions = `Path=/; HttpOnly; SameSite=Lax${isProduction ? '; Secure' : ''}`;
+  const cookieOptions = `Path=/; HttpOnly; SameSite=${isProduction ? 'None' : 'Lax'}${isProduction ? '; Secure' : ''}`;
 
   // Clear cookies by setting them with Max-Age=0
   c.header('Set-Cookie', `accessToken=; ${cookieOptions}; Max-Age=0`, { append: true });
