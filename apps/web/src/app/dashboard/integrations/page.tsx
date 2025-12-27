@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -7,6 +7,8 @@ import { TelegramWizard } from '@/components/dashboard/wizards/TelegramWizard';
 import { SlackWizard } from '@/components/dashboard/wizards/SlackWizard';
 import { HubSpotWizard } from '@/components/dashboard/wizards/HubSpotWizard';
 import { WidgetGuide } from '@/components/dashboard/guides/WidgetGuide';
+import { ShopifyGuide } from '@/components/dashboard/guides/ShopifyGuide';
+import { WordPressGuide } from '@/components/dashboard/guides/WordPressGuide';
 import { GenericIntegrationWizard } from '@/components/dashboard/wizards/GenericIntegrationWizard';
 import { authFetch } from '@/lib/authHeaders';
 import {
@@ -278,8 +280,13 @@ export default function IntegrationsPage() {
                 router.push('/dashboard/calendar');
                 return;
               }
+              if (integration.slug === 'stripe' || integration.slug === 'woocommerce') {
+                router.push('/dashboard/review-bot');
+                return;
+              }
               setActiveWizard(integration.slug);
             }}
+            
             className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 border border-purple-500/20 rounded-2xl p-6 backdrop-blur-md hover:border-fuchsia-500/40 hover:shadow-[0_0_15px_rgba(192,38,211,0.15)] transition-all duration-500 cursor-pointer group"
           >
             <div className="flex justify-between items-start mb-6">
@@ -315,6 +322,23 @@ export default function IntegrationsPage() {
           botId={botId || 'YOUR_BOT_ID'}
           onClose={() => setActiveWizard(null)}
           onDisconnect={configuredBySlug.get('widget') ? () => handleDisconnect('widget') : undefined}
+        />
+      )}
+
+      
+      {activeWizard === 'shopify' && (
+        <ShopifyGuide
+          botId={botId || 'YOUR_BOT_ID'}
+          onClose={() => setActiveWizard(null)}
+          onDisconnect={configuredBySlug.get('shopify') ? () => handleDisconnect('shopify') : undefined}
+        />
+      )}
+
+      {activeWizard === 'wordpress' && (
+        <WordPressGuide
+          botId={botId || 'YOUR_BOT_ID'}
+          onClose={() => setActiveWizard(null)}
+          onDisconnect={configuredBySlug.get('wordpress') ? () => handleDisconnect('wordpress') : undefined}
         />
       )}
 
@@ -358,7 +382,7 @@ export default function IntegrationsPage() {
         />
       )}
 
-      {activeWizard && !['widget', 'whatsapp', 'telegram', 'slack', 'hubspot'].includes(activeWizard) && (
+      {activeWizard && !['widget', 'shopify', 'wordpress', 'whatsapp', 'telegram', 'slack', 'hubspot'].includes(activeWizard) && (
         <GenericIntegrationWizard
           title={integrationsBySlug.get(activeWizard)?.name || 'Integrazione'}
           description={integrationsBySlug.get(activeWizard)?.description || null}
