@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -302,8 +302,8 @@ export default function ScrapingClient() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">{t('leadDiscovery.title')}</h1>
-          <p className="text-sm text-white/60 mt-1">
+          <h1 className="text-2xl font-bold text-charcoal">{t('leadDiscovery.title')}</h1>
+          <p className="text-sm text-silver-700 mt-1">
             {t('leadDiscovery.subtitle')}
           </p>
         </div>
@@ -311,7 +311,7 @@ export default function ScrapingClient() {
         <GlassCard className="space-y-6">
           {/* Search Goal */}
           <div>
-            <label className="block text-sm font-medium text-white/80 mb-2">
+            <label className="block text-sm font-medium text-silver-700 mb-2">
               {t('leadDiscovery.form.searchGoalRequired')}
             </label>
             <input
@@ -319,16 +319,16 @@ export default function ScrapingClient() {
               placeholder={t('leadDiscovery.form.searchGoalPlaceholder')}
               value={searchGoal}
               onChange={(e) => setSearchGoal(e.target.value)}
-              className="w-full px-4 py-2 border border-white/10 rounded-lg text-sm text-white bg-white/5 placeholder:text-white/40 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg text-sm text-charcoal bg-pearl-50 placeholder:text-charcoal/40 focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300"
             />
-            <p className="text-xs text-white/50 mt-1">
+            <p className="text-xs text-silver-600 mt-1">
               {t('leadDiscovery.form.searchGoalHelp')}
             </p>
           </div>
 
           {/* Your Product/Service */}
           <div>
-            <label className="block text-sm font-medium text-white/80 mb-2">
+            <label className="block text-sm font-medium text-silver-700 mb-2">
               {t('leadDiscovery.form.yourProduct')}
             </label>
             <input
@@ -336,9 +336,9 @@ export default function ScrapingClient() {
               placeholder={t('leadDiscovery.form.yourProductPlaceholder')}
               value={userProduct}
               onChange={(e) => setUserProduct(e.target.value)}
-              className="w-full px-4 py-2 border border-white/10 rounded-lg text-sm text-white bg-white/5 placeholder:text-white/40 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg text-sm text-charcoal bg-pearl-50 placeholder:text-charcoal/40 focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300"
             />
-            <p className="text-xs text-white/50 mt-1">
+            <p className="text-xs text-silver-600 mt-1">
               {t('leadDiscovery.form.yourProductHelp')}
             </p>
           </div>
@@ -346,7 +346,7 @@ export default function ScrapingClient() {
           {/* Location */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label className="block text-sm font-medium text-silver-700 mb-2">
                 {t('leadDiscovery.form.locationRequired')}
               </label>
               <input
@@ -354,12 +354,12 @@ export default function ScrapingClient() {
                 placeholder={t('leadDiscovery.form.locationPlaceholder')}
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full px-4 py-2 border border-white/10 rounded-lg text-sm text-white bg-white/5 placeholder:text-white/40 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-silver-200/70 rounded-lg text-sm text-charcoal bg-pearl-50 placeholder:text-charcoal/40 focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">
+              <label className="block text-sm font-medium text-silver-700 mb-2">
                 {t('leadDiscovery.form.radius')}
               </label>
               <input
@@ -368,18 +368,18 @@ export default function ScrapingClient() {
                 max="100"
                 value={radius}
                 onChange={(e) => setRadius(parseInt(e.target.value) || 10)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-silver-200/70 rounded-lg text-sm text-charcoal bg-pearl-50 focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300"
               />
             </div>
           </div>
 
           {/* Filters */}
           <div className="border-t border-gray-200 pt-4">
-            <h3 className="text-sm font-medium text-white mb-4">{t('leadDiscovery.form.filtersOptional')}</h3>
+            <h3 className="text-sm font-medium text-charcoal mb-4">{t('leadDiscovery.form.filtersOptional')}</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-sm font-medium text-silver-700 mb-2">
                   {t('leadDiscovery.form.businessType')}
                 </label>
                 <input
@@ -387,18 +387,18 @@ export default function ScrapingClient() {
                   placeholder={t('leadDiscovery.form.businessTypePlaceholder')}
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
-                  className="w-full px-4 py-2 border border-white/10 rounded-lg text-sm text-white bg-white/5 placeholder:text-white/40 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-silver-200/70 rounded-lg text-sm text-charcoal bg-pearl-50 placeholder:text-charcoal/40 focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-sm font-medium text-silver-700 mb-2">
                   {t('leadDiscovery.form.hasWebsite')}
                 </label>
                 <select
                   value={hasWebsite}
                   onChange={(e) => setHasWebsite(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-silver-200/70 rounded-lg text-sm text-charcoal bg-pearl-50 focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300"
                 >
                   <option value="any">{t('leadDiscovery.form.hasWebsiteAny')}</option>
                   <option value="yes">{t('leadDiscovery.form.hasWebsiteYes')}</option>
@@ -407,7 +407,7 @@ export default function ScrapingClient() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-sm font-medium text-silver-700 mb-2">
                   {t('leadDiscovery.form.minRating')}
                 </label>
                 <input
@@ -417,12 +417,12 @@ export default function ScrapingClient() {
                   step="0.1"
                   value={minRating}
                   onChange={(e) => setMinRating(parseFloat(e.target.value) || 0)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-silver-200/70 rounded-lg text-sm text-charcoal bg-pearl-50 focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-sm font-medium text-silver-700 mb-2">
                   {t('leadDiscovery.form.maxRating')}
                 </label>
                 <input
@@ -432,7 +432,7 @@ export default function ScrapingClient() {
                   step="0.1"
                   value={maxRating}
                   onChange={(e) => setMaxRating(parseFloat(e.target.value) || 5)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-silver-200/70 rounded-lg text-sm text-charcoal bg-pearl-50 focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300"
                 />
               </div>
             </div>
@@ -440,7 +440,7 @@ export default function ScrapingClient() {
 
           {/* Data Sources */}
           <div className="border-t border-gray-200 pt-4">
-            <h3 className="text-sm font-medium text-white mb-3">{t('leadDiscovery.form.dataSources')}</h3>
+            <h3 className="text-sm font-medium text-charcoal mb-3">{t('leadDiscovery.form.dataSources')}</h3>
             <div className="flex flex-wrap gap-3">
               {['google_maps', 'yelp', 'facebook', 'yellow_pages'].map((source) => (
                 <label key={source} className="flex items-center gap-2 cursor-pointer">
@@ -454,9 +454,9 @@ export default function ScrapingClient() {
                         setSelectedSources(selectedSources.filter((s) => s !== source));
                       }
                     }}
-                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    className="w-4 h-4 text-charcoal border-silver-300 rounded focus:ring-charcoal/20"
                   />
-                  <span className="text-sm text-gray-700 capitalize">
+                  <span className="text-sm text-silver-700 capitalize">
                     {source.replace('_', ' ')}
                   </span>
                 </label>
@@ -473,7 +473,7 @@ export default function ScrapingClient() {
           <button
             onClick={handleSearch}
             disabled={loading}
-            className="w-full px-4 py-3 bg-white text-black rounded-lg hover:bg-white/90 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full px-4 py-3 bg-charcoal text-pearl rounded-lg hover:bg-charcoal/90 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? t('leadDiscovery.buttons.searching') : t('leadDiscovery.buttons.startSearch')}
           </button>
@@ -499,14 +499,14 @@ export default function ScrapingClient() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">{t('leadDiscovery.results.title')}</h1>
-            <p className="text-sm text-white/60 mt-1">
+            <h1 className="text-2xl font-bold text-charcoal">{t('leadDiscovery.results.title')}</h1>
+            <p className="text-sm text-silver-700 mt-1">
               {t('leadDiscovery.results.foundBusinesses').replace('{count}', businesses.length.toString())}
             </p>
           </div>
           <button
             onClick={() => setViewMode('search')}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="px-4 py-2 text-sm font-medium text-charcoal bg-pearl-50 border border-silver-200/70 rounded-lg hover:bg-pearl-100"
           >
             {t('leadDiscovery.buttons.newSearch')}
           </button>
@@ -515,20 +515,20 @@ export default function ScrapingClient() {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <GlassCard className="!p-4">
-            <div className="text-sm text-white/60">{t('leadDiscovery.results.totalFound')}</div>
-            <div className="text-2xl font-bold text-white mt-1">{businesses.length}</div>
+            <div className="text-sm text-silver-700">{t('leadDiscovery.results.totalFound')}</div>
+            <div className="text-2xl font-bold text-charcoal mt-1">{businesses.length}</div>
           </GlassCard>
           <GlassCard className="!p-4">
-            <div className="text-sm text-white/60">{t('leadDiscovery.results.analyzed')}</div>
-            <div className="text-2xl font-bold text-white mt-1">{analyzedCount}</div>
+            <div className="text-sm text-silver-700">{t('leadDiscovery.results.analyzed')}</div>
+            <div className="text-2xl font-bold text-charcoal mt-1">{analyzedCount}</div>
           </GlassCard>
           <GlassCard className="!p-4">
-            <div className="text-sm text-white/60">{t('leadDiscovery.results.avgScore')}</div>
-            <div className="text-2xl font-bold text-white mt-1">{avgScore}</div>
+            <div className="text-sm text-silver-700">{t('leadDiscovery.results.avgScore')}</div>
+            <div className="text-2xl font-bold text-charcoal mt-1">{avgScore}</div>
           </GlassCard>
           <GlassCard className="!p-4">
-            <div className="text-sm text-white/60">{t('leadDiscovery.results.qualifiedLeads')}</div>
-            <div className="text-2xl font-bold text-white mt-1">
+            <div className="text-sm text-silver-700">{t('leadDiscovery.results.qualifiedLeads')}</div>
+            <div className="text-2xl font-bold text-charcoal mt-1">
               {businesses.filter((b) => (b.analysis?.score || 0) >= 70).length}
             </div>
           </GlassCard>
@@ -536,7 +536,7 @@ export default function ScrapingClient() {
 
         {/* Map Placeholder */}
         <GlassCard>
-          <h2 className="text-lg font-semibold text-white mb-4">{t('leadDiscovery.results.geographicView')}</h2>
+          <h2 className="text-lg font-semibold text-charcoal mb-4">{t('leadDiscovery.results.geographicView')}</h2>
           <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
             <div className="text-center text-gray-500">
               <svg
@@ -565,14 +565,14 @@ export default function ScrapingClient() {
         <div className="flex gap-3">
           <button
             onClick={handleExportCSV}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
+            className="px-4 py-2 bg-gray-100 text-silver-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
           >
             {t('leadDiscovery.buttons.exportCSV')}
           </button>
           <button
             onClick={handleSaveResults}
             disabled={loading}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium disabled:opacity-50"
+            className="px-4 py-2 bg-charcoal text-pearl rounded-lg hover:bg-charcoal/90 text-sm font-medium disabled:opacity-50"
           >
             {t('leadDiscovery.buttons.saveToLeads')}
           </button>
@@ -603,16 +603,16 @@ export default function ScrapingClient() {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {businesses.map((business) => (
-                  <tr key={business.id} className="hover:bg-gray-50">
+                  <tr key={business.id} className="hover:bg-pearl-100">
                     <td className="px-4 py-3">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{business.name}</div>
+                        <div className="text-sm font-medium text-charcoal">{business.name}</div>
                         <div className="text-xs text-gray-600">{business.category}</div>
                         <div className="text-xs text-gray-500">{business.address}</div>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-xs text-gray-900">
+                      <div className="text-xs text-charcoal">
                         {business.phone && <div>📞 {business.phone}</div>}
                         {business.email && <div>✉️ {business.email}</div>}
                         {business.website && (
@@ -622,7 +622,7 @@ export default function ScrapingClient() {
                               href={business.website}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-indigo-600 hover:underline"
+                              className="text-charcoal hover:underline"
                             >
                               {t('leadDiscovery.table.website')}
                             </a>
@@ -634,7 +634,7 @@ export default function ScrapingClient() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm text-charcoal">
                         ⭐ {business.rating.toFixed(1)}
                       </div>
                       <div className="text-xs text-gray-500">
@@ -660,7 +660,7 @@ export default function ScrapingClient() {
                           <button
                             onClick={() => handleAnalyzeBusiness(business)}
                             disabled={analyzingId === business.id}
-                            className="text-xs text-indigo-600 hover:text-indigo-800 font-medium disabled:opacity-50"
+                            className="text-xs text-charcoal hover:text-charcoal font-medium disabled:opacity-50"
                           >
                             {analyzingId === business.id ? t('leadDiscovery.buttons.analyzing') : t('leadDiscovery.buttons.analyze')}
                           </button>
@@ -671,7 +671,7 @@ export default function ScrapingClient() {
                                 setSelectedBusiness(business);
                                 setViewMode('detail');
                               }}
-                              className="text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+                              className="text-xs text-charcoal hover:text-charcoal font-medium"
                             >
                               {t('leadDiscovery.buttons.view')}
                             </button>
@@ -702,12 +702,12 @@ export default function ScrapingClient() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">{selectedBusiness.name}</h1>
-            <p className="text-sm text-white/60 mt-1">{selectedBusiness.category}</p>
+            <h1 className="text-2xl font-bold text-charcoal">{selectedBusiness.name}</h1>
+            <p className="text-sm text-silver-700 mt-1">{selectedBusiness.category}</p>
           </div>
           <button
             onClick={() => setViewMode('results')}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="px-4 py-2 text-sm font-medium text-charcoal bg-pearl-50 border border-silver-200/70 rounded-lg hover:bg-pearl-100"
           >
             {t('leadDiscovery.buttons.backToResults')}
           </button>
@@ -715,29 +715,29 @@ export default function ScrapingClient() {
 
         {/* Business Info */}
         <GlassCard>
-          <h2 className="text-lg font-semibold text-white mb-4">{t('leadDiscovery.detail.businessInfo')}</h2>
+          <h2 className="text-lg font-semibold text-charcoal mb-4">{t('leadDiscovery.detail.businessInfo')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.address')}</span>
-              <span className="ml-2 text-gray-900">{selectedBusiness.address}</span>
+              <span className="font-medium text-silver-700">{t('leadDiscovery.detail.address')}</span>
+              <span className="ml-2 text-charcoal">{selectedBusiness.address}</span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.phone')}</span>
-              <span className="ml-2 text-gray-900">{selectedBusiness.phone || 'N/A'}</span>
+              <span className="font-medium text-silver-700">{t('leadDiscovery.detail.phone')}</span>
+              <span className="ml-2 text-charcoal">{selectedBusiness.phone || 'N/A'}</span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.email')}</span>
-              <span className="ml-2 text-gray-900">{selectedBusiness.email || 'N/A'}</span>
+              <span className="font-medium text-silver-700">{t('leadDiscovery.detail.email')}</span>
+              <span className="ml-2 text-charcoal">{selectedBusiness.email || 'N/A'}</span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.website')}</span>
-              <span className="ml-2 text-gray-900">
+              <span className="font-medium text-silver-700">{t('leadDiscovery.detail.website')}</span>
+              <span className="ml-2 text-charcoal">
                 {selectedBusiness.website ? (
                   <a
                     href={selectedBusiness.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-indigo-600 hover:underline"
+                    className="text-charcoal hover:underline"
                   >
                     {selectedBusiness.website}
                   </a>
@@ -747,14 +747,14 @@ export default function ScrapingClient() {
               </span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.rating')}</span>
-              <span className="ml-2 text-gray-900">
+              <span className="font-medium text-silver-700">{t('leadDiscovery.detail.rating')}</span>
+              <span className="ml-2 text-charcoal">
                 {selectedBusiness.rating.toFixed(1)}/5 ({selectedBusiness.reviewCount} {t('leadDiscovery.table.reviews')})
               </span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">{t('leadDiscovery.detail.source')}</span>
-              <span className="ml-2 text-gray-900">{selectedBusiness.source}</span>
+              <span className="font-medium text-silver-700">{t('leadDiscovery.detail.source')}</span>
+              <span className="ml-2 text-charcoal">{selectedBusiness.source}</span>
             </div>
           </div>
         </GlassCard>
@@ -763,7 +763,7 @@ export default function ScrapingClient() {
         {selectedBusiness.analysis && (
           <GlassCard>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">{t('leadDiscovery.detail.aiAnalysis')}</h2>
+              <h2 className="text-lg font-semibold text-charcoal">{t('leadDiscovery.detail.aiAnalysis')}</h2>
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getScoreColor(
                   selectedBusiness.analysis.score
@@ -775,13 +775,13 @@ export default function ScrapingClient() {
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('leadDiscovery.detail.whyIdeal')}</h3>
-                <p className="text-sm text-gray-900">{selectedBusiness.analysis.opportunity}</p>
+                <h3 className="text-sm font-medium text-silver-700 mb-2">{t('leadDiscovery.detail.whyIdeal')}</h3>
+                <p className="text-sm text-charcoal">{selectedBusiness.analysis.opportunity}</p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('leadDiscovery.detail.painPoints')}</h3>
-                <ul className="list-disc list-inside text-sm text-gray-900 space-y-1">
+                <h3 className="text-sm font-medium text-silver-700 mb-2">{t('leadDiscovery.detail.painPoints')}</h3>
+                <ul className="list-disc list-inside text-sm text-charcoal space-y-1">
                   {selectedBusiness.analysis.painPoints.map((point, idx) => (
                     <li key={idx}>{point}</li>
                   ))}
@@ -789,22 +789,22 @@ export default function ScrapingClient() {
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('leadDiscovery.detail.howToApproach')}</h3>
-                <p className="text-sm text-gray-900">
+                <h3 className="text-sm font-medium text-silver-700 mb-2">{t('leadDiscovery.detail.howToApproach')}</h3>
+                <p className="text-sm text-charcoal">
                   {selectedBusiness.analysis.approachStrategy}
                 </p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('leadDiscovery.detail.bestContactTime')}</h3>
-                <p className="text-sm text-gray-900">
+                <h3 className="text-sm font-medium text-silver-700 mb-2">{t('leadDiscovery.detail.bestContactTime')}</h3>
+                <p className="text-sm text-charcoal">
                   {selectedBusiness.analysis.bestContactTime}
                 </p>
               </div>
 
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-2">{t('leadDiscovery.detail.emailHook')}</h3>
-                <p className="text-sm text-indigo-600 italic">
+                <h3 className="text-sm font-medium text-silver-700 mb-2">{t('leadDiscovery.detail.emailHook')}</h3>
+                <p className="text-sm text-charcoal italic">
                   "{selectedBusiness.analysis.emailHook}"
                 </p>
               </div>
@@ -815,21 +815,21 @@ export default function ScrapingClient() {
         {/* Outreach Email */}
         {selectedBusiness.outreachEmail && (
           <GlassCard>
-            <h2 className="text-lg font-semibold text-white mb-4">
+            <h2 className="text-lg font-semibold text-charcoal mb-4">
               {t('leadDiscovery.detail.personalizedEmail')}
             </h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('leadDiscovery.detail.subject')}</label>
-                <div className="px-4 py-2 bg-gray-50 border border-gray-200 rounded text-sm text-gray-900">
+                <label className="block text-sm font-medium text-silver-700 mb-1">{t('leadDiscovery.detail.subject')}</label>
+                <div className="px-4 py-2 bg-gray-50 border border-gray-200 rounded text-sm text-charcoal">
                   {selectedBusiness.outreachEmail.subject}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('leadDiscovery.detail.body')}</label>
-                <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-900 whitespace-pre-wrap">
+                <label className="block text-sm font-medium text-silver-700 mb-1">{t('leadDiscovery.detail.body')}</label>
+                <div className="px-4 py-3 bg-gray-50 border border-gray-200 rounded text-sm text-charcoal whitespace-pre-wrap">
                   {selectedBusiness.outreachEmail.body}
                 </div>
               </div>
@@ -837,10 +837,10 @@ export default function ScrapingClient() {
               {selectedBusiness.outreachEmail.followUpSuggestions &&
                 selectedBusiness.outreachEmail.followUpSuggestions.length > 0 && (
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-2">
+                    <label className="block text-sm font-medium text-silver-700 mb-2">
                       {t('leadDiscovery.detail.followUpSuggestions')}
                     </label>
-                    <ul className="list-disc list-inside text-sm text-gray-900 space-y-1">
+                    <ul className="list-disc list-inside text-sm text-charcoal space-y-1">
                       {selectedBusiness.outreachEmail.followUpSuggestions.map((suggestion, idx) => (
                         <li key={idx}>{suggestion}</li>
                       ))}
@@ -858,13 +858,13 @@ export default function ScrapingClient() {
                     );
                     alert(t('leadDiscovery.success.emailCopied'));
                   }}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
+                  className="px-4 py-2 bg-charcoal text-pearl rounded-lg hover:bg-charcoal/90 text-sm font-medium"
                 >
                   {t('leadDiscovery.buttons.copyEmail')}
                 </button>
                 <button
                   onClick={() => handleGenerateEmail(selectedBusiness)}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
+                  className="px-4 py-2 bg-gray-100 text-silver-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
                 >
                   {t('leadDiscovery.buttons.regenerate')}
                 </button>
@@ -878,7 +878,7 @@ export default function ScrapingClient() {
             <button
               onClick={() => handleGenerateEmail(selectedBusiness)}
               disabled={loading}
-              className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium disabled:opacity-50"
+              className="w-full px-4 py-3 bg-charcoal text-pearl rounded-lg hover:bg-charcoal/90 text-sm font-medium disabled:opacity-50"
             >
               {loading ? t('leadDiscovery.buttons.generating') : t('leadDiscovery.buttons.generateOutreachEmail')}
             </button>

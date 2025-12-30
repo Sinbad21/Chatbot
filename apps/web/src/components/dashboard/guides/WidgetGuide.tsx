@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -34,10 +34,10 @@ const widgetCode = `<!-- Chatbot Studio Widget -->
 
  return (
   <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-   <Card className="max-w-3xl w-full max-h-[90vh] overflow-y-auto bg-gradient-to-br from-[#2d1b4e] to-[#150a25] border border-purple-500/20">
-    <div className="sticky top-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-b border-purple-500/20 p-6 flex items-center justify-between">
+   <Card className="max-w-3xl w-full max-h-[90vh] overflow-y-auto bg-pearl-50 border border-silver-200/70">
+    <div className="sticky top-0 bg-pearl-50/95 backdrop-blur border-b border-silver-200/70 p-6 flex items-center justify-between">
      <h2 className="text-2xl font-bold text-white">Widget Sito Web</h2>
-     <button onClick={onClose} className="text-purple-300/70 hover:text-white transition-colors">
+     <button onClick={onClose} className="text-silver-700 hover:text-charcoal transition-colors">
       <X className="w-6 h-6" />
      </button>
     </div>
@@ -47,18 +47,18 @@ const widgetCode = `<!-- Chatbot Studio Widget -->
       <h3 className="text-lg font-semibold text-white mb-3">
        Codice di installazione
       </h3>
-      <p className="text-sm text-purple-300/70 mb-4">
-       Copia questo codice e incollalo prima del tag <code className="bg-purple-900/50 px-2 py-1 rounded text-purple-200">&lt;/body&gt;</code> del tuo sito:
+      <p className="text-sm text-silver-700 mb-4">
+       Copia questo codice e incollalo prima del tag <code className="bg-pearl-100 px-2 py-1 rounded text-charcoal">&lt;/body&gt;</code> del tuo sito:
       </p>
       <div className="relative">
-       <pre className="bg-[#0f0520] border border-purple-500/20 text-purple-200 p-4 rounded-lg text-sm overflow-x-auto">
+       <pre className="bg-charcoal border border-silver-200/20 text-pearl p-4 rounded-lg text-sm overflow-x-auto">
         <code>{widgetCode}</code>
        </pre>
        <Button
         variant="outline"
         size="sm"
         onClick={copyCode}
-        className="absolute top-2 right-2 border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+        className="absolute top-2 right-2 border-silver-200/70 text-silver-600 hover:bg-pearl-100"
        >
         {copied ? (
          <>
@@ -75,11 +75,11 @@ const widgetCode = `<!-- Chatbot Studio Widget -->
       </div>
      </div>
 
-     <div className="bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-lg p-4">
-      <p className="text-sm text-fuchsia-300 font-medium mb-2">
+     <div className="bg-pearl-100/70 border border-silver-200/70 rounded-lg p-4">
+      <p className="text-sm text-charcoal font-medium mb-2">
        ? Il widget Ã¨ giÃ  configurato con il tuo Bot ID
       </p>
-      <p className="text-sm text-fuchsia-300/70">
+      <p className="text-sm text-silver-700">
        ApparirÃ  automaticamente nell'angolo in basso a destra del tuo sito.
       </p>
      </div>
@@ -90,29 +90,29 @@ const widgetCode = `<!-- Chatbot Studio Widget -->
       </h3>
       <div className="space-y-3 text-sm">
        <div className="flex items-start gap-3">
-        <code className="bg-purple-900/50 px-2 py-1 rounded text-xs text-purple-200">position</code>
-        <span className="text-purple-300/70">
-         Posizione: <code className="text-purple-200">'bottom-right'</code>, <code className="text-purple-200">'bottom-left'</code>, <code className="text-purple-200">'top-right'</code>, <code className="text-purple-200">'top-left'</code>
+        <code className="bg-pearl-100 px-2 py-1 rounded text-xs text-charcoal">position</code>
+        <span className="text-silver-700">
+         Posizione: <code className="text-charcoal">'bottom-right'</code>, <code className="text-charcoal">'bottom-left'</code>, <code className="text-charcoal">'top-right'</code>, <code className="text-charcoal">'top-left'</code>
         </span>
        </div>
        <div className="flex items-start gap-3">
-        <code className="bg-purple-900/50 px-2 py-1 rounded text-xs text-purple-200">theme</code>
-        <span className="text-purple-300/70">
-         Tema: <code className="text-purple-200">'light'</code>, <code className="text-purple-200">'dark'</code>, <code className="text-purple-200">'auto'</code>
+        <code className="bg-pearl-100 px-2 py-1 rounded text-xs text-charcoal">theme</code>
+        <span className="text-silver-700">
+         Tema: <code className="text-charcoal">'light'</code>, <code className="text-charcoal">'dark'</code>, <code className="text-charcoal">'auto'</code>
         </span>
        </div>
        <div className="flex items-start gap-3">
-        <code className="bg-purple-900/50 px-2 py-1 rounded text-xs text-purple-200">language</code>
-        <span className="text-purple-300/70">
-         Lingua: <code className="text-purple-200">'it'</code>, <code className="text-purple-200">'en'</code>, <code className="text-purple-200">'es'</code>, <code className="text-purple-200">'fr'</code>, ecc.
+        <code className="bg-pearl-100 px-2 py-1 rounded text-xs text-charcoal">language</code>
+        <span className="text-silver-700">
+         Lingua: <code className="text-charcoal">'it'</code>, <code className="text-charcoal">'en'</code>, <code className="text-charcoal">'es'</code>, <code className="text-charcoal">'fr'</code>, ecc.
         </span>
        </div>
       </div>
      </div>
 
-     <div className="bg-purple-900/30 border border-purple-500/20 rounded-lg p-4">
+     <div className="bg-pearl-100/70 border border-silver-200/70 rounded-lg p-4">
       <h4 className="font-medium text-white mb-2">Piattaforme supportate:</h4>
-      <ul className="grid grid-cols-2 gap-2 text-sm text-purple-300/70">
+      <ul className="grid grid-cols-2 gap-2 text-sm text-silver-700">
        <li>â€¢ HTML/CSS/JavaScript</li>
        <li>â€¢ React</li>
        <li>â€¢ Vue.js</li>
@@ -125,7 +125,7 @@ const widgetCode = `<!-- Chatbot Studio Widget -->
      </div>
     </div>
 
-    <div className="sticky bottom-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-t border-purple-500/20 p-6 flex gap-3 justify-between">
+    <div className="sticky bottom-0 bg-pearl-50/95 backdrop-blur border-t border-silver-200/70 p-6 flex gap-3 justify-between">
      <Button onClick={onClose} className="flex-1 bg-charcoal hover:bg-charcoal/90 text-white shadow-lg ">
       Chiudi
      </Button>

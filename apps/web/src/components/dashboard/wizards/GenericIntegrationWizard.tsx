@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -46,26 +46,26 @@ export function GenericIntegrationWizard({
 
  return (
   <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-   <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-gradient-to-br from-[#2d1b4e] to-[#150a25] border border-purple-500/20">
-    <div className="sticky top-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-b border-purple-500/20 p-6 flex items-center justify-between">
+   <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-pearl-50 border border-silver-200/70">
+    <div className="sticky top-0 bg-pearl-50/95 backdrop-blur border-b border-silver-200/70 p-6 flex items-center justify-between">
      <div>
-      <h2 className="text-2xl font-bold text-white">{title}</h2>
-      {description && <p className="text-sm text-purple-300/70 mt-1">{description}</p>}
+      <h2 className="text-2xl font-bold text-charcoal">{title}</h2>
+      {description && <p className="text-sm text-silver-700 mt-1">{description}</p>}
      </div>
-     <button onClick={onClose} className="text-purple-300/70 hover:text-white transition-colors">
+     <button onClick={onClose} className="text-silver-700 hover:text-charcoal transition-colors">
       <X className="w-6 h-6" />
      </button>
     </div>
 
     <div className="p-6 space-y-4">
      <div>
-      <label className="block text-sm font-medium text-purple-300/70 mb-2">Configurazione (JSON)</label>
+      <label className="block text-sm font-medium text-silver-700 mb-2">Configurazione (JSON)</label>
       <textarea
        value={rawJson}
        onChange={(e) => setRawJson(e.target.value)}
        rows={10}
        spellCheck={false}
-       className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-lg focus:ring-2 focus:ring-fuchsia-500/50 focus:border-fuchsia-500/50 text-white placeholder-purple-400/50 transition-all font-mono text-sm"
+       className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300 text-charcoal placeholder:text-silver-500 transition-all font-mono text-sm"
       />
       {!parsed.ok && (
        <div className="mt-2 text-sm text-red-300 flex items-center gap-2">
@@ -75,20 +75,20 @@ export function GenericIntegrationWizard({
       )}
      </div>
 
-     <div className="bg-purple-900/30 border border-purple-500/20 rounded-lg p-4">
-      <p className="text-sm text-purple-300/70">
-       Consiglio: salva solo i campi necessari (es. <span className="text-purple-200">apiKey</span>,{' '}
-       <span className="text-purple-200">webhookSecret</span>, <span className="text-purple-200">domain</span>).
+     <div className="bg-pearl-50 border border-silver-200/70 rounded-lg p-4">
+      <p className="text-sm text-silver-700">
+       Consiglio: salva solo i campi necessari (es. <span className="text-silver-700">apiKey</span>,{' '}
+       <span className="text-silver-700">webhookSecret</span>, <span className="text-silver-700">domain</span>).
       </p>
      </div>
     </div>
 
-    <div className="sticky bottom-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-t border-purple-500/20 p-6 flex justify-between">
+    <div className="sticky bottom-0 bg-pearl-50/95 backdrop-blur border-t border-silver-200/70 p-6 flex justify-between">
      <div className="flex gap-2">
       <Button
        variant="outline"
        onClick={onClose}
-       className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+       className="border-silver-200/70 text-silver-600 hover:bg-pearl-100/70"
       >
        Chiudi
       </Button>
@@ -104,7 +104,7 @@ export function GenericIntegrationWizard({
      </div>
      <Button
       onClick={() => void handleSave()}
-      className="bg-charcoal hover:bg-charcoal/90 text-white shadow-lg "
+      className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
       disabled={!parsed.ok}
      >
       Salva configurazione

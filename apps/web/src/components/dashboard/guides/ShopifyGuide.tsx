@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -37,39 +37,39 @@ export function ShopifyGuide({ botId, onClose, onDisconnect }: ShopifyGuideProps
 
  return (
   <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-   <Card className="max-w-3xl w-full max-h-[90vh] overflow-y-auto bg-gradient-to-br from-[#2d1b4e] to-[#150a25] border border-purple-500/20">
-    <div className="sticky top-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-b border-purple-500/20 p-6 flex items-center justify-between">
+   <Card className="max-w-3xl w-full max-h-[90vh] overflow-y-auto bg-pearl-50 border border-silver-200/70">
+    <div className="sticky top-0 bg-pearl-50/95 backdrop-blur border-b border-silver-200/70 p-6 flex items-center justify-between">
      <div>
-      <h2 className="text-2xl font-bold text-white">Shopify</h2>
-      <p className="text-sm text-purple-300/70 mt-1">Aggiungi il widget nel tema Shopify (theme.liquid).</p>
+      <h2 className="text-2xl font-bold text-charcoal">Shopify</h2>
+      <p className="text-sm text-silver-700 mt-1">Aggiungi il widget nel tema Shopify (theme.liquid).</p>
      </div>
-     <button onClick={onClose} className="text-purple-300/70 hover:text-white transition-colors">
+     <button onClick={onClose} className="text-silver-600 hover:text-charcoal transition-colors">
       <X className="w-6 h-6" />
      </button>
     </div>
 
     <div className="p-6 space-y-6">
      <div>
-      <h3 className="text-lg font-semibold text-white mb-3">Dove incollare il codice</h3>
-      <ol className="space-y-2 text-sm text-purple-300/70 list-decimal list-inside">
+      <h3 className="text-lg font-semibold text-charcoal mb-3">Dove incollare il codice</h3>
+      <ol className="space-y-2 text-sm text-silver-700 list-decimal list-inside">
        <li>Shopify Admin Online Store Themes</li>
        <li>Actions Edit code</li>
-       <li>Layout <span className="text-purple-200">theme.liquid</span></li>
-       <li>Incolla prima di <span className="bg-purple-900/50 px-2 py-1 rounded text-purple-200">&lt;/body&gt;</span></li>
+       <li>Layout <span className="text-charcoal">theme.liquid</span></li>
+       <li>Incolla prima di <span className="bg-pearl-100 px-2 py-1 rounded border border-silver-200/70 text-charcoal">&lt;/body&gt;</span></li>
       </ol>
      </div>
 
      <div>
-      <h3 className="text-lg font-semibold text-white mb-3">Codice</h3>
+      <h3 className="text-lg font-semibold text-charcoal mb-3">Codice</h3>
       <div className="relative">
-       <pre className="bg-[#0f0520] border border-purple-500/20 text-purple-200 p-4 rounded-lg text-sm overflow-x-auto">
+       <pre className="bg-charcoal border border-silver-200/20 text-pearl p-4 rounded-lg text-sm overflow-x-auto">
         <code>{widgetCode}</code>
        </pre>
        <Button
         variant="outline"
         size="sm"
         onClick={copyCode}
-        className="absolute top-2 right-2 border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+        className="absolute top-2 right-2 border-silver-200/70 text-silver-600 hover:bg-pearl-100"
        >
         {copied ? (
          <>
@@ -86,18 +86,18 @@ export function ShopifyGuide({ botId, onClose, onDisconnect }: ShopifyGuideProps
       </div>
      </div>
 
-     <div className="bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-lg p-4">
-      <p className="text-sm text-fuchsia-300 font-medium mb-1"> Variabile Shopify inclusa</p>
-      <p className="text-sm text-fuchsia-300/70">
-       <span className="text-fuchsia-200">{'{{ shop.permanent_domain }}'}</span> viene inserita automaticamente da Shopify.
+     <div className="bg-pearl-100/70 border border-silver-200/70 rounded-lg p-4">
+      <p className="text-sm text-charcoal font-medium mb-1"> Variabile Shopify inclusa</p>
+      <p className="text-sm text-silver-700">
+       <span className="text-charcoal">{'{{ shop.permanent_domain }}'}</span> viene inserita automaticamente da Shopify.
       </p>
      </div>
     </div>
 
-    <div className="sticky bottom-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-t border-purple-500/20 p-6 flex gap-3 justify-between">
+    <div className="sticky bottom-0 bg-pearl-50/95 backdrop-blur border-t border-silver-200/70 p-6 flex gap-3 justify-between">
      <Button
       onClick={onClose}
-      className="flex-1 bg-charcoal hover:bg-charcoal/90 text-white shadow-lg "
+      className="flex-1 bg-charcoal hover:bg-charcoal/90 text-pearl shadow-lg"
      >
       Chiudi
      </Button>

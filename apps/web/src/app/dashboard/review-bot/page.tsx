@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useReviewBot } from "@/hooks/useReviewBot";
@@ -68,7 +68,7 @@ export default function ReviewBotPage() {
  if (loading && !showWizard) {
   return (
    <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-fuchsia-500"></div>
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-charcoal"></div>
    </div>
   );
  }
@@ -79,64 +79,64 @@ export default function ReviewBotPage() {
    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
     <div className="flex items-center justify-between">
      <div>
-      <h1 className="text-2xl font-bold text-white">Review Bot</h1>
-      <p className="text-white/70 mt-1">Raccogli recensioni Google automaticamente</p>
+      <h1 className="text-2xl font-bold text-charcoal">Review Bot</h1>
+      <p className="text-silver-700 mt-1">Raccogli recensioni Google automaticamente</p>
      </div>
     </div>
 
     {/* Empty State Card */}
-    <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 border border-purple-500/20 rounded-2xl p-12 text-center">
+    <div className="bg-pearl-50 border border-silver-200/70 rounded-2xl p-12 text-center">
      <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-orange-500/10 border border-yellow-500/30 flex items-center justify-center">
       <Star size={40} className="text-yellow-400" />
      </div>
 
-     <h2 className="text-2xl font-bold text-white mb-3">
+     <h2 className="text-2xl font-bold text-charcoal mb-3">
       Inizia a raccogliere recensioni Google
      </h2>
 
-     <p className="text-white/70 mb-8 max-w-2xl mx-auto">
+     <p className="text-silver-700 mb-8 max-w-2xl mx-auto">
       Configura il Review Bot per inviare automaticamente richieste di recensione ai tuoi clienti
       dopo un acquisto su Stripe, WooCommerce o Shopify.
      </p>
 
      {/* Features Grid */}
      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 max-w-4xl mx-auto">
-      <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-6">
-       <div className="w-12 h-12 mx-auto mb-3 rounded-lg bg-purple-500/20 flex items-center justify-center">
-        <MessageSquare size={24} className="text-purple-400" />
+      <div className="bg-pearl-100/70 border border-silver-200/70 rounded-xl p-6">
+       <div className="w-12 h-12 mx-auto mb-3 rounded-lg bg-pearl-100 flex items-center justify-center">
+        <MessageSquare size={24} className="text-silver-700" />
        </div>
-       <h3 className="text-white font-semibold mb-2">SMS Automatici</h3>
-       <p className="text-sm text-white/80">Invia richieste via SMS dopo ogni acquisto</p>
+       <h3 className="text-charcoal font-semibold mb-2">SMS Automatici</h3>
+       <p className="text-sm text-silver-700">Invia richieste via SMS dopo ogni acquisto</p>
       </div>
 
-      <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-6">
-       <div className="w-12 h-12 mx-auto mb-3 rounded-lg bg-fuchsia-500/20 flex items-center justify-center">
-        <MousePointerClick size={24} className="text-fuchsia-400" />
+      <div className="bg-pearl-100/70 border border-silver-200/70 rounded-xl p-6">
+       <div className="w-12 h-12 mx-auto mb-3 rounded-lg bg-pearl-100 flex items-center justify-center">
+        <MousePointerClick size={24} className="text-charcoal" />
        </div>
-       <h3 className="text-white font-semibold mb-2">Link Diretto Google</h3>
-       <p className="text-sm text-white/80">Link per lasciare recensioni con un click</p>
+       <h3 className="text-charcoal font-semibold mb-2">Link Diretto Google</h3>
+       <p className="text-sm text-silver-700">Link per lasciare recensioni con un click</p>
       </div>
 
-      <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-6">
+      <div className="bg-pearl-100/70 border border-silver-200/70 rounded-xl p-6">
        <div className="w-12 h-12 mx-auto mb-3 rounded-lg bg-emerald-500/20 flex items-center justify-center">
         <TrendingUp size={24} className="text-emerald-400" />
        </div>
-       <h3 className="text-white font-semibold mb-2">Analytics Dettagliati</h3>
-       <p className="text-sm text-white/80">Analytics e metriche</p>
+       <h3 className="text-charcoal font-semibold mb-2">Analytics Dettagliati</h3>
+       <p className="text-sm text-silver-700">Analytics e metriche</p>
       </div>
      </div>
 
      {/* Supported Platforms */}
      <div className="flex items-center justify-center gap-6 mb-8">
-      <div className="flex items-center gap-2 text-white/70">
+      <div className="flex items-center gap-2 text-silver-700">
        <StripeIcon size={20} className="text-[#635BFF]" />
        <span className="text-sm">Stripe</span>
       </div>
-      <div className="flex items-center gap-2 text-white/70">
+      <div className="flex items-center gap-2 text-silver-700">
        <WooCommerceIcon size={20} className="text-[#96588a]" />
        <span className="text-sm">WooCommerce</span>
       </div>
-      <div className="flex items-center gap-2 text-white/70">
+      <div className="flex items-center gap-2 text-silver-700">
        <ShopifyIcon size={20} className="text-[#96bf48]" />
        <span className="text-sm">Shopify</span>
       </div>
@@ -144,7 +144,7 @@ export default function ReviewBotPage() {
 
      <button
       onClick={() => setShowWizard(true)}
-      className="px-8 py-3 bg-charcoal text-white rounded-xl font-medium hover:bg-charcoal/90 transition-all shadow-lg "
+      className="px-8 py-3 bg-charcoal text-pearl rounded-xl font-medium hover:bg-charcoal/90 transition-all shadow-lg "
      >
       Configura Review Bot
      </button>
@@ -159,20 +159,20 @@ export default function ReviewBotPage() {
    {/* Header */}
    <div className="flex items-center justify-between">
     <div>
-     <h1 className="text-2xl font-bold text-white">Review Bot</h1>
-     <p className="text-white/70 mt-1">{reviewBot?.businessName}</p>
+     <h1 className="text-2xl font-bold text-charcoal">Review Bot</h1>
+     <p className="text-silver-700 mt-1">{reviewBot?.businessName}</p>
     </div>
     <div className="flex gap-3">
      <button
       onClick={() => setShowSettings(true)}
-      className="px-4 py-2 border border-purple-500/30 text-white/80 rounded-xl hover:bg-purple-500/20 transition-all inline-flex items-center gap-2"
+      className="px-4 py-2 border border-silver-200/70 text-silver-700 rounded-xl hover:bg-pearl-100 transition-all inline-flex items-center gap-2"
      >
       <Settings size={18} />
       Impostazioni
      </button>
      <button
       onClick={() => setShowSnippet(true)}
-      className="px-4 py-2 bg-charcoal text-white rounded-xl font-medium hover:bg-charcoal/90 transition-all shadow-lg inline-flex items-center gap-2"
+      className="px-4 py-2 bg-charcoal text-pearl rounded-xl font-medium hover:bg-charcoal/90 transition-all shadow-lg inline-flex items-center gap-2"
      >
       <Link2 size={18} />
       Copia Widget
@@ -215,10 +215,10 @@ export default function ReviewBotPage() {
    {/* Main Content Grid */}
    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
     {/* Recent Activity */}
-    <div className="lg:col-span-2 bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 border border-purple-500/20 rounded-2xl p-6">
-     <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-      <TrendingUp size={20} className="text-fuchsia-400" />
-      AttivitÃ  Recente
+    <div className="lg:col-span-2 bg-pearl-50 border border-silver-200/70 rounded-2xl p-6">
+     <h2 className="text-lg font-semibold text-charcoal mb-4 flex items-center gap-2">
+      <TrendingUp size={20} className="text-charcoal" />
+      Attività  Recente
      </h2>
 
      <div className="space-y-3">
@@ -250,15 +250,15 @@ export default function ReviewBotPage() {
       />
      </div>
 
-     <button className="mt-4 w-full py-2 border border-purple-500/30 text-white/80 rounded-xl hover:bg-purple-500/20 transition-all text-sm">
+     <button className="mt-4 w-full py-2 border border-silver-200/70 text-silver-700 rounded-xl hover:bg-pearl-100 transition-all text-sm">
       Vedi tutto
      </button>
     </div>
 
     {/* eCommerce Connections */}
-    <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 border border-purple-500/20 rounded-2xl p-6">
-     <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-      <Link2 size={20} className="text-fuchsia-400" />
+    <div className="bg-pearl-50 border border-silver-200/70 rounded-2xl p-6">
+     <h2 className="text-lg font-semibold text-charcoal mb-4 flex items-center gap-2">
+      <Link2 size={20} className="text-charcoal" />
       Connessioni eCommerce
      </h2>
 
@@ -284,29 +284,29 @@ export default function ReviewBotPage() {
       />
      </div>
 
-     <button className="mt-4 w-full py-2 border border-purple-500/30 text-white/80 rounded-xl hover:bg-purple-500/20 transition-all text-sm">
+     <button className="mt-4 w-full py-2 border border-silver-200/70 text-silver-700 rounded-xl hover:bg-pearl-100 transition-all text-sm">
       Aggiungi Connessione
      </button>
     </div>
    </div>
 
    {/* Widget Preview */}
-   <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 border border-purple-500/20 rounded-2xl p-6">
-    <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-     <ExternalLink size={20} className="text-fuchsia-400" />
+   <div className="bg-pearl-50 border border-silver-200/70 rounded-2xl p-6">
+    <h2 className="text-lg font-semibold text-charcoal mb-4 flex items-center gap-2">
+     <ExternalLink size={20} className="text-charcoal" />
      Anteprima Widget
     </h2>
 
     <div className="bg-[#0a0a0f] rounded-xl p-8 flex items-center justify-center min-h-[300px] relative">
-     <p className="text-white/60 text-sm">Anteprima widget in arrivo...</p>
+     <p className="text-silver-600 text-sm">Anteprima widget in arrivo...</p>
 
      {/* Mini widget preview placeholder */}
-     <div className="absolute bottom-4 right-4 bg-gradient-to-br from-purple-600/20 to-fuchsia-600/20 border border-purple-500/30 rounded-lg p-4 max-w-xs">
+     <div className="absolute bottom-4 right-4 bg-gradient-to-br from-pearl-100/70 to-pearl-50 border border-silver-200/70 rounded-lg p-4 max-w-xs">
       <div className="flex items-center gap-2 mb-2">
        <Star size={16} className="text-yellow-400" fill="currentColor" />
-       <span className="text-white text-sm font-medium">Lascia una recensione</span>
+       <span className="text-charcoal text-sm font-medium">Lascia una recensione</span>
       </div>
-      <p className="text-white/80/60 text-xs">
+      <p className="text-silver-700 text-xs">
        Clicca qui per lasciare una recensione su Google
       </p>
      </div>
@@ -322,12 +322,12 @@ export default function ReviewBotPage() {
 
    {showSettings && (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-     <div className="bg-[#1a0b2e] border border-purple-500/20 rounded-2xl p-6 max-w-2xl w-full">
-      <h3 className="text-xl font-bold text-white mb-4">Settings</h3>
-      <p className="text-white/70 mb-4">Settings component to be implemented</p>
+     <div className="bg-pearl-50 border border-silver-200/70 rounded-2xl p-6 max-w-2xl w-full">
+      <h3 className="text-xl font-bold text-charcoal mb-4">Settings</h3>
+      <p className="text-silver-700 mb-4">Settings component to be implemented</p>
       <button
        onClick={() => setShowSettings(false)}
-       className="px-4 py-2 bg-purple-600 text-white rounded-lg"
+       className="px-4 py-2 bg-charcoal text-pearl rounded-lg"
       >
        Close
       </button>
@@ -337,12 +337,12 @@ export default function ReviewBotPage() {
 
    {showSnippet && (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-     <div className="bg-[#1a0b2e] border border-purple-500/20 rounded-2xl p-6 max-w-2xl w-full">
-      <h3 className="text-xl font-bold text-white mb-4">Widget Snippet</h3>
-      <p className="text-white/70 mb-4">Widget snippet component to be implemented</p>
+     <div className="bg-pearl-50 border border-silver-200/70 rounded-2xl p-6 max-w-2xl w-full">
+      <h3 className="text-xl font-bold text-charcoal mb-4">Widget Snippet</h3>
+      <p className="text-silver-700 mb-4">Widget snippet component to be implemented</p>
       <button
        onClick={() => setShowSnippet(false)}
-       className="px-4 py-2 bg-purple-600 text-white rounded-lg"
+       className="px-4 py-2 bg-charcoal text-pearl rounded-lg"
       >
        Close
       </button>
@@ -370,14 +370,14 @@ function StatCard({
  subtitle?: string;
 }) {
  const colorClasses = {
-  purple: "from-purple-500/20 to-purple-600/10 border-purple-500/30 text-purple-400",
-  fuchsia: "from-fuchsia-500/20 to-fuchsia-600/10 border-fuchsia-500/30 text-fuchsia-400",
+  purple: "from-pearl-100/70 to-pearl-50 border-silver-200/70 text-silver-700",
+  fuchsia: "from-pearl-100/70 to-pearl-50 border-silver-200/70 text-charcoal",
   emerald: "from-emerald-500/20 to-emerald-600/10 border-emerald-500/30 text-emerald-400",
   yellow: "from-yellow-500/20 to-yellow-600/10 border-yellow-500/30 text-yellow-400",
  };
 
  return (
-  <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 border border-purple-500/20 rounded-2xl p-6">
+  <div className="bg-pearl-50 border border-silver-200/70 rounded-2xl p-6">
    <div className="flex items-center justify-between mb-3">
     <div className={`p-2 rounded-lg bg-gradient-to-br border ${colorClasses[color as keyof typeof colorClasses]}`}>
      <Icon size={20} />
@@ -388,10 +388,10 @@ function StatCard({
      </span>
     )}
    </div>
-   <p className="text-2xl font-bold text-white mb-1">{value.toLocaleString()}</p>
-   <p className="text-white/70 text-sm">{label}</p>
+   <p className="text-2xl font-bold text-charcoal mb-1">{value.toLocaleString()}</p>
+   <p className="text-silver-700 text-sm">{label}</p>
    {subtitle && (
-    <p className="text-white/60 text-xs mt-1">{subtitle}</p>
+    <p className="text-silver-600 text-xs mt-1">{subtitle}</p>
    )}
   </div>
  );
@@ -412,7 +412,7 @@ function ConnectionItem({
  lastSync?: string;
 }) {
  return (
-  <div className="flex items-center justify-between py-3 border-b border-purple-500/10 last:border-0">
+  <div className="flex items-center justify-between py-3 border-b border-silver-200/70 last:border-0">
    <div className="flex items-center gap-3">
     <div
      className="p-2 rounded-lg"
@@ -421,16 +421,16 @@ function ConnectionItem({
      <Icon size={20} style={{ color }} />
     </div>
     <div>
-     <p className="text-white font-medium">{name}</p>
+     <p className="text-charcoal font-medium">{name}</p>
      {lastSync && (
-      <p className="text-white/60 text-xs">Sync: {lastSync}</p>
+      <p className="text-silver-600 text-xs">Sync: {lastSync}</p>
      )}
     </div>
    </div>
    <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase border ${
     status === 'connected'
-     ? 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30'
-     : 'bg-purple-500/10 text-white/80 border-purple-500/20'
+     ? 'bg-pearl-100 text-charcoal border-silver-200/70'
+     : 'bg-pearl-100/70 text-silver-700 border-silver-200/70'
    }`}>
     {status}
    </span>
@@ -453,27 +453,27 @@ function ActivityItem({
  feedback?: string;
 }) {
  return (
-  <div className="flex items-start gap-4 py-3 border-b border-purple-500/10 last:border-0">
+  <div className="flex items-start gap-4 py-3 border-b border-silver-200/70 last:border-0">
    <div className="flex gap-0.5">
     {[...Array(5)].map((_, i) => (
      <Star
       key={i}
       size={14}
-      className={i < rating ? "text-yellow-400" : "text-purple-500/20"}
+      className={i < rating ? "text-yellow-400" : "text-silver-300"}
       fill={i < rating ? "currentColor" : "none"}
      />
     ))}
    </div>
    <div className="flex-1">
     <div className="flex items-center justify-between mb-1">
-     <p className="text-white font-medium text-sm">{name}</p>
-     <span className="text-white/60 text-xs">{time}</span>
+     <p className="text-charcoal font-medium text-sm">{name}</p>
+     <span className="text-silver-600 text-xs">{time}</span>
     </div>
     {feedback && (
-     <p className="text-white/80/60 text-sm mb-2">{feedback}</p>
+     <p className="text-silver-700 text-sm mb-2">{feedback}</p>
     )}
     {clickedGoogle && (
-     <span className="text-xs text-emerald-400">âœ“ Google Review</span>
+     <span className="text-xs text-emerald-400">✓“ Google Review</span>
     )}
    </div>
   </div>

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import {
@@ -68,11 +68,11 @@ export function ReviewBotWizard({ onClose, onComplete, editMode, initialData }: 
   shopifyAccessToken: '',
 
   // Messages
-  thankYouMessage: initialData?.thankYouMessage || 'ðŸŽ‰ Grazie per il tuo acquisto!',
+  thankYouMessage: initialData?.thankYouMessage || 'Ž‰ Grazie per il tuo acquisto!',
   surveyQuestion: initialData?.surveyQuestion || 'Come valuteresti la tua esperienza?',
   positiveMessage: initialData?.positiveMessage || 'Fantastico! Ti andrebbe di condividere la tua opinione su Google? Ci aiuta tantissimo!',
   negativeMessage: initialData?.negativeMessage || 'Grazie per il feedback! Cosa possiamo migliorare?',
-  completedMessage: initialData?.completedMessage || 'Grazie mille per il tuo tempo! â¤ï¸',
+  completedMessage: initialData?.completedMessage || 'Grazie mille per il tuo tempo! ¤ï¸',
 
   // Widget
   surveyType: initialData?.surveyType || 'EMOJI',
@@ -115,30 +115,30 @@ export function ReviewBotWizard({ onClose, onComplete, editMode, initialData }: 
    />
 
    {/* Modal */}
-   <div className="relative w-full max-w-2xl bg-gradient-to-br from-[#1a0b2e] to-[#0f0520] border border-purple-500/30 rounded-2xl shadow-2xl overflow-hidden">
+   <div className="relative w-full max-w-2xl bg-gradient-to-br from-[#1a0b2e] to-[#0f0520] border border-silver-200/70 rounded-2xl shadow-2xl overflow-hidden">
     {/* Header */}
-    <div className="sticky top-0 z-10 bg-[#1a0b2e]/95 backdrop-blur-md border-b border-purple-500/20 px-6 py-4">
+    <div className="sticky top-0 z-10 bg-[#1a0b2e]/95 backdrop-blur-md border-b border-silver-200/70 px-6 py-4">
      <div className="flex items-center justify-between">
       <div>
-       <h2 className="text-xl font-bold text-white">
+       <h2 className="text-xl font-bold text-charcoal">
         {editMode ? 'Modifica Review Bot' : 'Configura Review Bot'}
        </h2>
-       <p className="text-purple-300/60 text-sm mt-1">
+       <p className="text-silver-600 text-sm mt-1">
         Step {currentStep + 1} di {STEPS.length}: {STEPS[currentStep].title}
        </p>
       </div>
       <button
        onClick={onClose}
-       className="p-2 text-purple-300/60 hover:text-white hover:bg-purple-500/20 rounded-lg transition-all"
+       className="p-2 text-silver-600 hover:text-charcoal hover:bg-pearl-100 rounded-lg transition-all"
       >
        <X size={20} />
       </button>
      </div>
 
      {/* Progress Bar */}
-     <div className="mt-4 h-1 bg-purple-900/50 rounded-full overflow-hidden">
+     <div className="mt-4 h-1 bg-pearl-100 rounded-full overflow-hidden">
       <div
-       className="h-full bg-gradient-to-r from-purple-500 to-fuchsia-500 transition-all duration-500"
+       className="h-full bg-charcoal transition-all duration-500"
        style={{ width: `${progress}%` }}
       />
      </div>
@@ -154,15 +154,15 @@ export function ReviewBotWizard({ onClose, onComplete, editMode, initialData }: 
         <div
          key={step.id}
          className={`flex items-center gap-2 ${
-          isActive ? 'text-fuchsia-400' : isCompleted ? 'text-purple-400' : 'text-purple-500/40'
+          isActive ? 'text-charcoal' : isCompleted ? 'text-silver-700' : 'text-silver-500'
          }`}
         >
          <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
           isActive
-           ? 'border-fuchsia-500 bg-fuchsia-500/20'
+           ? 'border-charcoal bg-pearl-100'
            : isCompleted
-            ? 'border-purple-500 bg-purple-500/20'
-            : 'border-purple-500/30'
+            ? 'border-silver-300 bg-pearl-100'
+            : 'border-silver-200/70'
          }`}>
           {isCompleted ? <Check size={16} /> : <Icon size={16} />}
          </div>
@@ -190,11 +190,11 @@ export function ReviewBotWizard({ onClose, onComplete, editMode, initialData }: 
     </div>
 
     {/* Footer */}
-    <div className="sticky bottom-0 bg-[#1a0b2e]/95 backdrop-blur-md border-t border-purple-500/20 px-6 py-4 flex justify-between">
+    <div className="sticky bottom-0 bg-[#1a0b2e]/95 backdrop-blur-md border-t border-silver-200/70 px-6 py-4 flex justify-between">
      <button
       onClick={prevStep}
       disabled={currentStep === 0}
-      className="px-4 py-2 border border-purple-500/30 text-purple-200 rounded-xl hover:bg-purple-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+      className="px-4 py-2 border border-silver-200/70 text-silver-700 rounded-xl hover:bg-pearl-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
      >
       <ArrowLeft size={18} />
       Indietro
@@ -202,7 +202,7 @@ export function ReviewBotWizard({ onClose, onComplete, editMode, initialData }: 
 
      <button
       onClick={nextStep}
-      className="px-6 py-2 bg-charcoal text-white rounded-xl font-medium hover:bg-charcoal/90 transition-all shadow-lg inline-flex items-center gap-2"
+      className="px-6 py-2 bg-charcoal text-charcoal rounded-xl font-medium hover:bg-charcoal/90 transition-all shadow-lg inline-flex items-center gap-2"
      >
       {currentStep === STEPS.length - 1 ? (
        <>
@@ -243,29 +243,29 @@ function StepBusiness({ config, updateConfig }: { config: any; updateConfig: (ke
  return (
   <div className="space-y-6">
    <div>
-    <h3 className="text-lg font-semibold text-white mb-2">Informazioni Business</h3>
-    <p className="text-purple-300/60 text-sm">
-     Inserisci i dati della tua attivitÃ  per configurare il link alle recensioni Google.
+    <h3 className="text-lg font-semibold text-charcoal mb-2">Informazioni Business</h3>
+    <p className="text-silver-600 text-sm">
+     Inserisci i dati della tua attività  per configurare il link alle recensioni Google.
     </p>
    </div>
 
    <div className="space-y-4">
     <div>
-     <label className="block text-sm font-medium text-purple-200 mb-2">
-      Nome AttivitÃ  *
+     <label className="block text-sm font-medium text-silver-700 mb-2">
+      Nome Attività  *
      </label>
      <input
       type="text"
       value={config.businessName}
       onChange={(e) => updateConfig('businessName', e.target.value)}
       placeholder="Es. Pizzeria Da Mario"
-      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50 focus:ring-2 focus:ring-fuchsia-500/20"
+      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300 focus:ring-2 focus:ring-charcoal/10"
      />
     </div>
 
     <div className="flex gap-3">
      <div className="flex-1">
-      <label className="block text-sm font-medium text-purple-200 mb-2">
+      <label className="block text-sm font-medium text-silver-700 mb-2">
        Google Place ID
       </label>
       <input
@@ -273,16 +273,16 @@ function StepBusiness({ config, updateConfig }: { config: any; updateConfig: (ke
        value={config.googlePlaceId}
        onChange={(e) => updateConfig('googlePlaceId', e.target.value)}
        placeholder="ChIJ..."
-       className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50"
+       className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300"
       />
      </div>
      <button
       onClick={searchGooglePlace}
       disabled={!config.businessName || searching}
-      className="self-end px-4 py-3 bg-purple-500/20 border border-purple-500/30 text-purple-200 rounded-xl hover:bg-purple-500/30 transition-all disabled:opacity-50 inline-flex items-center gap-2"
+      className="self-end px-4 py-3 bg-pearl-100 border border-silver-200/70 text-silver-700 rounded-xl hover:bg-pearl-100 transition-all disabled:opacity-50 inline-flex items-center gap-2"
      >
       {searching ? (
-       <div className="w-5 h-5 border-2 border-purple-300 border-t-transparent rounded-full animate-spin" />
+       <div className="w-5 h-5 border-2 border-silver-300 border-t-transparent rounded-full animate-spin" />
       ) : (
        <Search size={18} />
       )}
@@ -292,7 +292,7 @@ function StepBusiness({ config, updateConfig }: { config: any; updateConfig: (ke
 
     {config.googleReviewUrl && (
      <div>
-      <label className="block text-sm font-medium text-purple-200 mb-2">
+      <label className="block text-sm font-medium text-silver-700 mb-2">
        Link Recensione Google
       </label>
       <div className="flex gap-2">
@@ -300,11 +300,11 @@ function StepBusiness({ config, updateConfig }: { config: any; updateConfig: (ke
         type="text"
         value={config.googleReviewUrl}
         readOnly
-        className="flex-1 px-4 py-3 bg-purple-900/20 border border-purple-500/20 rounded-xl text-purple-300 text-sm"
+        className="flex-1 px-4 py-3 bg-pearl-100/70 border border-silver-200/70 rounded-xl text-silver-600 text-sm"
        />
        <button
         onClick={() => navigator.clipboard.writeText(config.googleReviewUrl)}
-        className="px-3 py-3 bg-purple-500/20 border border-purple-500/30 text-purple-200 rounded-xl hover:bg-purple-500/30 transition-all"
+        className="px-3 py-3 bg-pearl-100 border border-silver-200/70 text-silver-700 rounded-xl hover:bg-pearl-100 transition-all"
        >
         <Copy size={18} />
        </button>
@@ -312,26 +312,26 @@ function StepBusiness({ config, updateConfig }: { config: any; updateConfig: (ke
         href={config.googleReviewUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="px-3 py-3 bg-purple-500/20 border border-purple-500/30 text-purple-200 rounded-xl hover:bg-purple-500/30 transition-all"
+        className="px-3 py-3 bg-pearl-100 border border-silver-200/70 text-silver-700 rounded-xl hover:bg-pearl-100 transition-all"
        >
         <ExternalLink size={18} />
        </a>
       </div>
-      <p className="text-purple-400/50 text-xs mt-2">
-       Questo link verrÃ  mostrato ai clienti soddisfatti per lasciare una recensione.
+      <p className="text-silver-600 text-xs mt-2">
+       Questo link verrà  mostrato ai clienti soddisfatti per lasciare una recensione.
       </p>
      </div>
     )}
 
     {/* Info Box */}
-    <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-     <p className="text-purple-200 text-sm">
-      ðŸ’¡ <strong>Tip:</strong> Puoi trovare il Place ID della tua attivitÃ  cercandola su
+    <div className="p-4 bg-pearl-100/70 border border-silver-200/70 rounded-xl">
+     <p className="text-silver-700 text-sm">
+      ’¡ <strong>Tip:</strong> Puoi trovare il Place ID della tua attività  cercandola su
       <a
        href="https://developers.google.com/maps/documentation/places/web-service/place-id"
        target="_blank"
        rel="noopener noreferrer"
-       className="text-fuchsia-400 hover:text-fuchsia-300 ml-1"
+       className="text-charcoal hover:text-silver-700 ml-1"
       >
        Google Place ID Finder
       </a>
@@ -353,8 +353,8 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
  return (
   <div className="space-y-6">
    <div>
-    <h3 className="text-lg font-semibold text-white mb-2">Connetti eCommerce</h3>
-    <p className="text-purple-300/60 text-sm">
+    <h3 className="text-lg font-semibold text-charcoal mb-2">Connetti eCommerce</h3>
+    <p className="text-silver-600 text-sm">
      Seleziona la piattaforma da cui ricevere le notifiche di acquisto.
     </p>
    </div>
@@ -371,8 +371,8 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
        onClick={() => updateConfig('ecommercePlatform', platform.id)}
        className={`p-4 rounded-xl border-2 transition-all ${
         isSelected
-         ? 'border-fuchsia-500 bg-fuchsia-500/10'
-         : 'border-purple-500/20 hover:border-purple-500/40 bg-purple-900/20'
+         ? 'border-charcoal bg-pearl-100/70'
+         : 'border-silver-200/70 hover:border-silver-300 bg-pearl-100/70'
        }`}
       >
        <div className="flex flex-col items-center gap-2">
@@ -382,7 +382,7 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
         >
          <Icon size={28} className="text-current" />
         </div>
-        <span className="text-white font-medium">{platform.name}</span>
+        <span className="text-charcoal font-medium">{platform.name}</span>
        </div>
       </button>
      );
@@ -391,9 +391,9 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
 
    {/* Platform-specific fields */}
    {config.ecommercePlatform === 'stripe' && (
-    <div className="space-y-4 p-4 bg-purple-900/20 rounded-xl border border-purple-500/20">
+    <div className="space-y-4 p-4 bg-pearl-100/70 rounded-xl border border-silver-200/70">
      <div>
-      <label className="block text-sm font-medium text-purple-200 mb-2">
+      <label className="block text-sm font-medium text-silver-700 mb-2">
        Stripe Webhook Secret
       </label>
       <input
@@ -401,18 +401,18 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
        value={config.stripeApiKey}
        onChange={(e) => updateConfig('stripeApiKey', e.target.value)}
        placeholder="whsec_..."
-       className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50"
+       className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300"
       />
-      <p className="text-purple-400/50 text-xs mt-2">
-       Trovi il webhook secret nella dashboard Stripe â†’ Developers â†’ Webhooks
+      <p className="text-silver-600 text-xs mt-2">
+       Trovi il webhook secret nella dashboard Stripe †’ Developers †’ Webhooks
       </p>
      </div>
 
      <div className="p-3 bg-[#635BFF]/10 border border-[#635BFF]/30 rounded-lg">
-      <p className="text-sm text-purple-200 mb-2">
+      <p className="text-sm text-silver-700 mb-2">
        <strong>Webhook URL da configurare in Stripe:</strong>
       </p>
-      <code className="text-xs text-fuchsia-300 bg-purple-900/50 px-2 py-1 rounded">
+      <code className="text-xs text-silver-700 bg-pearl-100 px-2 py-1 rounded">
        https://api.chatbotstudio.io/webhooks/stripe/review
       </code>
      </div>
@@ -420,9 +420,9 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
    )}
 
    {config.ecommercePlatform === 'woocommerce' && (
-    <div className="space-y-4 p-4 bg-purple-900/20 rounded-xl border border-purple-500/20">
+    <div className="space-y-4 p-4 bg-pearl-100/70 rounded-xl border border-silver-200/70">
      <div>
-      <label className="block text-sm font-medium text-purple-200 mb-2">
+      <label className="block text-sm font-medium text-silver-700 mb-2">
        URL del tuo negozio WooCommerce
       </label>
       <input
@@ -430,12 +430,12 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
        value={config.wooUrl}
        onChange={(e) => updateConfig('wooUrl', e.target.value)}
        placeholder="https://tuonegozio.com"
-       className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50"
+       className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300"
       />
      </div>
      <div className="grid grid-cols-2 gap-4">
       <div>
-       <label className="block text-sm font-medium text-purple-200 mb-2">
+       <label className="block text-sm font-medium text-silver-700 mb-2">
         Consumer Key
        </label>
        <input
@@ -443,11 +443,11 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
         value={config.wooConsumerKey}
         onChange={(e) => updateConfig('wooConsumerKey', e.target.value)}
         placeholder="ck_..."
-        className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50"
+        className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300"
        />
       </div>
       <div>
-       <label className="block text-sm font-medium text-purple-200 mb-2">
+       <label className="block text-sm font-medium text-silver-700 mb-2">
         Consumer Secret
        </label>
        <input
@@ -455,7 +455,7 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
         value={config.wooConsumerSecret}
         onChange={(e) => updateConfig('wooConsumerSecret', e.target.value)}
         placeholder="cs_..."
-        className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50"
+        className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300"
        />
       </div>
      </div>
@@ -463,9 +463,9 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
    )}
 
    {config.ecommercePlatform === 'shopify' && (
-    <div className="space-y-4 p-4 bg-purple-900/20 rounded-xl border border-purple-500/20">
+    <div className="space-y-4 p-4 bg-pearl-100/70 rounded-xl border border-silver-200/70">
      <div>
-      <label className="block text-sm font-medium text-purple-200 mb-2">
+      <label className="block text-sm font-medium text-silver-700 mb-2">
        Shopify Store Domain
       </label>
       <input
@@ -473,11 +473,11 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
        value={config.shopifyDomain}
        onChange={(e) => updateConfig('shopifyDomain', e.target.value)}
        placeholder="tuonegozio.myshopify.com"
-       className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50"
+       className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300"
       />
      </div>
      <div>
-      <label className="block text-sm font-medium text-purple-200 mb-2">
+      <label className="block text-sm font-medium text-silver-700 mb-2">
        Access Token
       </label>
       <input
@@ -485,15 +485,15 @@ function StepEcommerce({ config, updateConfig }: { config: any; updateConfig: (k
        value={config.shopifyAccessToken}
        onChange={(e) => updateConfig('shopifyAccessToken', e.target.value)}
        placeholder="shpat_..."
-       className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50"
+       className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300"
       />
      </div>
     </div>
    )}
 
    {!config.ecommercePlatform && (
-    <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl text-center">
-     <p className="text-purple-300/60 text-sm">
+    <div className="p-4 bg-pearl-100/70 border border-silver-200/70 rounded-xl text-center">
+     <p className="text-silver-600 text-sm">
       Seleziona una piattaforma per continuare
      </p>
     </div>
@@ -507,31 +507,31 @@ function StepMessages({ config, updateConfig }: { config: any; updateConfig: (ke
  return (
   <div className="space-y-6">
    <div>
-    <h3 className="text-lg font-semibold text-white mb-2">Personalizza Messaggi</h3>
-    <p className="text-purple-300/60 text-sm">
+    <h3 className="text-lg font-semibold text-charcoal mb-2">Personalizza Messaggi</h3>
+    <p className="text-silver-600 text-sm">
      Personalizza i messaggi che i tuoi clienti vedranno.
     </p>
    </div>
 
    <div className="space-y-4">
     <div>
-     <label className="block text-sm font-medium text-purple-200 mb-2">
+     <label className="block text-sm font-medium text-silver-700 mb-2">
       Messaggio di Ringraziamento
      </label>
      <input
       type="text"
       value={config.thankYouMessage}
       onChange={(e) => updateConfig('thankYouMessage', e.target.value)}
-      placeholder="ðŸŽ‰ Grazie per il tuo acquisto!"
-      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50"
+      placeholder="Ž‰ Grazie per il tuo acquisto!"
+      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300"
      />
-     <p className="text-purple-400/50 text-xs mt-1">
+     <p className="text-silver-600 text-xs mt-1">
       Mostrato come titolo del widget
      </p>
     </div>
 
     <div>
-     <label className="block text-sm font-medium text-purple-200 mb-2">
+     <label className="block text-sm font-medium text-silver-700 mb-2">
       Domanda Survey
      </label>
      <input
@@ -539,77 +539,77 @@ function StepMessages({ config, updateConfig }: { config: any; updateConfig: (ke
       value={config.surveyQuestion}
       onChange={(e) => updateConfig('surveyQuestion', e.target.value)}
       placeholder="Come valuteresti la tua esperienza?"
-      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50"
+      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300"
      />
     </div>
 
     <div>
-     <label className="block text-sm font-medium text-purple-200 mb-2">
-      Messaggio Feedback Positivo (â­4-5)
+     <label className="block text-sm font-medium text-silver-700 mb-2">
+      Messaggio Feedback Positivo (­4-5)
      </label>
      <textarea
       value={config.positiveMessage}
       onChange={(e) => updateConfig('positiveMessage', e.target.value)}
       placeholder="Fantastico! Ti andrebbe di condividere la tua opinione su Google?"
       rows={2}
-      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50 resize-none"
+      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300 resize-none"
      />
-     <p className="text-purple-400/50 text-xs mt-1">
-      Mostrato quando il cliente dÃ  un voto positivo
+     <p className="text-silver-600 text-xs mt-1">
+      Mostrato quando il cliente dà  un voto positivo
      </p>
     </div>
 
     <div>
-     <label className="block text-sm font-medium text-purple-200 mb-2">
-      Messaggio Feedback Negativo (â­1-3)
+     <label className="block text-sm font-medium text-silver-700 mb-2">
+      Messaggio Feedback Negativo (­1-3)
      </label>
      <textarea
       value={config.negativeMessage}
       onChange={(e) => updateConfig('negativeMessage', e.target.value)}
       placeholder="Grazie per il feedback! Cosa possiamo migliorare?"
       rows={2}
-      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50 resize-none"
+      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300 resize-none"
      />
-     <p className="text-purple-400/50 text-xs mt-1">
-      Mostrato quando il cliente dÃ  un voto negativo (NON mostra link Google)
+     <p className="text-silver-600 text-xs mt-1">
+      Mostrato quando il cliente dà  un voto negativo (NON mostra link Google)
      </p>
     </div>
 
     <div>
-     <label className="block text-sm font-medium text-purple-200 mb-2">
+     <label className="block text-sm font-medium text-silver-700 mb-2">
       Messaggio Completamento
      </label>
      <input
       type="text"
       value={config.completedMessage}
       onChange={(e) => updateConfig('completedMessage', e.target.value)}
-      placeholder="Grazie mille per il tuo tempo! â¤ï¸"
-      className="w-full px-4 py-3 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white placeholder-purple-400/50 focus:outline-none focus:border-fuchsia-500/50"
+      placeholder="Grazie mille per il tuo tempo! ¤ï¸"
+      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300"
      />
     </div>
    </div>
 
    {/* Preview */}
-   <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-    <p className="text-purple-200 text-sm mb-3">
+   <div className="p-4 bg-pearl-100/70 border border-silver-200/70 rounded-xl">
+    <p className="text-silver-700 text-sm mb-3">
      <strong>Anteprima Flow:</strong>
     </p>
     <div className="space-y-2 text-sm">
      <div className="flex items-center gap-2">
-      <span className="w-6 h-6 rounded-full bg-fuchsia-500/20 text-fuchsia-300 flex items-center justify-center text-xs">1</span>
-      <span className="text-purple-300">{config.thankYouMessage}</span>
+      <span className="w-6 h-6 rounded-full bg-pearl-50 border border-silver-200/70 text-charcoal flex items-center justify-center text-xs">1</span>
+      <span className="text-silver-600">{config.thankYouMessage}</span>
      </div>
      <div className="flex items-center gap-2">
-      <span className="w-6 h-6 rounded-full bg-fuchsia-500/20 text-fuchsia-300 flex items-center justify-center text-xs">2</span>
-      <span className="text-purple-300">{config.surveyQuestion} â†’ ðŸ˜ðŸ˜ŠðŸ˜ðŸ˜•ðŸ˜ž</span>
+      <span className="w-6 h-6 rounded-full bg-pearl-50 border border-silver-200/70 text-charcoal flex items-center justify-center text-xs">2</span>
+      <span className="text-silver-600">{config.surveyQuestion} → 😍😊😐😕😞</span>
      </div>
      <div className="flex items-center gap-2">
       <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs">3a</span>
-      <span className="text-purple-300">Se ðŸ˜ðŸ˜Š â†’ {config.positiveMessage.substring(0, 40)}...</span>
+      <span className="text-silver-600">Se 😍😊 → {config.positiveMessage.substring(0, 40)}...</span>
      </div>
      <div className="flex items-center gap-2">
       <span className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs">3b</span>
-      <span className="text-purple-300">Se ðŸ˜ðŸ˜•ðŸ˜ž â†’ {config.negativeMessage.substring(0, 40)}...</span>
+      <span className="text-silver-600">Se 😐😕😞 → {config.negativeMessage.substring(0, 40)}...</span>
      </div>
     </div>
    </div>
@@ -620,8 +620,8 @@ function StepMessages({ config, updateConfig }: { config: any; updateConfig: (ke
 // Step 4: Widget Customization
 function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key: string, value: any) => void }) {
  const surveyTypes = [
-  { id: 'EMOJI', label: 'Emoji', preview: 'ðŸ˜ ðŸ˜Š ðŸ˜ ðŸ˜• ðŸ˜ž' },
-  { id: 'STARS', label: 'Stelle', preview: 'â­â­â­â­â­' },
+  { id: 'EMOJI', label: 'Emoji', preview: '˜ ˜Š ˜ ˜• ˜ž' },
+  { id: 'STARS', label: 'Stelle', preview: '­­­­­' },
   { id: 'NPS', label: 'NPS (0-10)', preview: '0 1 2 3 4 5 6 7 8 9 10' },
  ];
 
@@ -637,8 +637,8 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
  return (
   <div className="space-y-6">
    <div>
-    <h3 className="text-lg font-semibold text-white mb-2">Personalizza Widget</h3>
-    <p className="text-purple-300/60 text-sm">
+    <h3 className="text-lg font-semibold text-charcoal mb-2">Personalizza Widget</h3>
+    <p className="text-silver-600 text-sm">
      Configura l&apos;aspetto e il comportamento del widget.
     </p>
    </div>
@@ -646,7 +646,7 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
    <div className="space-y-4">
     {/* Survey Type */}
     <div>
-     <label className="block text-sm font-medium text-purple-200 mb-2">
+     <label className="block text-sm font-medium text-silver-700 mb-2">
       Tipo di Survey
      </label>
      <div className="grid grid-cols-3 gap-3">
@@ -656,12 +656,12 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
         onClick={() => updateConfig('surveyType', type.id)}
         className={`p-3 rounded-xl border-2 transition-all text-center ${
          config.surveyType === type.id
-          ? 'border-fuchsia-500 bg-fuchsia-500/10'
-          : 'border-purple-500/20 hover:border-purple-500/40'
+          ? 'border-charcoal bg-pearl-100/70'
+          : 'border-silver-200/70 hover:border-silver-300'
         }`}
        >
-        <p className="text-white font-medium mb-1">{type.label}</p>
-        <p className="text-xs text-purple-300/60">{type.preview}</p>
+        <p className="text-charcoal font-medium mb-1">{type.label}</p>
+        <p className="text-xs text-silver-600">{type.preview}</p>
        </button>
       ))}
      </div>
@@ -669,7 +669,7 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
 
     {/* Positive Threshold */}
     <div>
-     <label className="block text-sm font-medium text-purple-200 mb-2">
+     <label className="block text-sm font-medium text-silver-700 mb-2">
       Soglia Feedback Positivo
      </label>
      <div className="flex items-center gap-4">
@@ -679,20 +679,20 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
        max="5"
        value={config.positiveThreshold}
        onChange={(e) => updateConfig('positiveThreshold', parseInt(e.target.value))}
-       className="flex-1 accent-fuchsia-500"
+       className="flex-1 accent-emerald-600"
       />
-      <span className="text-white font-bold w-8 text-center">
+      <span className="text-charcoal font-bold w-8 text-center">
        {config.positiveThreshold}+
       </span>
      </div>
-     <p className="text-purple-400/50 text-xs mt-1">
-      Rating â‰¥ {config.positiveThreshold} mostrerÃ  il prompt Google Review
+     <p className="text-silver-600 text-xs mt-1">
+      Rating ‰¥ {config.positiveThreshold} mostrerà  il prompt Google Review
      </p>
     </div>
 
     {/* Color */}
     <div>
-     <label className="block text-sm font-medium text-purple-200 mb-2">
+     <label className="block text-sm font-medium text-silver-700 mb-2">
       Colore Widget
      </label>
      <div className="flex gap-3">
@@ -702,7 +702,7 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
         onClick={() => updateConfig('widgetColor', color)}
         className={`w-10 h-10 rounded-xl transition-all ${
          config.widgetColor === color
-          ? 'ring-2 ring-offset-2 ring-offset-[#1a0b2e] ring-white scale-110'
+          ? 'ring-2 ring-charcoal scale-110'
           : 'hover:scale-105'
         }`}
         style={{ background: color }}
@@ -712,14 +712,14 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
        type="color"
        value={config.widgetColor}
        onChange={(e) => updateConfig('widgetColor', e.target.value)}
-       className="w-10 h-10 rounded-xl cursor-pointer bg-transparent border-2 border-dashed border-purple-500/30"
+       className="w-10 h-10 rounded-xl cursor-pointer bg-transparent border-2 border-dashed border-silver-200/70"
       />
      </div>
     </div>
 
     {/* Position */}
     <div>
-     <label className="block text-sm font-medium text-purple-200 mb-2">
+     <label className="block text-sm font-medium text-silver-700 mb-2">
       Posizione
      </label>
      <div className="grid grid-cols-2 gap-3">
@@ -727,28 +727,28 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
        onClick={() => updateConfig('widgetPosition', 'bottom-right')}
        className={`p-3 rounded-xl border-2 transition-all ${
         config.widgetPosition === 'bottom-right'
-         ? 'border-fuchsia-500 bg-fuchsia-500/10'
-         : 'border-purple-500/20 hover:border-purple-500/40'
+         ? 'border-charcoal bg-pearl-100/70'
+         : 'border-silver-200/70 hover:border-silver-300'
        }`}
       >
-       <p className="text-white">Basso Destra</p>
+       <p className="text-charcoal">Basso Destra</p>
       </button>
       <button
        onClick={() => updateConfig('widgetPosition', 'bottom-left')}
        className={`p-3 rounded-xl border-2 transition-all ${
         config.widgetPosition === 'bottom-left'
-         ? 'border-fuchsia-500 bg-fuchsia-500/10'
-         : 'border-purple-500/20 hover:border-purple-500/40'
+         ? 'border-charcoal bg-pearl-100/70'
+         : 'border-silver-200/70 hover:border-silver-300'
        }`}
       >
-       <p className="text-white">Basso Sinistra</p>
+       <p className="text-charcoal">Basso Sinistra</p>
       </button>
      </div>
     </div>
 
     {/* Delay */}
     <div>
-     <label className="block text-sm font-medium text-purple-200 mb-2">
+     <label className="block text-sm font-medium text-silver-700 mb-2">
       Ritardo Apertura (secondi)
      </label>
      <input
@@ -757,17 +757,17 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
       max="30"
       value={config.delaySeconds}
       onChange={(e) => updateConfig('delaySeconds', parseInt(e.target.value))}
-      className="w-24 px-4 py-2 bg-purple-900/30 border border-purple-500/30 rounded-xl text-white focus:outline-none focus:border-fuchsia-500/50"
+      className="w-24 px-4 py-2 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal focus:outline-none focus:border-silver-300"
      />
-     <p className="text-purple-400/50 text-xs mt-1">
+     <p className="text-silver-600 text-xs mt-1">
       Quanto tempo aspettare dopo l&apos;acquisto prima di mostrare il widget
      </p>
     </div>
    </div>
 
    {/* Mini Preview */}
-   <div className="p-4 bg-[#0a0a0f] rounded-xl relative min-h-[200px]">
-    <p className="text-purple-400/40 text-xs mb-4">Anteprima</p>
+   <div className="p-4 bg-pearl-100/70 border border-silver-200/70 rounded-xl relative min-h-[200px]">
+    <p className="text-silver-600 text-xs mb-4">Anteprima</p>
 
     <div
      className={`absolute ${config.widgetPosition === 'bottom-right' ? 'bottom-4 right-4' : 'bottom-4 left-4'} w-72 bg-white rounded-2xl shadow-2xl overflow-hidden`}
@@ -776,27 +776,27 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
       className="p-4"
       style={{ background: `linear-gradient(135deg, ${config.widgetColor}, ${config.widgetColor}dd)` }}
      >
-      <p className="text-white font-semibold">{config.thankYouMessage}</p>
+      <p className="text-pearl-50 font-semibold">{config.thankYouMessage}</p>
      </div>
      <div className="p-4">
       <p className="text-gray-700 text-sm mb-3">{config.surveyQuestion}</p>
       <div className="flex justify-center gap-2 text-2xl">
        {config.surveyType === 'EMOJI' && (
         <>
-         <span>ðŸ˜</span>
-         <span>ðŸ˜Š</span>
-         <span>ðŸ˜</span>
-         <span>ðŸ˜•</span>
-         <span>ðŸ˜ž</span>
+         <span>˜</span>
+         <span>˜Š</span>
+         <span>˜</span>
+         <span>˜•</span>
+         <span>˜ž</span>
         </>
        )}
        {config.surveyType === 'STARS' && (
         <>
-         <span>â­</span>
-         <span>â­</span>
-         <span>â­</span>
-         <span>â­</span>
-         <span>â­</span>
+         <span>­</span>
+         <span>­</span>
+         <span>­</span>
+         <span>­</span>
+         <span>­</span>
         </>
        )}
        {config.surveyType === 'NPS' && (

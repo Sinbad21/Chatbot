@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { X, Copy, Check, Code, Zap, ExternalLink } from 'lucide-react';
@@ -24,7 +24,7 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
  // API JavaScript disponibile dopo il caricamento
  // window.ReviewBot.show()    - Mostra il widget
  // window.ReviewBot.hide()    - Nasconde il widget
- // window.ReviewBot.show({ force: true }) - Mostra anche se giÃ  risposto
+ // window.ReviewBot.show({ force: true }) - Mostra anche se già  risposto
  // window.ReviewBot.reset()   - Reset stato (per testing)
 </script>`;
 
@@ -43,31 +43,31 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
    />
    
    {/* Modal */}
-   <div className="relative w-full max-w-2xl bg-gradient-to-br from-[#1a0b2e] to-[#0f0520] border border-purple-500/30 rounded-2xl shadow-2xl overflow-hidden">
+   <div className="relative w-full max-w-2xl bg-pearl-50 border border-silver-200/70 rounded-2xl shadow-2xl overflow-hidden">
     {/* Header */}
-    <div className="flex items-center justify-between px-6 py-4 border-b border-purple-500/20">
+    <div className="flex items-center justify-between px-6 py-4 border-b border-silver-200/70 bg-pearl-50/95 backdrop-blur">
      <div>
-      <h2 className="text-xl font-bold text-white">Codice Widget</h2>
+      <h2 className="text-xl font-bold text-charcoal">Codice Widget</h2>
       {businessName && (
-       <p className="text-purple-300/60 text-sm mt-1">{businessName}</p>
+       <p className="text-silver-600 text-sm mt-1">{businessName}</p>
       )}
      </div>
      <button
       onClick={onClose}
-      className="p-2 text-purple-300/60 hover:text-white hover:bg-purple-500/20 rounded-lg transition-all"
+      className="p-2 text-silver-600 hover:text-charcoal hover:bg-pearl-100 rounded-lg transition-all"
      >
       <X size={20} />
      </button>
     </div>
 
     {/* Tabs */}
-    <div className="flex border-b border-purple-500/20">
+    <div className="flex border-b border-silver-200/70 bg-pearl-50/95 backdrop-blur">
      <button
       onClick={() => setActiveTab('basic')}
       className={`flex-1 px-6 py-3 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
        activeTab === 'basic'
-        ? 'text-fuchsia-400 border-b-2 border-fuchsia-500 bg-fuchsia-500/10'
-        : 'text-purple-300/60 hover:text-white hover:bg-purple-500/10'
+        ? 'text-charcoal border-b-2 border-charcoal bg-pearl-100'
+        : 'text-silver-600 hover:text-charcoal hover:bg-pearl-100'
       }`}
      >
       <Code size={16} />
@@ -77,8 +77,8 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
       onClick={() => setActiveTab('advanced')}
       className={`flex-1 px-6 py-3 text-sm font-medium transition-all flex items-center justify-center gap-2 ${
        activeTab === 'advanced'
-        ? 'text-fuchsia-400 border-b-2 border-fuchsia-500 bg-fuchsia-500/10'
-        : 'text-purple-300/60 hover:text-white hover:bg-purple-500/10'
+        ? 'text-charcoal border-b-2 border-charcoal bg-pearl-100'
+        : 'text-silver-600 hover:text-charcoal hover:bg-pearl-100'
       }`}
      >
       <Zap size={16} />
@@ -91,23 +91,23 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
      {activeTab === 'basic' && (
       <>
        <div className="space-y-2">
-        <p className="text-purple-200 text-sm">
-         Copia questo codice e incollalo nel tuo sito prima del tag <code className="bg-purple-900/50 px-1 rounded">&lt;/body&gt;</code>
+        <p className="text-silver-700 text-sm">
+         Copia questo codice e incollalo nel tuo sito prima del tag <code className="bg-pearl-100 px-1 rounded">&lt;/body&gt;</code>
         </p>
         
         {/* Code Block */}
         <div className="relative">
-         <pre className="p-4 bg-[#0a0a0f] border border-purple-500/20 rounded-xl overflow-x-auto">
-          <code className="text-fuchsia-300 text-sm">{embedCode}</code>
+         <pre className="p-4 bg-charcoal border border-silver-200/20 rounded-xl overflow-x-auto">
+          <code className="text-pearl text-sm">{embedCode}</code>
          </pre>
          <button
           onClick={() => handleCopy(embedCode)}
-          className="absolute top-2 right-2 p-2 bg-purple-500/20 hover:bg-purple-500/30 rounded-lg transition-all"
+          className="absolute top-2 right-2 p-2 bg-pearl-50 hover:bg-pearl-100 rounded-lg transition-all"
          >
           {copied ? (
            <Check size={16} className="text-emerald-400" />
           ) : (
-           <Copy size={16} className="text-purple-300" />
+           <Copy size={16} className="text-silver-600" />
           )}
          </button>
         </div>
@@ -121,25 +121,25 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
        </div>
 
        {/* Auto-trigger Info */}
-       <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl space-y-3">
-        <h4 className="text-white font-medium">Auto-trigger dopo acquisto</h4>
-        <p className="text-purple-300/60 text-sm">
+       <div className="p-4 bg-pearl-100/70 border border-silver-200/70 rounded-xl space-y-3">
+        <h4 className="text-charcoal font-medium">Auto-trigger dopo acquisto</h4>
+        <p className="text-silver-600 text-sm">
          Il widget si attiva automaticamente quando l&apos;URL contiene uno di questi parametri:
         </p>
         <div className="flex flex-wrap gap-2">
-         <code className="px-2 py-1 bg-purple-900/50 rounded text-fuchsia-300 text-xs">?review=true</code>
-         <code className="px-2 py-1 bg-purple-900/50 rounded text-fuchsia-300 text-xs">?rb=1</code>
-         <code className="px-2 py-1 bg-purple-900/50 rounded text-fuchsia-300 text-xs">?feedback=true</code>
+         <code className="px-2 py-1 bg-pearl-100 rounded text-pearl text-xs">?review=true</code>
+         <code className="px-2 py-1 bg-pearl-100 rounded text-pearl text-xs">?rb=1</code>
+         <code className="px-2 py-1 bg-pearl-100 rounded text-pearl text-xs">?feedback=true</code>
         </div>
         
-        <div className="mt-3 pt-3 border-t border-purple-500/20">
-         <p className="text-purple-200 text-sm font-medium mb-2">
+        <div className="mt-3 pt-3 border-t border-silver-200/70 bg-pearl-50/95 backdrop-blur">
+         <p className="text-silver-700 text-sm font-medium mb-2">
           Configura il redirect post-acquisto:
          </p>
-         <ul className="text-purple-300/60 text-sm space-y-1">
-          <li>â€¢ <strong>Stripe:</strong> Success URL â†’ <code className="text-fuchsia-300">https://tuosito.com/grazie?review=true</code></li>
-          <li>â€¢ <strong>WooCommerce:</strong> Thank you page con parametro</li>
-          <li>â€¢ <strong>Shopify:</strong> Order confirmation page script</li>
+         <ul className="text-silver-600 text-sm space-y-1">
+          <li>€¢ <strong>Stripe:</strong> Success URL †’ <code className="text-pearl">https://tuosito.com/grazie?review=true</code></li>
+          <li>€¢ <strong>WooCommerce:</strong> Thank you page con parametro</li>
+          <li>€¢ <strong>Shopify:</strong> Order confirmation page script</li>
          </ul>
         </div>
        </div>
@@ -149,23 +149,23 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
      {activeTab === 'advanced' && (
       <>
        <div className="space-y-2">
-        <p className="text-purple-200 text-sm">
+        <p className="text-silver-700 text-sm">
          Usa l&apos;API JavaScript per controllare il widget programmaticamente.
         </p>
         
         {/* Code Block */}
         <div className="relative">
-         <pre className="p-4 bg-[#0a0a0f] border border-purple-500/20 rounded-xl overflow-x-auto text-sm">
-          <code className="text-fuchsia-300">{advancedCode}</code>
+         <pre className="p-4 bg-charcoal border border-silver-200/20 rounded-xl overflow-x-auto text-sm">
+          <code className="text-pearl">{advancedCode}</code>
          </pre>
          <button
           onClick={() => handleCopy(advancedCode)}
-          className="absolute top-2 right-2 p-2 bg-purple-500/20 hover:bg-purple-500/30 rounded-lg transition-all"
+          className="absolute top-2 right-2 p-2 bg-pearl-50 hover:bg-pearl-100 rounded-lg transition-all"
          >
           {copied ? (
            <Check size={16} className="text-emerald-400" />
           ) : (
-           <Copy size={16} className="text-purple-300" />
+           <Copy size={16} className="text-silver-600" />
           )}
          </button>
         </div>
@@ -179,30 +179,30 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
        </div>
 
        {/* API Reference */}
-       <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-        <h4 className="text-white font-medium mb-3">API Reference</h4>
+       <div className="p-4 bg-pearl-100/70 border border-silver-200/70 rounded-xl">
+        <h4 className="text-charcoal font-medium mb-3">API Reference</h4>
         <div className="space-y-3">
-         <div className="p-3 bg-purple-900/30 rounded-lg">
-          <code className="text-fuchsia-300 text-sm">ReviewBot.show()</code>
-          <p className="text-purple-300/60 text-xs mt-1">
-           Mostra il widget. Non fa nulla se l&apos;utente ha giÃ  risposto.
+         <div className="p-3 bg-pearl-50 rounded-lg">
+          <code className="text-pearl text-sm">ReviewBot.show()</code>
+          <p className="text-silver-600 text-xs mt-1">
+           Mostra il widget. Non fa nulla se l&apos;utente ha già  risposto.
           </p>
          </div>
-         <div className="p-3 bg-purple-900/30 rounded-lg">
-          <code className="text-fuchsia-300 text-sm">ReviewBot.show({'{ force: true }'})</code>
-          <p className="text-purple-300/60 text-xs mt-1">
-           Mostra il widget anche se l&apos;utente ha giÃ  risposto.
+         <div className="p-3 bg-pearl-50 rounded-lg">
+          <code className="text-pearl text-sm">ReviewBot.show({'{ force: true }'})</code>
+          <p className="text-silver-600 text-xs mt-1">
+           Mostra il widget anche se l&apos;utente ha già  risposto.
           </p>
          </div>
-         <div className="p-3 bg-purple-900/30 rounded-lg">
-          <code className="text-fuchsia-300 text-sm">ReviewBot.hide()</code>
-          <p className="text-purple-300/60 text-xs mt-1">
+         <div className="p-3 bg-pearl-50 rounded-lg">
+          <code className="text-pearl text-sm">ReviewBot.hide()</code>
+          <p className="text-silver-600 text-xs mt-1">
            Nasconde il widget.
           </p>
          </div>
-         <div className="p-3 bg-purple-900/30 rounded-lg">
-          <code className="text-fuchsia-300 text-sm">ReviewBot.reset()</code>
-          <p className="text-purple-300/60 text-xs mt-1">
+         <div className="p-3 bg-pearl-50 rounded-lg">
+          <code className="text-pearl text-sm">ReviewBot.reset()</code>
+          <p className="text-silver-600 text-xs mt-1">
            Resetta lo stato localStorage. Utile per testing.
           </p>
          </div>
@@ -211,19 +211,19 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
 
        {/* Trigger Examples */}
        <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-        <h4 className="text-amber-300 font-medium mb-2">ðŸ’¡ Esempi di utilizzo</h4>
+        <h4 className="text-amber-700 font-medium mb-2">’¡ Esempi di utilizzo</h4>
         <div className="space-y-2 text-sm">
-         <p className="text-purple-300/60">
-          <strong className="text-white">Trigger su click:</strong>
+         <p className="text-silver-600">
+          <strong className="text-charcoal">Trigger su click:</strong>
          </p>
-         <code className="block p-2 bg-purple-900/30 rounded text-fuchsia-300 text-xs">
+         <code className="block p-2 bg-pearl-50 rounded text-pearl text-xs">
           {`<button onclick="ReviewBot.show()">Lascia feedback</button>`}
          </code>
          
-         <p className="text-purple-300/60 mt-3">
-          <strong className="text-white">Trigger dopo X secondi:</strong>
+         <p className="text-silver-600 mt-3">
+          <strong className="text-charcoal">Trigger dopo X secondi:</strong>
          </p>
-         <code className="block p-2 bg-purple-900/30 rounded text-fuchsia-300 text-xs">
+         <code className="block p-2 bg-pearl-50 rounded text-pearl text-xs">
           {`setTimeout(() => ReviewBot.show(), 5000);`}
          </code>
         </div>
@@ -233,19 +233,19 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
     </div>
 
     {/* Footer */}
-    <div className="px-6 py-4 border-t border-purple-500/20 flex justify-between items-center">
+    <div className="px-6 py-4 border-t border-silver-200/70 bg-pearl-50/95 backdrop-blur flex justify-between items-center">
      <a
       href={`${baseUrl}/widget/review/test?widgetId=${widgetId}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-fuchsia-400 hover:text-fuchsia-300 text-sm inline-flex items-center gap-1"
+      className="text-charcoal hover:text-pearl text-sm inline-flex items-center gap-1"
      >
       <ExternalLink size={14} />
       Anteprima widget
      </a>
      <button
       onClick={onClose}
-      className="px-4 py-2 bg-charcoal text-white rounded-xl font-medium hover:bg-charcoal/90 transition-all"
+      className="px-4 py-2 bg-charcoal text-pearl rounded-xl font-medium hover:bg-charcoal/90 transition-all"
      >
       Chiudi
      </button>
