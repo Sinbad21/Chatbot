@@ -303,7 +303,7 @@ export default function IntegrationsPage() {
           >
             <div className="flex justify-between items-start mb-6">
               <div
-                className="p-3 rounded-xl border border-purple-500/20 transition-all group-hover:scale-110"
+                className="p-3 rounded-xl border border-silver-200/70 transition-all group-hover:scale-110"
                 style={{
                   background: integration.isMultiColor
                     ? 'rgba(255,255,255,0.1)'
@@ -418,3 +418,4 @@ export default function IntegrationsPage() {
     </div>
   );
 }
+

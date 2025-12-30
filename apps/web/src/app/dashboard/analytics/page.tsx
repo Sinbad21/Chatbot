@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -291,7 +291,7 @@ export default function AnalyticsPage() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value as DateRange)}
-            className="px-4 py-3 bg-pearl-50 border border-silver-200 rounded-lg text-sm text-charcoal focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 transition-all"
+            className="px-4 py-3 bg-pearl-50 border border-silver-200 rounded-lg text-sm text-charcoal focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300 transition-all"
           >
             <option value="7d">{t('analytics.dateRanges.7d')}</option>
             <option value="30d">{t('analytics.dateRanges.30d')}</option>
@@ -327,8 +327,8 @@ export default function AnalyticsPage() {
         <GlassCard>
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-silver-600">{t('analytics.stats.totalMessages')}</h3>
-            <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-              <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 rounded-full bg-pearl-100 flex items-center justify-center">
+              <svg className="w-5 h-5 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
               </svg>
             </div>
@@ -382,9 +382,9 @@ export default function AnalyticsPage() {
             <Line
               type="monotone"
               dataKey="conversations"
-              stroke="#4f46e5"
+              stroke="var(--charcoal)"
               strokeWidth={2}
-              dot={{ fill: '#4f46e5', r: 4 }}
+              dot={{ fill: 'var(--charcoal)', r: 4 }}
               activeDot={{ r: 6 }}
             />
           </LineChart>
@@ -406,7 +406,7 @@ export default function AnalyticsPage() {
                 borderRadius: '8px',
               }}
             />
-            <Bar dataKey="count" fill="#4f46e5" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="count" fill="var(--charcoal)" radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </GlassCard>
@@ -420,7 +420,7 @@ export default function AnalyticsPage() {
             placeholder={t('analytics.searchByBotOrStatus')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg text-sm text-charcoal placeholder-purple-400/50 focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 transition-all"
+            className="px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg text-sm text-charcoal placeholder:text-silver-500 focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300 transition-all"
           />
         </div>
 
@@ -468,10 +468,10 @@ export default function AnalyticsPage() {
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           conv.status === 'completed'
-                            ? 'bg-fuchsia-500/20 text-silver-600'
+                            ? 'bg-emerald-500/10 text-emerald-700'
                             : conv.status === 'active'
-                            ? 'bg-purple-500/20 text-silver-600'
-                            : 'bg-pearl-50 text-purple-400'
+                            ? 'bg-pearl-100 text-silver-600'
+                            : 'bg-pearl-50 text-charcoal'
                         }`}
                       >
                         {conv.status}
@@ -504,7 +504,7 @@ export default function AnalyticsPage() {
             <select
               value={selectedBotId}
               onChange={(e) => setSelectedBotId(e.target.value)}
-              className="px-4 py-3 bg-pearl-50 border border-silver-200 rounded-lg text-sm text-charcoal focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 transition-all"
+              className="px-4 py-3 bg-pearl-50 border border-silver-200 rounded-lg text-sm text-charcoal focus:ring-2 focus:ring-charcoal/10 focus:border-silver-300 transition-all"
             >
               {bots.map((bot) => (
                 <option key={bot.id} value={bot.id}>
@@ -558,8 +558,8 @@ export default function AnalyticsPage() {
                         <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                       </linearGradient>
                       <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="var(--charcoal)" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="var(--charcoal)" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
@@ -588,7 +588,7 @@ export default function AnalyticsPage() {
                     <Area
                       type="monotone"
                       dataKey="requests"
-                      stroke="#4f46e5"
+                      stroke="var(--charcoal)"
                       fillOpacity={1}
                       fill="url(#colorRequests)"
                     />
@@ -620,7 +620,7 @@ export default function AnalyticsPage() {
                         dataKey="requests"
                       >
                         {usageData.byModel.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={['#4f46e5', '#10b981', '#f59e0b', '#ef4444'][index % 4]} />
+                          <Cell key={`cell-${index}`} fill={['var(--charcoal)', 'var(--emerald)', '#f59e0b', '#ef4444'][index % 4]} />
                         ))}
                       </Pie>
                       <Tooltip />
@@ -664,3 +664,4 @@ export default function AnalyticsPage() {
     </div>
   );
 }
+
