@@ -102,11 +102,11 @@ export default function Onboarding({
      initial={{ scale: 0.9, opacity: 0 }}
      animate={{ scale: 1, opacity: 1 }}
      transition={{ delay: 0.1 }}
-     className="relative max-w-lg w-full mx-4 bg-gradient-to-br from-[#2d1b4e] to-[#150a25] border border-purple-500/30 rounded-2xl p-8 shadow-2xl"
+     className="relative max-w-lg w-full mx-4 bg-pearl-50 border border-silver-200/70 rounded-2xl p-8 shadow-silver-lg"
     >
      <button
       onClick={onDismiss}
-      className="absolute top-4 right-4 p-2 text-white/40 hover:text-white/80 transition-colors"
+      className="absolute top-4 right-4 p-2 text-silver-500 hover:text-charcoal transition-colors"
      >
       <X size={20} />
      </button>
@@ -116,15 +116,15 @@ export default function Onboarding({
        initial={{ scale: 0 }}
        animate={{ scale: 1 }}
        transition={{ delay: 0.2, type: 'spring' }}
-       className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-fuchsia-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30"
+       className="w-20 h-20 mx-auto mb-6 bg-charcoal rounded-2xl flex items-center justify-center shadow-pearl"
       >
-       <Sparkles className="w-10 h-10 text-white" />
+       <Sparkles className="w-10 h-10 text-pearl" />
       </motion.div>
 
-      <h1 className="text-2xl font-bold text-white mb-2">
+      <h1 className="text-2xl font-bold text-charcoal mb-2">
        Benvenuto{userName ? `, ${userName.split(' ')[0]}` : ''}!
       </h1>
-      <p className="text-purple-300/70 mb-8">
+      <p className="text-silver-600 mb-8">
        Sei a pochi passi dal creare il tuo primo chatbot AI. Ti guideremo attraverso il processo.
       </p>
 
@@ -132,19 +132,19 @@ export default function Onboarding({
        {steps.map((step, index) => (
         <div
          key={step.id}
-         className="flex items-center gap-3 p-3 rounded-lg bg-purple-900/20 border border-purple-500/10"
+         className="flex items-center gap-3 p-3 rounded-lg bg-pearl-50 border border-silver-200/70"
         >
-         <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-300 text-sm font-medium">
+         <div className="w-8 h-8 rounded-full bg-pearl-100 flex items-center justify-center text-silver-700 text-sm font-medium">
           {index + 1}
          </div>
-         <span className="text-white/80 text-sm">{step.title}</span>
+         <span className="text-silver-700 text-sm">{step.title}</span>
         </div>
        ))}
       </div>
 
       <button
        onClick={() => setShowWelcome(false)}
-       className="w-full px-6 py-3 bg-charcoal text-white rounded-lg hover:bg-charcoal/90 font-medium transition-all shadow-lg flex items-center justify-center gap-2"
+       className="w-full px-6 py-3 bg-charcoal text-pearl rounded-lg hover:bg-charcoal/90 font-medium transition-all shadow-lg flex items-center justify-center gap-2"
       >
        <Rocket className="w-5 h-5" />
        Inizia Ora
@@ -160,21 +160,21 @@ export default function Onboarding({
   <motion.div
    initial={{ opacity: 0, y: 20 }}
    animate={{ opacity: 1, y: 0 }}
-   className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 rounded-2xl p-6 mb-6"
+   className="bg-pearl-50/90 backdrop-blur-md border border-silver-200/70 rounded-2xl p-6 mb-6"
   >
    <div className="flex items-start justify-between mb-4">
     <div>
-     <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-      <Sparkles className="w-5 h-5 text-fuchsia-400" />
+     <h2 className="text-lg font-semibold text-charcoal flex items-center gap-2">
+      <Sparkles className="w-5 h-5 text-silver-700" />
       Inizia con ChatBot Studio
      </h2>
-     <p className="text-sm text-purple-300/70 mt-1">
+     <p className="text-sm text-silver-600 mt-1">
       Completa questi passaggi per configurare il tuo primo chatbot
      </p>
     </div>
     <button
      onClick={onDismiss}
-     className="p-1.5 text-white/40 hover:text-white/80 transition-colors"
+     className="p-1.5 text-silver-500 hover:text-charcoal transition-colors"
      title="Nascondi guida"
     >
      <X size={18} />
@@ -183,16 +183,16 @@ export default function Onboarding({
 
    {/* Progress bar */}
    <div className="mb-6">
-    <div className="flex justify-between text-xs text-purple-300/70 mb-2">
+    <div className="flex justify-between text-xs text-silver-600 mb-2">
      <span>Progresso</span>
      <span>{completedSteps}/{steps.length} completati</span>
     </div>
-    <div className="h-2 bg-purple-900/30 rounded-full overflow-hidden">
+    <div className="h-2 bg-pearl-200/70 rounded-full overflow-hidden">
      <motion.div
       initial={{ width: 0 }}
       animate={{ width: `${progress}%` }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="h-full bg-gradient-to-r from-purple-500 to-fuchsia-500"
+      className="h-full bg-charcoal"
      />
     </div>
    </div>
@@ -206,10 +206,10 @@ export default function Onboarding({
       disabled={step.completed}
       className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${
        step.completed
-        ? 'bg-fuchsia-500/10 border-fuchsia-500/30 cursor-default'
+        ? 'bg-emerald-500/10 border-emerald-500/30 cursor-default'
         : index === currentStep
-        ? 'bg-purple-500/20 border-purple-500/40 hover:bg-purple-500/30'
-        : 'bg-purple-900/20 border-purple-500/10 hover:bg-purple-900/30'
+        ? 'bg-pearl-100/60 border-silver-300 hover:bg-pearl-100/80'
+        : 'bg-pearl-50 border-silver-200/70 hover:bg-pearl-100/60'
       }`}
       whileHover={!step.completed ? { scale: 1.01 } : {}}
       whileTap={!step.completed ? { scale: 0.99 } : {}}
@@ -217,10 +217,10 @@ export default function Onboarding({
       <div
        className={`w-10 h-10 rounded-xl flex items-center justify-center ${
         step.completed
-         ? 'bg-fuchsia-500/30 text-fuchsia-300'
+         ? 'bg-emerald-500/10 text-emerald-700'
          : index === currentStep
-         ? 'bg-purple-500/30 text-purple-300'
-         : 'bg-purple-900/50 text-purple-400'
+         ? 'bg-charcoal/5 text-charcoal'
+         : 'bg-pearl-100 text-silver-700'
        }`}
       >
        {step.completed ? <Check className="w-5 h-5" /> : step.icon}
@@ -229,25 +229,25 @@ export default function Onboarding({
       <div className="flex-1 min-w-0">
        <h3
         className={`font-medium ${
-         step.completed ? 'text-fuchsia-300' : 'text-white'
+         step.completed ? 'text-emerald-700' : 'text-charcoal'
         }`}
        >
         {step.title}
        </h3>
-       <p className="text-xs text-purple-300/60 mt-0.5 truncate">
+       <p className="text-xs text-silver-600 mt-0.5 truncate">
         {step.description}
        </p>
       </div>
 
       {!step.completed && (
-       <div className="flex items-center gap-2 text-sm font-medium text-purple-300 whitespace-nowrap">
+       <div className="flex items-center gap-2 text-sm font-medium text-charcoal whitespace-nowrap">
         {step.action}
         <ArrowRight className="w-4 h-4" />
        </div>
       )}
 
       {step.completed && (
-       <span className="text-xs font-medium text-fuchsia-400 bg-fuchsia-500/20 px-2 py-1 rounded">
+       <span className="text-xs font-medium text-emerald-700 bg-emerald-500/10 px-2 py-1 rounded">
         Completato
        </span>
       )}
@@ -260,14 +260,14 @@ export default function Onboarding({
     <motion.div
      initial={{ opacity: 0, y: 10 }}
      animate={{ opacity: 1, y: 0 }}
-     className="mt-4 p-4 bg-gradient-to-r from-fuchsia-500/20 to-purple-500/20 border border-fuchsia-500/30 rounded-xl text-center"
+     className="mt-4 p-4 bg-pearl-50 border border-silver-200/70 rounded-xl text-center"
     >
-     <p className="text-fuchsia-300 font-medium">
+     <p className="text-emerald-700 font-medium">
       Fantastico! Hai completato tutti i passaggi iniziali.
      </p>
      <button
       onClick={onDismiss}
-      className="mt-2 text-sm text-purple-300/70 hover:text-purple-300 underline"
+      className="mt-2 text-sm text-silver-600 hover:text-charcoal underline"
      >
       Nascondi questa guida
      </button>
@@ -276,5 +276,6 @@ export default function Onboarding({
   </motion.div>
  );
 }
+
 
 
