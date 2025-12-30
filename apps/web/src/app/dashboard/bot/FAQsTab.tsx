@@ -143,7 +143,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="e.g., What are your business hours?"
-              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white text-black placeholder:text-gray-400"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent bg-white text-black placeholder:text-gray-400"
               required
             />
           </div>
@@ -158,7 +158,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
               onChange={(e) => setAnswer(e.target.value)}
               placeholder="We're open Monday to Friday, 9 AM to 5 PM EST."
               rows={4}
-              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none bg-white text-black placeholder:text-gray-400"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent resize-none bg-white text-black placeholder:text-gray-400"
               required
             />
           </div>
@@ -173,7 +173,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="e.g., General, Pricing, Support"
-              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white text-black placeholder:text-gray-400"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent bg-white text-black placeholder:text-gray-400"
             />
           </div>
 
@@ -186,7 +186,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full px-4 py-2 bg-indigo-600 text-charcoal rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="w-full px-4 py-2 bg-charcoal text-pearl rounded-lg hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
             {submitting ? 'Adding...' : 'Add FAQ'}
           </button>
@@ -208,7 +208,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
             {Object.entries(groupedFAQs).map(([categoryName, categoryFaqs]) => (
               <div key={categoryName}>
                 <h4 className="font-medium text-silver-600 mb-3 flex items-center gap-2">
-                  <span className="bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded text-xs">
+                  <span className="bg-pearl-100/60 text-silver-700 px-2 py-1 rounded text-xs">
                     {categoryName}
                   </span>
                   <span className="text-xs text-silver-500">({categoryFaqs.length})</span>
@@ -217,7 +217,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
                   {categoryFaqs.map((faq) => (
                     <div
                       key={faq.id}
-                      className="border border-silver-200/70 rounded-lg p-4 hover:border-indigo-500/50 transition-colors"
+                      className="border border-silver-200/70 rounded-lg p-4 hover:border-emerald/40 transition-colors"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1">

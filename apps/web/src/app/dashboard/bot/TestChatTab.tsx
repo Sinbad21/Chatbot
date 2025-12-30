@@ -262,7 +262,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
               }
               setIsEditingPrompt(!isEditingPrompt);
             }}
-            className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+            className="text-sm text-charcoal hover:text-charcoal/80 font-medium"
           >
             {isEditingPrompt ? t('bot.test.cancel') : t('bot.test.edit')}
           </button>
@@ -301,7 +301,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
               value={editedPrompt}
               onChange={(e) => setEditedPrompt(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 text-sm border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-charcoal bg-pearl-50"
+              className="w-full px-3 py-2 text-sm border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent resize-none text-charcoal bg-pearl-50"
               placeholder={t('bot.test.enterSystemPrompt')}
             />
 
@@ -310,7 +310,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
               <button
                 onClick={applyPrompt}
                 disabled={isSavingPrompt || editedPrompt.trim() === systemPrompt}
-                className="px-4 py-2 bg-indigo-600 text-charcoal rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-4 py-2 bg-charcoal text-pearl rounded-lg text-sm font-medium hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isSavingPrompt ? (
                   <>{t('bot.test.applying')}</>
@@ -340,8 +340,8 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
               className="w-10 h-10 rounded-lg object-cover"
             />
           ) : (
-            <div className="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <span className="text-charcoal font-bold text-lg">
+            <div className="w-10 h-10 rounded-lg bg-pearl-100/70 border border-silver-200/70 flex items-center justify-center">
+              <span className="text-silver-700 font-bold text-lg">
                 {botName ? botName.charAt(0).toUpperCase() : 'B'}
               </span>
             </div>
@@ -383,7 +383,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
                 <div
                   className={`max-w-[70%] rounded-lg px-4 py-2 ${
                     msg.role === 'user'
-                      ? 'bg-indigo-600 text-charcoal'
+                      ? 'bg-charcoal text-pearl'
                       : 'bg-pearl-50/60 text-charcoal'
                   }`}
                 >
@@ -397,9 +397,9 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
               <div className="flex justify-start">
                 <div className="max-w-[70%] rounded-lg px-4 py-3 bg-pearl-50/60">
                   <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    <div className="w-2 h-2 bg-silver-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-silver-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-silver-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                     <span className="text-sm text-charcoal ml-2">{t('bot.test.isTyping').replace('{botName}', botName)}</span>
                   </div>
                 </div>
@@ -420,12 +420,12 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
             onChange={(e) => setInput(e.target.value)}
             placeholder={t('bot.test.placeholder')}
             disabled={loading}
-            className="flex-1 px-4 py-2 text-charcoal border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-silver-400 bg-pearl-50"
+            className="flex-1 px-4 py-2 text-charcoal border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-silver-400 bg-pearl-50"
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="p-2 bg-indigo-600 text-charcoal rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+            className="p-2 bg-charcoal text-pearl rounded-lg hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
             aria-label="Send message"
           >
             <ArrowUp className="w-5 h-5" />

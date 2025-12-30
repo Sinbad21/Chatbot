@@ -701,7 +701,7 @@ export default function BotOverviewTab({ botId }: Props) {
                   </span>
                 )}
               </div>
-              <label className="absolute -bottom-2 -right-2 p-1.5 bg-indigo-600 text-charcoal rounded-full cursor-pointer hover:bg-indigo-700 shadow-lg">
+              <label className="absolute -bottom-2 -right-2 p-1.5 bg-charcoal text-pearl rounded-full cursor-pointer hover:bg-charcoal/90 shadow-lg">
                 <Upload size={14} />
                 <input
                   type="file"
@@ -723,7 +723,7 @@ export default function BotOverviewTab({ botId }: Props) {
                       id="bot-name"
                       value={botName}
                       onChange={(e) => setBotName(e.target.value)}
-                      className="w-full sm:w-auto min-w-[220px] px-3 py-2 rounded-lg bg-pearl-50 border border-silver-200/70 text-charcoal placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full sm:w-auto min-w-[220px] px-3 py-2 rounded-lg bg-pearl-50 border border-silver-200/70 text-charcoal placeholder:text-silver-400 focus:outline-none focus:ring-2 focus:ring-emerald/20"
                       placeholder={t('bot.overview.botNamePlaceholder')}
                     />
                     <button
@@ -794,19 +794,19 @@ export default function BotOverviewTab({ botId }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="glass-effect backdrop-blur-md p-6 rounded-lg shadow">
           <div className="text-sm text-silver-600 font-medium mb-2">{t('nav.conversations')}</div>
-          <div className="text-3xl font-bold text-indigo-600">{bot._count?.conversations ?? 0}</div>
+          <div className="text-3xl font-bold text-charcoal">{bot._count?.conversations ?? 0}</div>
         </div>
         <div className="glass-effect backdrop-blur-md p-6 rounded-lg shadow">
           <div className="text-sm text-silver-600 font-medium mb-2">{t('nav.documents')}</div>
-          <div className="text-3xl font-bold text-indigo-600">{bot._count?.documents ?? 0}</div>
+          <div className="text-3xl font-bold text-charcoal">{bot._count?.documents ?? 0}</div>
         </div>
         <div className="glass-effect backdrop-blur-md p-6 rounded-lg shadow">
           <div className="text-sm text-silver-600 font-medium mb-2">{t('bot.overview.intents')}</div>
-          <div className="text-3xl font-bold text-indigo-600">{bot._count?.intents ?? 0}</div>
+          <div className="text-3xl font-bold text-charcoal">{bot._count?.intents ?? 0}</div>
         </div>
         <div className="glass-effect backdrop-blur-md p-6 rounded-lg shadow">
           <div className="text-sm text-silver-600 font-medium mb-2">{t('bot.overview.faqs')}</div>
-          <div className="text-3xl font-bold text-indigo-600">{bot._count?.faqs ?? 0}</div>
+          <div className="text-3xl font-bold text-charcoal">{bot._count?.faqs ?? 0}</div>
         </div>
       </div>
 
@@ -816,7 +816,7 @@ export default function BotOverviewTab({ botId }: Props) {
         <select
           value={model}
           onChange={(e) => handleModelChange(e.target.value)}
-          className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-pearl-50 text-charcoal [&>option]:text-black"
+          className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent bg-pearl-50 text-charcoal [&>option]:text-black"
         >
           {MODELS.map((m) => (
             <option key={m.value} value={m.value}>
@@ -837,7 +837,7 @@ export default function BotOverviewTab({ botId }: Props) {
             <button
               onClick={applyPromptChanges}
               disabled={promptsSaving}
-              className="px-4 py-2 bg-indigo-600 text-charcoal rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm flex items-center gap-2"
+              className="px-4 py-2 bg-charcoal text-pearl rounded-lg hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm flex items-center gap-2"
             >
               {promptsSaving ? (
                 <>
@@ -863,7 +863,7 @@ export default function BotOverviewTab({ botId }: Props) {
             <div className="flex items-center gap-3">
               <select
                 onChange={(e) => handleTemplateSelect(e.target.value)}
-                className="flex-1 px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-pearl-50 text-charcoal [&>option]:text-black"
+                className="flex-1 px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent bg-pearl-50 text-charcoal [&>option]:text-black"
                 defaultValue=""
               >
                 <option value="">{t('bot.overview.selectTemplate')}</option>
@@ -993,7 +993,7 @@ export default function BotOverviewTab({ botId }: Props) {
               value={welcomeMessage}
               onChange={(e) => handleWelcomeMessageChange(e.target.value)}
               placeholder="Hi! How can I help you today?"
-              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-pearl-50 text-charcoal"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent bg-pearl-50 text-charcoal"
             />
             <p className="text-xs text-silver-500 mt-1">
               {hasPromptChanges ? t('bot.overview.clickToSave') : t('bot.overview.welcomeMessageHelp')}
@@ -1009,7 +1009,7 @@ export default function BotOverviewTab({ botId }: Props) {
               onChange={(e) => handleSystemPromptChange(e.target.value)}
               placeholder="You are a helpful assistant..."
               rows={6}
-              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-mono text-sm bg-pearl-50 text-charcoal"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent font-mono text-sm bg-pearl-50 text-charcoal"
             />
             <p className="text-xs text-silver-500 mt-1">
               {hasPromptChanges ? t('bot.overview.clickToSave') : t('bot.overview.systemPromptHelp')}

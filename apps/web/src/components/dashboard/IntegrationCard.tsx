@@ -42,9 +42,9 @@ export function IntegrationCard({
       return <Badge variant="outline" className="bg-emerald/10 text-emerald border-emerald/20">Tutti i piani</Badge>;
     }
     if (requiredPlan === 'professional') {
-      return <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">Professional+</Badge>;
+      return <Badge variant="outline" className="bg-pearl-100/70 text-silver-700 border-silver-200/70">Professional+</Badge>;
     }
-    return <Badge variant="outline" className="bg-purple-500/10 text-purple-600 border-purple-500/20">Enterprise</Badge>;
+    return <Badge variant="outline" className="bg-pearl-100/70 text-silver-700 border-silver-200/70">Enterprise</Badge>;
   };
 
   return (

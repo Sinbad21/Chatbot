@@ -135,7 +135,7 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="px-3 py-1.5 text-sm border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-charcoal bg-pearl-50"
+              className="px-3 py-1.5 text-sm border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-emerald/40 text-charcoal bg-pearl-50"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -144,12 +144,12 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="px-3 py-1.5 text-sm border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-charcoal bg-pearl-50"
+              className="px-3 py-1.5 text-sm border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-emerald/40 text-charcoal bg-pearl-50"
             />
           </div>
           <button
             onClick={handleApplyDateRange}
-            className="px-4 py-1.5 bg-indigo-600 text-charcoal text-sm font-medium rounded-lg hover:bg-indigo-700"
+            className="px-4 py-1.5 bg-charcoal text-pearl text-sm font-medium rounded-lg hover:bg-charcoal/90"
           >
             {t('analytics.apply')}
           </button>
@@ -173,8 +173,8 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
                     {data.total.requests.toLocaleString()}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-indigo-500/20 rounded-lg flex items-center justify-center">
-                  <Activity className="w-6 h-6 text-indigo-600" />
+                <div className="w-12 h-12 bg-pearl-100/70 border border-silver-200/70 rounded-lg flex items-center justify-center">
+                  <Activity className="w-6 h-6 text-silver-700" />
                 </div>
               </div>
             </div>
@@ -187,8 +187,8 @@ export default function AnalyticsTab({ botId, apiBaseUrl }: AnalyticsTabProps) {
                     {data.total.inputTokens.toLocaleString()}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-pearl-100/70 border border-silver-200/70 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-silver-700" />
                 </div>
               </div>
             </div>

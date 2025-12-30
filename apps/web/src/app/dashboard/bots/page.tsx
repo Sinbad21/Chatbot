@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -119,8 +119,8 @@ export default function BotsListPage() {
         <span
          className={`px-3 py-1 rounded-full text-xs font-medium ${
           bot.published
-           ? 'bg-fuchsia-500/20 text-fuchsia-300'
-           : 'bg-purple-500/20 text-purple-300'
+           ? 'bg-silver-100/70 text-silver-700'
+           : 'bg-silver-100/70 text-silver-700'
          }`}
         >
          {bot.published ? t('bots.published') : t('bots.draft')}

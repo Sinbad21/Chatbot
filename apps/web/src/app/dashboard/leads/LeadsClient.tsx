@@ -198,7 +198,7 @@ export default function LeadsClient() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'NEW': return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
-      case 'CONTACTED': return 'bg-purple-500/20 text-silver-600 border-silver-200/70';
+      case 'CONTACTED': return 'bg-pearl-100/60 text-silver-700 border-silver-200/70';
       case 'QUALIFIED': return 'bg-amber-500/20 text-amber-300 border-amber-500/30';
       case 'CONVERTED': return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
       case 'LOST': return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
@@ -243,7 +243,7 @@ export default function LeadsClient() {
       <div className="space-y-6">
         {/* Success/Error Message */}
         {message && (
-          <div className={`p-4 rounded-lg ${message.type === 'success' ? 'bg-fuchsia-500/20 border border-fuchsia-500/30 text-silver-600' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>
+          <div className={`p-4 rounded-lg ${message.type === 'success' ? 'bg-emerald/10 border border-emerald/20 text-silver-700' : 'bg-red-500/20 border border-red-500/30 text-red-300'}`}>
             {message.text}
           </div>
         )}

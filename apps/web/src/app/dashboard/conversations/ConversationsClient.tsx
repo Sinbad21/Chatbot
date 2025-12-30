@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -313,9 +313,9 @@ ${transcript}
               <span
                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
                   selectedConversation.status === 'completed'
-                    ? 'bg-fuchsia-500/20 text-silver-600'
+                    ? 'bg-pearl-100/60 text-silver-600'
                     : selectedConversation.status === 'active'
-                    ? 'bg-purple-500/20 text-charcoal'
+                    ? 'bg-pearl-100/60 text-charcoal'
                     : 'bg-pearl-50 text-silver-700'
                 }`}
               >
@@ -348,7 +348,7 @@ ${transcript}
               <div>
                 <label className="text-xs font-medium text-silver-600">{t('conversations.leadCaptured')}</label>
                 <p className="text-sm text-charcoal font-medium mt-1">
-                  {selectedConversation.metadata.leadCaptured ? 'œ“ Yes' : 'œ— No'}
+                  {selectedConversation.metadata.leadCaptured ? ' Yes' : ' No'}
                 </p>
               </div>
             )}
@@ -405,7 +405,7 @@ ${transcript}
         {/* Training Modal */}
         {trainingModalOpen && selectedMessage && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
-            <div className="bg-gradient-to-br from-[#2d1b4e] to-[#150a25] border border-silver-200/70 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+            <div className="bg-pearl-50/90 border border-silver-200/70 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
               {/* Modal Header */}
               <div className="px-6 py-4 border-b border-silver-200/70 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-charcoal">{t('conversations.addToTrainingData')}</h3>
@@ -577,7 +577,7 @@ ${transcript}
         <div className="p-4 border-t border-silver-200/70 bg-pearl-50">
           <div className="flex gap-2 p-2 rounded-xl border bg-pearl-50 border-silver-200/70">
             <input className="flex-1 bg-transparent border-none px-2 text-sm focus:outline-none text-charcoal placeholder-white/40" placeholder="Type your reply..." disabled />
-            <button className="p-2 rounded-lg transition-colors bg-white text-black hover:bg-indigo-400">
+            <button className="p-2 rounded-lg transition-colors bg-white text-black hover:bg-pearl-100/60">
               <ChevronRight size={16} />
             </button>
           </div>

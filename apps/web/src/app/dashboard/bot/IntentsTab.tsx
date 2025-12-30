@@ -139,7 +139,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., greeting, help_request, pricing_question"
-              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-charcoal placeholder:text-silver-400 bg-pearl-50"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent text-charcoal placeholder:text-silver-400 bg-pearl-50"
               required
             />
           </div>
@@ -154,7 +154,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
               onChange={(e) => setPatternsText(e.target.value)}
               placeholder="hello&#10;hi&#10;hey there&#10;good morning"
               rows={5}
-              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none font-mono text-sm text-charcoal placeholder:text-silver-400 bg-pearl-50"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent resize-none font-mono text-sm text-charcoal placeholder:text-silver-400 bg-pearl-50"
               required
             />
             <p className="text-xs text-silver-500 mt-1">
@@ -172,7 +172,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
               onChange={(e) => setResponse(e.target.value)}
               placeholder="Hello! How can I help you today?"
               rows={4}
-              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none text-charcoal placeholder:text-silver-400 bg-pearl-50"
+              className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent resize-none text-charcoal placeholder:text-silver-400 bg-pearl-50"
               required
             />
           </div>
@@ -186,7 +186,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full px-4 py-2 bg-indigo-600 text-charcoal rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="w-full px-4 py-2 bg-charcoal text-pearl rounded-lg hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
             {submitting ? 'Adding...' : 'Add Intent'}
           </button>
@@ -208,7 +208,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
             {intents.map((intent) => (
               <div
                 key={intent.id}
-                className="border border-silver-200/70 rounded-lg p-4 hover:border-indigo-500/50 transition-colors"
+                className="border border-silver-200/70 rounded-lg p-4 hover:border-emerald/40 transition-colors"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
@@ -231,7 +231,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
                     {intent.patterns.map((pattern, idx) => (
                       <span
                         key={idx}
-                        className="bg-indigo-500/10 text-indigo-700 px-2 py-1 rounded text-xs font-mono"
+                        className="bg-pearl-100/60 text-charcoal px-2 py-1 rounded text-xs font-mono"
                       >
                         {pattern}
                       </span>

@@ -356,13 +356,13 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder={t('bot.scraping.urlPlaceholder')}
-              className="flex-1 px-3 py-2 border border-silver-200/70 rounded-lg text-sm text-charcoal placeholder:text-silver-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-pearl-50"
+              className="flex-1 px-3 py-2 border border-silver-200/70 rounded-lg text-sm text-charcoal placeholder:text-silver-400 focus:outline-none focus:ring-2 focus:ring-emerald/20 bg-pearl-50"
               disabled={isScrapingLinks || isDiscoveringWithSitemap}
             />
             <button
               type="submit"
               disabled={isScrapingLinks || isDiscoveringWithSitemap}
-              className="px-6 py-2 bg-indigo-600 text-charcoal rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2 bg-charcoal text-charcoal rounded-lg text-sm font-medium hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isScrapingLinks ? (
                 <>
@@ -380,7 +380,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
               type="button"
               onClick={handleDiscoverWithSitemap}
               disabled={isScrapingLinks || isDiscoveringWithSitemap}
-              className="px-6 py-2 bg-purple-600 text-charcoal rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2 bg-charcoal text-charcoal rounded-lg text-sm font-medium hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isDiscoveringWithSitemap ? (
                 <>
@@ -412,7 +412,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                   type="checkbox"
                   checked={selectedUrls.size === links.length && links.length > 0}
                   onChange={handleSelectAll}
-                  className="w-4 h-4 text-indigo-600 rounded border-silver-200/70 focus:ring-indigo-500"
+                  className="w-4 h-4 text-silver-700 rounded border-silver-200/70 focus:ring-emerald/20"
                 />
                 <span className="text-sm font-medium text-silver-600">
                   {t('bot.scraping.selectAll').replace('{count}', String(links.length))}
@@ -449,7 +449,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
                   type="checkbox"
                   checked={selectedUrls.has(link.url)}
                   onChange={() => handleToggleSelect(link.url)}
-                  className="mt-1 w-4 h-4 text-indigo-600 rounded border-silver-200/70 focus:ring-indigo-500 flex-shrink-0"
+                  className="mt-1 w-4 h-4 text-silver-700 rounded border-silver-200/70 focus:ring-emerald/20 flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-charcoal break-words">
@@ -501,7 +501,7 @@ export default function WebScrapingTab({ botId, apiBaseUrl }: WebScrapingTabProp
             <div className="flex-1 overflow-y-auto p-6">
               {isLoadingPreview ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 size={32} className="animate-spin text-indigo-600" />
+                  <Loader2 size={32} className="animate-spin text-silver-600" />
                 </div>
               ) : preview ? (
                 <div className="flex flex-col gap-4">

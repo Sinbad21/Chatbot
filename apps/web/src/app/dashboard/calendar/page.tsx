@@ -13,6 +13,7 @@ import {
   CheckCircle,
   AlertCircle,
   ExternalLink,
+  X,
 } from 'lucide-react';
 
 interface CalendarConnection {
@@ -140,10 +141,10 @@ export default function CalendarPage() {
 
       {/* Plan Badge */}
       {!hasAccess && (
-        <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4">
+        <div className="bg-pearl-50/90 border border-silver-200/70 rounded-2xl p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0" />
+              <AlertCircle className="w-5 h-5 text-charcoal/60 flex-shrink-0" />
               <div>
                 <p className="font-semibold text-charcoal">Upgrade Required</p>
                 <p className="text-sm text-silver-600 mt-1">
@@ -151,7 +152,7 @@ export default function CalendarPage() {
                 </p>
               </div>
             </div>
-            <a href="/pricing" className="px-4 py-2 bg-white text-black rounded-lg hover:bg-white/90 transition-colors text-sm font-medium whitespace-nowrap">
+            <a href="/pricing" className="px-4 py-2 bg-charcoal text-pearl rounded-lg hover:bg-charcoal/90 transition-colors text-sm font-medium whitespace-nowrap">
               Upgrade Now
             </a>
           </div>
@@ -170,7 +171,7 @@ export default function CalendarPage() {
           </p>
           <Button
             onClick={handleConnectGoogle}
-            className="bg-white text-black hover:bg-white/90"
+            className="bg-charcoal text-pearl hover:bg-charcoal/90"
           >
             <Plus className="w-4 h-4 mr-2" />
             Connect Google Calendar
@@ -207,12 +208,12 @@ export default function CalendarPage() {
                         {connection.calendarName}
                       </h3>
                       {connection.isActive ? (
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border bg-emerald-500/20 text-emerald-700 border-emerald-500/30">
                           <CheckCircle className="w-3 h-3 mr-1 inline" />
                           Active
                         </span>
                       ) : (
-                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border bg-slate-500/20 text-slate-300 border-slate-500/30">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border bg-silver-100/70 text-silver-700 border-silver-200/70">
                           Inactive
                         </span>
                       )}
@@ -309,17 +310,16 @@ export default function CalendarPage() {
       {/* Configuration Modal */}
       {editMode && selectedConnection && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-gradient-to-br from-[#2d1b4e] to-[#150a25] border border-silver-200/70">
-            <div className="sticky top-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-b border-silver-200/70 p-6 flex items-center justify-between">
+          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-pearl-50/90 border border-silver-200/70">
+            <div className="sticky top-0 bg-pearl-50/90 border-b border-silver-200/70 p-6 flex items-center justify-between">
               <h2 className="text-2xl font-bold text-charcoal">Calendar Configuration</h2>
               <button
                 onClick={() => {
                   setEditMode(false);
                   setSelectedConnection(null);
                 }}
-                className="text-silver-600 hover:text-charcoal transition-colors"
-              >
-                ✕
+                className="text-silver-600 hover:text-charcoal transition-colors" aria-label="Close">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -341,7 +341,7 @@ export default function CalendarPage() {
                   min="15"
                   max="240"
                   step="15"
-                  className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
+                  className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder:text-silver-400 transition-all"
                 />
                 <p className="text-xs text-silver-500 mt-1">
                   How long each appointment slot should be
@@ -365,7 +365,7 @@ export default function CalendarPage() {
                   min="0"
                   max="60"
                   step="5"
-                  className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
+                  className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder:text-silver-400 transition-all"
                 />
                 <p className="text-xs text-silver-500 mt-1">
                   Time between appointments for preparation
@@ -388,7 +388,7 @@ export default function CalendarPage() {
                   }
                   min="1"
                   max="100"
-                  className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
+                  className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder:text-silver-400 transition-all"
                 />
                 <p className="text-xs text-silver-500 mt-1">
                   Maximum number of appointments allowed per day
@@ -484,7 +484,7 @@ export default function CalendarPage() {
                         } as any)
                       }
                       placeholder="Book an Appointment"
-                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
+                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder:text-silver-400 transition-all"
                     />
                   </div>
 
@@ -502,7 +502,7 @@ export default function CalendarPage() {
                         } as any)
                       }
                       placeholder="Choose a date and time that works for you"
-                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
+                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder:text-silver-400 transition-all"
                     />
                   </div>
 
@@ -520,7 +520,7 @@ export default function CalendarPage() {
                       }
                       placeholder="Your appointment has been confirmed!"
                       rows={2}
-                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all resize-none"
+                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder:text-silver-400 transition-all resize-none"
                     />
                   </div>
                 </div>
@@ -545,7 +545,7 @@ export default function CalendarPage() {
                         } as any)
                       }
                       placeholder="your-email@example.com"
-                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder-purple-400/50 transition-all"
+                      className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/30 focus:border-emerald/40 text-charcoal placeholder:text-silver-400 transition-all"
                     />
                     <p className="text-xs text-silver-500 mt-1">
                       Email address to receive booking notifications
@@ -571,7 +571,7 @@ export default function CalendarPage() {
                         }
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-pearl-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald/30/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-silver-200/70 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked: peer-checked:to-fuchsia-500"></div>
+                      <div className="w-11 h-6 bg-pearl-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald/30/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-silver-200/70 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-charcoal"></div>
                     </label>
                   </div>
                 </div>
@@ -606,7 +606,7 @@ export default function CalendarPage() {
                             }
                           }
                         }}
-                        className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
+                        className="bg-charcoal hover:bg-charcoal/90 text-pearl shadow-lg "
                       >
                         Aggiungi
                       </Button>
@@ -641,9 +641,8 @@ export default function CalendarPage() {
                                   blockedDates: blockedDates.filter((_: string, i: number) => i !== index),
                                 } as any);
                               }}
-                              className="text-red-400 hover:text-red-300 transition-colors"
-                            >
-                              ✕
+                              className="text-red-400 hover:text-red-300 transition-colors" aria-label="Remove date">
+                              <X className="w-4 h-4" />
                             </button>
                           </div>
                         ))}
@@ -673,12 +672,12 @@ export default function CalendarPage() {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-pearl-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald/30/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-silver-200/70 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked: peer-checked:to-fuchsia-500"></div>
+                  <div className="w-11 h-6 bg-pearl-50 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald/30/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-silver-200/70 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-charcoal"></div>
                 </label>
               </div>
             </div>
 
-            <div className="sticky bottom-0 bg-gradient-to-br from-[#2d1b4e] to-[#1a0f2e] border-t border-silver-200/70 p-6 flex justify-end gap-3">
+            <div className="sticky bottom-0 bg-pearl-50/90 border-t border-silver-200/70 p-6 flex justify-end gap-3">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -691,7 +690,7 @@ export default function CalendarPage() {
               </Button>
               <Button
                 onClick={() => handleUpdateConnection(selectedConnection.id, selectedConnection)}
-                className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
+                className="bg-charcoal hover:bg-charcoal/90 text-pearl shadow-lg "
               >
                 Save Changes
               </Button>
