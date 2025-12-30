@@ -366,7 +366,7 @@ export default function LeadsClient() {
           <button
             onClick={handleExportCSV}
             disabled={leads.length === 0}
-            className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border flex items-center gap-2 border-silver-200/70 bg-charcoal hover:bg-charcoal/90 text-charcoal disabled:opacity-50 shadow-lg  transition-all"
+            className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border flex items-center gap-2 border-silver-200/70 bg-charcoal hover:bg-charcoal/90 text-pearl-50 disabled:opacity-50 shadow-lg transition-all"
           >
             <Download size={14} /> Export
           </button>
