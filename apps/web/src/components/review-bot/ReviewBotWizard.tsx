@@ -133,8 +133,8 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                       isActive 
                         ? 'border-silver-300 bg-pearl-100 text-charcoal ' 
                         : isCompleted
-                          ? 'border-green-500 bg-green-500/10 text-green-400'
-                          : 'border-silver-200/70 bg-[#1a0b2e] text-silver-500'
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600'
+                          : 'border-silver-200/70 bg-pearl-50 text-silver-600'
                     }`}
                   >
                     {isCompleted ? <Check size={18} /> : <Icon size={18} />}
@@ -502,7 +502,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
             className={`px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all ${
               step === 1
                 ? 'opacity-0 pointer-events-none'
-                : 'text-silver-600 hover:text-charcoal hover:bg-pearl-100'
+                : 'text-silver-700 hover:text-charcoal hover:bg-pearl-100'
             }`}
           >
             <ChevronLeft size={18} />
