@@ -300,7 +300,7 @@ export default function AnalyticsPage() {
           </select>
           <button
             onClick={handleExportCSV}
-            className="px-6 py-3 bg-charcoal text-charcoal rounded-lg hover:bg-charcoal/90 text-sm font-medium transition-all shadow-lg"
+            className="px-6 py-3 bg-charcoal text-pearl-50 rounded-lg hover:bg-charcoal/90 text-sm font-medium transition-all shadow-lg"
           >
             {t('analytics.exportCSV')}
           </button>
