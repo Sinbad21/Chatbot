@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from '@/lib/i18n';
+import { ensureClientUser } from '@/lib/ensureClientUser';
 import { GlassCard } from '@/components/dashboard/ui';
 import {
   User,
@@ -94,13 +95,24 @@ export default function SettingsPage() {
 
   const loadUserData = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL;
-      const response = await axios.get(`${apiUrl}/api/v1/auth/me`, {
-        withCredentials: true,
-      });
-      setUser(response.data);
-      setName(response.data.name || '');
-      setEmail(response.data.email || '');
+      const clientUser = await ensureClientUser();
+
+      if (!clientUser?.email) {
+        setLoading(false);
+        return;
+      }
+
+      const normalizedUser: UserData = {
+        id: clientUser.id,
+        email: clientUser.email,
+        name: clientUser.name || '',
+        role: clientUser.role || 'user',
+        createdAt: clientUser.createdAt || '',
+      };
+
+      setUser(normalizedUser);
+      setName(normalizedUser.name);
+      setEmail(normalizedUser.email);
       setLoading(false);
     } catch (error) {
       console.error('Failed to load user data:', error);
@@ -310,11 +322,11 @@ export default function SettingsPage() {
             <div className="flex items-start gap-6 mb-6">
               {/* Avatar */}
               <div className="relative">
-                <div className="w-20 h-20 rounded-full bg-charcoal flex items-center justify-center text-pearl text-2xl font-bold shadow-pearl">
+                <div className="w-20 h-20 rounded-full bg-charcoal flex items-center justify-center text-pearl-50 text-2xl font-bold shadow-pearl">
                   {name ? name.charAt(0).toUpperCase() : email.charAt(0).toUpperCase()}
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full border-2 border-pearl-50 flex items-center justify-center">
-                  <Check className="w-3 h-3 text-pearl" />
+                  <Check className="w-3 h-3 text-pearl-50" />
                 </div>
               </div>
               <div>
@@ -377,7 +389,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full px-6 py-3 bg-charcoal text-charcoal rounded-xl hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg  flex items-center justify-center gap-2"
+                className="w-full px-6 py-3 bg-charcoal text-pearl-50 rounded-xl hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg flex items-center justify-center gap-2"
               >
                 {saving ? (
                   <>
@@ -447,7 +459,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full px-6 py-3 bg-charcoal text-charcoal rounded-xl hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg  flex items-center justify-center gap-2"
+                className="w-full px-6 py-3 bg-charcoal text-pearl-50 rounded-xl hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg flex items-center justify-center gap-2"
               >
                 {saving ? (
                   <>
@@ -482,7 +494,7 @@ export default function SettingsPage() {
                     </code>
                     <button
                       onClick={() => handleCopyKey(generatedKey)}
-                      className="px-4 py-3 bg-charcoal text-charcoal rounded-lg hover:bg-charcoal/90 font-medium shadow-pearl flex items-center gap-2 transition-colors"
+                      className="px-4 py-3 bg-charcoal text-pearl-50 rounded-lg hover:bg-charcoal/90 font-medium shadow-pearl flex items-center gap-2 transition-colors"
                     >
                       <Copy className="w-4 h-4" />
                       {t('settings.copy')}
@@ -519,7 +531,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleGenerateApiKey}
                 disabled={creatingKey || !newKeyName.trim()}
-                className="px-6 py-3 bg-charcoal text-charcoal rounded-xl hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg  flex items-center gap-2"
+                className="px-6 py-3 bg-charcoal text-pearl-50 rounded-xl hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg flex items-center gap-2"
               >
                 {creatingKey ? (
                   <>
@@ -676,7 +688,7 @@ export default function SettingsPage() {
                           className="sr-only peer"
                         />
                         <div className="w-5 h-5 border-2 border-silver-300 rounded-md peer-checked:bg-charcoal peer-checked:border-charcoal transition-all flex items-center justify-center">
-                          <Check className="w-3 h-3 text-charcoal opacity-0 peer-checked:opacity-100 transition-opacity" />
+                          <Check className="w-3 h-3 text-pearl-50 opacity-0 peer-checked:opacity-100 transition-opacity" />
                         </div>
                       </div>
                       <span className="text-silver-700 group-hover:text-charcoal transition-colors">{item.label}</span>
@@ -688,7 +700,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleSavePreferences}
                 disabled={saving}
-                className="w-full px-6 py-3 bg-charcoal text-charcoal rounded-xl hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg  flex items-center justify-center gap-2"
+                className="w-full px-6 py-3 bg-charcoal text-pearl-50 rounded-xl hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-lg flex items-center justify-center gap-2"
               >
                 {saving ? (
                   <>
