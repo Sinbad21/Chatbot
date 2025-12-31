@@ -3,6 +3,7 @@
 import React from 'react';
 import { Navbar } from './Navbar';
 import { Hero } from './Hero';
+import { LandingNewI18nProvider } from './i18n';
 import { Integrations } from './Integrations';
 import { Services } from './Services';
 import { Personas } from './Personas';
@@ -13,10 +14,8 @@ import { Footer } from './Footer';
 
 const LandingPage: React.FC = () => {
   return (
-    <div className="relative min-h-screen font-sans selection:bg-platinum-400 selection:text-platinum-900 bg-platinum-950 overflow-x-hidden">
-
-      {/* Noise texture overlay */}
-      <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-40 mix-blend-overlay"></div>
+    <LandingNewI18nProvider>
+      <div className="relative min-h-screen font-sans selection:bg-platinum-400 selection:text-platinum-900 bg-platinum-950 overflow-x-hidden">
 
       {/* Subtle grid background */}
       <div className="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
@@ -36,8 +35,11 @@ const LandingPage: React.FC = () => {
         </main>
         <Footer />
       </div>
-    </div>
+
+      </div>
+    </LandingNewI18nProvider>
   );
+
 };
 
 export default LandingPage;

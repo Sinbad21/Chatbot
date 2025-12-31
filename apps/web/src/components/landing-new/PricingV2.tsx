@@ -4,16 +4,20 @@ import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Check, Sparkles } from 'lucide-react';
+import { useLandingNewI18n } from './i18n';
 
 type Segment = 'local' | 'agency' | 'saas';
 type Goal = 'bookings' | 'leads' | 'support';
 
 type Price = number | string;
 
+type Billing = 'monthly' | 'yearly';
+
 type Plan = {
   id: 'base' | 'pro' | 'pro-plus' | 'business' | 'enterprise';
   name: string;
   price: Price;
+  priceYearly?: Price;
   desc: string;
   features: string[];
   highlight?: boolean;
@@ -21,41 +25,16 @@ type Plan = {
   href: string;
 };
 
-const segments: Array<{ value: Segment; label: string }> = [
-  { value: 'local', label: 'Attività locale' },
-  { value: 'agency', label: 'Agenzia' },
-  { value: 'saas', label: 'SaaS' },
-];
+const segments: Array<{ value: Segment }> = [{ value: 'local' }, { value: 'agency' }, { value: 'saas' }];
 
-const goals: Array<{ value: Goal; label: string }> = [
-  { value: 'bookings', label: 'Prenotazioni' },
-  { value: 'leads', label: 'Lead' },
-  { value: 'support', label: 'Supporto' },
-];
-
-const focusBySegmentGoal: Record<Segment, Record<Goal, string[]>> = {
-  local: {
-    bookings: ['Widget prenotazioni & calendario', 'Promemoria automatici', 'Raccolta contatti immediata'],
-    leads: ['Form lead + follow-up', 'Qualifica richieste in automatico', 'CRM-ready'],
-    support: ['FAQ & policy sempre aggiornate', 'Riduci chiamate/email', 'Escalation assistita'],
-  },
-  agency: {
-    bookings: ['Multi-cliente (starter)', 'Template per verticali', 'Setup veloce'],
-    leads: ['Lead routing', 'Report per cliente', 'Automazioni campaign'],
-    support: ['Playbook support', 'Dashboard & export', 'SLA (piani alti)'],
-  },
-  saas: {
-    bookings: ['Onboarding & demo assistite', 'Riduci drop-off', 'Analisi funnel'],
-    leads: ['Lead scoring', 'Integrazioni (piani alti)', 'Attribution-ready'],
-    support: ['Deflection ticket', 'RAG su docs', 'BYOK (da Pro+)'],
-  },
-};
+const goals: Array<{ value: Goal }> = [{ value: 'bookings' }, { value: 'leads' }, { value: 'support' }];
 
 const plans: Plan[] = [
   {
     id: 'base',
     name: 'Base',
     price: 29,
+    priceYearly: 23,
     desc: "Per iniziare velocemente con tutto l'essenziale",
     features: ['1 bot', 'Chat + lead core', 'Analisi base', 'Supporto email'],
     cta: 'Inizia prova gratuita',
@@ -65,6 +44,7 @@ const plans: Plan[] = [
     id: 'pro',
     name: 'Pro',
     price: 79,
+    priceYearly: 63,
     desc: 'Per team in crescita e volumi maggiori',
     features: ['Fino a 3 bot', 'Analisi avanzate', 'Collaborazione team', 'Supporto prioritario'],
     cta: 'Inizia prova gratuita',
@@ -74,6 +54,7 @@ const plans: Plan[] = [
     id: 'pro-plus',
     name: 'Pro+',
     price: 129,
+    priceYearly: 103,
     desc: 'Il miglior rapporto valore/prezzo',
     features: [
       'BYOK (API key AI del cliente)',
@@ -90,6 +71,7 @@ const plans: Plan[] = [
     id: 'business',
     name: 'Business',
     price: 299,
+    priceYearly: 239,
     desc: 'Per scalare con controllo e governance',
     features: ['Ruoli e permessi', 'Audit log', 'Limiti più alti', 'Supporto prioritario', 'Controlli avanzati'],
     cta: 'Contatta vendite',
@@ -99,6 +81,7 @@ const plans: Plan[] = [
     id: 'enterprise',
     name: 'Enterprise',
     price: 'Su misura',
+    priceYearly: 'Su misura',
     desc: 'Prezzi e funzionalità personalizzate con SLA',
     features: ['SSO/SAML', 'Limiti personalizzati', 'SLA e review sicurezza', 'Success manager dedicato', 'Integrazioni custom'],
     cta: 'Contatta vendite',
@@ -107,10 +90,12 @@ const plans: Plan[] = [
 ];
 
 export const PricingV2: React.FC = () => {
+  const { t } = useLandingNewI18n();
   const [segment, setSegment] = useState<Segment>('local');
   const [goal, setGoal] = useState<Goal>('bookings');
+  const [billing, setBilling] = useState<Billing>('monthly');
 
-  const focus = useMemo(() => focusBySegmentGoal[segment]?.[goal] ?? [], [segment, goal]);
+  const focus = useMemo(() => t('pricing').focus[segment]?.[goal] ?? [], [segment, goal, t]);
 
   return (
     <section id="prezzi" className="py-32 bg-platinum-950 relative overflow-hidden">
@@ -120,14 +105,44 @@ export const PricingV2: React.FC = () => {
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-20">
-          <h2 className="font-serif text-4xl md:text-5xl text-white mb-4">Investi nel Futuro</h2>
+          <h2 className="font-serif text-4xl md:text-5xl text-white mb-4">{t('pricing').title}</h2>
           <div className="w-24 h-1 bg-gradient-to-r from-transparent via-platinum-400 to-transparent mx-auto" />
+        </div>
+
+        <div className="max-w-7xl mx-auto flex justify-end mb-8">
+          <div className="flex items-center gap-3">
+            <span
+              className={`text-xs uppercase tracking-widest ${billing === 'monthly' ? 'text-white' : 'text-platinum-500'}`}
+            >
+              {t('pricing').billingMonthly}
+            </span>
+
+            <button
+              type="button"
+              role="switch"
+              aria-checked={billing === 'yearly'}
+              onClick={() => setBilling((prev) => (prev === 'monthly' ? 'yearly' : 'monthly'))}
+              className="relative w-16 h-8 rounded-full border border-platinum-700 bg-platinum-900/60 focus:outline-none"
+            >
+              <span
+                className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-platinum-100 transition-transform duration-300 ${
+                  billing === 'yearly' ? 'translate-x-8' : ''
+                }`}
+              />
+            </button>
+
+            <span
+              className={`text-xs uppercase tracking-widest ${billing === 'yearly' ? 'text-white' : 'text-platinum-500'}`}
+            >
+              {t('pricing').billingYearly}
+            </span>
+          </div>
         </div>
 
         <div className="max-w-4xl mx-auto mb-14">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="text-left">
-              <label className="block text-xs uppercase tracking-widest text-platinum-400 mb-2">Tipo di attività</label>
+              <label className="block text-xs uppercase tracking-widest text-platinum-400 mb-2">{t('pricing').activityLabel}</label>
               <select
                 value={segment}
                 onChange={(e) => setSegment(e.target.value as Segment)}
@@ -135,14 +150,14 @@ export const PricingV2: React.FC = () => {
               >
                 {segments.map((s) => (
                   <option key={s.value} value={s.value}>
-                    {s.label}
+                    {t('pricing').segments[s.value]}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="text-left">
-              <label className="block text-xs uppercase tracking-widest text-platinum-400 mb-2">Obiettivo principale</label>
+              <label className="block text-xs uppercase tracking-widest text-platinum-400 mb-2">{t('pricing').goalLabel}</label>
               <select
                 value={goal}
                 onChange={(e) => setGoal(e.target.value as Goal)}
@@ -150,7 +165,7 @@ export const PricingV2: React.FC = () => {
               >
                 {goals.map((g) => (
                   <option key={g.value} value={g.value}>
-                    {g.label}
+                    {t('pricing').goals[g.value]}
                   </option>
                 ))}
               </select>
@@ -158,8 +173,7 @@ export const PricingV2: React.FC = () => {
           </div>
 
           <p className="text-xs text-platinum-500 mt-4">
-            Evidenziamo le funzionalità più rilevanti per: {segments.find((s) => s.value === segment)?.label} ·{' '}
-            {goals.find((g) => g.value === goal)?.label}
+            {t('pricing').highlightPrefix} {t('pricing').segments[segment]} · {t('pricing').goals[goal]}
           </p>
         </div>
 
@@ -178,7 +192,7 @@ export const PricingV2: React.FC = () => {
             >
               {plan.highlight && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-platinum-100 text-black px-4 py-1 rounded-full text-xs font-bold tracking-widest uppercase flex items-center gap-1 shadow-lg">
-                  <Sparkles size={12} /> Best Value
+                  <Sparkles size={12} /> {t('pricing').plans.bestValue}
                 </div>
               )}
 
@@ -189,20 +203,51 @@ export const PricingV2: React.FC = () => {
               )}
 
               <h3 className={`text-xl font-serif mb-2 ${plan.highlight ? 'text-white' : 'text-platinum-300'}`}>
-                {plan.name}
+                {plan.id === 'base'
+                  ? t('pricing').plans.base.name
+                  : plan.id === 'pro'
+                    ? t('pricing').plans.pro.name
+                    : plan.id === 'pro-plus'
+                      ? t('pricing').plans.proPlus.name
+                      : plan.id === 'business'
+                        ? t('pricing').plans.business.name
+                        : t('pricing').plans.enterprise.name}
               </h3>
-              <p className="text-platinum-500 text-sm mb-6 min-h-[2.5rem]">{plan.desc}</p>
+              <p className="text-platinum-500 text-sm mb-6 min-h-[2.5rem]">
+                {plan.id === 'base'
+                  ? t('pricing').plans.base.desc
+                  : plan.id === 'pro'
+                    ? t('pricing').plans.pro.desc
+                    : plan.id === 'pro-plus'
+                      ? t('pricing').plans.proPlus.desc
+                      : plan.id === 'business'
+                        ? t('pricing').plans.business.desc
+                        : t('pricing').plans.enterprise.desc}
+              </p>
 
-              <div className="flex items-baseline gap-1 mb-8">
-                {typeof plan.price === 'number' ? (
-                  <>
-                    <span className="text-4xl font-bold text-white">€{plan.price}</span>
-                    <span className="text-platinum-500">/mese</span>
-                  </>
-                ) : (
-                  <span className="text-3xl font-bold text-white">{plan.price}</span>
-                )}
-              </div>
+              {(() => {
+                const rawPrice = billing === 'yearly' ? (plan.priceYearly ?? plan.price) : plan.price;
+
+                if (typeof rawPrice === 'number') {
+                  return (
+                    <div className="mb-8">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-4xl font-bold text-white">€{rawPrice}</span>
+                        <span className="text-platinum-500">{t('pricing').plans.perMonth}</span>
+                      </div>
+                      {billing === 'yearly' && <p className="text-xs text-platinum-500 mt-1">{t('pricing').billedAnnually}</p>}
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="mb-8">
+                    <span className="text-3xl font-bold text-white">
+                      {plan.id === 'enterprise' ? t('pricing').plans.enterprise.customPrice : rawPrice}
+                    </span>
+                  </div>
+                );
+              })()}
 
               <ul className="space-y-4 mb-8">
                 {[...focus, ...plan.features]
@@ -230,7 +275,17 @@ export const PricingV2: React.FC = () => {
                 }`}
               >
                 <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 ease-in-out"></span>
-                <span className="relative z-10">{plan.cta}</span>
+                <span className="relative z-10">
+                  {plan.id === 'base'
+                    ? t('pricing').plans.base.cta
+                    : plan.id === 'pro'
+                      ? t('pricing').plans.pro.cta
+                      : plan.id === 'pro-plus'
+                        ? t('pricing').plans.proPlus.cta
+                        : plan.id === 'business'
+                          ? t('pricing').plans.business.cta
+                          : t('pricing').plans.enterprise.cta}
+                </span>
               </Link>
             </motion.div>
           ))}
