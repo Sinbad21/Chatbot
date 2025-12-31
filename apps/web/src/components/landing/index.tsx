@@ -310,6 +310,7 @@ export function Pricing() {
 
   return (
     <section id="pricing" className="py-20 px-4">
+      <span id="prezzi" aria-hidden="true" />
       <div className="container mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
