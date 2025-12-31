@@ -1,4 +1,4 @@
-'use client';
+﻿"use client";
 
 import { motion } from 'framer-motion';
 import { useLandingTranslation } from '@/hooks/useLandingTranslation';
@@ -389,7 +389,7 @@ export function Pricing() {
             <p className="mt-4 text-sm text-muted-foreground">
               {t('pricing.personalize.preview')}{' '}
               <span className="font-medium text-foreground">
-                {t(`pricing.personalize.segments.${segment}`)} · {t(`pricing.personalize.goals.${goal}`)}
+                {t(`pricing.personalize.segments.${segment}`)} Â· {t(`pricing.personalize.goals.${goal}`)}
               </span>
             </p>
           </div>
@@ -419,14 +419,18 @@ export function Pricing() {
                       ${annual ? plan.priceAnnual : plan.price}
                     </span>
                     <span className="text-muted-foreground">{t('pricing.perMonth')}</span>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {annual ? t('pricing.billedAnnually') : t('pricing.billedMonthly')}
+                    </p>
                   </>
                 ) : (
-                  <span className="text-3xl font-bold">{t('pricing.customPrice')}</span>
+                  <span className="text-3xl font-bold">
+                    {(annual ? plan.priceAnnual : plan.price) ? (annual ? plan.priceAnnual : plan.price) : t('pricing.customPrice', 'Custom')}
+                  </span>
                 )}
-                <p className="text-xs text-muted-foreground mt-1">
-                  {annual ? t('pricing.billedAnnually') : t('pricing.billedMonthly')}
-                </p>
               </div>
+
+
 
               <Button
                 className={`w-full mb-6 ${
