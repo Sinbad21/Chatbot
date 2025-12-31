@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Menu, X, Globe } from 'lucide-react';
@@ -12,6 +12,26 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+const NAV_OFFSET_PX = 80;
+
+function scrollToHash(hash: string, retries = 8) {
+  if (typeof window === 'undefined') return;
+
+  const id = hash.replace(/^#/, '').trim();
+  if (!id) return;
+
+  const el = document.getElementById(id);
+  if (!el) {
+    if (retries > 0) {
+      window.setTimeout(() => scrollToHash(hash, retries - 1), 50);
+    }
+    return;
+  }
+
+  const top = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET_PX;
+  window.scrollTo({ top, behavior: 'smooth' });
+}
 
 export function Navbar() {
   const { t, lang, setLanguage } = useLandingTranslation();
@@ -28,6 +48,21 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Robust hash scrolling for Next.js (Link to /#section may update URL without scrolling)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const onHashChange = () => {
+      scrollToHash(window.location.hash);
+    };
+
+    // If the page loads with a hash, scroll once content is ready
+    onHashChange();
+
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, [pathname]);
+
   const navItems = [
     { label: t('nav.features'), href: '/#features' },
     { label: t('nav.pricing'), href: '/#pricing' },
@@ -38,17 +73,16 @@ export function Navbar() {
     if (closeMobile) setMobileMenuOpen(false);
 
     if (href.startsWith('/#')) {
-      const id = href.split('#')[1];
+      const hash = `#${href.split('#')[1] || ''}`;
 
+      // If already on the landing page, update hash + scroll immediately.
       if (pathname === '/' && typeof window !== 'undefined') {
-        const el = document.getElementById(id);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          window.history.replaceState(null, '', href);
-          return;
-        }
+        window.history.replaceState(null, '', href);
+        scrollToHash(hash);
+        return;
       }
 
+      // Otherwise navigate to landing with hash (scroll will occur via effect/hashchange)
       router.push(href);
       return;
     }
@@ -78,7 +112,7 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
+            {navItems.map((item) =>
               item.href.startsWith('/#') ? (
                 <button
                   key={item.href}
@@ -96,8 +130,8 @@ export function Navbar() {
                 >
                   {item.label}
                 </Link>
-              )
-            ))}
+              ),
+            )}
           </div>
 
           {/* Desktop Actions */}
@@ -107,9 +141,7 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <Globe className="w-4 h-4" />
-                  <span className="uppercase text-xs font-semibold">
-                    {lang}
-                  </span>
+                  <span className="uppercase text-xs font-semibold">{lang}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -129,9 +161,7 @@ export function Navbar() {
             </DropdownMenu>
 
             <Link href="/auth/login">
-              <Button variant="ghost" size="sm">
-                {t('nav.login')}
-              </Button>
+              <Button variant="ghost" size="sm">{t('nav.login')}</Button>
             </Link>
 
             <Link href="/auth/register">
@@ -147,11 +177,7 @@ export function Navbar() {
             className="md:hidden p-2 rounded-lg hover:bg-accent"
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? (
-              <X className="w-5 h-5" />
-            ) : (
-              <Menu className="w-5 h-5" />
-            )}
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
 
@@ -159,7 +185,7 @@ export function Navbar() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-border">
             <div className="flex flex-col gap-4">
-              {navItems.map((item) => (
+              {navItems.map((item) =>
                 item.href.startsWith('/#') ? (
                   <button
                     key={item.href}
@@ -178,8 +204,8 @@ export function Navbar() {
                   >
                     {item.label}
                   </Link>
-                )
-              ))}
+                ),
+              )}
 
               <div className="flex items-center gap-2 pt-2 border-t border-border">
                 <Button
