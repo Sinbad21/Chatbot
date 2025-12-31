@@ -1,7 +1,8 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { Menu, X, Globe } from 'lucide-react';
 import { useLandingTranslation } from '@/hooks/useLandingTranslation';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,8 @@ import {
 
 export function Navbar() {
   const { t, lang, setLanguage } = useLandingTranslation();
+  const router = useRouter();
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -30,6 +33,28 @@ export function Navbar() {
     { label: t('nav.pricing'), href: '/#pricing' },
     { label: t('nav.docs'), href: '/docs' },
   ];
+
+  const handleNav = (href: string, closeMobile?: boolean) => {
+    if (closeMobile) setMobileMenuOpen(false);
+
+    if (href.startsWith('/#')) {
+      const id = href.split('#')[1];
+
+      if (pathname === '/' && typeof window !== 'undefined') {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          window.history.replaceState(null, '', href);
+          return;
+        }
+      }
+
+      router.push(href);
+      return;
+    }
+
+    router.push(href);
+  };
 
   return (
     <nav
@@ -54,13 +79,24 @@ export function Navbar() {
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
             {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {item.label}
-              </Link>
+              item.href.startsWith('/#') ? (
+                <button
+                  key={item.href}
+                  type="button"
+                  onClick={() => handleNav(item.href)}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {item.label}
+                </button>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {item.label}
+                </Link>
+              )
             ))}
           </div>
 
@@ -124,14 +160,25 @@ export function Navbar() {
           <div className="md:hidden py-4 border-t border-border">
             <div className="flex flex-col gap-4">
               {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {item.label}
-                </Link>
+                item.href.startsWith('/#') ? (
+                  <button
+                    key={item.href}
+                    type="button"
+                    onClick={() => handleNav(item.href, true)}
+                    className="text-left text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {item.label}
+                  </button>
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                )
               ))}
 
               <div className="flex items-center gap-2 pt-2 border-t border-border">
