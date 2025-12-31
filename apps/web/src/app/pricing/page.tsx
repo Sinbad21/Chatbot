@@ -1,15 +1,11 @@
-'use client';
-
-import { Navbar } from '@/components/landing/Navbar';
+﻿import { Navbar } from '@/components/landing/Navbar';
 import { Pricing, Footer } from '@/components/landing';
-import { useLandingTranslation } from '@/hooks/useLandingTranslation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Suspense } from 'react';
 
 export default function PricingPage() {
-  const { t } = useLandingTranslation();
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -23,7 +19,9 @@ export default function PricingPage() {
             </Button>
           </Link>
 
-          <Pricing />
+          <Suspense fallback={null}>
+            <Pricing />
+          </Suspense>
 
           {/* Additional Pricing Info */}
           <div className="mt-16 text-center max-w-2xl mx-auto">
@@ -70,7 +68,7 @@ export default function PricingPage() {
             <Link href="/legal/terms" className="hover:text-foreground">
               Terms of Service
             </Link>
-            {' • '}
+            {'  '}
             <Link href="/legal/privacy" className="hover:text-foreground">
               Privacy Policy
             </Link>

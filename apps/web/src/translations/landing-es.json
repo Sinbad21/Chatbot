@@ -1,286 +1,395 @@
 {
   "meta": {
-    "title": "Chatbot Studio - Añade un Chatbot IA Inteligente a tu Sitio Web en Minutos",
-    "description": "Crea chatbots IA personalizados entrenados con tus datos. Sin código requerido. Integra con tu sitio web, WhatsApp, Telegram y más. Comienza gratis hoy."
+    "title": "Chatbot Studio - Add a Smart AI Chatbot to Your Website in Minutes",
+    "description": "Create custom AI chatbots trained on your data. No code required. Integrate with your website, WhatsApp, Telegram, and more. Start free today."
   },
   "nav": {
-    "features": "Funciones",
-    "pricing": "Precios",
-    "docs": "Documentación",
-    "login": "Iniciar Sesión",
-    "startFree": "Comenzar Gratis"
+    "features": "Features",
+    "pricing": "Pricing",
+    "docs": "Docs",
+    "login": "Login",
+    "startFree": "Start Free"
   },
   "hero": {
-    "badge": "Prueba la Demo en Vivo",
-    "headline": "Añade un chatbot inteligente a tu sitio en minutos",
-    "subheadline": "Crea chatbots con IA entrenados en tu contenido. Despliega en tu sitio web, WhatsApp, Telegram y más. Sin código requerido.",
-    "ctaPrimary": "Comenzar Gratis",
-    "ctaSecondary": "Ver Demo",
-    "microCopy": "Sin tarjeta de crédito • Cancela en cualquier momento"
+    "badge": "Try Live Demo",
+    "headline": "Add a smart chatbot to your site in minutes",
+    "subheadline": "Create AI-powered chatbots trained on your content. Deploy to your website, WhatsApp, Telegram, and more. No coding required.",
+    "ctaPrimary": "Start Free",
+    "ctaSecondary": "Watch Demo",
+    "microCopy": "No credit card • Cancel anytime"
   },
   "trust": {
-    "title": "Confiado por empresas innovadoras"
+    "title": "Trusted by forward-thinking companies"
   },
   "valueProps": {
-    "title": "Todo lo que necesitas para construir chatbots inteligentes",
+    "title": "Everything you need to build intelligent chatbots",
     "items": [
       {
-        "title": "Entrena con tus Datos",
-        "description": "Carga documentos, raspa sitios web o pega contenido. Tu bot aprende de tu base de conocimientos."
+        "title": "Train on Your Data",
+        "description": "Upload documents, scrape websites, or paste content. Your bot learns from your knowledge base."
       },
       {
-        "title": "Soporte Multi-Modelo",
-        "description": "Elige entre OpenAI GPT-5, Claude 3.5, Google Gemini o Llama. Cambia en cualquier momento."
+        "title": "Multi-Model Support",
+        "description": "Choose from OpenAI GPT-5, Claude 3.5, Google Gemini, or Llama. Switch anytime."
       },
       {
-        "title": "Widgets Sin Código",
-        "description": "Integra hermosos widgets de chat en tu sitio con una línea de código. Totalmente personalizable."
+        "title": "No-Code Widgets",
+        "description": "Embed beautiful chat widgets on your site with one line of code. Fully customizable."
       },
       {
-        "title": "Analíticas y Costos",
-        "description": "Rastrea conversaciones, tokens, costos por modelo. Exporta datos y optimiza gastos."
+        "title": "Analytics & Costs",
+        "description": "Track conversations, tokens, costs by model. Export data and optimize spending."
       },
       {
-        "title": "22 Idiomas",
-        "description": "Detecta automáticamente el idioma del usuario o configúralo manualmente. Soporte completo i18n para alcance global."
+        "title": "22 Languages",
+        "description": "Auto-detect user language or set manually. Full i18n support for global reach."
       },
       {
-        "title": "Seguridad Empresarial",
-        "description": "Cumple con GDPR, cifrado en reposo, listo para SOC 2. Tus datos están seguros."
+        "title": "Enterprise Security",
+        "description": "GDPR compliant, encrypted at rest, SOC 2 ready. Your data stays secure."
       }
     ]
   },
   "demo": {
-    "title": "Pruébalo tú mismo",
-    "subtitle": "Chatea con nuestro bot demo entrenado en la documentación de Chatbot Studio",
-    "placeholder": "Pregúntame cualquier cosa sobre Chatbot Studio...",
-    "themeToggle": "Cambiar tema"
+    "title": "Try it yourself",
+    "subtitle": "Chat with our demo bot trained on Chatbot Studio documentation",
+    "placeholder": "Ask me anything about Chatbot Studio...",
+    "themeToggle": "Switch theme"
   },
   "features": {
-    "title": "Funciones poderosas para chatbots modernos",
-    "subtitle": "Todo lo que necesitas para crear, entrenar y desplegar IA conversacional inteligente",
+    "title": "Powerful features for modern chatbots",
+    "subtitle": "Everything you need to create, train, and deploy intelligent conversational AI",
     "items": [
       {
-        "title": "Chat e Historial",
-        "description": "Historial completo de conversaciones con filtros, búsqueda y exportación. Entrena con respuestas para mejorar tu bot."
+        "title": "Chat & History",
+        "description": "Full conversation history with filters, search, and export. Train on replies to improve your bot."
       },
       {
-        "title": "Entrenamiento con Documentos",
-        "description": "Carga PDF, DOCX, TXT, CSV hasta 25MB. Previsualiza, activa inclusión y gestiona tu base de conocimientos."
+        "title": "Document Training",
+        "description": "Upload PDF, DOCX, TXT, CSV up to 25MB. Preview, toggle inclusion, and manage your knowledge base."
       },
       {
         "title": "Web Scraping",
-        "description": "Descubre automáticamente sitemaps o rastrea sitios web. Previsualiza contenido antes de añadir a datos de entrenamiento."
+        "description": "Auto-discover sitemaps or crawl websites. Preview content before adding to training data."
       },
       {
-        "title": "Marca Personalizada",
-        "description": "Carga logo, personaliza colores (7 opciones de tema), coincide perfectamente con tu identidad de marca."
+        "title": "Custom Branding",
+        "description": "Upload logo, customize colors (7 theme options), match your brand identity perfectly."
       },
       {
-        "title": "Multi-Canal Listo",
-        "description": "Despliega en WhatsApp, Telegram, Slack, Discord. Un bot, múltiples canales. (Próximamente)"
+        "title": "Multi-Channel Ready",
+        "description": "Deploy to WhatsApp, Telegram, Slack, Discord. One bot, multiple channels. (Coming soon)"
       },
       {
-        "title": "Plantillas de Prompt",
-        "description": "Plantillas preconstruidas para soporte al cliente, ventas, ayuda técnica. O escribe la tuya."
+        "title": "Prompt Templates",
+        "description": "Pre-built templates for customer support, sales, technical help. Or write your own."
       },
       {
-        "title": "Analíticas de Uso",
-        "description": "Gráficos diarios de llamadas, tokens, costos. Desglose por modelo y proveedor. Exportación CSV incluida."
+        "title": "Usage Analytics",
+        "description": "Daily charts for calls, tokens, costs. Break down by model and provider. CSV export included."
       },
       {
-        "title": "FAQs e Intenciones",
-        "description": "Crea respuestas basadas en patrones. Entrena desde el historial de conversaciones con un clic."
+        "title": "FAQs & Intents",
+        "description": "Create pattern-based responses. Train from conversation history with one click."
       }
     ]
   },
   "integrations": {
-    "title": "Se integra con tus herramientas favoritas",
-    "comingSoon": "Próximamente"
+    "title": "Integrates with your favorite tools",
+    "comingSoon": "Coming Soon"
   },
   "pricing": {
-    "title": "Precios simples y transparentes",
-    "subtitle": "Elige el plan que se ajuste a tus necesidades. Actualiza o reduce en cualquier momento.",
-    "monthly": "Mensual",
-    "annually": "Anual",
-    "annualDiscount": "Ahorra 20%",
+    "title": "Simple, transparent pricing",
+    "subtitle": "Choose the plan that fits your needs. Upgrade or downgrade anytime.",
+    "monthly": "Monthly",
+    "annually": "Annually",
+    "annualDiscount": "Save 20%",
+    "customPrice": "Custom",
+    "personalize": {
+      "activityLabel": "Your business type",
+      "goalLabel": "Your primary goal",
+      "preview": "We’ll highlight the most relevant features for:",
+      "segments": {
+        "local": "Local business",
+        "agency": "Agency",
+        "saas": "SaaS"
+      },
+      "goals": {
+        "bookings": "Bookings",
+        "leads": "Lead capture",
+        "support": "Customer support"
+      },
+      "focus": {
+        "local": {
+          "bookings": [
+            "Booking widget & calendar",
+            "Automated reminders",
+            "Lead capture forms",
+            "Follow-up workflows",
+            "Review collection"
+          ],
+          "leads": [
+            "Lead capture & qualification",
+            "Conversation-to-lead routing",
+            "Simple CRM-ready exports",
+            "Forms + contact requests",
+            "Campaign-ready lead lists"
+          ],
+          "support": [
+            "Support inbox",
+            "FAQ & intent answers",
+            "Escalation to a human",
+            "Conversation search",
+            "Response quality insights"
+          ]
+        },
+        "agency": {
+          "bookings": [
+            "Multi-client setup",
+            "Embeddable widgets",
+            "Reporting per client",
+            "Quick duplication/templates",
+            "White-label options"
+          ],
+          "leads": [
+            "Lead capture across sites",
+            "Export & handoff to clients",
+            "Multi-bot management",
+            "Campaign tracking basics",
+            "Team collaboration"
+          ],
+          "support": [
+            "Shared inbox workflows",
+            "Team assignments",
+            "Reusable knowledge base",
+            "Client reporting",
+            "SLA-ready support"
+          ]
+        },
+        "saas": {
+          "bookings": [
+            "Product demos scheduling",
+            "Qualification questions",
+            "Lead-to-calendar routing",
+            "Analytics for conversion",
+            "Integrations"
+          ],
+          "leads": [
+            "Lead qualification",
+            "Routing to sales",
+            "Advanced analytics",
+            "API/webhooks",
+            "Multi-environment support"
+          ],
+          "support": [
+            "In-app support widget",
+            "Deflection analytics",
+            "Knowledge base + docs",
+            "Integrations + webhooks",
+            "Security controls"
+          ]
+        }
+      }
+    },
     "plans": [
       {
-        "name": "Starter",
+        "id": "base",
+        "name": "Base",
         "price": 29,
         "priceAnnual": 23,
-        "description": "Perfecto para sitios web pequeños y blogs",
+        "description": "For individuals and small businesses getting started",
         "features": [
-          "1 chatbot",
-          "1,000 mensajes/mes",
-          "10 MB almacenamiento de documentos",
-          "Solo GPT-5 Mini",
-          "Soporte por email",
-          "Integración de widget",
-          "Analíticas básicas"
+          "1 bot",
+          "Core chat + leads",
+          "Basic analytics",
+          "Email support"
         ],
-        "cta": "Comenzar Prueba Gratis",
+        "cta": "Start Free Trial",
         "popular": false
       },
       {
+        "id": "pro",
         "name": "Pro",
-        "price": 99,
-        "priceAnnual": 79,
-        "description": "Para empresas en crecimiento y equipos",
+        "price": 79,
+        "priceAnnual": 63,
+        "description": "For growing teams and higher volume",
         "features": [
-          "5 chatbots",
-          "10,000 mensajes/mes",
-          "100 MB almacenamiento de documentos",
-          "Todos los modelos IA (GPT-5, Claude, Gemini)",
-          "Soporte prioritario",
-          "Marca personalizada",
-          "Analíticas avanzadas",
-          "Acceso API"
+          "Up to 3 bots",
+          "Advanced analytics",
+          "Team collaboration",
+          "Priority support"
         ],
-        "cta": "Comenzar Prueba Gratis",
+        "cta": "Start Free Trial",
+        "popular": false
+      },
+      {
+        "id": "pro-plus",
+        "name": "Pro+",
+        "price": 129,
+        "priceAnnual": 103,
+        "description": "Best value for serious growth",
+        "features": [
+          "BYOK (bring your own AI API key)",
+          "Review Bot included",
+          "Multi-channel starter",
+          "Scraping/Docs starter",
+          "Priority onboarding"
+        ],
+        "cta": "Start Free Trial",
         "popular": true
       },
       {
-        "name": "Scale",
+        "id": "business",
+        "name": "Business",
         "price": 299,
         "priceAnnual": 239,
-        "description": "Para empresas con alto volumen",
+        "description": "For scaling teams that need control",
         "features": [
-          "Chatbots ilimitados",
-          "100,000 mensajes/mes",
-          "1 GB almacenamiento de documentos",
-          "Todos los modelos IA",
-          "Soporte dedicado",
-          "Marca personalizada",
-          "Analíticas avanzadas",
-          "Acceso API",
-          "Multi-canal (WhatsApp, Telegram)",
-          "SSO y SAML",
-          "Garantía SLA"
+          "Roles & permissions",
+          "Audit logs",
+          "Higher limits",
+          "Priority support",
+          "Governance & controls"
         ],
-        "cta": "Contactar Ventas",
+        "cta": "Contact Sales",
+        "popular": false
+      },
+      {
+        "id": "enterprise",
+        "name": "Enterprise",
+        "price": "Custom",
+        "priceAnnual": "Custom",
+        "description": "Custom pricing, features, and SLAs",
+        "features": [
+          "SSO/SAML",
+          "Custom limits",
+          "SLA & security review",
+          "Dedicated success manager",
+          "Custom integrations"
+        ],
+        "cta": "Contact Sales",
         "popular": false
       }
     ],
-    "perMonth": "/mes",
-    "billedAnnually": "facturado anualmente",
-    "billedMonthly": "facturado mensualmente"
+    "perMonth": "/month",
+    "billedAnnually": "billed annually",
+    "billedMonthly": "billed monthly"
   },
   "testimonials": {
-    "title": "Amado por equipos en todo el mundo",
+    "title": "Loved by teams worldwide",
     "items": [
       {
         "name": "Sarah Chen",
-        "role": "Jefa de Soporte, TechCorp",
+        "role": "Head of Support, TechCorp",
         "avatar": "SC",
         "rating": 5,
-        "text": "Chatbot Studio redujo nuestros tickets de soporte en un 60% en el primer mes. El entrenamiento con nuestros documentos fue perfecto."
+        "text": "Chatbot Studio cut our support tickets by 60% in the first month. The training on our docs was seamless."
       },
       {
         "name": "Marcus Weber",
-        "role": "Fundador, StartupXYZ",
+        "role": "Founder, StartupXYZ",
         "avatar": "MW",
         "rating": 5,
-        "text": "Desplegamos un chatbot en menos de 10 minutos. El ROI fue inmediato. Muy recomendable para cualquier SaaS."
+        "text": "We deployed a chatbot in under 10 minutes. The ROI was immediate. Highly recommend for any SaaS."
       },
       {
         "name": "Lisa Park",
-        "role": "Directora de Marketing, Acme Inc",
+        "role": "Marketing Director, Acme Inc",
         "avatar": "LP",
         "rating": 5,
-        "text": "Las analíticas son fantásticas. Podemos ver exactamente qué preguntan los usuarios y mejorar nuestra estrategia de contenido."
+        "text": "The analytics are fantastic. We can see exactly what users ask and improve our content strategy."
       },
       {
         "name": "Ahmed Hassan",
         "role": "CTO, CloudSystems",
         "avatar": "AH",
         "rating": 5,
-        "text": "La seguridad era nuestra mayor preocupación. El cumplimiento GDPR y el cifrado de Chatbot Studio nos dieron tranquilidad."
+        "text": "Security was our top concern. Chatbot Studio's GDPR compliance and encryption gave us peace of mind."
       },
       {
         "name": "Emma Thompson",
-        "role": "Gerente de Producto, DataCo",
+        "role": "Product Manager, DataCo",
         "avatar": "ET",
         "rating": 5,
-        "text": "El soporte multi-modelo es revolucionario. Podemos probar GPT vs Claude y elegir lo que funciona mejor."
+        "text": "The multi-model support is a game changer. We can test GPT vs Claude and choose what works best."
       }
     ]
   },
   "faq": {
-    "title": "Preguntas Frecuentes",
+    "title": "Frequently Asked Questions",
     "items": [
       {
-        "question": "¿Cómo funciona la prueba gratuita?",
-        "answer": "Obtienes 7 días de acceso gratis a todas las funciones Pro. No se requiere tarjeta de crédito. Cancela en cualquier momento antes de que termine la prueba y no se te cobrará."
+        "question": "How does the free trial work?",
+        "answer": "You get 7 days free access to all Pro features. No credit card required. Cancel anytime before the trial ends and you won't be charged."
       },
       {
-        "question": "¿Puedo cambiar de plan más tarde?",
-        "answer": "Sí, puedes actualizar o reducir en cualquier momento. Si actualizas, se te cobrará la diferencia prorrateada. Si reduces, el crédito se aplica a tu próximo ciclo de facturación."
+        "question": "Can I change plans later?",
+        "answer": "Yes, you can upgrade or downgrade at any time. If you upgrade, you'll be charged the prorated difference. If you downgrade, the credit applies to your next billing cycle."
       },
       {
-        "question": "¿Qué modelos de IA soportan?",
-        "answer": "Soportamos OpenAI GPT-5 y GPT-4, Anthropic Claude 3.5, Google Gemini y Llama 3.1. Puedes cambiar de modelo en cualquier momento desde tu panel."
+        "question": "What AI models do you support?",
+        "answer": "We support OpenAI GPT-5 and GPT-4, Anthropic Claude 3.5, Google Gemini, and Llama 3.1. You can switch models anytime from your dashboard."
       },
       {
-        "question": "¿Cómo se calcula el precio?",
-        "answer": "El precio se basa en el número de mensajes por mes. Cada mensaje (entrada del usuario + respuesta del bot) cuenta como un mensaje. Los mensajes no utilizados no se acumulan."
+        "question": "How is pricing calculated?",
+        "answer": "Pricing is based on the number of messages per month. Each message (user input + bot response) counts as one message. Unused messages don't roll over."
       },
       {
-        "question": "¿Puedo entrenar el bot con mis documentos privados?",
-        "answer": "Absolutamente. Carga PDFs, documentos de Word, hojas de cálculo o pega texto. También puedes raspar tu sitio web automáticamente. Todos los datos están cifrados y nunca se comparten."
+        "question": "Can I train the bot on my private documents?",
+        "answer": "Absolutely. Upload PDFs, Word docs, spreadsheets, or paste text. You can also scrape your website automatically. All data is encrypted and never shared."
       },
       {
-        "question": "¿Ofrecen reembolsos?",
-        "answer": "Sí, ofrecemos una garantía de devolución de dinero de 30 días si no estás satisfecho. Solo envíanos un email y procesaremos tu reembolso en 5 días hábiles."
+        "question": "Do you offer refunds?",
+        "answer": "Yes, we offer a 30-day money-back guarantee if you're not satisfied. Just email us and we'll process your refund within 5 business days."
       },
       {
-        "question": "¿Mis datos están seguros y cumplen con GDPR?",
-        "answer": "Sí. Todos los datos están cifrados en reposo y en tránsito. Cumplimos con GDPR y estamos certificados SOC 2 Tipo II. Puedes exportar o eliminar tus datos en cualquier momento."
+        "question": "Is my data secure and GDPR compliant?",
+        "answer": "Yes. All data is encrypted at rest and in transit. We're GDPR compliant and SOC 2 Type II certified. You can export or delete your data anytime."
       },
       {
-        "question": "¿Puedo usar mi propia clave API de OpenAI?",
-        "answer": "En el plan Scale, sí. Puedes traer tus propias claves API para OpenAI, Anthropic o Google para controlar los costos directamente."
+        "question": "Can I use my own OpenAI API key?",
+        "answer": "On the Scale plan, yes. You can bring your own API keys for OpenAI, Anthropic, or Google to control costs directly."
       },
       {
-        "question": "¿Qué idiomas soporta el chatbot?",
-        "answer": "El chatbot puede responder en 22 idiomas incluyendo inglés, español, francés, alemán, italiano, portugués, chino, japonés y más. Detecta automáticamente el idioma del usuario."
+        "question": "What languages does the chatbot support?",
+        "answer": "The chatbot can respond in 22 languages including English, Spanish, French, German, Italian, Portuguese, Chinese, Japanese, and more. It auto-detects the user's language."
       },
       {
-        "question": "¿Cómo integro el chatbot en mi sitio web?",
-        "answer": "Copia una sola línea de código JavaScript de tu panel y pégala antes de la etiqueta </body>. Eso es todo. Estilos totalmente personalizables disponibles."
+        "question": "How do I embed the chatbot on my website?",
+        "answer": "Copy a single line of JavaScript code from your dashboard and paste it before the closing </body> tag. That's it. Fully customizable styling available."
       }
     ]
   },
   "finalCta": {
-    "title": "Construye tu chatbot IA en minutos",
-    "subtitle": "Únete a miles de empresas usando Chatbot Studio para automatizar soporte y aumentar el engagement.",
-    "cta": "Comenzar Prueba Gratis",
-    "microCopy": "Sin tarjeta de crédito requerida"
+    "title": "Build your AI chatbot in minutes",
+    "subtitle": "Join thousands of companies using Chatbot Studio to automate support and boost engagement.",
+    "cta": "Start Free Trial",
+    "microCopy": "No credit card required"
   },
   "footer": {
-    "tagline": "Chatbots inteligentes para sitios web modernos",
-    "product": "Producto",
-    "features": "Funciones",
-    "pricing": "Precios",
-    "docs": "Documentación",
-    "changelog": "Registro de Cambios",
-    "company": "Empresa",
-    "about": "Sobre Nosotros",
+    "tagline": "Intelligent chatbots for modern websites",
+    "product": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "docs": "Documentation",
+    "changelog": "Changelog",
+    "company": "Company",
+    "about": "About Us",
     "blog": "Blog",
-    "careers": "Carreras",
-    "contact": "Contacto",
+    "careers": "Careers",
+    "contact": "Contact",
     "legal": "Legal",
-    "privacy": "Política de Privacidad",
-    "terms": "Términos de Servicio",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
     "gdpr": "GDPR",
     "social": "Social",
-    "rights": "© 2025 Chatbot Studio. Todos los derechos reservados.",
-    "poweredBy": "Impulsado por",
+    "rights": "© 2025 Chatbot Studio. All rights reserved.",
+    "poweredBy": "Powered by",
     "newsletter": {
-      "title": "Mantente actualizado",
-      "subtitle": "Obtén las últimas funciones y consejos",
-      "placeholder": "Ingresa tu email",
-      "cta": "Suscribirse"
+      "title": "Stay updated",
+      "subtitle": "Get the latest features and tips",
+      "placeholder": "Enter your email",
+      "cta": "Subscribe"
     }
   }
 }

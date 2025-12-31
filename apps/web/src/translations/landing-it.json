@@ -104,59 +104,168 @@
     "monthly": "Mensile",
     "annually": "Annuale",
     "annualDiscount": "Risparmia 20%",
+    "customPrice": "Su misura",
+    "personalize": {
+      "activityLabel": "Tipo di attività",
+      "goalLabel": "Obiettivo principale",
+      "preview": "Evidenziamo le funzionalità più rilevanti per:",
+      "segments": {
+        "local": "Attività locale",
+        "agency": "Agenzia",
+        "saas": "SaaS"
+      },
+      "goals": {
+        "bookings": "Prenotazioni",
+        "leads": "Lead",
+        "support": "Supporto"
+      },
+      "focus": {
+        "local": {
+          "bookings": [
+            "Widget prenotazioni & calendario",
+            "Promemoria automatici",
+            "Raccolta lead",
+            "Workflow di follow-up",
+            "Raccolta recensioni"
+          ],
+          "leads": [
+            "Raccolta e qualificazione lead",
+            "Smistamento conversazione→lead",
+            "Export semplice (CRM-ready)",
+            "Form + richieste contatto",
+            "Liste lead per campagne"
+          ],
+          "support": [
+            "Inbox supporto",
+            "FAQ & intent",
+            "Escalation a operatore",
+            "Ricerca conversazioni",
+            "Insight sulla qualità risposte"
+          ]
+        },
+        "agency": {
+          "bookings": [
+            "Setup multi-cliente",
+            "Widget embeddable",
+            "Report per cliente",
+            "Template/duplicazione rapida",
+            "Opzioni white-label"
+          ],
+          "leads": [
+            "Lead su più siti",
+            "Export e consegna al cliente",
+            "Gestione multi-bot",
+            "Tracciamento campagne base",
+            "Collaborazione team"
+          ],
+          "support": [
+            "Workflow inbox condivisa",
+            "Assegnazioni team",
+            "Knowledge base riutilizzabile",
+            "Reportistica per cliente",
+            "Supporto con SLA"
+          ]
+        },
+        "saas": {
+          "bookings": [
+            "Prenotazione demo",
+            "Domande di qualificazione",
+            "Lead→calendario",
+            "Analytics conversione",
+            "Integrazioni"
+          ],
+          "leads": [
+            "Qualificazione lead",
+            "Routing al sales",
+            "Analytics avanzate",
+            "API/webhook",
+            "Supporto multi-ambiente"
+          ],
+          "support": [
+            "Widget supporto in-app",
+            "Analytics deflection",
+            "Knowledge base + docs",
+            "Integrazioni + webhook",
+            "Controlli sicurezza"
+          ]
+        }
+      }
+    },
     "plans": [
       {
-        "name": "Starter",
+        "id": "base",
+        "name": "Base",
         "price": 29,
         "priceAnnual": 23,
-        "description": "Perfetto per piccoli siti e blog",
+        "description": "Per iniziare velocemente con tutto l'essenziale",
         "features": [
-          "1 chatbot",
-          "1.000 messaggi/mese",
-          "10 MB storage documenti",
-          "Solo GPT-5 Mini",
-          "Supporto email",
-          "Widget embed",
-          "Analisi base"
+          "1 bot",
+          "Chat + lead core",
+          "Analisi base",
+          "Supporto email"
         ],
         "cta": "Inizia Prova Gratuita",
         "popular": false
       },
       {
+        "id": "pro",
         "name": "Pro",
-        "price": 99,
-        "priceAnnual": 79,
-        "description": "Per aziende in crescita e team",
+        "price": 79,
+        "priceAnnual": 63,
+        "description": "Per team in crescita e volumi maggiori",
         "features": [
-          "5 chatbot",
-          "10.000 messaggi/mese",
-          "100 MB storage documenti",
-          "Tutti i modelli AI (GPT-5, Claude, Gemini)",
-          "Supporto prioritario",
-          "Branding personalizzato",
+          "Fino a 3 bot",
           "Analisi avanzate",
-          "Accesso API"
+          "Collaborazione team",
+          "Supporto prioritario"
+        ],
+        "cta": "Inizia Prova Gratuita",
+        "popular": false
+      },
+      {
+        "id": "pro-plus",
+        "name": "Pro+",
+        "price": 129,
+        "priceAnnual": 103,
+        "description": "Il miglior rapporto valore/prezzo",
+        "features": [
+          "BYOK (API key AI del cliente)",
+          "Review Bot incluso",
+          "Multi-canale starter",
+          "Scraping/Docs starter",
+          "Onboarding prioritario"
         ],
         "cta": "Inizia Prova Gratuita",
         "popular": true
       },
       {
-        "name": "Scale",
+        "id": "business",
+        "name": "Business",
         "price": 299,
         "priceAnnual": 239,
-        "description": "Per aziende con alto volume",
+        "description": "Per scalare con controllo e governance",
         "features": [
-          "Chatbot illimitati",
-          "100.000 messaggi/mese",
-          "1 GB storage documenti",
-          "Tutti i modelli AI",
-          "Supporto dedicato",
-          "Branding personalizzato",
-          "Analisi avanzate",
-          "Accesso API",
-          "Multi-canale (WhatsApp, Telegram)",
-          "SSO & SAML",
-          "Garanzia SLA"
+          "Ruoli e permessi",
+          "Audit log",
+          "Limiti più alti",
+          "Supporto prioritario",
+          "Controlli avanzati"
+        ],
+        "cta": "Contatta Vendite",
+        "popular": false
+      },
+      {
+        "id": "enterprise",
+        "name": "Enterprise",
+        "price": "Su misura",
+        "priceAnnual": "Su misura",
+        "description": "Prezzi e funzionalità personalizzate con SLA",
+        "features": [
+          "SSO/SAML",
+          "Limiti personalizzati",
+          "SLA e review sicurezza",
+          "Success manager dedicato",
+          "Integrazioni custom"
         ],
         "cta": "Contatta Vendite",
         "popular": false

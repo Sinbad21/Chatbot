@@ -25,8 +25,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 // Hero Component
 export function Hero() {
@@ -268,7 +269,44 @@ export function Integrations() {
 export function Pricing() {
   const { t } = useLandingTranslation();
   const [annual, setAnnual] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  type Segment = 'local' | 'agency' | 'saas';
+  type Goal = 'bookings' | 'leads' | 'support';
+
+  const segment = useMemo<Segment>(() => {
+    const value = searchParams.get('segment');
+    if (value === 'local' || value === 'agency' || value === 'saas') return value;
+    return 'local';
+  }, [searchParams]);
+
+  const goal = useMemo<Goal>(() => {
+    const value = searchParams.get('goal');
+    if (value === 'bookings' || value === 'leads' || value === 'support') return value;
+    return 'leads';
+  }, [searchParams]);
+
   const plans = t('pricing.plans');
+
+  const setPersonalization = (next: { segment?: Segment; goal?: Goal }) => {
+    const nextSegment = next.segment ?? segment;
+    const nextGoal = next.goal ?? goal;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('segment', nextSegment);
+    params.set('goal', nextGoal);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  const focusAll = t(`pricing.personalize.focus.${segment}.${goal}`) as string[] | undefined;
+  const coreCountByPlanId: Record<string, number> = {
+    base: 2,
+    pro: 3,
+    'pro-plus': 4,
+    business: 5,
+    enterprise: 5,
+  };
 
   return (
     <section id="pricing" className="py-20 px-4">
@@ -307,9 +345,57 @@ export function Pricing() {
               </Badge>
             )}
           </div>
+
+          {/* Personalization selectors */}
+          <div className="mx-auto max-w-3xl rounded-2xl border border-border bg-background/50 p-4 sm:p-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-sm font-medium mb-2">{t('pricing.personalize.activityLabel')}</p>
+                <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                  {(['local', 'agency', 'saas'] as const).map((id) => (
+                    <Button
+                      key={id}
+                      type="button"
+                      variant={segment === id ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setPersonalization({ segment: id })}
+                      className={segment === id ? 'bg-foreground text-background hover:bg-foreground/90' : ''}
+                    >
+                      {t(`pricing.personalize.segments.${id}`)}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium mb-2">{t('pricing.personalize.goalLabel')}</p>
+                <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                  {(['bookings', 'leads', 'support'] as const).map((id) => (
+                    <Button
+                      key={id}
+                      type="button"
+                      variant={goal === id ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setPersonalization({ goal: id })}
+                      className={goal === id ? 'bg-foreground text-background hover:bg-foreground/90' : ''}
+                    >
+                      {t(`pricing.personalize.goals.${id}`)}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-4 text-sm text-muted-foreground">
+              {t('pricing.personalize.preview')}{' '}
+              <span className="font-medium text-foreground">
+                {t(`pricing.personalize.segments.${segment}`)} · {t(`pricing.personalize.goals.${goal}`)}
+              </span>
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
           {plans?.map((plan: any, i: number) => (
             <Card
               key={i}
@@ -327,10 +413,16 @@ export function Pricing() {
               <p className="text-muted-foreground text-sm mb-6">{plan.description}</p>
 
               <div className="mb-6">
-                <span className="text-4xl font-bold">
-                  ${annual ? plan.priceAnnual : plan.price}
-                </span>
-                <span className="text-muted-foreground">{t('pricing.perMonth')}</span>
+                {typeof (annual ? plan.priceAnnual : plan.price) === 'number' ? (
+                  <>
+                    <span className="text-4xl font-bold">
+                      ${annual ? plan.priceAnnual : plan.price}
+                    </span>
+                    <span className="text-muted-foreground">{t('pricing.perMonth')}</span>
+                  </>
+                ) : (
+                  <span className="text-3xl font-bold">{t('pricing.customPrice')}</span>
+                )}
                 <p className="text-xs text-muted-foreground mt-1">
                   {annual ? t('pricing.billedAnnually') : t('pricing.billedMonthly')}
                 </p>
@@ -347,7 +439,15 @@ export function Pricing() {
               </Button>
 
               <ul className="space-y-3">
-                {plan.features.map((feature: string, j: number) => (
+                {(() => {
+                  const planId = typeof plan.id === 'string' ? plan.id : '';
+                  const coreCount = coreCountByPlanId[planId] ?? 3;
+                  const coreForPlan = Array.isArray(focusAll) ? focusAll.slice(0, coreCount) : [];
+                  const rawFeatures = Array.isArray(plan.features) ? plan.features : [];
+                  const merged = [...coreForPlan, ...rawFeatures];
+                  const unique = merged.filter((value, idx) => merged.indexOf(value) === idx);
+                  return unique;
+                })().map((feature: string, j: number) => (
                   <li key={j} className="flex items-start gap-2 text-sm">
                     <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                     <span>{feature}</span>
