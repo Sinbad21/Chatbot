@@ -7,7 +7,7 @@ import { Integrations } from './Integrations';
 import { Services } from './Services';
 import { Personas } from './Personas';
 import { Training } from './Training';
-import { Pricing } from './Pricing';
+import { PricingV2 } from './PricingV2';
 import { About } from './About';
 import { Footer } from './Footer';
 
@@ -32,7 +32,7 @@ const LandingPage: React.FC = () => {
           <Personas />
           <Services />
           <Training />
-          <Pricing />
+          <PricingV2 />
         </main>
         <Footer />
       </div>
