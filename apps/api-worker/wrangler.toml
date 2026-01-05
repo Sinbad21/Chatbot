@@ -1,11 +1,11 @@
-name = "chatbotstudio"
+name = "omnicalstudio"
 main = "src/index.ts"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 # Environment variables (secrets configured in Cloudflare dashboard)
 [vars]
-APP_URL = "https://app.chatbotstudio.io"
+APP_URL = "https://app.omnicalstudio.io"
 
 # Secrets must be set in Cloudflare dashboard under Settings → Variables and Secrets
 # Required:
