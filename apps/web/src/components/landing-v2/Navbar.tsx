@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Command, LogIn } from 'lucide-react';
+import { Menu, X, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function Navbar() {
@@ -24,9 +25,14 @@ export function Navbar() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 cursor-pointer">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-             <Command size={18} />
-          </div>
+          <Image
+            src="/logo.svg"
+            alt="Omnical Studio"
+            width={32}
+            height={32}
+            className="w-8 h-8"
+            priority
+          />
           <span className="text-xl font-bold tracking-tight text-white">
             Chatbot<span className="text-slate-400 font-normal">Studio</span>
           </span>

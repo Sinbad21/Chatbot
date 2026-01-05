@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { Menu, X, Diamond } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLandingNewI18n } from './i18n';
 
@@ -38,7 +39,14 @@ export const Navbar: React.FC = () => {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-          <Diamond className="w-6 h-6 text-platinum-200 group-hover:text-white transition-colors duration-500" />
+          <Image
+            src="/logo.svg"
+            alt="Omnical Studio"
+            width={24}
+            height={24}
+            className="w-6 h-6"
+            priority
+          />
           <span className="text-xl md:text-2xl font-serif font-bold text-platinum-100 tracking-widest uppercase group-hover:text-white transition-colors duration-500">
             OMNICAL STUDIO
           </span>
