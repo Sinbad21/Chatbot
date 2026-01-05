@@ -166,7 +166,7 @@ function ReviewWidgetContent() {
             onClick={() => setIsVisible(false)}
             className="text-gray-400 hover:text-gray-600"
           >
-            ×
+            Ã—
           </button>
         </div>
 
@@ -183,8 +183,8 @@ function ReviewWidgetContent() {
                     className="text-2xl hover:scale-110 transition-transform focus:outline-none"
                   >
                     {config.surveyType === 'EMOJI' 
-                      ? ['😠', '🙁', '😐', '🙂', '😍'][i-1] 
-                      : '⭐'
+                      ? ['ðŸ˜ ', 'ðŸ™', 'ðŸ˜', 'ðŸ™‚', 'ðŸ˜'][i-1] 
+                      : 'â­'
                     }
                   </button>
                 ))}
@@ -230,14 +230,14 @@ function ReviewWidgetContent() {
 
           {step === 'completed' && (
             <div className="text-center py-4">
-              <div className="text-4xl mb-2">❤️</div>
+              <div className="text-4xl mb-2">â¤ï¸</div>
               <p className="text-gray-600">{config.completedMessage}</p>
             </div>
           )}
 
           {step === 'already-responded' && (
             <div className="text-center py-4">
-              <p className="text-gray-500 text-sm">Hai già inviato una risposta. Grazie!</p>
+              <p className="text-gray-500 text-sm">Hai giÃ  inviato una risposta. Grazie!</p>
             </div>
           )}
         </div>
@@ -250,7 +250,7 @@ function ReviewWidgetContent() {
             rel="noopener noreferrer"
             className="text-[10px] text-gray-400 hover:text-gray-600"
           >
-            Powered by ChatbotStudio
+            Powered by Omnical Studio
           </a>
         </div>
       </div>
