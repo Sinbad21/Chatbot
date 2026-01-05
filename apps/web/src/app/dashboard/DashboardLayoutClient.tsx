@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ import {
  Users,
  Calendar,
  CalendarCheck,
+ Code,
  Globe,
  Puzzle,
  Settings,
@@ -48,7 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
  const router = useRouter();
  const { t, currentLang, setLanguage } = useTranslation();
 
- // Monitora l'attività  dell'utente per mantenere la sessione attiva
+ // Monitora l'attivitÃ Â  dell'utente per mantenere la sessione attiva
  useSessionActivity();
 
  // Grouped navigation
@@ -260,7 +261,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
        </button>
        <Link href="/" className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg bg-white text-black">
-         <Command size={16} />
+         <Code size={16} />
         </div>
         <span className="font-serif font-bold text-lg tracking-wide text-charcoal">Studio</span>
        </Link>
@@ -343,7 +344,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
          <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg bg-white text-black">
-            <Command size={16} />
+            <Code size={16} />
            </div>
            <span className="font-serif font-bold text-lg tracking-wide text-charcoal">Studio</span>
           </div>
@@ -366,6 +367,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   </div>
  );
 }
+
+
 
 
 

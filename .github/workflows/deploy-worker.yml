@@ -1,4 +1,4 @@
-name: Deploy Next.js to Cloudflare Workers
+﻿name: Deploy Next.js to Cloudflare Workers
 
 # Deploys to: https://omnicalstudio.gabrypiritore.workers.dev
 
@@ -42,8 +42,10 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: apps/web
           command: deploy
 
 env:
   NODE_VERSION: 20
+

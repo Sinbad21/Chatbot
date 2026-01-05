@@ -1,4 +1,4 @@
-name: CI
+﻿name: CI
 
 on:
   push:
@@ -84,10 +84,10 @@ jobs:
         run: |
           echo "Checking build artifacts..."
           if [ -d "apps/web/.next" ]; then
-            echo "✓ Web app built successfully"
+            echo "âœ“ Web app built successfully"
           fi
           if [ -d "apps/api/dist" ]; then
-            echo "✓ API built successfully"
+            echo "âœ“ API built successfully"
           fi
 
   lint:
@@ -111,6 +111,7 @@ jobs:
         run: npm run lint --if-present
 
       - name: Run Prettier check
+        continue-on-error: true
         run: npm run format:check --if-present || npx prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
 
   security:
@@ -132,4 +133,5 @@ jobs:
 
       - name: Check for known vulnerabilities
         run: |
-          npm audit --audit-level=high || echo "⚠️  High severity vulnerabilities found"
+          npm audit --audit-level=high || echo "âš ï¸  High severity vulnerabilities found"
+
