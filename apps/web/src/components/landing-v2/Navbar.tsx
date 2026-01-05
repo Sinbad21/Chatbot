@@ -25,14 +25,13 @@ export function Navbar() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 cursor-pointer">
-          <Image
-            src="/logo.svg"
-            alt="Omnical Studio"
-            width={32}
-            height={32}
-            className="w-8 h-8"
-            priority
-          />
+           
+    param($m)
+    $head = $m.Groups[1].Value
+    $tail = $m.Groups[2].Value
+    if ($head -match '\bunoptimized\b') { return $m.Value }
+    return "$head\n              unoptimized$tail"
+  
           <span className="text-xl font-bold tracking-tight text-white">
             Chatbot<span className="text-slate-400 font-normal">Studio</span>
           </span>

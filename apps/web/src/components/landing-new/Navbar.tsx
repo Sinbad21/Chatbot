@@ -39,14 +39,13 @@ export const Navbar: React.FC = () => {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-          <Image
-            src="/logo.svg"
-            alt="Omnical Studio"
-            width={24}
-            height={24}
-            className="w-6 h-6"
-            priority
-          />
+           
+    param($m)
+    $head = $m.Groups[1].Value
+    $tail = $m.Groups[2].Value
+    if ($head -match '\bunoptimized\b') { return $m.Value }
+    return "$head\n              unoptimized$tail"
+  
           <span className="text-xl md:text-2xl font-serif font-bold text-platinum-100 tracking-widest uppercase group-hover:text-white transition-colors duration-500">
             OMNICAL STUDIO
           </span>
