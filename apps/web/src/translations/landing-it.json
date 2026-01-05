@@ -16,7 +16,7 @@
     "subheadline": "Crea chatbot AI addestrati sui tuoi contenuti. Distribuisci sul tuo sito, WhatsApp, Telegram e altro. Nessun codice richiesto.",
     "ctaPrimary": "Inizia Gratis",
     "ctaSecondary": "Guarda Demo",
-    "microCopy": "Nessuna carta • Cancella quando vuoi"
+    "microCopy": "Nessuna carta  Cancella quando vuoi"
   },
   "trust": {
     "title": "Scelto da aziende innovative"
@@ -100,93 +100,66 @@
   },
   "pricing": {
     "title": "Prezzi semplici e trasparenti",
-    "subtitle": "Scegli il piano adatto alle tue esigenze. Aggiorna o riduci quando vuoi.",
+    "subtitle": "Stesse funzionalità che trovi sul mercato, con una marcia in più: setup rapido, costi chiari e piani che scalano davvero. Upgrade o downgrade quando vuoi.",
     "monthly": "Mensile",
     "annually": "Annuale",
     "annualDiscount": "Risparmia 20%",
     "customPrice": "Su misura",
+    "currencySymbol": "€",
+    "popularBadge": "Più scelto",
     "personalize": {
-      "activityLabel": "Tipo di attività",
+      "title": "Personalizza per la tua attività",
+      "segmentLabel": "Tipo di attività",
       "goalLabel": "Obiettivo principale",
-      "preview": "Evidenziamo le funzionalità più rilevanti per:",
       "segments": {
-        "local": "Attività locale",
-        "agency": "Agenzia",
-        "saas": "SaaS"
-      },
-      "goals": {
-        "bookings": "Prenotazioni",
-        "leads": "Lead",
-        "support": "Supporto"
-      },
-      "focus": {
         "local": {
-          "bookings": [
-            "Widget prenotazioni & calendario",
-            "Promemoria automatici",
-            "Raccolta lead",
-            "Workflow di follow-up",
-            "Raccolta recensioni"
-          ],
-          "leads": [
-            "Raccolta e qualificazione lead",
-            "Smistamento conversazione→lead",
-            "Export semplice (CRM-ready)",
-            "Form + richieste contatto",
-            "Liste lead per campagne"
-          ],
-          "support": [
-            "Inbox supporto",
-            "FAQ & intent",
-            "Escalation a operatore",
-            "Ricerca conversazioni",
-            "Insight sulla qualità risposte"
+          "label": "Attività locale",
+          "focus": [
+            "Ottimizzato per prenotazioni e richieste",
+            "Setup rapido con widget sul sito",
+            "Risposte chiare su servizi, orari e FAQ"
           ]
         },
         "agency": {
-          "bookings": [
-            "Setup multi-cliente",
-            "Widget embeddable",
-            "Report per cliente",
-            "Template/duplicazione rapida",
-            "Opzioni white-label"
-          ],
-          "leads": [
-            "Lead su più siti",
-            "Export e consegna al cliente",
-            "Gestione multi-bot",
-            "Tracciamento campagne base",
-            "Collaborazione team"
-          ],
-          "support": [
-            "Workflow inbox condivisa",
-            "Assegnazioni team",
-            "Knowledge base riutilizzabile",
-            "Reportistica per cliente",
-            "Supporto con SLA"
+          "label": "Agenzia / Studio",
+          "focus": [
+            "Impostazione pronta per clienti e branding",
+            "Più bot per più clienti",
+            "Analytics per dimostrare valore"
           ]
         },
         "saas": {
-          "bookings": [
-            "Prenotazione demo",
-            "Domande di qualificazione",
-            "Lead→calendario",
-            "Analytics conversione",
-            "Integrazioni"
-          ],
-          "leads": [
-            "Qualificazione lead",
-            "Routing al sales",
-            "Analytics avanzate",
-            "API/webhook",
-            "Supporto multi-ambiente"
-          ],
-          "support": [
-            "Widget supporto in-app",
-            "Analytics deflection",
-            "Knowledge base + docs",
-            "Integrazioni + webhook",
-            "Controlli sicurezza"
+          "label": "SaaS",
+          "focus": [
+            "Riduci il carico del supporto con risposte self-serve",
+            "Onboarding dentro al prodotto",
+            "Misura l'uso e migliora i contenuti"
+          ]
+        }
+      },
+      "goals": {
+        "bookings": {
+          "label": "Più prenotazioni",
+          "focus": [
+            "Converti visitatori in prenotazioni",
+            "Rispondi a domande su disponibilità e prezzi",
+            "Raccogli contatti quando serve"
+          ]
+        },
+        "leads": {
+          "label": "Più lead",
+          "focus": [
+            "Qualifica i lead con domande guidate",
+            "Raccogli email/telefono e contesto",
+            "Porta i prospect allo step successivo"
+          ]
+        },
+        "support": {
+          "label": "Miglior supporto",
+          "focus": [
+            "Riduci ticket ripetitivi con FAQ",
+            "Risposte 24/7 alle domande sul prodotto",
+            "Migliora la documentazione con conversazioni reali"
           ]
         }
       }
@@ -197,13 +170,17 @@
         "name": "Base",
         "price": 29,
         "priceAnnual": 23,
-        "description": "Per iniziare velocemente con tutto l'essenziale",
+        "description": "Professionisti e micro-attività che vogliono iniziare con un solo canale.",
         "features": [
           "1 bot",
-          "Chat + lead core",
-          "Analisi base",
-          "Supporto email",
-          "1 bot - 1 canale - fino a 50 prenotazioni/mese - 1 utente team"
+          "1 canale (Web o WhatsApp)",
+          "Widget prenotazioni + calendario",
+          "Promemoria automatici",
+          "Raccolta lead",
+          "Upload documenti (base)",
+          "Analytics essenziali",
+          "1 utente",
+          "Supporto email"
         ],
         "cta": "Inizia Prova Gratuita",
         "popular": false
@@ -213,29 +190,35 @@
         "name": "Pro",
         "price": 79,
         "priceAnnual": 63,
-        "description": "Per team in crescita e volumi maggiori",
+        "description": "Attività in crescita che vogliono più automazioni e canali.",
         "features": [
-          "Tutto in Base, più fino a 3 bot, 2–3 canali, analytics avanzate, collaborazione team",
-          "Analisi avanzate",
-          "Collaborazione team",
-          "Supporto prioritario"
+          "Fino a 3 bot",
+          "23 canali (Web, WhatsApp, Telegram)",
+          "Google Calendar avanzato",
+          "Conversazioni e lead illimitati (fair use)",
+          "Knowledge base con scraping siti",
+          "Analytics avanzate",
+          "Fino a 3 utenti",
+          "Supporto prioritario email"
         ],
         "cta": "Inizia Prova Gratuita",
         "popular": false
       },
       {
         "id": "pro-plus",
-        "name": "Pro+",
+        "name": "Pro+ (consigliato)",
         "price": 129,
         "priceAnnual": 103,
-        "description": "Il miglior rapporto valore/prezzo",
+        "description": "Agenzie e studi che gestiscono più clienti/brand.",
         "features": [
-          "Tutto in Pro, più BYOK, Review Bot incluso, multicanale, scraping/docs starter, onboarding prioritario",
-          "BYOK (API key AI del cliente)",
-          "Review Bot incluso",
-          "Multi-canale starter",
-          "Scraping/Docs starter",
-          "Onboarding prioritario"
+          "Tutto Pro",
+          "Fino a 10 bot",
+          "Multicanale completo (Web, WhatsApp, Telegram, Slack)",
+          "BYOK (API key OpenAI del cliente)",
+          "Review Bot incluso (Stripe, WooCommerce, Shopify)",
+          "Scraping / docs esteso",
+          "Onboarding prioritario 1:1",
+          "Fino a 5 utenti"
         ],
         "cta": "Inizia Prova Gratuita",
         "popular": true
@@ -245,13 +228,16 @@
         "name": "Business",
         "price": 299,
         "priceAnnual": 239,
-        "description": "Per scalare con controllo e governance",
-        "feLimiti più alti su bot, conversazioni e prenotazioni",
-          "Ruoli & permessi avanzati",
+        "description": "Aziende strutturate e catene con volumi alti.",
+        "features": [
+          "Tutto Pro+",
+          "20+ bot",
+          "Limiti alti su conversazioni e booking",
+          "Ruoli e permessi avanzati",
           "Audit log",
-          "Controlli avanzati",
-          "Supporto prioritario con SLA baseio",
-          "Controlli avanzati"
+          "Più workspace / siti",
+          "Supporto via email + call periodiche",
+          "Opzioni di reportistica custom"
         ],
         "cta": "Contatta Vendite",
         "popular": false
@@ -261,13 +247,14 @@
         "name": "Enterprise",
         "price": "Su misura",
         "priceAnnual": "Su misura",
-        "description": "Prezzi e funzionalità personalizzate con SLA",
+        "description": "Gruppi e corporate con esigenze specifiche.",
         "features": [
+          "Tutto Business",
           "SSO/SAML",
           "Limiti personalizzati",
-          "SLA e review sicurezza",
-          "Success manager dedicato",
-          "Integrazioni custom"
+          "SLA e sicurezza avanzata",
+          "Integrazioni custom (CRM, data warehouse)",
+          "Success manager dedicato"
         ],
         "cta": "Contatta Vendite",
         "popular": false
@@ -350,7 +337,7 @@
       },
       {
         "question": "Posso usare la mia chiave API OpenAI?",
-        "answer": "Con il piano Scale, sì. Puoi portare le tue chiavi API per OpenAI, Anthropic o Google per controllare direttamente i costi."
+        "answer": "Sì: nei piani che includono \"Usa le tue API key\" (es. Pro+ e superiori). In questo modo controlli direttamente i costi del provider."
       },
       {
         "question": "Quali lingue supporta il chatbot?",
@@ -385,7 +372,7 @@
     "terms": "Termini di Servizio",
     "gdpr": "GDPR",
     "social": "Social",
-    "rights": "© 2025 Omnical Studio. Tutti i diritti riservati.",
+    "rights": " 2025 Omnical Studio. Tutti i diritti riservati.",
     "poweredBy": "Powered by",
     "newsletter": {
       "title": "Resta aggiornato",
