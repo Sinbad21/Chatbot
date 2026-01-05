@@ -8,7 +8,13 @@ on:
       - main
     paths:
       - 'apps/web/**'
-      - 'packages/**'
+      
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Why are you forcing a deploy?'
+        required: false
+        default: 'manual redeploy'- 'packages/**'
 
 jobs:
   deploy:
@@ -44,8 +50,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: apps/web
-          command: deploy
-
-env:
+          command: deploy --forceenv:
   NODE_VERSION: 20
+
 
