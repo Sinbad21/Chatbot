@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Send, Globe, MessageCircle, Smartphone, MessageSquare, Command } from 'lucide-react';
+import { Send, Globe, MessageCircle, Smartphone, MessageSquare, Code } from 'lucide-react';
 
 const integrations = [
   { name: "WhatsApp", icon: <MessageCircle size={24} /> },
@@ -10,13 +10,13 @@ const integrations = [
   { name: "Web Integration", icon: <Globe size={24} /> },
   { name: "Messenger", icon: <MessageSquare size={24} /> },
   { name: "Mobile App", icon: <Smartphone size={24} /> },
-  { name: "API Connect", icon: <Command size={24} /> },
+  { name: "API Connect", icon: <Code size={24} /> },
   { name: "WhatsApp", icon: <MessageCircle size={24} /> },
   { name: "Telegram", icon: <Send size={24} /> },
   { name: "Web Integration", icon: <Globe size={24} /> },
   { name: "Messenger", icon: <MessageSquare size={24} /> },
   { name: "Mobile App", icon: <Smartphone size={24} /> },
-  { name: "API Connect", icon: <Command size={24} /> },
+  { name: "API Connect", icon: <Code size={24} /> },
 ];
 
 export const Integrations: React.FC = () => {

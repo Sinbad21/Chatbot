@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
-import { Command, Github, Twitter, Linkedin } from 'lucide-react';
+import { Code, Github, Twitter, Linkedin } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -12,9 +12,9 @@ export function Footer() {
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center gap-2 mb-6">
               <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center text-white">
-                 <Command size={14} />
+                 <Code size={14} />
               </div>
-              <span className="text-lg font-bold text-white">Chatbot<span className="font-normal text-slate-400">Studio</span></span>
+              <span className="text-lg font-bold text-white">Omnical<span className="font-normal text-slate-400">Studio</span></span>
             </div>
             <p className="text-sm text-slate-500 leading-relaxed mb-6">
               Empowering enterprises with autonomous neural intelligence.
@@ -64,7 +64,7 @@ export function Footer() {
 
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-slate-600">
-            Â© {new Date().getFullYear()} OMNICAL STUDIO. All rights reserved.
+            Ã‚Â© {new Date().getFullYear()} OMNICAL STUDIO. All rights reserved.
           </p>
           <div className="flex items-center gap-2 text-xs text-slate-600">
              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
