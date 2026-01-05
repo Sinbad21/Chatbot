@@ -1,4 +1,4 @@
-# ChatBot Studio
+# Omnical Studio
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js 20+](https://img.shields.io/badge/node-20+-green.svg)](https://nodejs.org/)

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Chatbot Studio - Aggiungi un Chatbot AI al Tuo Sito in Pochi Minuti",
+    "title": "Omnical Studio - Aggiungi un Chatbot AI al Tuo Sito in Pochi Minuti",
     "description": "Crea chatbot AI personalizzati addestrati sui tuoi dati. Nessun codice richiesto. Integra con il tuo sito, WhatsApp, Telegram e altro. Inizia gratis oggi."
   },
   "nav": {
@@ -52,8 +52,8 @@
   },
   "demo": {
     "title": "Provalo tu stesso",
-    "subtitle": "Chatta con il nostro bot demo addestrato sulla documentazione di Chatbot Studio",
-    "placeholder": "Chiedimi qualsiasi cosa su Chatbot Studio...",
+    "subtitle": "Chatta con il nostro bot demo addestrato sulla documentazione di Omnical Studio",
+    "placeholder": "Chiedimi qualsiasi cosa su Omnical Studio...",
     "themeToggle": "Cambia tema"
   },
   "features": {
@@ -285,7 +285,7 @@
         "role": "Head of Support, TechCorp",
         "avatar": "SC",
         "rating": 5,
-        "text": "Chatbot Studio ha ridotto i nostri ticket di supporto del 60% nel primo mese. L'addestramento sui nostri documenti è stato perfetto."
+        "text": "Omnical Studio ha ridotto i nostri ticket di supporto del 60% nel primo mese. L'addestramento sui nostri documenti è stato perfetto."
       },
       {
         "name": "Marcus Weber",
@@ -306,7 +306,7 @@
         "role": "CTO, CloudSystems",
         "avatar": "AH",
         "rating": 5,
-        "text": "La sicurezza era la nostra preoccupazione principale. La conformità GDPR e la crittografia di Chatbot Studio ci hanno dato tranquillità."
+        "text": "La sicurezza era la nostra preoccupazione principale. La conformità GDPR e la crittografia di Omnical Studio ci hanno dato tranquillità."
       },
       {
         "name": "Emma Thompson",
@@ -364,7 +364,7 @@
   },
   "finalCta": {
     "title": "Costruisci il tuo chatbot AI in pochi minuti",
-    "subtitle": "Unisciti a migliaia di aziende che usano Chatbot Studio per automatizzare il supporto e aumentare l'engagement.",
+    "subtitle": "Unisciti a migliaia di aziende che usano Omnical Studio per automatizzare il supporto e aumentare l'engagement.",
     "cta": "Inizia Prova Gratuita",
     "microCopy": "Nessuna carta richiesta"
   },
@@ -385,7 +385,7 @@
     "terms": "Termini di Servizio",
     "gdpr": "GDPR",
     "social": "Social",
-    "rights": "© 2025 Chatbot Studio. Tutti i diritti riservati.",
+    "rights": "© 2025 Omnical Studio. Tutti i diritti riservati.",
     "poweredBy": "Powered by",
     "newsletter": {
       "title": "Resta aggiornato",

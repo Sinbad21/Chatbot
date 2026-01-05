@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Chatbot Studio - Add a Smart AI Chatbot to Your Website in Minutes",
+    "title": "Omnical Studio - Add a Smart AI Chatbot to Your Website in Minutes",
     "description": "Create custom AI chatbots trained on your data. No code required. Integrate with your website, WhatsApp, Telegram, and more. Start free today."
   },
   "nav": {
@@ -52,8 +52,8 @@
   },
   "demo": {
     "title": "Try it yourself",
-    "subtitle": "Chat with our demo bot trained on Chatbot Studio documentation",
-    "placeholder": "Ask me anything about Chatbot Studio...",
+    "subtitle": "Chat with our demo bot trained on Omnical Studio documentation",
+    "placeholder": "Ask me anything about Omnical Studio...",
     "themeToggle": "Switch theme"
   },
   "features": {
@@ -283,7 +283,7 @@
         "role": "Head of Support, TechCorp",
         "avatar": "SC",
         "rating": 5,
-        "text": "Chatbot Studio cut our support tickets by 60% in the first month. The training on our docs was seamless."
+        "text": "Omnical Studio cut our support tickets by 60% in the first month. The training on our docs was seamless."
       },
       {
         "name": "Marcus Weber",
@@ -304,7 +304,7 @@
         "role": "CTO, CloudSystems",
         "avatar": "AH",
         "rating": 5,
-        "text": "Security was our top concern. Chatbot Studio's GDPR compliance and encryption gave us peace of mind."
+        "text": "Security was our top concern. Omnical Studio's GDPR compliance and encryption gave us peace of mind."
       },
       {
         "name": "Emma Thompson",
@@ -362,7 +362,7 @@
   },
   "finalCta": {
     "title": "Build your AI chatbot in minutes",
-    "subtitle": "Join thousands of companies using Chatbot Studio to automate support and boost engagement.",
+    "subtitle": "Join thousands of companies using Omnical Studio to automate support and boost engagement.",
     "cta": "Start Free Trial",
     "microCopy": "No credit card required"
   },
@@ -383,7 +383,7 @@
     "terms": "Terms of Service",
     "gdpr": "GDPR",
     "social": "Social",
-    "rights": "© 2025 Chatbot Studio. All rights reserved.",
+    "rights": "© 2025 Omnical Studio. All rights reserved.",
     "poweredBy": "Powered by",
     "newsletter": {
       "title": "Stay updated",

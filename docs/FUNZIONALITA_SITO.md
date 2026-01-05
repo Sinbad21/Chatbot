@@ -1,4 +1,4 @@
-# Funzionalità del sito (Chatbot Studio)
+# Funzionalità del sito (Omnical Studio)
 
 Questo documento riassume le principali funzionalità offerte dal sito/applicazione.
 
