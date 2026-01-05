@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Chatbot Studio - Add a Smart AI Chatbot to Your Website in Minutes",
+    "title": "OMNICAL STUDIO - Add a Smart AI Chatbot to Your Website in Minutes",
     "description": "Create custom AI chatbots trained on your data. No code required. Integrate with your website, WhatsApp, Telegram, and more. Start free today."
   },
   "nav": {
@@ -16,7 +16,7 @@
     "subheadline": "Create AI-powered chatbots trained on your content. Deploy to your website, WhatsApp, Telegram, and more. No coding required.",
     "ctaPrimary": "Start Free",
     "ctaSecondary": "Watch Demo",
-    "microCopy": "No credit card • Cancel anytime"
+    "microCopy": "No credit card â€¢ Cancel anytime"
   },
   "trust": {
     "title": "Trusted by forward-thinking companies"
@@ -52,8 +52,8 @@
   },
   "demo": {
     "title": "Try it yourself",
-    "subtitle": "Chat with our demo bot trained on Chatbot Studio documentation",
-    "placeholder": "Ask me anything about Chatbot Studio...",
+    "subtitle": "Chat with our demo bot trained on OMNICAL STUDIO documentation",
+    "placeholder": "Ask me anything about OMNICAL STUDIO...",
     "themeToggle": "Switch theme"
   },
   "features": {
@@ -108,7 +108,7 @@
     "personalize": {
       "activityLabel": "Your business type",
       "goalLabel": "Your primary goal",
-      "preview": "We’ll highlight the most relevant features for:",
+      "preview": "Weâ€™ll highlight the most relevant features for:",
       "segments": {
         "local": "Local business",
         "agency": "Agency",
@@ -283,7 +283,7 @@
         "role": "Head of Support, TechCorp",
         "avatar": "SC",
         "rating": 5,
-        "text": "Chatbot Studio cut our support tickets by 60% in the first month. The training on our docs was seamless."
+        "text": "OMNICAL STUDIO cut our support tickets by 60% in the first month. The training on our docs was seamless."
       },
       {
         "name": "Marcus Weber",
@@ -304,7 +304,7 @@
         "role": "CTO, CloudSystems",
         "avatar": "AH",
         "rating": 5,
-        "text": "Security was our top concern. Chatbot Studio's GDPR compliance and encryption gave us peace of mind."
+        "text": "Security was our top concern. OMNICAL STUDIO's GDPR compliance and encryption gave us peace of mind."
       },
       {
         "name": "Emma Thompson",
@@ -362,7 +362,7 @@
   },
   "finalCta": {
     "title": "Build your AI chatbot in minutes",
-    "subtitle": "Join thousands of companies using Chatbot Studio to automate support and boost engagement.",
+    "subtitle": "Join thousands of companies using OMNICAL STUDIO to automate support and boost engagement.",
     "cta": "Start Free Trial",
     "microCopy": "No credit card required"
   },
@@ -383,7 +383,7 @@
     "terms": "Terms of Service",
     "gdpr": "GDPR",
     "social": "Social",
-    "rights": "© 2025 Chatbot Studio. All rights reserved.",
+    "rights": "Â© 2025 OMNICAL STUDIO. All rights reserved.",
     "poweredBy": "Powered by",
     "newsletter": {
       "title": "Stay updated",

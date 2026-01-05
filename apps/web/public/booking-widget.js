@@ -1,5 +1,5 @@
 /**
- * Chatbot Studio - Booking Widget Embed Script
+ * OMNICAL STUDIO - Booking Widget Embed Script
  *
  * Usage (with widgetId - for standalone customers):
  * <script src="https://yourdomain.com/booking-widget.js"

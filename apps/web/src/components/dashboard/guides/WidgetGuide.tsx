@@ -15,7 +15,7 @@ export function WidgetGuide({ botId, onClose, onDisconnect }: WidgetGuideProps) 
  const [copied, setCopied] = useState(false);
 
  const apiBaseUrl = (process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
-const widgetCode = `<!-- Chatbot Studio Widget -->
+const widgetCode = `<!-- OMNICAL STUDIO Widget -->
 <script>
  window.chatbotConfig = {
   botId: '${botId}',
@@ -77,10 +77,10 @@ const widgetCode = `<!-- Chatbot Studio Widget -->
 
      <div className="bg-pearl-100/70 border border-silver-200/70 rounded-lg p-4">
       <p className="text-sm text-charcoal font-medium mb-2">
-       ? Il widget Ã¨ giÃ  configurato con il tuo Bot ID
+       ? Il widget ÃƒÂ¨ giÃƒÂ  configurato con il tuo Bot ID
       </p>
       <p className="text-sm text-silver-700">
-       ApparirÃ  automaticamente nell'angolo in basso a destra del tuo sito.
+       ApparirÃƒÂ  automaticamente nell'angolo in basso a destra del tuo sito.
       </p>
      </div>
 
@@ -113,14 +113,14 @@ const widgetCode = `<!-- Chatbot Studio Widget -->
      <div className="bg-pearl-100/70 border border-silver-200/70 rounded-lg p-4">
       <h4 className="font-medium text-white mb-2">Piattaforme supportate:</h4>
       <ul className="grid grid-cols-2 gap-2 text-sm text-silver-700">
-       <li>â€¢ HTML/CSS/JavaScript</li>
-       <li>â€¢ React</li>
-       <li>â€¢ Vue.js</li>
-       <li>â€¢ Angular</li>
-       <li>â€¢ WordPress</li>
-       <li>â€¢ Shopify</li>
-       <li>â€¢ Wix</li>
-       <li>â€¢ Webflow</li>
+       <li>Ã¢â‚¬Â¢ HTML/CSS/JavaScript</li>
+       <li>Ã¢â‚¬Â¢ React</li>
+       <li>Ã¢â‚¬Â¢ Vue.js</li>
+       <li>Ã¢â‚¬Â¢ Angular</li>
+       <li>Ã¢â‚¬Â¢ WordPress</li>
+       <li>Ã¢â‚¬Â¢ Shopify</li>
+       <li>Ã¢â‚¬Â¢ Wix</li>
+       <li>Ã¢â‚¬Â¢ Webflow</li>
       </ul>
      </div>
     </div>

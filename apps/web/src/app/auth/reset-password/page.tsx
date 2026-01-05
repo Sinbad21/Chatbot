@@ -125,7 +125,7 @@ function ResetPasswordForm() {
               Link non valido o scaduto
             </h2>
             <p className="text-slate-400 mb-6">
-              Il link per reimpostare la password non è valido o è scaduto.
+              Il link per reimpostare la password non Ã¨ valido o Ã¨ scaduto.
               Richiedi un nuovo link di reset.
             </p>
             <Link
@@ -160,7 +160,7 @@ function ResetPasswordForm() {
               Password reimpostata!
             </h2>
             <p className="text-slate-400 mb-6">
-              La tua password è stata reimpostata con successo.
+              La tua password Ã¨ stata reimpostata con successo.
               Verrai reindirizzato al login...
             </p>
             <Link
@@ -183,7 +183,7 @@ function ResetPasswordForm() {
           <div className="text-center mb-8">
             <Link href="/" className="inline-block mb-6">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-fuchsia-400 to-purple-400 bg-clip-text text-transparent">
-                ChatBot Studio
+                OMNICAL STUDIO
               </h1>
             </Link>
             <h2 className="text-2xl font-bold text-white mb-2">

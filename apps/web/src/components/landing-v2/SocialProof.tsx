@@ -49,7 +49,7 @@ export function SocialProof() {
             transition={{ delay: 0.1, duration: 0.6 }}
             className="text-slate-400"
           >
-            Real results from teams that have adopted Chatbot Studio
+            Real results from teams that have adopted OMNICAL STUDIO
           </motion.p>
         </div>
 

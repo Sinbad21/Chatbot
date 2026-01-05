@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -106,7 +106,7 @@ export function Navbar() {
               <span className="text-white font-bold text-lg">C</span>
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-[#5B4BFF] to-[#8B7FFF] bg-clip-text text-transparent">
-              Chatbot Studio
+              OMNICAL STUDIO
             </span>
           </Link>
 

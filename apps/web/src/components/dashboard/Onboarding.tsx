@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -166,7 +166,7 @@ export default function Onboarding({
     <div>
      <h2 className="text-lg font-semibold text-charcoal flex items-center gap-2">
       <Sparkles className="w-5 h-5 text-silver-700" />
-      Inizia con ChatBot Studio
+      Inizia con OMNICAL STUDIO
      </h2>
      <p className="text-sm text-silver-600 mt-1">
       Completa questi passaggi per configurare il tuo primo chatbot

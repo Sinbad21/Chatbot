@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
@@ -90,7 +90,7 @@ function LoginForm() {
       <div className="bg-gradient-to-br from-[#2d1b4e]/80 to-[#150a25]/80 backdrop-blur-md border border-purple-500/20 rounded-2xl shadow-2xl w-full max-w-md p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-white/70">Sign in to your Chatbot Studio account</p>
+          <p className="text-white/70">Sign in to your OMNICAL STUDIO account</p>
         </div>
 
         {sessionExpired && (

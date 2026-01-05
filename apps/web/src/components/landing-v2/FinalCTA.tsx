@@ -38,7 +38,7 @@ export function FinalCTA() {
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
             >
-              Join over 2,500 companies using Chatbot Studio to automate conversations and increase customer satisfaction.
+              Join over 2,500 companies using OMNICAL STUDIO to automate conversations and increase customer satisfaction.
             </motion.p>
 
             <motion.div
@@ -68,7 +68,7 @@ export function FinalCTA() {
               viewport={{ once: true }}
               transition={{ delay: 0.5 }}
             >
-              14 days free • No credit card required • Cancel anytime
+              14 days free â€¢ No credit card required â€¢ Cancel anytime
             </motion.p>
           </div>
         </motion.div>

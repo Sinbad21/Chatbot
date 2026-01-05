@@ -16,7 +16,7 @@ export function WordPressGuide({ botId, onClose, onDisconnect }: WordPressGuideP
 
  const apiBaseUrl = (process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
- const widgetCode = `<!-- Chatbot Studio Widget (WordPress) -->
+ const widgetCode = `<!-- OMNICAL STUDIO Widget (WordPress) -->
 <script>
  window.chatbotConfig = {
   botId: '${botId}',

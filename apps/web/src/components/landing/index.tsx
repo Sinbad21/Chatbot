@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { motion } from 'framer-motion';
 import { useLandingTranslation } from '@/hooks/useLandingTranslation';
@@ -166,7 +166,7 @@ export function ValueProps() {
 export function DemoChat() {
   const { t } = useLandingTranslation();
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! Ask me anything about Chatbot Studio.' },
+    { role: 'assistant', content: 'Hello! Ask me anything about OMNICAL STUDIO.' },
   ]);
 
   return (

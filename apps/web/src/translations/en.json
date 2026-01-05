@@ -48,7 +48,7 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "subtitle": "Overview of your chatbot studio",
+    "subtitle": "Overview of your OMNICAL STUDIO",
     "welcome": "Welcome back",
     "stats": {
       "totalBots": "Total Bots",
@@ -100,7 +100,7 @@
   "createBot": {
     "title": "Create New Bot",
     "subtitle": "Set up your chatbot with a name, description, and customize its behavior",
-    "backToBots": "← Back to Bots",
+    "backToBots": "â† Back to Bots",
     "botName": "Bot Name *",
     "botNamePlaceholder": "e.g., Customer Support Bot",
     "description": "Description",
@@ -144,7 +144,7 @@
         "steps": {
           "botType": {
             "title": "Assistant type",
-            "helper": "Pick the primary scenario (support, sales, technical…)."
+            "helper": "Pick the primary scenario (support, sales, technicalâ€¦)."
           },
           "businessContext": {
             "title": "Business context",
@@ -156,7 +156,7 @@
           },
           "goals": {
             "title": "Goals",
-            "helper": "What should the bot achieve? (resolve issues, book meetings, sell, reduce tickets…)."
+            "helper": "What should the bot achieve? (resolve issues, book meetings, sell, reduce ticketsâ€¦)."
           },
           "actionsAndData": {
             "title": "Actions & data",
@@ -408,8 +408,8 @@
     "highestScore": "Highest Score",
     "lowestScore": "Lowest Score",
     "allScores": "All Scores",
-    "scoreGreaterThan60": "Score ≥ 60",
-    "scoreGreaterThan80": "Score ≥ 80",
+    "scoreGreaterThan60": "Score â‰¥ 60",
+    "scoreGreaterThan80": "Score â‰¥ 80",
     "exportCSV": "Export CSV",
     "noLeads": "No leads found",
     "leadDetails": "Lead Details",
@@ -529,7 +529,7 @@
       "totalCost": "Total Cost"
     },
     "growth": {
-      "fromLastPeriod": "↑ {percent}% from last period"
+      "fromLastPeriod": "â†‘ {percent}% from last period"
     },
     "charts": {
       "conversationsOverTime": "Conversations Over Time",
@@ -612,7 +612,7 @@
       "view": "View",
       "generateEmail": "Generate Email",
       "generating": "Generating...",
-      "backToResults": "← Back to Results",
+      "backToResults": "â† Back to Results",
       "copyEmail": "Copy Email",
       "regenerate": "Regenerate",
       "generateOutreachEmail": "Generate Personalized Outreach Email"

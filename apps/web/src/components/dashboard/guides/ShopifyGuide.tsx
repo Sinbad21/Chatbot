@@ -16,7 +16,7 @@ export function ShopifyGuide({ botId, onClose, onDisconnect }: ShopifyGuideProps
 
  const apiBaseUrl = (process.env.NEXT_PUBLIC_WORKER_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '');
 
- const widgetCode = `<!-- Chatbot Studio Widget (Shopify) -->
+ const widgetCode = `<!-- OMNICAL STUDIO Widget (Shopify) -->
 <script>
  window.chatbotConfig = {
   botId: '${botId}',

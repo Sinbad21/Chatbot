@@ -19,8 +19,8 @@ const SCENARIOS = [
     messages: [
       { text: "Vorrei aumentare i lead per la mia agenzia immobiliare.", sender: 'user' as const },
       { text: "Analisi completata. Per il settore Real Estate, consiglio un bot proattivo che pre-qualifica i clienti chiedendo budget e zona preferita.", sender: 'bot' as const },
-      { text: "Sembra utile. Può fissare appuntamenti?", sender: 'user' as const },
-      { text: "Certamente. Si integra con Google Calendar e prenota visite solo per lead qualificati sopra i 300k€.", sender: 'bot' as const }
+      { text: "Sembra utile. PuÃ² fissare appuntamenti?", sender: 'user' as const },
+      { text: "Certamente. Si integra con Google Calendar e prenota visite solo per lead qualificati sopra i 300kâ‚¬.", sender: 'bot' as const }
     ]
   },
   {
@@ -32,7 +32,7 @@ const SCENARIOS = [
     messages: [
       { text: "Cerco un attico in centro a Milano con terrazza.", sender: 'user' as const },
       { text: "Ho trovato 3 opzioni off-market in zona Brera. L'opzione A ha una terrazza di 40mq e vista Duomo. Desideri le planimetrie?", sender: 'bot' as const },
-      { text: "Sì, inviamele su WhatsApp.", sender: 'user' as const },
+      { text: "SÃ¬, inviamele su WhatsApp.", sender: 'user' as const },
       { text: "Inviate ora. Ho incluso anche un video tour virtuale dell'interno. Vuoi che ti chiami un consulente?", sender: 'bot' as const }
     ]
   },
@@ -43,8 +43,8 @@ const SCENARIOS = [
     bgGradient: "from-purple-500/20 to-transparent",
     icon: <Headphones className="w-5 h-5" />,
     messages: [
-      { text: "Il mio ordine #4092 è in ritardo.", sender: 'user' as const },
-      { text: "Controllo subito, Marco... Vedo che il pacco è in transito a Bologna. La nuova consegna stimata è domani entro le 14:00.", sender: 'bot' as const },
+      { text: "Il mio ordine #4092 Ã¨ in ritardo.", sender: 'user' as const },
+      { text: "Controllo subito, Marco... Vedo che il pacco Ã¨ in transito a Bologna. La nuova consegna stimata Ã¨ domani entro le 14:00.", sender: 'bot' as const },
       { text: "Perfetto, grazie mille.", sender: 'user' as const },
       { text: "Di nulla! Ti ho appena inviato il link di tracking aggiornato via SMS. Serve altro?", sender: 'bot' as const }
     ]
@@ -138,7 +138,7 @@ const ChatSlide: React.FC = () => {
       autoPlayRef.current = false;
       const welcomeMsg: Message = {
         id: Date.now(),
-        text: 'Ciao! Sono la demo live di ChatBot Studio. Come posso aiutarti?',
+        text: 'Ciao! Sono la demo live di OMNICAL STUDIO. Come posso aiutarti?',
         sender: 'bot'
       };
       newMessages = [welcomeMsg];
@@ -181,7 +181,7 @@ const ChatSlide: React.FC = () => {
       setIsTyping(false);
       setDisplayedMessages(prev => [...prev, {
         id: Date.now(),
-        text: data.message || 'Come posso aiutarti con ChatBot Studio?',
+        text: data.message || 'Come posso aiutarti con OMNICAL STUDIO?',
         sender: 'bot'
       }]);
     } catch {
@@ -210,7 +210,7 @@ const ChatSlide: React.FC = () => {
       setIsInteractive(true);
       const welcomeMsg: Message = {
         id: Date.now(),
-        text: 'Ciao! Sono la demo live di ChatBot Studio. Scrivi qualsiasi domanda e ti mostrerò come funziona un chatbot AI!',
+        text: 'Ciao! Sono la demo live di OMNICAL STUDIO. Scrivi qualsiasi domanda e ti mostrerÃ² come funziona un chatbot AI!',
         sender: 'bot'
       };
       setDisplayedMessages([welcomeMsg]);
@@ -326,7 +326,7 @@ const DashboardSlide: React.FC = () => {
           <div className="text-platinum-400 text-xs uppercase mb-1">Tempo Risposta</div>
           <div className="text-2xl font-bold text-white">0.2s</div>
           <div className="flex items-center gap-1 text-emerald-400 text-[10px] mt-1">
-            <span className="font-bold">⚡ Instant</span>
+            <span className="font-bold">âš¡ Instant</span>
           </div>
         </div>
         <div className="p-4 bg-platinum-950/50 border border-platinum-800 rounded-xl">
@@ -398,7 +398,7 @@ const BookingSlide: React.FC = () => {
               <div>
                 <div className="text-white text-sm font-medium">{apt.name}</div>
                 <div className="text-platinum-500 text-xs flex items-center gap-1">
-                  <Clock size={10} /> {apt.time} • {apt.type}
+                  <Clock size={10} /> {apt.time} â€¢ {apt.type}
                 </div>
               </div>
             </div>

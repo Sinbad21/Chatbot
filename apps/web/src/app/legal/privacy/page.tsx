@@ -26,7 +26,7 @@ export default function PrivacyPage() {
 
             <h2>1. Introduction</h2>
             <p>
-              At Chatbot Studio ("we", "our", or "us"), we are committed to protecting your
+              At OMNICAL STUDIO ("we", "our", or "us"), we are committed to protecting your
               privacy. This Privacy Policy explains how we collect, use, disclose, and
               safeguard your information when you use our service.
             </p>

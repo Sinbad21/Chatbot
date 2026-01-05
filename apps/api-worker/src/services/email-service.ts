@@ -80,7 +80,7 @@ export async function sendAttendeeConfirmation(data: BookingEmailData): Promise<
       <p>Se hai bisogno di modificare o cancellare l'appuntamento, contattaci.</p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Chatbot Studio. Tutti i diritti riservati.</p>
+      <p>© ${new Date().getFullYear()} Omnical Studio. Tutti i diritti riservati.</p>
     </div>
   </div>
 </body>
@@ -106,7 +106,7 @@ ${data.attendeePhone ? `Telefono: ${data.attendeePhone}` : ''}
 
 Se hai bisogno di modificare o cancellare l'appuntamento, contattaci.
 
-© ${new Date().getFullYear()} Chatbot Studio
+© ${new Date().getFullYear()} Omnical Studio
   `;
 
   // Send email using Resend
@@ -186,7 +186,7 @@ export async function sendOwnerNotification(data: BookingEmailData): Promise<voi
       </p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Chatbot Studio. Tutti i diritti riservati.</p>
+      <p>© ${new Date().getFullYear()} Omnical Studio. Tutti i diritti riservati.</p>
     </div>
   </div>
 </body>
@@ -210,7 +210,7 @@ ${data.attendeePhone ? `Telefono: ${data.attendeePhone}` : ''}
 
 Questo è un messaggio automatico. L'appuntamento è stato aggiunto al tuo calendario.
 
-© ${new Date().getFullYear()} Chatbot Studio
+© ${new Date().getFullYear()} Omnical Studio
   `;
 
   // Send email using Resend
@@ -280,7 +280,7 @@ export async function sendCancellationEmail(data: BookingEmailData): Promise<voi
       <p style="margin-top: 30px;">Se desideri prenotare un nuovo appuntamento, contattaci.</p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Chatbot Studio. Tutti i diritti riservati.</p>
+      <p>© ${new Date().getFullYear()} Omnical Studio. Tutti i diritti riservati.</p>
     </div>
   </div>
 </body>
@@ -300,7 +300,7 @@ Orario: ${startDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-di
 
 Se desideri prenotare un nuovo appuntamento, contattaci.
 
-© ${new Date().getFullYear()} Chatbot Studio
+© ${new Date().getFullYear()} Omnical Studio
   `;
 
   // Send email using Resend

@@ -21,7 +21,7 @@ export default function AboutPage() {
           </Link>
 
           <article className="prose prose-slate dark:prose-invert max-w-none">
-            <h1>About Chatbot Studio</h1>
+            <h1>About OMNICAL STUDIO</h1>
             <p className="text-xl text-muted-foreground">
               Building the future of AI-powered customer engagement
             </p>
@@ -62,7 +62,7 @@ export default function AboutPage() {
 
             <h2>Our Story</h2>
             <p>
-              Chatbot Studio was founded in 2024 with a simple idea: customer support should be
+              OMNICAL STUDIO was founded in 2024 with a simple idea: customer support should be
               instant, intelligent, and accessible to everyone. We noticed that while large
               enterprises had access to sophisticated AI chatbots, small and medium businesses
               were left behind due to high costs and technical complexity.
@@ -71,7 +71,7 @@ export default function AboutPage() {
             <p>
               We set out to change that by building a platform that combines cutting-edge AI
               technology with an intuitive interface that anyone can use. Today, thousands of
-              businesses use Chatbot Studio to provide better customer service, generate more
+              businesses use OMNICAL STUDIO to provide better customer service, generate more
               leads, and grow their business.
             </p>
 
