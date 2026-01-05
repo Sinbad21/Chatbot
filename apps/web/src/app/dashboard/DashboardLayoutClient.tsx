@@ -1,5 +1,6 @@
-﻿'use client';
+'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -26,7 +27,7 @@ import {
 import { useTranslation, LANGUAGES, type Language } from '@/lib/i18n';
 import { useSessionActivity } from '@/hooks/useSessionActivity';
 import { PearlBackground } from '@/components/dashboard/ui';
-import { Command, Bell } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { logout } from '@/lib/authHeaders';
 import { ensureClientUser } from '@/lib/ensureClientUser';
 interface NavItem {
