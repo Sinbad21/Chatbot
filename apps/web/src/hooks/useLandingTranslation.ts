@@ -107,6 +107,18 @@ if (typeof window !== 'undefined') {
     currentLang = savedLang;
   }
 
+  // Auto-detect browser language if no saved preference
+  if (!savedLang) {
+    const browserLocale =
+      (Array.isArray(navigator.languages) && navigator.languages[0]) ||
+      navigator.language ||
+      '';
+    const browserLang = browserLocale.split('-')[0] as Language;
+    if (browserLang && browserLang in TRANSLATIONS) {
+      currentLang = browserLang;
+    }
+  }
+
   // Listen for language changes from other tabs/windows
   // This fixes the "language state leaking between tabs" issue by syncing across tabs
   window.addEventListener('storage', (e) => {

@@ -202,7 +202,8 @@
           "1 bot",
           "Chat + lead core",
           "Analisi base",
-          "Supporto email"
+          "Supporto email",
+          "1 bot - 1 canale - fino a 50 prenotazioni/mese - 1 utente team"
         ],
         "cta": "Inizia Prova Gratuita",
         "popular": false
@@ -214,7 +215,7 @@
         "priceAnnual": 63,
         "description": "Per team in crescita e volumi maggiori",
         "features": [
-          "Fino a 3 bot",
+          "Tutto in Base, più fino a 3 bot, 2–3 canali, analytics avanzate, collaborazione team",
           "Analisi avanzate",
           "Collaborazione team",
           "Supporto prioritario"
@@ -229,6 +230,7 @@
         "priceAnnual": 103,
         "description": "Il miglior rapporto valore/prezzo",
         "features": [
+          "Tutto in Pro, più BYOK, Review Bot incluso, multicanale, scraping/docs starter, onboarding prioritario",
           "BYOK (API key AI del cliente)",
           "Review Bot incluso",
           "Multi-canale starter",
@@ -244,11 +246,11 @@
         "price": 299,
         "priceAnnual": 239,
         "description": "Per scalare con controllo e governance",
-        "features": [
-          "Ruoli e permessi",
+        "feLimiti più alti su bot, conversazioni e prenotazioni",
+          "Ruoli & permessi avanzati",
           "Audit log",
-          "Limiti più alti",
-          "Supporto prioritario",
+          "Controlli avanzati",
+          "Supporto prioritario con SLA baseio",
           "Controlli avanzati"
         ],
         "cta": "Contatta Vendite",
