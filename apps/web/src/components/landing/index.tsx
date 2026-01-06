@@ -631,6 +631,25 @@ export function Footer() {
 
 // Main Landing Page Component
 export default function LandingPage() {
+  useEffect(() => {
+    const scrollToHash = () => {
+      const raw = typeof window !== 'undefined' ? window.location.hash : '';
+      const id = raw.startsWith('#') ? decodeURIComponent(raw.slice(1)) : '';
+      if (!id) return;
+
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    };
+
+    scrollToHash();
+    window.addEventListener('hashchange', scrollToHash);
+    return () => window.removeEventListener('hashchange', scrollToHash);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Hero />

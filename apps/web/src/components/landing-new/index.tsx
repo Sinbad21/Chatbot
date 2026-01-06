@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navbar } from './Navbar';
 import { Hero } from './Hero';
 import { LandingNewI18nProvider } from './i18n';
@@ -13,6 +13,25 @@ import { About } from './About';
 import { Footer } from './Footer';
 
 const LandingPage: React.FC = () => {
+  useEffect(() => {
+    const scrollToHash = () => {
+      const raw = typeof window !== 'undefined' ? window.location.hash : '';
+      const id = raw.startsWith('#') ? decodeURIComponent(raw.slice(1)) : '';
+      if (!id) return;
+
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    };
+
+    scrollToHash();
+    window.addEventListener('hashchange', scrollToHash);
+    return () => window.removeEventListener('hashchange', scrollToHash);
+  }, []);
+
   return (
     <LandingNewI18nProvider>
       <div className="relative min-h-screen font-sans selection:bg-platinum-400 selection:text-platinum-900 bg-platinum-950 overflow-x-hidden">
