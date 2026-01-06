@@ -12,7 +12,6 @@ import {
  Users,
  Calendar,
  CalendarCheck,
- Code,
  Globe,
  Puzzle,
  Settings,
@@ -260,9 +259,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
        </button>
        <Link href="/" className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg bg-white text-black">
-         <Code size={16} />
-        </div>
+        <Image
+          src="/logo.svg"
+          alt="Omnical Studio"
+          width={32}
+          height={32}
+          className="w-8 h-8 rounded-lg shadow-lg"
+          priority
+          unoptimized
+        />
         <span className="font-serif font-bold text-lg tracking-wide text-charcoal">Studio</span>
        </Link>
       </div>
@@ -343,9 +348,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 border-b border-silver-200/70">
          <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-           <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg bg-white text-black">
-            <Code size={16} />
-           </div>
+          <Image
+            src="/logo.svg"
+            alt="Omnical Studio"
+            width={32}
+            height={32}
+            className="w-8 h-8 rounded-lg shadow-lg"
+            priority
+            unoptimized
+          />
            <span className="font-serif font-bold text-lg tracking-wide text-charcoal">Studio</span>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-pearl-100/60 rounded-lg text-silver-700">
