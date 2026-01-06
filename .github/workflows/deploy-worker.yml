@@ -1,6 +1,6 @@
-﻿name: Deploy Next.js to Cloudflare Workers
+name: Deploy Next.js to Cloudflare Workers
 
-# Deploys to: https://omnicalstudio.gabrypiritore.workers.dev
+# Deploys to: https://chatbotstudio-web.gabrypiritore.workers.dev
 
 on:
   push:
@@ -8,13 +8,19 @@ on:
       - main
     paths:
       - 'apps/web/**'
-      
+      - 'packages/**'
+      - '.github/workflows/deploy-worker.yml'
+
   workflow_dispatch:
     inputs:
       reason:
         description: 'Why are you forcing a deploy?'
         required: false
-        default: 'manual redeploy'- 'packages/**'
+        default: 'manual redeploy'
+        type: string
+
+env:
+  NODE_VERSION: 20
 
 jobs:
   deploy:
@@ -28,7 +34,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '${{ env.NODE_VERSION }}'
           cache: 'npm'
 
       - name: Install dependencies
@@ -47,10 +53,7 @@ jobs:
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: '${{ secrets.CLOUDFLARE_API_TOKEN }}'
+          accountId: '${{ secrets.CLOUDFLARE_ACCOUNT_ID }}'
           workingDirectory: apps/web
-          command: deploy --forceenv:
-  NODE_VERSION: 20
-
-
+          command: deploy --force
