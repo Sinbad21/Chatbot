@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { Code, Github, Twitter, Linkedin } from 'lucide-react';
@@ -64,7 +64,7 @@ export function Footer() {
 
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-slate-600">
-            Ã‚Â© {new Date().getFullYear()} OMNICAL STUDIO. All rights reserved.
+            © {new Date().getFullYear()} OMNICAL STUDIO. All rights reserved.
           </p>
           <div className="flex items-center gap-2 text-xs text-slate-600">
              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>

@@ -68,7 +68,7 @@ export function FinalCTA() {
               viewport={{ once: true }}
               transition={{ delay: 0.5 }}
             >
-              14 days free â€¢ No credit card required â€¢ Cancel anytime
+              14 days free • No credit card required • Cancel anytime
             </motion.p>
           </div>
         </motion.div>

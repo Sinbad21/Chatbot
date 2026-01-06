@@ -390,7 +390,7 @@ export function Pricing() {
             <p className="mt-4 text-sm text-muted-foreground">
               {t('pricing.personalize.preview')}{' '}
               <span className="font-medium text-foreground">
-                {t(`pricing.personalize.segments.${segment}`)} Â· {t(`pricing.personalize.goals.${goal}`)}
+                {t(`pricing.personalize.segments.${segment}`)} · {t(`pricing.personalize.goals.${goal}`)}
               </span>
             </p>
           </div>

@@ -205,7 +205,7 @@ function getPromptWizardSteps(isItalian: boolean): PromptWizardStep[] {
       key: 'businessContext',
       title: isItalian ? 'Contesto aziendale' : 'Business context',
       helper: isItalian
-        ? 'Che azienda Ã¨? Cosa vendi/offri? Quali prodotti/servizi?'
+        ? 'Che azienda è? Cosa vendi/offri? Quali prodotti/servizi?'
         : 'What business is this? What do you sell/offer?',
       input: 'textarea'
     },
@@ -229,7 +229,7 @@ function getPromptWizardSteps(isItalian: boolean): PromptWizardStep[] {
       key: 'actionsAndData',
       title: isItalian ? 'Azioni e dati' : 'Actions & data',
       helper: isItalian
-        ? 'Cosa puÃ² fare il bot e che dati puÃ² chiedere? (es. ordine, email, riferimento).'
+        ? 'Cosa può fare il bot e che dati può chiedere? (es. ordine, email, riferimento).'
         : 'What can the bot do and what info can it request? (e.g., order number, email, reference).',
       input: 'textarea'
     },

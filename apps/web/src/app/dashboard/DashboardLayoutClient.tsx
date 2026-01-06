@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -49,7 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
  const router = useRouter();
  const { t, currentLang, setLanguage } = useTranslation();
 
- // Monitora l'attivitÃ Â  dell'utente per mantenere la sessione attiva
+ // Monitora l'attività dell'utente per mantenere la sessione attiva
  useSessionActivity();
 
  // Grouped navigation

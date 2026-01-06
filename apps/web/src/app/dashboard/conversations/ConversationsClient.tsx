@@ -348,7 +348,7 @@ ${transcript}
               <div>
                 <label className="text-xs font-medium text-silver-600">{t('conversations.leadCaptured')}</label>
                 <p className="text-sm text-charcoal font-medium mt-1">
-                  {selectedConversation.metadata.leadCaptured ? ' Yes' : ' No'}
+                  {selectedConversation.metadata.leadCaptured ? ' Yes' : ' No'}
                 </p>
               </div>
             )}

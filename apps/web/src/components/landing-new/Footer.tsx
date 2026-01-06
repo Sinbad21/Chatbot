@@ -81,7 +81,7 @@ export const Footer: React.FC = () => {
 
         <div className="border-t border-platinum-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-platinum-700">
-            Â© {new Date().getFullYear()} OMNICAL STUDIO. Engineered for excellence.
+            © {new Date().getFullYear()} OMNICAL STUDIO. Engineered for excellence.
           </p>
         </div>
       </div>

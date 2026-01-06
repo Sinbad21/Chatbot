@@ -218,10 +218,10 @@ export default function GDPRPage() {
                 <strong>Access and Update Data</strong>: Log into your account dashboard
               </li>
               <li>
-                <strong>Delete Account</strong>: Go to Settings â†’ Account â†’ Delete Account
+                <strong>Delete Account</strong>: Go to Settings → Account → Delete Account
               </li>
               <li>
-                <strong>Data Export</strong>: Go to Settings â†’ Privacy â†’ Export My Data
+                <strong>Data Export</strong>: Go to Settings → Privacy → Export My Data
               </li>
               <li>
                 <strong>Other Requests</strong>: Email us at{' '}

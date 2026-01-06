@@ -77,10 +77,10 @@ const widgetCode = `<!-- OMNICAL STUDIO Widget -->
 
      <div className="bg-pearl-100/70 border border-silver-200/70 rounded-lg p-4">
       <p className="text-sm text-charcoal font-medium mb-2">
-       ? Il widget ÃƒÂ¨ giÃƒÂ  configurato con il tuo Bot ID
+       ? Il widget è già configurato con il tuo Bot ID
       </p>
       <p className="text-sm text-silver-700">
-       ApparirÃƒÂ  automaticamente nell'angolo in basso a destra del tuo sito.
+       Apparirà automaticamente nell'angolo in basso a destra del tuo sito.
       </p>
      </div>
 
@@ -113,14 +113,14 @@ const widgetCode = `<!-- OMNICAL STUDIO Widget -->
      <div className="bg-pearl-100/70 border border-silver-200/70 rounded-lg p-4">
       <h4 className="font-medium text-white mb-2">Piattaforme supportate:</h4>
       <ul className="grid grid-cols-2 gap-2 text-sm text-silver-700">
-       <li>Ã¢â‚¬Â¢ HTML/CSS/JavaScript</li>
-       <li>Ã¢â‚¬Â¢ React</li>
-       <li>Ã¢â‚¬Â¢ Vue.js</li>
-       <li>Ã¢â‚¬Â¢ Angular</li>
-       <li>Ã¢â‚¬Â¢ WordPress</li>
-       <li>Ã¢â‚¬Â¢ Shopify</li>
-       <li>Ã¢â‚¬Â¢ Wix</li>
-       <li>Ã¢â‚¬Â¢ Webflow</li>
+       <li>• HTML/CSS/JavaScript</li>
+       <li>• React</li>
+       <li>• Vue.js</li>
+       <li>• Angular</li>
+       <li>• WordPress</li>
+       <li>• Shopify</li>
+       <li>• Wix</li>
+       <li>• Webflow</li>
       </ul>
      </div>
     </div>

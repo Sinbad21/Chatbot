@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useTranslation } from '@/lib/i18n';
 import { useEffect, useState } from 'react';
@@ -209,7 +209,7 @@ export default function DashboardPage() {
         <div>
          <h3 className="font-semibold text-charcoal">{bot.name}</h3>
          <p className="text-sm text-silver-600">
-          Last active: {bot.lastActive} â€¢ {bot.conversationCount} conversation{bot.conversationCount !== 1 ? 's' : ''}
+          Last active: {bot.lastActive} • {bot.conversationCount} conversation{bot.conversationCount !== 1 ? 's' : ''}
          </p>
         </div>
         <button

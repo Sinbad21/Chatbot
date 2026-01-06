@@ -17,10 +17,10 @@ export function ReviewBotSettings({ reviewBot, onClose, onSave }: ReviewBotSetti
   positiveThreshold: reviewBot?.positiveThreshold ?? 4,
   
   // Messages
-  thankYouMessage: reviewBot?.thankYouMessage ?? '‰ Grazie per il tuo acquisto!',
+  thankYouMessage: reviewBot?.thankYouMessage ?? ' Grazie per il tuo acquisto!',
   positiveMessage: reviewBot?.positiveMessage ?? 'Fantastico! Ti andrebbe di condividere la tua opinione su Google?',
   negativeMessage: reviewBot?.negativeMessage ?? 'Grazie per il feedback! Cosa possiamo migliorare?',
-  completedMessage: reviewBot?.completedMessage ?? 'Grazie mille per il tuo tempo! ¤ï¸',
+  completedMessage: reviewBot?.completedMessage ?? 'Grazie mille per il tuo tempo! ',
   
   // Widget
   widgetColor: reviewBot?.widgetColor ?? '#6366f1',

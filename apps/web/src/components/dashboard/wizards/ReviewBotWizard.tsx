@@ -68,11 +68,11 @@ export function ReviewBotWizard({ onClose, onComplete, editMode, initialData }: 
   shopifyAccessToken: '',
 
   // Messages
-  thankYouMessage: initialData?.thankYouMessage || 'Ž‰ Grazie per il tuo acquisto!',
+  thankYouMessage: initialData?.thankYouMessage || ' Grazie per il tuo acquisto!',
   surveyQuestion: initialData?.surveyQuestion || 'Come valuteresti la tua esperienza?',
   positiveMessage: initialData?.positiveMessage || 'Fantastico! Ti andrebbe di condividere la tua opinione su Google? Ci aiuta tantissimo!',
   negativeMessage: initialData?.negativeMessage || 'Grazie per il feedback! Cosa possiamo migliorare?',
-  completedMessage: initialData?.completedMessage || 'Grazie mille per il tuo tempo! ¤ï¸',
+  completedMessage: initialData?.completedMessage || 'Grazie mille per il tuo tempo! ',
 
   // Widget
   surveyType: initialData?.surveyType || 'EMOJI',
@@ -545,7 +545,7 @@ function StepMessages({ config, updateConfig }: { config: any; updateConfig: (ke
 
     <div>
      <label className="block text-sm font-medium text-silver-700 mb-2">
-      Messaggio Feedback Positivo (­4-5)
+      Messaggio Feedback Positivo (­4-5)
      </label>
      <textarea
       value={config.positiveMessage}
@@ -561,7 +561,7 @@ function StepMessages({ config, updateConfig }: { config: any; updateConfig: (ke
 
     <div>
      <label className="block text-sm font-medium text-silver-700 mb-2">
-      Messaggio Feedback Negativo (­1-3)
+      Messaggio Feedback Negativo (­1-3)
      </label>
      <textarea
       value={config.negativeMessage}
@@ -583,7 +583,7 @@ function StepMessages({ config, updateConfig }: { config: any; updateConfig: (ke
       type="text"
       value={config.completedMessage}
       onChange={(e) => updateConfig('completedMessage', e.target.value)}
-      placeholder="Grazie mille per il tuo tempo! ¤ï¸"
+      placeholder="Grazie mille per il tuo tempo! ¤ï¸"
       className="w-full px-4 py-3 bg-pearl-50 border border-silver-200/70 rounded-xl text-charcoal placeholder:text-silver-500 focus:outline-none focus:border-silver-300"
      />
     </div>
@@ -620,8 +620,8 @@ function StepMessages({ config, updateConfig }: { config: any; updateConfig: (ke
 // Step 4: Widget Customization
 function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key: string, value: any) => void }) {
  const surveyTypes = [
-  { id: 'EMOJI', label: 'Emoji', preview: '˜ ˜Š ˜ ˜• ˜ž' },
-  { id: 'STARS', label: 'Stelle', preview: '­­­­­' },
+  { id: 'EMOJI', label: 'Emoji', preview: '˜ ˜Š ˜ ˜• ˜ž' },
+  { id: 'STARS', label: 'Stelle', preview: '­­­­­' },
   { id: 'NPS', label: 'NPS (0-10)', preview: '0 1 2 3 4 5 6 7 8 9 10' },
  ];
 
@@ -783,20 +783,20 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
       <div className="flex justify-center gap-2 text-2xl">
        {config.surveyType === 'EMOJI' && (
         <>
-         <span>˜</span>
+         <span>˜</span>
          <span>˜Š</span>
-         <span>˜</span>
+         <span>˜</span>
          <span>˜•</span>
          <span>˜ž</span>
         </>
        )}
        {config.surveyType === 'STARS' && (
         <>
-         <span>­</span>
-         <span>­</span>
-         <span>­</span>
-         <span>­</span>
-         <span>­</span>
+         <span>­</span>
+         <span>­</span>
+         <span>­</span>
+         <span>­</span>
+         <span>­</span>
         </>
        )}
        {config.surveyType === 'NPS' && (
