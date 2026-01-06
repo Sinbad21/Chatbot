@@ -50,7 +50,7 @@ export function setLocale(locale: Locale): void {
     // Update URL if needed
     const url = new URL(window.location.href);
     url.searchParams.set('locale', locale);
-    window.history.replaceState({}, '', url.toString());
+    window.history.replaceState(window.history.state, '', url.toString());
   }
 }
 

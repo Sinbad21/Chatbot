@@ -78,7 +78,8 @@ export function Navbar() {
 
       // If already on the landing page, update hash + scroll immediately.
       if (pathname === '/' && typeof window !== 'undefined') {
-        window.history.replaceState(null, '', href);
+        // Avoid clobbering Next.js internal history.state (breaks back/forward).
+          router.replace(href, { scroll: false });
         scrollToHash(hash);
         return;
       }
