@@ -182,7 +182,9 @@ function ReviewWidgetContent() {
                     onClick={() => handleRating(i)}
                     className="text-2xl hover:scale-110 transition-transform focus:outline-none"
                   >
-                    {config.surveyType === 'EMOJI'`n                      ? ['', '', '', '', ''][i-1]`n                      : ''
+                    {config.surveyType === 'EMOJI'
+                      ? ['\\u{1F620}', '\\u{1F641}', '\\u{1F610}', '\\u{1F642}', '\\u{1F604}'][i-1]
+                      : '\\u2B50'
                     }
                   </button>
                 ))}
