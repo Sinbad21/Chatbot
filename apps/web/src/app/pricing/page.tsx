@@ -1,5 +1,6 @@
-﻿import { Navbar } from '@/components/landing/Navbar';
+import { Navbar } from '@/components/landing/Navbar';
 import { Pricing, Footer } from '@/components/landing';
+import { AddOnsModulesSection } from '@/components/pricing/AddOnsModulesSection';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +23,8 @@ export default function PricingPage() {
           <Suspense fallback={null}>
             <Pricing />
           </Suspense>
+
+          <AddOnsModulesSection />
 
           {/* Additional Pricing Info */}
           <div className="mt-16 text-center max-w-2xl mx-auto">
@@ -80,3 +83,4 @@ export default function PricingPage() {
     </div>
   );
 }
+
