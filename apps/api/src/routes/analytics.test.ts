@@ -17,6 +17,7 @@ describe('Analytics API Integration Tests', () => {
   let app: Application;
   let accessToken: string;
   let testUserId: string;
+  let testOrganizationId: string;
   let testBotId: string;
 
   beforeAll(async () => {
@@ -33,6 +34,23 @@ describe('Analytics API Integration Tests', () => {
     });
 
     testUserId = testUser.id;
+    // Create a test organization (required by Bot model)
+    const testOrganization = await prisma.organization.create({
+      data: {
+        name: 'Analytics Test Organization',
+        slug: `analytics-test-org-${Date.now()}`,
+      },
+    });
+
+    testOrganizationId = testOrganization.id;
+
+    await prisma.organizationMember.create({
+      data: {
+        organizationId: testOrganizationId,
+        userId: testUserId,
+        role: 'OWNER',
+      },
+    });
 
     // Generate access token for test user
     accessToken = generateAccessToken({
@@ -46,10 +64,11 @@ describe('Analytics API Integration Tests', () => {
       data: {
         name: 'Test Analytics Bot',
         description: 'Bot for testing analytics',
+        organizationId: testOrganizationId,
         userId: testUserId,
         systemPrompt: 'Test prompt',
         welcomeMessage: 'Welcome',
-        isPublished: true,
+        published: true,
       },
     });
 
@@ -61,6 +80,7 @@ describe('Analytics API Integration Tests', () => {
         data: {
           botId: testBotId,
           userId: testUserId,
+          sessionId: `analytics-test-session-${i}-${Date.now()}`,
         },
       });
 
@@ -70,12 +90,13 @@ describe('Analytics API Integration Tests', () => {
           {
             conversationId: conversation.id,
             content: `User message ${i}`,
-            sender: 'user',
+            role: 'USER',
+            userId: testUserId,
           },
           {
             conversationId: conversation.id,
             content: `Bot response ${i}`,
-            sender: 'bot',
+            role: 'ASSISTANT',
           },
         ],
       });
@@ -107,6 +128,10 @@ describe('Analytics API Integration Tests', () => {
         await prisma.message.deleteMany({ where: { conversation: { botId: testBotId } } });
         await prisma.conversation.deleteMany({ where: { botId: testBotId } });
         await prisma.bot.delete({ where: { id: testBotId } });
+      if (testOrganizationId) {
+        await prisma.organizationMember.deleteMany({ where: { organizationId: testOrganizationId } });
+        await prisma.organization.delete({ where: { id: testOrganizationId } });
+      }
       }
       if (testUserId) {
         await prisma.refreshToken.deleteMany({ where: { userId: testUserId } });
@@ -236,7 +261,7 @@ describe('Analytics API Integration Tests', () => {
       expect(bot).toHaveProperty('lastActive');
       expect(bot).toHaveProperty('lastActiveDate');
       expect(bot).toHaveProperty('conversationCount');
-      expect(bot).toHaveProperty('isPublished');
+      expect(bot).toHaveProperty('published');
     });
 
     it('should respect limit parameter', async () => {

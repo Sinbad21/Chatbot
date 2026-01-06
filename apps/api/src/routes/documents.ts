@@ -1,4 +1,5 @@
 import { Router, Response } from 'express';
+import { randomUUID } from 'crypto';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { asyncHandler } from '../middleware/error-handler';
 import { prisma } from '@chatbot-studio/database';
@@ -44,7 +45,12 @@ router.post('/', asyncHandler(async (req: AuthRequest, res: Response) => {
     data: {
       botId,
       title,
+      type: 'text/plain',
+      size: Buffer.byteLength(content, 'utf8'),
+      url: `manual://${botId}/${randomUUID()}`,
       content,
+      status: 'COMPLETED',
+      source: 'UPLOAD',
     },
   });
 
