@@ -93,9 +93,9 @@ function LoginForm() {
               <Image
                 src="/logo.svg"
                 alt="Omnical Studio"
-                width={40}
-                height={40}
-                className="rounded-xl"
+                width={48}
+                height={48}
+                className="w-12 h-12 rounded-xl"
               />
               <span className="text-xl font-semibold text-foreground">Omnical Studio</span>
             </Link>
@@ -120,9 +120,9 @@ function LoginForm() {
                 <Image
                   src="/logo.svg"
                   alt="Omnical Studio"
-                  width={32}
-                  height={32}
-                  className="rounded-lg"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 rounded-lg"
                 />
                 <span className="text-lg font-semibold text-foreground">Omnical Studio</span>
               </Link>

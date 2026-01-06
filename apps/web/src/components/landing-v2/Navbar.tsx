@@ -28,9 +28,9 @@ export function Navbar() {
           <Image
             src="/logo.svg"
             alt="Omnical Studio"
-            width={32}
-            height={32}
-            className="w-8 h-8"
+            width={40}
+            height={40}
+            className="w-10 h-10"
             priority
           />
           <span className="text-xl font-bold tracking-tight text-white">

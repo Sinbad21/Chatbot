@@ -42,9 +42,9 @@ export const Navbar: React.FC = () => {
           <Image
             src="/logo.svg"
             alt="Omnical Studio"
-            width={24}
-            height={24}
-            className="w-6 h-6"
+            width={32}
+            height={32}
+            className="w-8 h-8"
             priority
           />
           <span className="text-xl md:text-2xl font-serif font-bold text-platinum-100 tracking-widest uppercase group-hover:text-white transition-colors duration-500">
