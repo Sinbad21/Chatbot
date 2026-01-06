@@ -1,7 +1,8 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
-import { Code, Github, Twitter, Linkedin } from 'lucide-react';
+import { Github, Twitter, Linkedin } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -11,8 +12,15 @@ export function Footer() {
 
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center gap-2 mb-6">
-              <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center text-white">
-                 <Code size={14} />
+              <div className="w-6 h-6 rounded flex items-center justify-center">
+                <Image
+                  src="/logo.svg"
+                  alt="Omnical Studio"
+                  width={24}
+                  height={24}
+                  className="w-6 h-6"
+                  unoptimized
+                />
               </div>
               <span className="text-lg font-bold text-white">Omnical<span className="font-normal text-slate-400">Studio</span></span>
             </div>
