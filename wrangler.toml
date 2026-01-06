@@ -1,0 +1,13 @@
+# Root wrangler.toml to support Cloudflare Pages/Workers Builds deploy command: `npx wrangler deploy`
+# Deploys the Next.js app built via OpenNext.
+name = "chatbotstudio-web"
+main = "apps/web/.open-next/worker.js"
+compatibility_date = "2025-05-05"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+NEXT_PUBLIC_API_URL = "https://chatbotstudio.gabrypiritore.workers.dev"
+
+[assets]
+directory = "apps/web/.open-next/assets"
+binding = "ASSETS"

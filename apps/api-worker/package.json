@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",
-    "build": "prisma generate --schema=../../packages/database/prisma/schema.prisma && wrangler deploy",
+    "build": "prisma generate --schema=../../packages/database/prisma/schema.prisma && wrangler build",
     "deploy": "wrangler deploy",
     "tail": "wrangler tail"
   },
