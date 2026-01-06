@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
-    "build": "turbo run build",
+    "build": "turbo run build && npm -w @chatbot-studio/web run pages:build",
     "build:web": "npm -w @chatbot-studio/web run build && npm -w @chatbot-studio/web run pages:build",
     "deploy:web": "npm -w @chatbot-studio/web run pages:deploy",
     "deploy:api": "cd apps/api-worker && npm install && npm run build",
