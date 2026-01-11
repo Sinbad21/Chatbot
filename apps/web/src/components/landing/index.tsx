@@ -66,6 +66,11 @@ export function Hero() {
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
+            <Link href="/pricing">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                {t('nav.pricing', 'Pricing')}
+              </Button>
+            </Link>
             <Button size="lg" variant="outline" className="gap-2">
               <Play className="w-4 h-4" />
               {t('hero.ctaSecondary')}
