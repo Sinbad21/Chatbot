@@ -14,7 +14,8 @@ type AddOn = {
     | 'sso-saml'
     | 'audit-log'
     | 'custom-reporting'
-    | 'extra-workspace';
+    | 'extra-workspace'
+    | 'remove-watermark';
   name: string;
   description: string;
   priceMonthlyEur: number | null;
@@ -92,6 +93,13 @@ export function AddOnsModulesSection() {
         badge: { label: 'Popular', tone: 'blue' },
       },
       {
+        id: 'remove-watermark',
+        name: 'White Label (senza watermark)',
+        description: 'Rimuove il watermark e abilita una versione “no-brand” del widget/bot.',
+        priceMonthlyEur: null,
+        badge: { label: 'Premium', tone: 'purple' },
+      },
+      {
         id: 'byok',
         name: 'BYOK (Bring Your Own Key)',
         description: 'Usa le API key del cliente (OpenAI/Anthropic/Google) per controllo costi e compliance.',
@@ -133,6 +141,7 @@ export function AddOnsModulesSection() {
     'audit-log': false,
     'custom-reporting': false,
     'extra-workspace': false,
+    'remove-watermark': false,
   });
 
   return (
