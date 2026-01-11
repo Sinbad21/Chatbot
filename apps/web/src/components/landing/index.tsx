@@ -321,6 +321,14 @@ export function Pricing() {
             {t('pricing.subtitle')}
           </p>
 
+          <div className="flex items-center justify-center mb-10">
+            <Link href="/pricing">
+              <Button size="lg" className="bg-[#5B4BFF] hover:bg-[#4B3BEF]">
+                View full pricing
+              </Button>
+            </Link>
+          </div>
+
           {/* Toggle */}
           <div className="flex items-center justify-center gap-4 mb-12">
             <span className={!annual ? 'font-semibold' : 'text-muted-foreground'}>
