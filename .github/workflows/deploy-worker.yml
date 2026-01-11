@@ -40,15 +40,16 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Build Next.js
-        run: |
-          cd apps/web
-          npm run build
+      - name: Build web (Next + OpenNext)
+        run: npm -w apps/web run build
 
-      - name: Build OpenNext
+      - name: Verify OpenNext output
         run: |
-          cd apps/web
-          npm run pages:build
+          echo "Listing apps/web/.open-next (debug)"
+          ls -la apps/web/.open-next || true
+          echo "Listing apps/web/.open-next/assets (debug)"
+          ls -la apps/web/.open-next/assets || true
+          test -f apps/web/.open-next/worker.js
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
@@ -56,4 +57,5 @@ jobs:
           apiToken: '${{ secrets.CLOUDFLARE_API_TOKEN }}'
           accountId: '${{ secrets.CLOUDFLARE_ACCOUNT_ID }}'
           workingDirectory: apps/web
-          command: deploy --force
+          wranglerVersion: '4.47.0'
+          command: deploy --force --log-level debug
