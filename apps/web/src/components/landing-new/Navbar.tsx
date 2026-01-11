@@ -55,13 +55,23 @@ export const Navbar: React.FC = () => {
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-4">
           {navItems.map((item) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              className="text-sm font-medium text-platinum-300 hover:text-white transition-colors duration-300 uppercase tracking-wider relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-white after:transition-all after:duration-300 hover:after:w-full"
-            >
-              {item.label}
-            </a>
+            item.id === 'prezzi' ? (
+              <Link
+                key={item.id}
+                href="/pricing"
+                className="text-sm font-medium text-platinum-300 hover:text-white transition-colors duration-300 uppercase tracking-wider relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-white after:transition-all after:duration-300 hover:after:w-full"
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                className="text-sm font-medium text-platinum-300 hover:text-white transition-colors duration-300 uppercase tracking-wider relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-white after:transition-all after:duration-300 hover:after:w-full"
+              >
+                {item.label}
+              </a>
+            )
           ))}
 
           <button
@@ -102,14 +112,25 @@ export const Navbar: React.FC = () => {
           >
             <div className="flex flex-col p-6 gap-4">
               {navItems.map((item) => (
-                <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  className="text-platinum-200 hover:text-white text-lg font-serif border-b border-platinum-800/50 pb-2"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </a>
+                item.id === 'prezzi' ? (
+                  <Link
+                    key={item.id}
+                    href="/pricing"
+                    className="text-platinum-200 hover:text-white text-lg font-serif border-b border-platinum-800/50 pb-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    className="text-platinum-200 hover:text-white text-lg font-serif border-b border-platinum-800/50 pb-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </a>
+                )
               ))}
 
               <button
