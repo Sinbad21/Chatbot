@@ -5,10 +5,19 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 
 type AddOn = {
-  id: 'review-bot' | 'extra-bot-slot' | 'voice-receptionist' | 'unlimited-conversations';
+  id:
+    | 'review-bot'
+    | 'extra-bot-slot'
+    | 'voice-receptionist'
+    | 'unlimited-conversations'
+    | 'byok'
+    | 'sso-saml'
+    | 'audit-log'
+    | 'custom-reporting'
+    | 'extra-workspace';
   name: string;
   description: string;
-  priceMonthlyEur: number;
+  priceMonthlyEur: number | null;
   badge?: { label: string; tone: 'blue' | 'purple' };
 };
 
@@ -62,6 +71,13 @@ export function AddOnsModulesSection() {
         priceMonthlyEur: 19,
       },
       {
+        id: 'extra-workspace',
+        name: 'Extra Workspace / Sito',
+        description: 'Gestisci più brand o property con workspace separati e ruoli dedicati.',
+        priceMonthlyEur: 29,
+        badge: { label: 'Scaling', tone: 'blue' },
+      },
+      {
         id: 'voice-receptionist',
         name: 'Voice Receptionist',
         description: 'Turn inbound calls into booked meetings and qualified leads.',
@@ -75,6 +91,34 @@ export function AddOnsModulesSection() {
         priceMonthlyEur: 39,
         badge: { label: 'Popular', tone: 'blue' },
       },
+      {
+        id: 'byok',
+        name: 'BYOK (Bring Your Own Key)',
+        description: 'Usa le API key del cliente (OpenAI/Anthropic/Google) per controllo costi e compliance.',
+        priceMonthlyEur: null,
+        badge: { label: 'Enterprise', tone: 'purple' },
+      },
+      {
+        id: 'audit-log',
+        name: 'Audit Log & Ruoli',
+        description: 'Tracciamento eventi, permessi avanzati e governance per team strutturati.',
+        priceMonthlyEur: null,
+        badge: { label: 'Enterprise', tone: 'purple' },
+      },
+      {
+        id: 'custom-reporting',
+        name: 'Reportistica Custom',
+        description: 'Dashboard e report su misura (KPI, export, integrazioni) per stakeholder e clienti.',
+        priceMonthlyEur: null,
+        badge: { label: 'Enterprise', tone: 'purple' },
+      },
+      {
+        id: 'sso-saml',
+        name: 'SSO / SAML',
+        description: 'Single Sign-On per organizzazioni con requisiti di sicurezza e provisioning utenti.',
+        priceMonthlyEur: null,
+        badge: { label: 'Security', tone: 'purple' },
+      },
     ],
     []
   );
@@ -84,6 +128,11 @@ export function AddOnsModulesSection() {
     'extra-bot-slot': false,
     'voice-receptionist': false,
     'unlimited-conversations': false,
+    byok: false,
+    'sso-saml': false,
+    'audit-log': false,
+    'custom-reporting': false,
+    'extra-workspace': false,
   });
 
   return (
@@ -149,8 +198,14 @@ export function AddOnsModulesSection() {
                     </div>
 
                     <div className="mt-6 flex items-end gap-2">
-                      <div className="text-3xl font-bold">{addOn.priceMonthlyEur}</div>
-                      <div className="pb-1 text-sm text-platinum-500">/mese</div>
+                      {typeof addOn.priceMonthlyEur === 'number' ? (
+                        <>
+                          <div className="text-3xl font-bold">€{addOn.priceMonthlyEur}</div>
+                          <div className="pb-1 text-sm text-platinum-500">/mese</div>
+                        </>
+                      ) : (
+                        <div className="text-2xl font-bold">Su misura</div>
+                      )}
                     </div>
                   </Card>
                 );

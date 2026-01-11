@@ -5,31 +5,108 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Check, Sparkles } from 'lucide-react';
 
-const plans = [
+type Plan = {
+  id: 'base' | 'pro' | 'pro-plus' | 'business' | 'enterprise';
+  name: string;
+  price: number | string;
+  desc: string;
+  features: string[];
+  highlight?: boolean;
+  cta: string;
+  href: string;
+};
+
+const plans: Plan[] = [
   {
-    name: "Silver",
-    price: "49",
-    desc: "Per startup e piccoli business.",
-    features: ["1 Chatbot Attivo", "Risposte Automatiche Base", "Supporto Email", "Integrazione Web"],
-    highlight: false,
-    cta: "Inizia con Silver"
+    id: 'base',
+    name: 'Base',
+    price: 29,
+    desc: 'Professionisti e micro-attività che vogliono iniziare con un solo canale.',
+    features: [
+      '1 bot',
+      '1 canale (Web o WhatsApp)',
+      'Widget prenotazioni + calendario',
+      'Promemoria automatici',
+      'Raccolta lead',
+      'Upload documenti (base)',
+      'Analytics essenziali',
+      '1 utente',
+      'Supporto email',
+    ],
+    cta: 'Inizia Prova Gratuita',
+    href: '/auth/register',
   },
   {
-    name: "Platino",
-    price: "149",
-    desc: "La scelta per l'eccellenza.",
-    features: ["3 Chatbot Attivi", "AI Avanzata GPT-4", "Supporto Prioritario 24/7", "WhatsApp & Telegram", "Analisi del Sentiment"],
+    id: 'pro',
+    name: 'Pro',
+    price: 79,
+    desc: 'Attività in crescita che vogliono più automazioni e canali.',
+    features: [
+      'Fino a 3 bot',
+      '2–3 canali (Web, WhatsApp, Telegram)',
+      'Google Calendar avanzato',
+      'Conversazioni e lead illimitati (fair use)',
+      'Knowledge base con scraping siti',
+      'Analytics avanzate',
+      'Fino a 3 utenti',
+      'Supporto prioritario email',
+    ],
+    cta: 'Inizia Prova Gratuita',
+    href: '/auth/register',
+  },
+  {
+    id: 'pro-plus',
+    name: 'Pro+ (consigliato)',
+    price: 129,
+    desc: 'Agenzie e studi che gestiscono più clienti/brand.',
+    features: [
+      'Tutto Pro',
+      'Fino a 10 bot',
+      'Multicanale completo (Web, WhatsApp, Telegram, Slack)',
+      'BYOK (API key OpenAI del cliente)',
+      'Review Bot incluso (Stripe, WooCommerce, Shopify)',
+      'Scraping / docs esteso',
+      'Onboarding prioritario 1:1',
+      'Fino a 5 utenti',
+    ],
     highlight: true,
-    cta: "Scegli Platino"
+    cta: 'Inizia Prova Gratuita',
+    href: '/auth/register',
   },
   {
-    name: "Diamante",
-    price: "299",
-    desc: "Potenza illimitata.",
-    features: ["Chatbot Illimitati", "Fine-Tuning Personalizzato", "API Access Completo", "Account Manager Dedicato", "SLA Garantito"],
-    highlight: false,
-    cta: "Passa a Diamante"
-  }
+    id: 'business',
+    name: 'Business',
+    price: 299,
+    desc: 'Aziende strutturate e catene con volumi alti.',
+    features: [
+      'Tutto Pro+',
+      '20+ bot',
+      'Limiti alti su conversazioni e booking',
+      'Ruoli e permessi avanzati',
+      'Audit log',
+      'Più workspace / siti',
+      'Supporto via email + call periodiche',
+      'Opzioni di reportistica custom',
+    ],
+    cta: 'Contatta Vendite',
+    href: '/contact',
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 'Su misura',
+    desc: 'Gruppi e corporate con esigenze specifiche.',
+    features: [
+      'Tutto Business',
+      'SSO/SAML',
+      'Limiti personalizzati',
+      'SLA e sicurezza avanzata',
+      'Integrazioni custom (CRM, data warehouse)',
+      'Success manager dedicato',
+    ],
+    cta: 'Contatta Vendite',
+    href: '/contact',
+  },
 ];
 
 export const Pricing: React.FC = () => {
@@ -43,7 +120,7 @@ export const Pricing: React.FC = () => {
           <div className="w-24 h-1 bg-gradient-to-r from-transparent via-platinum-400 to-transparent mx-auto" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => (
             <motion.div
               key={index}
@@ -74,8 +151,14 @@ export const Pricing: React.FC = () => {
               <p className="text-platinum-500 text-sm mb-6 h-10">{plan.desc}</p>
 
               <div className="flex items-baseline gap-1 mb-8">
-                <span className="text-4xl font-bold text-white">€{plan.price}</span>
-                <span className="text-platinum-500">/mese</span>
+                {typeof plan.price === 'number' ? (
+                  <>
+                    <span className="text-4xl font-bold text-white">€{plan.price}</span>
+                    <span className="text-platinum-500">/mese</span>
+                  </>
+                ) : (
+                  <span className="text-3xl font-bold text-white">{plan.price}</span>
+                )}
               </div>
 
               <ul className="space-y-4 mb-8">
@@ -90,7 +173,7 @@ export const Pricing: React.FC = () => {
               </ul>
 
               <Link
-                href="/auth/register"
+                href={plan.href}
                 className={`block w-full py-3 rounded-sm text-sm font-bold uppercase tracking-widest transition-all duration-300 relative overflow-hidden group/btn active:scale-95 text-center ${
                   plan.highlight
                     ? 'bg-platinum-100 text-black hover:bg-white hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]'
