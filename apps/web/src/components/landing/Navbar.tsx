@@ -66,7 +66,7 @@ export function Navbar() {
 
   const navItems = [
     { label: t('nav.features'), href: '/#features' },
-    { label: t('nav.pricing'), href: '/#pricing' },
+    { label: t('nav.pricing'), href: '/pricing' },
     { label: t('nav.docs'), href: '/docs' },
   ];
 
