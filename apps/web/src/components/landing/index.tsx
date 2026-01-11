@@ -19,6 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { AddOnsModulesSection } from '@/components/pricing/AddOnsModulesSection';
 import {
   Accordion,
   AccordionContent,
@@ -462,6 +463,8 @@ export function Pricing() {
             </Card>
           ))}
         </div>
+
+        <AddOnsModulesSection />
       </div>
     </section>
   );
