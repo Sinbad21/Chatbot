@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -30,8 +30,8 @@ function ToggleSwitch({
       onClick={() => onChange(!checked)}
       className={[
         'relative inline-flex h-7 w-14 items-center rounded-full border transition-colors',
-        checked ? 'bg-blue-500 border-blue-400' : 'bg-white/10 border-white/15',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950',
+        checked ? 'bg-blue-500 border-blue-400' : 'bg-platinum-900/40 border-platinum-800/80',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-platinum-950',
       ].join(' ')}
     >
       <span
@@ -88,16 +88,13 @@ export function AddOnsModulesSection() {
 
   return (
     <section aria-labelledby="addons-modules" className="mt-16">
-      <div className="rounded-2xl overflow-hidden border border-white/10">
-        <div className="bg-slate-950">
+      <div className="rounded-2xl overflow-hidden border border-platinum-800/60 bg-platinum-950/20">
+        <div className="bg-transparent">
           <div className="h-1 w-full bg-gradient-to-r from-blue-500 to-purple-500" />
 
           <div className="px-6 py-12 sm:px-10">
             <div className="max-w-2xl">
-              <h2
-                id="addons-modules"
-                className="text-3xl sm:text-4xl font-bold tracking-tight text-white"
-              >
+              <h2 id="addons-modules" className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
                 Add-ons & Modules
               </h2>
               <p className="mt-3 text-white/70">
@@ -113,9 +110,9 @@ export function AddOnsModulesSection() {
                   <Card
                     key={addOn.id}
                     className={[
-                      'relative p-6 bg-white text-slate-900 border-white/40',
+                      'relative p-6 bg-platinum-900/15 text-white border-platinum-800/60',
                       'transition-transform duration-200 will-change-transform',
-                      'hover:-translate-y-0.5 hover:border-blue-500/40',
+                      'hover:-translate-y-0.5 hover:border-blue-500/40 hover:bg-platinum-900/25',
                     ].join(' ')}
                   >
                     <div className="flex items-start justify-between gap-4">
@@ -126,17 +123,17 @@ export function AddOnsModulesSection() {
                             <Badge
                               variant="secondary"
                               className={[
-                                'border-0',
+                                'border',
                                 addOn.badge.tone === 'purple'
-                                  ? 'bg-purple-500/10 text-purple-700'
-                                  : 'bg-blue-500/10 text-blue-700',
+                                  ? 'bg-purple-500/10 text-purple-200 border-purple-500/20'
+                                  : 'bg-blue-500/10 text-blue-200 border-blue-500/20',
                               ].join(' ')}
                             >
                               {addOn.badge.label}
                             </Badge>
                           )}
                         </div>
-                        <p className="mt-2 text-sm text-slate-600">{addOn.description}</p>
+                        <p className="mt-2 text-sm text-platinum-500">{addOn.description}</p>
                       </div>
 
                       <div className="shrink-0 flex flex-col items-end gap-2">
@@ -145,12 +142,7 @@ export function AddOnsModulesSection() {
                           onChange={(next) => setEnabled((prev) => ({ ...prev, [addOn.id]: next }))}
                           label={`Toggle ${addOn.name}`}
                         />
-                        <div
-                          className={[
-                            'text-xs font-medium',
-                            isEnabled ? 'text-blue-700' : 'text-slate-500',
-                          ].join(' ')}
-                        >
+                        <div className={['text-xs font-medium', isEnabled ? 'text-blue-300' : 'text-platinum-500'].join(' ')}>
                           {isEnabled ? 'ON' : 'OFF'}
                         </div>
                       </div>
@@ -158,14 +150,14 @@ export function AddOnsModulesSection() {
 
                     <div className="mt-6 flex items-end gap-2">
                       <div className="text-3xl font-bold">{addOn.priceMonthlyEur}</div>
-                      <div className="pb-1 text-sm text-slate-600">/mese</div>
+                      <div className="pb-1 text-sm text-platinum-500">/mese</div>
                     </div>
                   </Card>
                 );
               })}
             </div>
 
-            <p className="mt-8 text-sm text-white/70">Note: Requires Base plan or higher.</p>
+            <p className="mt-8 text-sm text-platinum-500">Nota: richiede il piano Base o superiore.</p>
           </div>
         </div>
       </div>
