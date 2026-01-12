@@ -332,7 +332,7 @@ export function Pricing() {
                 size="lg"
                 className="h-12 px-10 text-base font-semibold bg-[#5B4BFF] hover:bg-[#4B3BEF] shadow-lg shadow-black/15 ring-1 ring-[#5B4BFF]/25 w-full sm:w-auto"
               >
-                {t('pricing.viewFull', 'View full pricing')}
+               {t('pricing.viewFull', 'Info complete prezzi qui')}
               </Button>
             </Link>
           </div>
