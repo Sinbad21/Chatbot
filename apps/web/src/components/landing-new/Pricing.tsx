@@ -127,6 +127,14 @@ export const Pricing: React.FC = () => {
         <div className="text-center mb-20">
           <h2 className="font-serif text-4xl md:text-5xl text-white mb-4">Investi nel Futuro</h2>
           <div className="w-24 h-1 bg-gradient-to-r from-transparent via-platinum-400 to-transparent mx-auto" />
+          <div className="mt-8">
+            <Link
+              href="/pricing"
+              className="inline-block border border-platinum-700 text-platinum-300 hover:border-platinum-400 hover:text-white hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:bg-platinum-800/50 py-3 px-6 rounded-sm text-sm font-bold uppercase tracking-widest transition-all duration-300 active:scale-95"
+            >
+              Info complete prezzi qui
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-8 max-w-6xl mx-auto">
