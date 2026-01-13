@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from 'framer-motion';
 import { useLandingTranslation } from '@/hooks/useLandingTranslation';
@@ -407,7 +407,7 @@ export function Pricing() {
             <p className="mt-4 text-sm text-muted-foreground">
               {t('pricing.personalize.preview')}{' '}
               <span className="font-medium text-foreground">
-                {t(`pricing.personalize.segments.${segment}`)} · {t(`pricing.personalize.goals.${goal}`)}
+                {t(`pricing.personalize.segments.${segment}`)} Â· {t(`pricing.personalize.goals.${goal}`)}
               </span>
             </p>
           </div>
@@ -591,8 +591,8 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4">{t('footer.product')}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="/#features" className="hover:text-foreground">{t('footer.features')}</Link></li>
-              <li><Link href="/#pricing" className="hover:text-foreground">{t('footer.pricing')}</Link></li>
+              <li><Link href="/" className="hover:text-foreground">{t('footer.features')}</Link></li>
+              <li><Link href="/pricing" className="hover:text-foreground">{t('footer.pricing')}</Link></li>
               <li><Link href="/docs" className="hover:text-foreground">{t('footer.docs')}</Link></li>
             </ul>
           </div>
@@ -611,6 +611,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href="/legal/privacy" className="hover:text-foreground">{t('footer.privacy')}</Link></li>
               <li><Link href="/legal/terms" className="hover:text-foreground">{t('footer.terms')}</Link></li>
+              <li><Link href="/legal/cookies" className="hover:text-foreground">{t('footer.cookies', 'Cookie Policy')}</Link></li>
               <li><Link href="/legal/gdpr" className="hover:text-foreground">{t('footer.gdpr')}</Link></li>
             </ul>
           </div>
@@ -685,3 +686,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+

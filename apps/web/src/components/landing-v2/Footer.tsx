@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -43,9 +43,9 @@ export function Footer() {
           <div>
              <h4 className="text-white font-semibold mb-6">Product</h4>
              <ul className="space-y-3 text-sm text-slate-500">
-                <li><Link href="/#features" className="hover:text-indigo-400 transition-colors">Features</Link></li>
-                <li><Link href="/#integrations" className="hover:text-indigo-400 transition-colors">Integrations</Link></li>
-                <li><Link href="/#enterprise" className="hover:text-indigo-400 transition-colors">Enterprise</Link></li>
+                <li><Link href="/" className="hover:text-indigo-400 transition-colors">Features</Link></li>
+                <li><Link href="/docs" className="hover:text-indigo-400 transition-colors">Integrations</Link></li>
+                <li><Link href="/contact" className="hover:text-indigo-400 transition-colors">Enterprise</Link></li>
                 <li><Link href="/docs" className="hover:text-indigo-400 transition-colors">Documentation</Link></li>
              </ul>
           </div>
@@ -65,7 +65,7 @@ export function Footer() {
              <ul className="space-y-3 text-sm text-slate-500">
                 <li><Link href="/legal/privacy" className="hover:text-indigo-400 transition-colors">Privacy Policy</Link></li>
                 <li><Link href="/legal/terms" className="hover:text-indigo-400 transition-colors">Terms of Service</Link></li>
-                <li><Link href="/legal/gdpr" className="hover:text-indigo-400 transition-colors">Cookie Policy</Link></li>
+                <li><Link href="/legal/cookies" className="hover:text-indigo-400 transition-colors">Cookie Policy</Link></li>
              </ul>
           </div>
         </div>
@@ -83,3 +83,4 @@ export function Footer() {
     </footer>
   );
 }
+

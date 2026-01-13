@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -42,10 +42,10 @@ export const Footer: React.FC = () => {
               Esplora
             </h4>
             <ul className="space-y-3 text-sm">
-              <li><a href="#home" className="text-platinum-500 hover:text-white hover:translate-x-1 transition-all inline-block">Home</a></li>
-              <li><a href="#chi-siamo" className="text-platinum-500 hover:text-white hover:translate-x-1 transition-all inline-block">La Tecnologia</a></li>
-              <li><a href="#servizi" className="text-platinum-500 hover:text-white hover:translate-x-1 transition-all inline-block">Soluzioni AI</a></li>
-              <li><a href="#pricing" className="text-platinum-500 hover:text-white hover:translate-x-1 transition-all inline-block">Prezzi</a></li>
+              <li><Link href="/" className="text-platinum-500 hover:text-white hover:translate-x-1 transition-all inline-block">Home</Link></li>
+              <li><Link href="/about" className="text-platinum-500 hover:text-white hover:translate-x-1 transition-all inline-block">La Tecnologia</Link></li>
+              <li><Link href="/contact" className="text-platinum-500 hover:text-white hover:translate-x-1 transition-all inline-block">Soluzioni AI</Link></li>
+              <li><Link href="/pricing" className="text-platinum-500 hover:text-white hover:translate-x-1 transition-all inline-block">Prezzi</Link></li>
             </ul>
           </div>
 
@@ -57,6 +57,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-3 text-sm">
               <li><Link href="/legal/privacy" className="text-platinum-500 hover:text-white transition-colors">Privacy Data</Link></li>
               <li><Link href="/legal/terms" className="text-platinum-500 hover:text-white transition-colors">Termini di Servizio</Link></li>
+              <li><Link href="/legal/cookies" className="text-platinum-500 hover:text-white transition-colors">Cookie Policy</Link></li>
               <li><Link href="/legal/gdpr" className="text-platinum-500 hover:text-white transition-colors">GDPR</Link></li>
             </ul>
           </div>
@@ -88,3 +89,4 @@ export const Footer: React.FC = () => {
     </footer>
   );
 };
+
