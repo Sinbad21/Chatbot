@@ -480,15 +480,16 @@ export function Pricing() {
           ))}
         </div>
 
-        <AddOnsModulesSection />
-      </div>
-        <div className="mt-10 flex justify-center">
+
+        <div className="mt-8 flex justify-center">
           <Link href="/pricing">
-            <Button variant="outline" size="lg" className="h-12 px-10">
+            <Button size="lg" className="h-12 px-10 text-base font-semibold bg-[#5B4BFF] hover:bg-[#4B3BEF]">
               {t('pricing.viewFull', 'Info complete prezzi qui')}
             </Button>
           </Link>
         </div>
+        <AddOnsModulesSection />
+      </div>
     </section>
   );
 }
