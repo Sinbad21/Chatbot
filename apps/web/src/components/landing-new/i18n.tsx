@@ -15,6 +15,7 @@ type Dict = {
   };
   pricing: {
     title: string;
+    detailsCta: string;
     billingMonthly: string;
     billingYearly: string;
     billedAnnually: string;
@@ -48,6 +49,7 @@ const DICT: Record<LandingNewLang, Dict> = {
     },
     pricing: {
       title: 'Investi nel Futuro',
+      detailsCta: 'Dettagli completi e add-on',
       billingMonthly: 'Mensile',
       billingYearly: 'Annuale',
       billedAnnually: 'fatturato annualmente',
@@ -108,6 +110,7 @@ const DICT: Record<LandingNewLang, Dict> = {
     },
     pricing: {
       title: 'Invest in the Future',
+      detailsCta: 'Full pricing details & add-ons',
       billingMonthly: 'Monthly',
       billingYearly: 'Yearly',
       billedAnnually: 'billed annually',

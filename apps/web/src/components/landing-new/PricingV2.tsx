@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Check, Sparkles } from 'lucide-react';
 import { useLandingNewI18n } from './i18n';
@@ -91,6 +92,8 @@ const plans: Plan[] = [
 
 export const PricingV2: React.FC = () => {
   const { t } = useLandingNewI18n();
+  const pathname = usePathname();
+  const showDetailsCta = pathname !== '/pricing';
   const [segment, setSegment] = useState<Segment>('local');
   const [goal, setGoal] = useState<Goal>('bookings');
   const [billing, setBilling] = useState<Billing>('monthly');
@@ -107,6 +110,17 @@ export const PricingV2: React.FC = () => {
         <div className="text-center mb-20">
           <h2 className="font-serif text-4xl md:text-5xl text-white mb-4">{t('pricing').title}</h2>
           <div className="w-24 h-1 bg-gradient-to-r from-transparent via-platinum-400 to-transparent mx-auto" />
+
+          {showDetailsCta && (
+            <div className="mt-8 flex justify-center">
+              <Link
+                href="/pricing"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-sm border border-platinum-700 text-platinum-200 uppercase tracking-widest text-xs font-semibold transition-all duration-300 hover:border-platinum-400 hover:text-white hover:shadow-[0_0_20px_rgba(255,255,255,0.18)] hover:bg-platinum-900/30"
+              >
+                {t('pricing').detailsCta}
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="max-w-7xl mx-auto flex justify-end mb-8">

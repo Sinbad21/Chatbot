@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Home, TrendingUp, Headphones } from 'lucide-react';
 
@@ -9,27 +9,42 @@ const personas = [
     role: "The Salesman",
     prompt: "Agisci come un venditore esperto. Usa tecniche di persuasione eleganti, sii assertivo ma cortese.",
     icon: <TrendingUp />,
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2070&auto=format&fit=crop",
+    image: {
+      src: "/landing-new/personas/salesman.png",
+      fallback: "/landing-new/personas/salesman.svg",
+    },
     color: "from-blue-400 to-blue-600"
   },
   {
     role: "Real Estate Agent",
     prompt: "Sei un agente immobiliare di lusso. Descrivi le proprietà con un linguaggio evocativo e dettagliato.",
     icon: <Home />,
-    image: "https://images.unsplash.com/photo-1676299081847-824916de030a?q=80&w=2070&auto=format&fit=crop",
+    image: {
+      src: "/landing-new/personas/real-estate.png",
+      fallback: "/landing-new/personas/real-estate.svg",
+    },
     color: "from-emerald-400 to-emerald-600"
   },
   {
     role: "Customer Success",
     prompt: "Sei un assistente empatico. Risolvi problemi tecnici mantenendo un tono calmo e rassicurante.",
     icon: <Headphones />,
-    image: "https://images.unsplash.com/photo-1675557009875-436f7a5c6f2b?q=80&w=2070&auto=format&fit=crop",
+    image: {
+      src: "/landing-new/personas/customer-success.png",
+      fallback: "/landing-new/personas/customer-success.svg",
+    },
     color: "from-purple-400 to-purple-600"
   }
 ];
 
 const PersonaCard: React.FC<{ persona: typeof personas[0], index: number }> = ({ persona, index }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [imageSrc, setImageSrc] = useState(persona.image.src);
+
+  useEffect(() => {
+    setImageSrc(persona.image.src);
+  }, [persona.image.src]);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
@@ -53,10 +68,16 @@ const PersonaCard: React.FC<{ persona: typeof personas[0], index: number }> = ({
             className="absolute -top-[10%] left-0 w-full h-[120%]"
           >
             <img
-              src={persona.image}
+              src={imageSrc}
               alt={persona.role}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-90 filter contrast-110 grayscale-[0.2]"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-95"
               loading="lazy"
+              decoding="async"
+              onError={() => {
+                if (imageSrc !== persona.image.fallback) {
+                  setImageSrc(persona.image.fallback);
+                }
+              }}
             />
           </motion.div>
 

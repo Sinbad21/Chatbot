@@ -1,105 +1,116 @@
 'use client';
 
-import { Navbar } from '@/components/landing-v2/Navbar';
-import { Footer } from '@/components/landing-v2/Footer';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield, Lock, Eye, Download, Trash2, FileText } from 'lucide-react';
+import styles from '../legal.module.css';
 
 export default function GDPRPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <div className={styles.page}>
+      <nav aria-label="Breadcrumb">
+        <Link href="/" className={styles.backLink}>
+          <ArrowLeft className="w-4 h-4" />
+          Back to Home
+        </Link>
+      </nav>
 
-      <main className="pt-24 pb-20 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="mb-8 gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
-            </Button>
-          </Link>
+      <article className={styles.article}>
+        <header>
+          <h1>GDPR Compliance</h1>
+          <p className={styles.meta}>Last updated: November 2025</p>
+        </header>
 
-          <article className="prose prose-slate dark:prose-invert max-w-none">
-            <h1>GDPR Compliance</h1>
-            <p className="text-muted-foreground">Last updated: November 2025</p>
-
-            <div className="not-prose my-8 p-6 rounded-lg border bg-card">
-              <div className="flex items-start gap-3">
-                <Shield className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Our Commitment to GDPR</h3>
-                  <p className="text-sm text-muted-foreground">
-                    OMNICAL STUDIO is fully compliant with the General Data Protection Regulation
-                    (GDPR) and takes your privacy rights seriously. We have implemented technical and
-                    organizational measures to ensure the protection of your personal data.
-                  </p>
-                </div>
-              </div>
+        <div className={`${styles.callout} ${styles.calloutDefinition}`}>
+          <div className={styles.calloutTitle}>Definition</div>
+          <div className="flex items-start gap-3">
+            <Shield className="w-6 h-6 text-platinum-200 flex-shrink-0 mt-1" />
+            <div>
+              <h2>Our Commitment to GDPR</h2>
+              <p>
+                OMNICAL STUDIO is fully compliant with the General Data Protection Regulation
+                (GDPR) and takes your privacy rights seriously. We have implemented technical and
+                organizational measures to ensure the protection of your personal data.
+              </p>
             </div>
+          </div>
+        </div>
 
-            <h2>1. Your Rights Under GDPR</h2>
-            <p>
-              If you are located in the European Economic Area (EEA), you have the following rights
-              regarding your personal data:
-            </p>
+        <div className={`${styles.callout} ${styles.calloutRights}`}>
+          <div className={styles.calloutTitle}>Your Rights</div>
 
-            <div className="not-prose my-6 space-y-4">
-              <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                <Eye className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+          <h2>1. Your Rights Under GDPR</h2>
+          <p>
+            If you are located in the European Economic Area (EEA), you have the following rights
+            regarding your personal data:
+          </p>
+
+          <div className="space-y-4">
+            <section className={`${styles.callout} ${styles.calloutDefinition}`}>
+              <div className="flex items-start gap-3">
+                <Eye className="w-5 h-5 text-platinum-200 flex-shrink-0 mt-1" />
                 <div>
-                  <h4 className="font-semibold mb-1">Right to Access</h4>
-                  <p className="text-sm text-muted-foreground">
+                  <h3>Right to Access</h3>
+                  <p>
                     You have the right to request copies of your personal data. You can access most
                     of your data directly from your account dashboard.
                   </p>
                 </div>
               </div>
+            </section>
 
-              <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                <FileText className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+            <section className={`${styles.callout} ${styles.calloutDefinition}`}>
+              <div className="flex items-start gap-3">
+                <FileText className="w-5 h-5 text-platinum-200 flex-shrink-0 mt-1" />
                 <div>
-                  <h4 className="font-semibold mb-1">Right to Rectification</h4>
-                  <p className="text-sm text-muted-foreground">
+                  <h3>Right to Rectification</h3>
+                  <p>
                     You have the right to request that we correct any information you believe is
                     inaccurate or incomplete.
                   </p>
                 </div>
               </div>
+            </section>
 
-              <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                <Trash2 className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+            <section className={`${styles.callout} ${styles.calloutDefinition}`}>
+              <div className="flex items-start gap-3">
+                <Trash2 className="w-5 h-5 text-platinum-200 flex-shrink-0 mt-1" />
                 <div>
-                  <h4 className="font-semibold mb-1">Right to Erasure</h4>
-                  <p className="text-sm text-muted-foreground">
+                  <h3>Right to Erasure</h3>
+                  <p>
                     You have the right to request that we erase your personal data under certain
                     conditions ("right to be forgotten").
                   </p>
                 </div>
               </div>
+            </section>
 
-              <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                <Download className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+            <section className={`${styles.callout} ${styles.calloutDefinition}`}>
+              <div className="flex items-start gap-3">
+                <Download className="w-5 h-5 text-platinum-200 flex-shrink-0 mt-1" />
                 <div>
-                  <h4 className="font-semibold mb-1">Right to Data Portability</h4>
-                  <p className="text-sm text-muted-foreground">
+                  <h3>Right to Data Portability</h3>
+                  <p>
                     You have the right to request that we transfer your data to another organization
                     or directly to you in a structured, machine-readable format.
                   </p>
                 </div>
               </div>
+            </section>
 
-              <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                <Lock className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+            <section className={`${styles.callout} ${styles.calloutDefinition}`}>
+              <div className="flex items-start gap-3">
+                <Lock className="w-5 h-5 text-platinum-200 flex-shrink-0 mt-1" />
                 <div>
-                  <h4 className="font-semibold mb-1">Right to Restrict Processing</h4>
-                  <p className="text-sm text-muted-foreground">
+                  <h3>Right to Restrict Processing</h3>
+                  <p>
                     You have the right to request that we restrict the processing of your personal
                     data under certain conditions.
                   </p>
                 </div>
               </div>
-            </div>
+            </section>
+          </div>
+        </div>
 
             <h2>2. How We Process Your Data</h2>
             <h3>Legal Basis for Processing</h3>
@@ -275,11 +286,7 @@ export default function GDPRPage() {
                 Visit our <Link href="/contact">Contact Page</Link>
               </li>
             </ul>
-          </article>
-        </div>
-      </main>
-
-      <Footer />
+      </article>
     </div>
   );
 }

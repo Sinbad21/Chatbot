@@ -1,9 +1,6 @@
 ﻿'use client';
 
 import Link from 'next/link';
-import { Navbar } from '@/components/landing-v2/Navbar';
-import { Footer } from '@/components/landing-v2/Footer';
-import { Card } from '@/components/ui/card';
 
 export default function LegalIndexPage() {
   const items = [
@@ -30,28 +27,20 @@ export default function LegalIndexPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <div className="container mx-auto max-w-4xl">
+      <h1 className="font-serif text-4xl sm:text-5xl text-white mb-3">Legal</h1>
+      <p className="text-platinum-300 mb-10">Find our policies and compliance information.</p>
 
-      <main className="pt-24 pb-20 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-3">Legal</h1>
-          <p className="text-muted-foreground mb-10">Find our policies and compliance information.</p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {items.map((item) => (
-              <Link key={item.href} href={item.href} className="block">
-                <Card className="p-6 h-full hover:border-primary/50 transition-colors">
-                  <div className="text-lg font-semibold mb-1">{item.title}</div>
-                  <div className="text-sm text-muted-foreground">{item.description}</div>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </main>
-
-      <Footer />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {items.map((item) => (
+          <Link key={item.href} href={item.href} className="block">
+            <div className="p-6 h-full border border-platinum-800 bg-platinum-900/20 hover:border-platinum-400/60 hover:bg-platinum-900/30 transition-colors">
+              <div className="text-lg font-semibold text-white mb-1">{item.title}</div>
+              <div className="text-sm text-platinum-300">{item.description}</div>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
