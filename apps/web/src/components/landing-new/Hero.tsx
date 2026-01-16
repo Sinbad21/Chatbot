@@ -64,6 +64,14 @@ const BASE_PROMPTS: string[] = [
   'Qual è il piano migliore per iniziare?',
 ];
 
+const MAX_BOT_CHARS = 360;
+
+function clampBotReply(text: string): string {
+  const normalized = text.replace(/\s+/g, ' ').trim();
+  if (normalized.length <= MAX_BOT_CHARS) return normalized;
+  return `${normalized.slice(0, MAX_BOT_CHARS).trimEnd()}…`;
+}
+
 const ChatSlide: React.FC = () => {
   const [displayedMessages, setDisplayedMessages] = useState<Message[]>(() => [
     {
@@ -139,14 +147,14 @@ const ChatSlide: React.FC = () => {
       setIsTyping(false);
       setDisplayedMessages(prev => [...prev, {
         id: Date.now(),
-        text: data.message || 'Come posso aiutarti con OMNICAL STUDIO?',
+        text: clampBotReply(data.message || 'Come posso aiutarti?'),
         sender: 'bot'
       }]);
     } catch {
       setIsTyping(false);
       setDisplayedMessages(prev => [...prev, {
         id: Date.now(),
-        text: 'Interessante! Posso aiutarti a creare un chatbot personalizzato per la tua azienda. Cosa vorresti sapere?',
+        text: clampBotReply('Interessante! Posso aiutarti a creare un chatbot per la tua azienda. Cosa vorresti sapere?'),
         sender: 'bot'
       }]);
     } finally {
@@ -205,7 +213,11 @@ const ChatSlide: React.FC = () => {
         </button>
       </div>
 
-      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide z-10">
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-6 pr-4 space-y-4 z-10"
+        style={{ scrollbarWidth: 'thin' }}
+      >
         <AnimatePresence mode='popLayout'>
           {displayedMessages.map((msg) => (
             <motion.div
