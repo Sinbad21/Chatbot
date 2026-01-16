@@ -83,6 +83,11 @@ const ChatSlide: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [scrollThumb, setScrollThumb] = useState<{ visible: boolean; top: number; height: number }>({
+    visible: false,
+    top: 0,
+    height: 0,
+  });
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesRef = useRef<Message[]>([]); // Track messages for API calls
@@ -103,6 +108,30 @@ const ChatSlide: React.FC = () => {
         behavior: 'smooth'
       });
     }
+  }, [displayedMessages, isTyping]);
+
+  const updateScrollThumb = () => {
+    const el = chatContainerRef.current;
+    if (!el) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const scrollable = scrollHeight > clientHeight + 1;
+    if (!scrollable) {
+      setScrollThumb((prev) => (prev.visible ? { visible: false, top: 0, height: 0 } : prev));
+      return;
+    }
+
+    const thumbHeight = Math.max((clientHeight / scrollHeight) * clientHeight, 28);
+    const maxThumbTop = Math.max(clientHeight - thumbHeight, 0);
+    const maxScrollTop = Math.max(scrollHeight - clientHeight, 1);
+    const thumbTop = (scrollTop / maxScrollTop) * maxThumbTop;
+
+    setScrollThumb({ visible: true, top: thumbTop, height: thumbHeight });
+  };
+
+  useEffect(() => {
+    updateScrollThumb();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [displayedMessages, isTyping]);
 
   const sendMessage = async (messageOverride?: string) => {
@@ -215,9 +244,18 @@ const ChatSlide: React.FC = () => {
 
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-6 pr-4 space-y-4 z-10"
-        style={{ scrollbarWidth: 'thin' }}
+        onScroll={updateScrollThumb}
+        className="relative flex-1 overflow-y-scroll p-6 pr-8 space-y-4 z-10"
+        style={{ scrollbarWidth: 'thin', scrollbarGutter: 'stable' }}
       >
+        {scrollThumb.visible ? (
+          <div aria-hidden="true" className="pointer-events-none absolute right-2 top-2 bottom-2 w-1 rounded-full bg-platinum-900/25">
+            <div
+              className="absolute left-0 w-1 rounded-full bg-platinum-400/70"
+              style={{ top: scrollThumb.top, height: scrollThumb.height }}
+            />
+          </div>
+        ) : null}
         <AnimatePresence mode='popLayout'>
           {displayedMessages.map((msg) => (
             <motion.div
