@@ -60,7 +60,7 @@ const PersonaCard: React.FC<{ persona: typeof personas[0], index: number }> = ({
       transition={{ delay: index * 0.2 }}
       className="group relative"
     >
-      <div className="relative h-[500px] rounded-xl overflow-hidden border border-platinum-800 bg-platinum-900 transition-all duration-500 group-hover:border-platinum-500/50 group-hover:shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+      <div className="relative h-[420px] sm:h-[500px] rounded-xl overflow-hidden border border-platinum-800 bg-platinum-900 transition-all duration-500 group-hover:border-platinum-500/50 group-hover:shadow-[0_0_30px_rgba(255,255,255,0.1)]">
 
         <div className="absolute inset-0 overflow-hidden">
           <motion.div
@@ -109,12 +109,12 @@ const PersonaCard: React.FC<{ persona: typeof personas[0], index: number }> = ({
 
 export const Personas: React.FC = () => {
   return (
-    <section className="py-32 bg-platinum-950 relative">
+    <section className="py-20 md:py-32 bg-platinum-950 relative">
       <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center mb-20">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
+        <div className="text-center mb-14 md:mb-20">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -128,7 +128,7 @@ export const Personas: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
           {personas.map((persona, index) => (
             <PersonaCard key={index} persona={persona} index={index} />
           ))}

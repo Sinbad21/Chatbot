@@ -503,7 +503,7 @@ export const Hero: React.FC = () => {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
       </div>
 
-      <div className="z-10 container mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center h-full">
+      <div className="z-10 container mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 lg:gap-12 items-center h-full">
 
         <div className="text-center lg:text-left mt-10 lg:mt-0 relative z-20">
           <motion.div
@@ -527,10 +527,10 @@ export const Hero: React.FC = () => {
             transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
             className="mb-6"
           >
-            <h1 className="font-serif text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-platinum-50 via-platinum-200 to-platinum-500 leading-[1.1]">
+            <h1 className="font-sans text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-platinum-50 via-platinum-200 to-platinum-500 leading-[1.05]">
               IL TUO BRAND <br />
               <span className="relative inline-block">
-                AUTOMATIZZATO
+                IN AUTOPILOTA
               </span>
             </h1>
           </motion.div>
@@ -539,7 +539,7 @@ export const Hero: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="max-w-xl mx-auto lg:mx-0 text-platinum-400 text-lg font-light leading-relaxed mb-10"
+            className="max-w-xl mx-auto lg:mx-0 text-platinum-400 text-base sm:text-lg font-light leading-relaxed mb-8 sm:mb-10"
           >
             Non un semplice chatbot. Un assistente virtuale forgiato nel platino digitale. Integra l&apos;intelligenza artificiale su WhatsApp, Telegram e Web con un&apos;eleganza senza pari.
           </motion.p>
@@ -575,7 +575,7 @@ export const Hero: React.FC = () => {
           initial={{ opacity: 0, x: 30, rotateY: 0, rotateX: 0 }}
           animate={{ opacity: 1, x: 0, rotateY: -15, rotateX: 8 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="relative w-full max-w-md mx-auto lg:mr-0 group/slider"
+          className="relative w-full max-w-sm sm:max-w-md mx-auto lg:mr-0 group/slider"
           style={{ transformStyle: 'preserve-3d', perspective: '1500px' }}
         >
           <div className="absolute top-1/2 -left-12 -translate-y-1/2 z-30 opacity-50 hover:opacity-100 transition-opacity cursor-pointer hidden lg:block" onClick={prevSlide}>
@@ -594,7 +594,7 @@ export const Hero: React.FC = () => {
               activeSlide === 2 ? 'bg-purple-500/30' : 'bg-amber-500/30'
             }`} />
 
-          <div className="relative bg-platinum-950/90 backdrop-blur-xl border-t border-l border-platinum-700/50 p-0 rounded-2xl flex flex-col h-[500px] overflow-hidden border-r-[8px] border-b-[8px] border-r-platinum-900 border-b-platinum-900 shadow-[20px_30px_60px_rgba(0,0,0,0.9)]">
+          <div className="relative bg-platinum-950/90 backdrop-blur-xl border-t border-l border-platinum-700/50 p-0 rounded-2xl flex flex-col h-[420px] sm:h-[500px] overflow-hidden border-r-[8px] border-b-[8px] border-r-platinum-900 border-b-platinum-900 shadow-[20px_30px_60px_rgba(0,0,0,0.9)]">
 
             <AnimatePresence mode='wait'>
               <motion.div
@@ -630,7 +630,7 @@ export const Hero: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 1 }}
-        className="z-10 container mx-auto px-6 mt-16 md:mt-24"
+        className="z-10 container mx-auto px-4 sm:px-6 mt-16 md:mt-24"
       >
         <div className="border-t border-platinum-800/50 pt-10">
           <p className="text-xs text-platinum-500 uppercase tracking-[0.2em] text-center mb-8">Risultati Concreti</p>

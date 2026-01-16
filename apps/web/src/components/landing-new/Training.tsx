@@ -64,7 +64,7 @@ export const Training: React.FC = () => {
         <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-platinum-400 to-transparent" />
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-20">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}

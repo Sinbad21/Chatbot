@@ -35,7 +35,7 @@ export const Navbar: React.FC = () => {
 
   return (
     <nav className={navClasses}>
-      <div className="container mx-auto px-6 flex justify-between items-center">
+      <div className="container mx-auto px-4 sm:px-6 flex justify-between items-center">
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group cursor-pointer">

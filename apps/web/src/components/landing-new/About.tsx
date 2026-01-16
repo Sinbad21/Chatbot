@@ -7,7 +7,7 @@ import { Network, Cpu, Lock } from 'lucide-react';
 export const About: React.FC = () => {
   return (
     <section id="chi-siamo" className="py-24 bg-platinum-950 relative">
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 
           <motion.div

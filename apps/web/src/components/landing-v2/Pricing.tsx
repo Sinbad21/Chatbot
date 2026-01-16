@@ -63,7 +63,7 @@ export function Pricing() {
 
   return (
     <section id="pricing" className="py-24 relative">
-      <div className="container mx-auto px-6 relative z-10 max-w-6xl">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-16">
           <motion.h2

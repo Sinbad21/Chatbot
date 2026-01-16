@@ -21,7 +21,7 @@ export default function PricingPage() {
           <Navbar />
 
           <main className="pt-28 pb-20">
-            <div className="container mx-auto px-6">
+            <div className="container mx-auto px-4 sm:px-6">
             <Link
               href="/"
               className="inline-flex items-center gap-2 text-sm font-medium text-platinum-300 hover:text-white transition-colors"

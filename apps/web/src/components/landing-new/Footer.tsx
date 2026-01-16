@@ -9,7 +9,7 @@ export const Footer: React.FC = () => {
     <footer className="bg-black text-platinum-300 border-t border-platinum-900 pt-20 pb-8 relative overflow-hidden">
        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[50%] h-1 bg-gradient-to-r from-transparent via-platinum-800 to-transparent opacity-50" />
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
 
           <div className="col-span-1 md:col-span-1">

@@ -123,7 +123,7 @@ export const Pricing: React.FC = () => {
   return (
     <section id="pricing" className="py-32 bg-platinum-950 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-platinum-400/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-20">
           <h2 className="font-serif text-4xl md:text-5xl text-white mb-4">Investi nel Futuro</h2>
           <div className="w-24 h-1 bg-gradient-to-r from-transparent via-platinum-400 to-transparent mx-auto" />
