@@ -528,9 +528,9 @@ export const Hero: React.FC = () => {
             className="mb-6"
           >
             <h1 className="font-sans text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-platinum-50 via-platinum-200 to-platinum-500 leading-[1.05]">
-              IL TUO BRAND <br />
+              Il tuo business <br />
               <span className="relative inline-block">
-                IN AUTOPILOTA
+                che lavora per te
               </span>
             </h1>
           </motion.div>
