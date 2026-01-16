@@ -57,18 +57,28 @@ interface Message {
   sender: 'bot' | 'user';
 }
 
+const BASE_PROMPTS: string[] = [
+  'Vorrei aumentare i lead: che bot mi consigli?',
+  'Puoi fissare appuntamenti su Google Calendar?',
+  'Come funziona l’integrazione con WhatsApp?',
+  'Qual è il piano migliore per iniziare?',
+];
+
 const ChatSlide: React.FC = () => {
-  const [scenarioIndex, setScenarioIndex] = useState(0);
-  const [displayedMessages, setDisplayedMessages] = useState<Message[]>([]);
+  const [displayedMessages, setDisplayedMessages] = useState<Message[]>(() => [
+    {
+      id: 1,
+      text: 'Ciao! Prova la chat: scegli un prompt qui sotto oppure scrivi tu.',
+      sender: 'bot',
+    },
+  ]);
   const [isTyping, setIsTyping] = useState(false);
-  const [isInteractive, setIsInteractive] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const autoPlayRef = useRef<boolean>(true);
   const messagesRef = useRef<Message[]>([]); // Track messages for API calls
-  const currentScenario = SCENARIOS[scenarioIndex];
+  const currentScenario = SCENARIOS[0];
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -87,72 +97,20 @@ const ChatSlide: React.FC = () => {
     }
   }, [displayedMessages, isTyping]);
 
-  // Auto-play demo scenarios
-  useEffect(() => {
-    if (isInteractive) return; // Stop auto-play when user interacts
+  const sendMessage = async (messageOverride?: string) => {
+    const userMessage = (messageOverride ?? inputValue).trim();
+    if (!userMessage || isLoading) return;
 
-    let isMounted = true;
-    const runScenario = async () => {
-      setDisplayedMessages([]);
-      const messages = currentScenario.messages;
-
-      for (let i = 0; i < messages.length; i++) {
-        if (!isMounted || !autoPlayRef.current) return;
-        const msg = messages[i];
-        if (msg.sender === 'user') {
-          await new Promise(r => setTimeout(r, 1000));
-          if (!isMounted || !autoPlayRef.current) return;
-          setDisplayedMessages(prev => [...prev, { id: Date.now(), ...msg }]);
-        } else {
-          await new Promise(r => setTimeout(r, 600));
-          if (!isMounted || !autoPlayRef.current) return;
-          setIsTyping(true);
-          await new Promise(r => setTimeout(r, 1500));
-          if (!isMounted || !autoPlayRef.current) return;
-          setIsTyping(false);
-          setDisplayedMessages(prev => [...prev, { id: Date.now(), ...msg }]);
-        }
-      }
-      await new Promise(r => setTimeout(r, 4000));
-      if (!isMounted || !autoPlayRef.current) return;
-      setScenarioIndex(prev => (prev + 1) % SCENARIOS.length);
-    };
-    runScenario();
-    return () => { isMounted = false; };
-  }, [scenarioIndex, currentScenario.messages, isInteractive]);
-
-  // Handle user sending a message
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
-
-    const userMessage = inputValue.trim();
     setInputValue('');
 
-    // Get current messages from ref (more reliable than state)
-    const currentMessages = [...messagesRef.current];
-
-    // If first message, add welcome from bot
-    let newMessages: Message[] = [];
-    if (!isInteractive) {
-      setIsInteractive(true);
-      autoPlayRef.current = false;
-      const welcomeMsg: Message = {
-        id: Date.now(),
-        text: 'Ciao! Sono la demo live di OMNICAL STUDIO. Come posso aiutarti?',
-        sender: 'bot'
-      };
-      newMessages = [welcomeMsg];
-    } else {
-      newMessages = currentMessages;
-    }
-
-    // Add user message
+    const baseMessages = [...messagesRef.current];
     const userMsg: Message = {
-      id: Date.now() + 1,
+      id: Date.now(),
       text: userMessage,
-      sender: 'user'
+      sender: 'user',
     };
-    newMessages = [...newMessages, userMsg];
+
+    const newMessages = [...baseMessages, userMsg];
     setDisplayedMessages(newMessages);
 
     // Build conversation history for API (include all previous messages)
@@ -199,21 +157,7 @@ const ChatSlide: React.FC = () => {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const handleInputFocus = () => {
-    if (!isInteractive) {
-      // Pause auto-play and show welcome message
-      autoPlayRef.current = false;
-      setIsInteractive(true);
-      const welcomeMsg: Message = {
-        id: Date.now(),
-        text: 'Ciao! Sono la demo live di OMNICAL STUDIO. Scrivi qualsiasi domanda e ti mostrerÃ² come funziona un chatbot AI!',
-        sender: 'bot'
-      };
-      setDisplayedMessages([welcomeMsg]);
+      sendMessage();
     }
   };
 
@@ -234,25 +178,31 @@ const ChatSlide: React.FC = () => {
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-[pulse_2s_infinite]" />
               <span className="text-[10px] text-emerald-400/80 uppercase tracking-wide font-semibold">
-                {isInteractive ? 'Prova Live' : 'Live Demo'}
+                Prova Live
               </span>
             </div>
           </div>
         </div>
-        {isInteractive ? (
-          <button
-            onClick={() => {
-              setIsInteractive(false);
-              autoPlayRef.current = true;
-              setDisplayedMessages([]);
-            }}
-            className="text-[10px] text-platinum-500 hover:text-platinum-300 transition-colors"
-          >
-            Auto-play
-          </button>
-        ) : (
-          <RefreshCw className="w-4 h-4 text-platinum-500 animate-[spin_8s_linear_infinite]" />
-        )}
+        <button
+          type="button"
+          onClick={() => {
+            setDisplayedMessages([
+              {
+                id: 1,
+                text: 'Ciao! Prova la chat: scegli un prompt qui sotto oppure scrivi tu.',
+                sender: 'bot',
+              },
+            ]);
+            setInputValue('');
+            setIsTyping(false);
+            setIsLoading(false);
+            inputRef.current?.focus();
+          }}
+          className="inline-flex items-center gap-1.5 text-[10px] text-platinum-500 hover:text-platinum-300 transition-colors"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          Reset
+        </button>
       </div>
 
       <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide z-10">
@@ -285,6 +235,19 @@ const ChatSlide: React.FC = () => {
       </div>
 
       <div className="p-4 border-t border-platinum-800/50 bg-platinum-900/50 backdrop-blur-md z-10">
+        <div className="mb-3 flex flex-wrap gap-2">
+          {BASE_PROMPTS.map((p) => (
+            <button
+              key={p}
+              type="button"
+              disabled={isLoading}
+              onClick={() => sendMessage(p)}
+              className="text-[11px] text-platinum-200/90 border border-platinum-800 bg-platinum-950/40 hover:bg-platinum-900/60 transition-colors rounded-full px-3 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {p}
+            </button>
+          ))}
+        </div>
         <div className="w-full bg-platinum-950/50 border border-platinum-800 rounded-lg px-4 py-2 flex items-center gap-2">
           <input
             ref={inputRef}
@@ -292,13 +255,12 @@ const ChatSlide: React.FC = () => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            onFocus={handleInputFocus}
-            placeholder={isInteractive ? "Scrivi un messaggio..." : "Clicca per provare la demo..."}
+            placeholder="Scrivi un messaggio..."
             className="flex-1 bg-transparent text-platinum-100 text-sm placeholder-platinum-600 outline-none"
             disabled={isLoading}
           />
           <button
-            onClick={handleSendMessage}
+            onClick={() => sendMessage()}
             disabled={!inputValue.trim() || isLoading}
             className="p-1.5 rounded-md bg-platinum-700/50 hover:bg-platinum-600/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
