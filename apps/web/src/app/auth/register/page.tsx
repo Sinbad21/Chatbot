@@ -184,7 +184,7 @@ export default function RegisterPage() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 bg-background border border-input rounded-lg focus:ring-2 focus:ring-[#5B4BFF]/50 focus:border-[#5B4BFF] text-foreground placeholder:text-muted-foreground transition-all outline-none"
+                className="w-full px-4 py-3 bg-background border border-input rounded-lg focus:ring-2 focus:ring-[#5B4BFF]/50 focus:border-[#5B4BFF] text-slate-900 dark:text-slate-50 placeholder:text-muted-foreground transition-all outline-none"
                 placeholder="John Doe"
               />
             </div>
@@ -199,7 +199,7 @@ export default function RegisterPage() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 bg-background border border-input rounded-lg focus:ring-2 focus:ring-[#5B4BFF]/50 focus:border-[#5B4BFF] text-foreground placeholder:text-muted-foreground transition-all outline-none"
+                className="w-full px-4 py-3 bg-background border border-input rounded-lg focus:ring-2 focus:ring-[#5B4BFF]/50 focus:border-[#5B4BFF] text-slate-900 dark:text-slate-50 placeholder:text-muted-foreground transition-all outline-none"
                 placeholder="you@example.com"
               />
             </div>
@@ -214,7 +214,7 @@ export default function RegisterPage() {
                 required
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-3 bg-background border border-input rounded-lg focus:ring-2 focus:ring-[#5B4BFF]/50 focus:border-[#5B4BFF] text-foreground placeholder:text-muted-foreground transition-all outline-none"
+                className="w-full px-4 py-3 bg-background border border-input rounded-lg focus:ring-2 focus:ring-[#5B4BFF]/50 focus:border-[#5B4BFF] text-slate-900 dark:text-slate-50 placeholder:text-muted-foreground transition-all outline-none"
                 placeholder=""
               />
               <div className="mt-2 grid grid-cols-2 gap-1 text-xs">
@@ -243,7 +243,7 @@ export default function RegisterPage() {
                 required
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="w-full px-4 py-3 bg-background border border-input rounded-lg focus:ring-2 focus:ring-[#5B4BFF]/50 focus:border-[#5B4BFF] text-foreground placeholder:text-muted-foreground transition-all outline-none"
+                className="w-full px-4 py-3 bg-background border border-input rounded-lg focus:ring-2 focus:ring-[#5B4BFF]/50 focus:border-[#5B4BFF] text-slate-900 dark:text-slate-50 placeholder:text-muted-foreground transition-all outline-none"
                 placeholder=""
               />
             </div>
