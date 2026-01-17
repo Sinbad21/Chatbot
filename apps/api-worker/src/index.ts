@@ -1165,7 +1165,36 @@ app.post('/api/v1/bots', authMiddleware, async (c) => {
       return c.json({ error: 'User has no organization assigned' }, 403);
     }
 
-    // Create bot with auto-propagated organizationId
+    // Check plan limits before creating bot
+    const organization = await prisma.organization.findUnique({
+      where: { id: membership.organizationId },
+      include: {
+        subscriptions: {
+          where: { status: 'active' },
+          include: { plan: true },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        _count: { select: { bots: true } },
+      },
+    });
+
+    // Get max bots from active subscription or default free plan limits
+    const activePlan = organization?.subscriptions?.[0]?.plan;
+    const maxBots = activePlan?.maxBots ?? 1; // Free plan default: 1 bot
+    const currentBotCount = organization?._count?.bots ?? 0;
+
+    if (currentBotCount >= maxBots) {
+      return c.json({
+        error: 'Bot limit reached',
+        message: `Your plan allows a maximum of ${maxBots} bot(s). Please upgrade to create more bots.`,
+        currentCount: currentBotCount,
+        maxAllowed: maxBots,
+        upgradeRequired: true,
+      }, 403);
+    }
+
+        // Create bot with auto-propagated organizationId
     const bot = await prisma.bot.create({
       data: {
         name,
@@ -3103,6 +3132,42 @@ app.post('/api/v1/chat', async (c) => {
         }
       }
     });
+
+    // Check conversation limits for organization
+    const chatOrg = await prisma.organization.findUnique({
+      where: { id: bot.organizationId },
+      include: {
+        subscriptions: {
+          where: { status: 'active' },
+          include: { plan: true },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+      },
+    });
+
+    const chatPlan = chatOrg?.subscriptions?.[0]?.plan;
+    const maxConversations = chatPlan?.maxConversations ?? 1000; // Free plan default
+
+    // Count conversations this month for this organization
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+    
+    const monthlyConvCount = await prisma.conversation.count({
+      where: {
+        bot: { organizationId: bot.organizationId },
+        createdAt: { gte: monthStart },
+      },
+    });
+
+    if (!conversation && monthlyConvCount >= maxConversations) {
+      return c.json({
+        error: 'Conversation limit reached',
+        message: 'Monthly conversation limit has been reached. Please contact the website owner.',
+        upgradeRequired: true,
+      }, 429);
+    }
 
     if (!conversation) {
       conversation = await prisma.conversation.create({
