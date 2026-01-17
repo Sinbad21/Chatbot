@@ -53,7 +53,10 @@ class AuthController {
 
     // Create user
     const user = await prisma.user.create({
-      data: {\n        email: normalizedEmail,\n        password: hashedPassword,\n        name: normalizedName,\n      },
+      data: {
+        email: normalizedEmail,
+        password: hashedPassword,        name: normalizedName,
+      },
     });
 
     // Generate tokens
@@ -331,5 +334,4 @@ class AuthController {
 }
 
 export const authController = new AuthController();
-
 
