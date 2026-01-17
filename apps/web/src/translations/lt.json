@@ -114,7 +114,8 @@
     "createBot": "Create Bot",
     "configError": "Configuration error. Please log in again.",
     "failedToCreate": "Failed to create bot",
-    "botLimitReached": "Pasiekta robotų riba. Atnaujinkite savo planą, kad sukurtumėte daugiau robotų."
+    "botLimitReached": "Pasiekta robotų riba. Atnaujinkite savo planą, kad sukurtumėte daugiau robotų.",
+    "viewPlans": "Žr. atnaujinimo parinktis "
   },
   "bot": {
     "overview": {
@@ -556,5 +557,14 @@
       "savedLeads": "Sėkmingai išsaugota {count} lead(ai)!",
       "emailCopied": "El. paštas nukopijuotas į iškarpinę!"
     }
+  },
+  "planUsage": {
+    "title": "Plan Usage",
+    "upgradePlan": "Upgrade Plan",
+    "bots": "Chatbots",
+    "monthlyConversations": "Monthly Conversations",
+    "resetsOn": "Resets on",
+    "upgradePrompt": "You're approaching your plan limits. Upgrade for more capacity.",
+    "viewPlans": "View Plans"
   }
 }

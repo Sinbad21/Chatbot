@@ -114,7 +114,8 @@
     "createBot": "Create Bot",
     "configError": "Configuration error. Please log in again.",
     "failedToCreate": "Failed to create bot",
-    "botLimitReached": "Dosažen limit botů. Upgradujte svůj plán pro vytvoření více botů."
+    "botLimitReached": "Dosažen limit botů. Upgradujte svůj plán pro vytvoření více botů.",
+    "viewPlans": "Zobrazit možnosti upgradu "
   },
   "bot": {
     "overview": {
@@ -556,5 +557,14 @@
       "savedLeads": "Úspěšně uloženo {count} lead(ů)!",
       "emailCopied": "Email zkopírován do schránky!"
     }
+  },
+  "planUsage": {
+    "title": "Plan Usage",
+    "upgradePlan": "Upgrade Plan",
+    "bots": "Chatbots",
+    "monthlyConversations": "Monthly Conversations",
+    "resetsOn": "Resets on",
+    "upgradePrompt": "You're approaching your plan limits. Upgrade for more capacity.",
+    "viewPlans": "View Plans"
   }
 }

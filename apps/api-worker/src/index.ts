@@ -2091,10 +2091,45 @@ app.post('/api/v1/bots/:botId/documents/upload', authMiddleware, async (c) => {
 
   try {
     const prisma = getPrisma(c.env);
-    const user = c.get('user');
     const botId = c.req.param('botId');
 
+    // Check document upload limits based on plan
+    const docBot = await prisma.bot.findUnique({
+      where: { id: botId },
+      include: {
+        organization: {
+          include: {
+            subscriptions: {
+              where: { status: 'active' },
+              include: { plan: true },
+              take: 1,
+            },
+          },
+        },
+        _count: { select: { documents: true } },
+      },
+    });
+
+    if (!docBot) {
+      return c.json({ error: 'Bot not found' }, 404);
+    }
+
+    const docPlan = docBot.organization?.subscriptions?.[0]?.plan;
+    const docFeatures = (docPlan?.features as any) || {};
+    const maxDocsPerBot = docFeatures.maxDocumentsPerBot ?? 3;
+    
+    if (docBot._count.documents >= maxDocsPerBot) {
+      return c.json({
+        error: 'Document limit reached',
+        message: `Your plan allows a maximum of ${maxDocsPerBot} documents per bot. Please upgrade for more.`,
+        currentCount: docBot._count.documents,
+        maxAllowed: maxDocsPerBot,
+        upgradeRequired: true,
+      }, 403);
+    }
     console.log('[POST /documents/upload] Starting file upload');
+    
+    const user = c.get('user');
 
     // Verify user's organization membership
     const membership = await prisma.organizationMember.findFirst({
@@ -3431,6 +3466,86 @@ app.get('/api/v1/chat/:botId/config', async (c) => {
 // ANALYTICS ROUTES
 // ============================================
 
+
+// Get plan usage and limits
+app.get('/api/v1/plan-usage', authMiddleware, async (c) => {
+  try {
+    const prisma = getPrisma(c.env);
+    const user = c.get('user');
+
+    // Get user's organization with subscription and counts
+    const membership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      include: {
+        organization: {
+          include: {
+            subscriptions: {
+              where: { status: 'active' },
+              include: { plan: true },
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+            },
+            _count: { select: { bots: true } },
+          },
+        },
+      },
+    });
+
+    if (!membership) {
+      return c.json({ error: 'No organization found' }, 404);
+    }
+
+    const org = membership.organization;
+    const activeSub = org.subscriptions?.[0];
+    const plan = activeSub?.plan;
+
+    // Get monthly conversation count
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const monthlyConversations = await prisma.conversation.count({
+      where: {
+        bot: { organizationId: org.id },
+        createdAt: { gte: startOfMonth },
+      },
+    });
+
+    // Default free plan limits
+    const planName = plan?.name || 'Free';
+    const maxBots = plan?.maxBots ?? 1;
+    const maxConversations = plan?.maxConversations ?? 1000;
+    const features = plan?.features || {};
+
+    return c.json({
+      plan: {
+        name: planName,
+        features,
+      },
+      usage: {
+        bots: {
+          current: org._count.bots,
+          max: maxBots,
+          percentage: Math.min(100, Math.round((org._count.bots / maxBots) * 100)),
+        },
+        conversations: {
+          current: monthlyConversations,
+          max: maxConversations,
+          percentage: Math.min(100, Math.round((monthlyConversations / maxConversations) * 100)),
+          resetsAt: new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 1).toISOString(),
+        },
+      },
+      subscription: activeSub ? {
+        status: activeSub.status,
+        currentPeriodEnd: activeSub.currentPeriodEnd,
+      } : null,
+    });
+  } catch (error: any) {
+    console.error('[PLAN-USAGE] Error:', error);
+    return c.json({ error: error.message }, 500);
+  }
+});
+
 app.get('/api/v1/analytics/overview', authMiddleware, async (c) => {
   try {
     const prisma = getPrisma(c.env);
@@ -4407,6 +4522,36 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
     console.log('[Discovery] Starting lead discovery search...');
     const prisma = getPrisma(c.env);
     const user = c.get('user');
+
+    // Check if plan includes lead discovery feature
+    const ldMembership = await prisma.organizationMember.findFirst({
+      where: { userId: user.userId },
+      include: {
+        organization: {
+          include: {
+            subscriptions: {
+              where: { status: 'active' },
+              include: { plan: true },
+              take: 1,
+            },
+          },
+        },
+      },
+    });
+
+    const ldPlan = ldMembership?.organization?.subscriptions?.[0]?.plan;
+    const ldFeatures = (ldPlan?.features as any) || {};
+    const hasLeadDiscovery = ldFeatures.leadDiscovery === true || ldPlan?.name?.toLowerCase() !== 'free';
+
+    if (!hasLeadDiscovery) {
+      return c.json({
+        error: 'Feature not available',
+        message: 'Lead Discovery is a premium feature. Please upgrade your plan.',
+        upgradeRequired: true,
+        feature: 'leadDiscovery',
+      }, 403);
+    }
+
     const body = await c.req.json();
     const {
       searchGoal,

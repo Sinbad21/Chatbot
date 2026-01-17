@@ -114,7 +114,8 @@
     "createBot": "Create Bot",
     "configError": "Configuration error. Please log in again.",
     "failedToCreate": "Failed to create bot",
-    "botLimitReached": "Επίτευξη ορίου bots. Αναβαθμίστε το πλάνο σας για να δημιουργήσετε περισσότερα bots."
+    "botLimitReached": "Επίτευξη ορίου bots. Αναβαθμίστε το πλάνο σας για να δημιουργήσετε περισσότερα bots.",
+    "viewPlans": "Δείτε τις επιλογές αναβάθμισης "
   },
   "bot": {
     "overview": {
@@ -556,5 +557,14 @@
       "savedLeads": "Αποθηκεύτηκαν με επιτυχία {count} lead(s)!",
       "emailCopied": "Το email αντιγράφηκε στο πρόχειρο!"
     }
+  },
+  "planUsage": {
+    "title": "Plan Usage",
+    "upgradePlan": "Upgrade Plan",
+    "bots": "Chatbots",
+    "monthlyConversations": "Monthly Conversations",
+    "resetsOn": "Resets on",
+    "upgradePrompt": "You're approaching your plan limits. Upgrade for more capacity.",
+    "viewPlans": "View Plans"
   }
 }

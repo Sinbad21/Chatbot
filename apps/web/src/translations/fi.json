@@ -114,7 +114,8 @@
     "createBot": "Create Bot",
     "configError": "Configuration error. Please log in again.",
     "failedToCreate": "Failed to create bot",
-    "botLimitReached": "Bottiraja saavutettu. Päivitä suunnitelmasi luodaksesi lisää botteja."
+    "botLimitReached": "Bottiraja saavutettu. Päivitä suunnitelmasi luodaksesi lisää botteja.",
+    "viewPlans": "Katso päivitysvaihtoehdot "
   },
   "bot": {
     "overview": {
@@ -556,5 +557,14 @@
       "savedLeads": "Tallennettu {count} liidiä onnistuneesti!",
       "emailCopied": "Sähköposti kopioitu leikepöydälle!"
     }
+  },
+  "planUsage": {
+    "title": "Plan Usage",
+    "upgradePlan": "Upgrade Plan",
+    "bots": "Chatbots",
+    "monthlyConversations": "Monthly Conversations",
+    "resetsOn": "Resets on",
+    "upgradePrompt": "You're approaching your plan limits. Upgrade for more capacity.",
+    "viewPlans": "View Plans"
   }
 }

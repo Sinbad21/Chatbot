@@ -117,7 +117,8 @@
     "createBot": "Create Bot",
     "configError": "Configuration error. Please log in again.",
     "failedToCreate": "Failed to create bot",
-    "botLimitReached": "Bot limit reached. Please upgrade your plan to create more bots."
+    "botLimitReached": "Bot limit reached. Please upgrade your plan to create more bots.",
+    "viewPlans": "View Upgrade Options "
   },
   "bot": {
     "overview": {
@@ -689,5 +690,14 @@
       "savedLeads": "Successfully saved {count} lead(s)!",
       "emailCopied": "Email copied to clipboard!"
     }
+  },
+  "planUsage": {
+    "title": "Plan Usage",
+    "upgradePlan": "Upgrade Plan",
+    "bots": "Chatbots",
+    "monthlyConversations": "Monthly Conversations",
+    "resetsOn": "Resets on",
+    "upgradePrompt": "You're approaching your plan limits. Upgrade for more capacity.",
+    "viewPlans": "View Plans"
   }
 }

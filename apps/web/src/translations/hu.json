@@ -114,7 +114,8 @@
     "createBot": "Create Bot",
     "configError": "Configuration error. Please log in again.",
     "failedToCreate": "Failed to create bot",
-    "botLimitReached": "Bot limit elérve. Kérjük, frissítse csomagját további botok létrehozásához."
+    "botLimitReached": "Bot limit elérve. Kérjük, frissítse csomagját további botok létrehozásához.",
+    "viewPlans": "Frissítési lehetőségek megtekintése "
   },
   "bot": {
     "overview": {
@@ -556,5 +557,14 @@
       "savedLeads": "Sikeresen mentve {count} lead!",
       "emailCopied": "Email vágólapra másolva!"
     }
+  },
+  "planUsage": {
+    "title": "Plan Usage",
+    "upgradePlan": "Upgrade Plan",
+    "bots": "Chatbots",
+    "monthlyConversations": "Monthly Conversations",
+    "resetsOn": "Resets on",
+    "upgradePrompt": "You're approaching your plan limits. Upgrade for more capacity.",
+    "viewPlans": "View Plans"
   }
 }

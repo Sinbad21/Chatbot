@@ -114,7 +114,8 @@
     "createBot": "Create Bot",
     "configError": "Configuration error. Please log in again.",
     "failedToCreate": "Failed to create bot",
-    "botLimitReached": "Dosežena omejitev botov. Nadgradite svoj načrt za ustvarjanje več botov."
+    "botLimitReached": "Dosežena omejitev botov. Nadgradite svoj načrt za ustvarjanje več botov.",
+    "viewPlans": "Oglejte si možnosti nadgradnje "
   },
   "bot": {
     "overview": {
@@ -556,5 +557,14 @@
       "savedLeads": "Uspešno shranjenih {count} lead(ov)!",
       "emailCopied": "E-pošta kopirana v odložišče!"
     }
+  },
+  "planUsage": {
+    "title": "Plan Usage",
+    "upgradePlan": "Upgrade Plan",
+    "bots": "Chatbots",
+    "monthlyConversations": "Monthly Conversations",
+    "resetsOn": "Resets on",
+    "upgradePrompt": "You're approaching your plan limits. Upgrade for more capacity.",
+    "viewPlans": "View Plans"
   }
 }

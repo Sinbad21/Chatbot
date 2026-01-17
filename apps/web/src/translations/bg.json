@@ -114,7 +114,8 @@
     "createBot": "Create Bot",
     "configError": "Configuration error. Please log in again.",
     "failedToCreate": "Failed to create bot",
-    "botLimitReached": "Достигнат лимит на ботове. Моля, надградете плана си за създаване на повече ботове."
+    "botLimitReached": "Достигнат лимит на ботове. Моля, надградете плана си за създаване на повече ботове.",
+    "viewPlans": "Вижте опциите за надграждане "
   },
   "bot": {
     "overview": {
@@ -556,5 +557,14 @@
       "savedLeads": "Успешно запазени {count} лийд(а)!",
       "emailCopied": "Имейлът е копиран в клипборда!"
     }
+  },
+  "planUsage": {
+    "title": "Plan Usage",
+    "upgradePlan": "Upgrade Plan",
+    "bots": "Chatbots",
+    "monthlyConversations": "Monthly Conversations",
+    "resetsOn": "Resets on",
+    "upgradePrompt": "You're approaching your plan limits. Upgrade for more capacity.",
+    "viewPlans": "View Plans"
   }
 }

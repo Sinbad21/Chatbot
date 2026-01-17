@@ -117,7 +117,8 @@
     "createBot": "Crea Bot",
     "configError": "Errore di configurazione. Effettua nuovamente l'accesso.",
     "failedToCreate": "Impossibile creare il bot",
-    "botLimitReached": "Limite bot raggiunto. Aggiorna il tuo piano per creare più bot."
+    "botLimitReached": "Limite bot raggiunto. Aggiorna il tuo piano per creare più bot.",
+    "viewPlans": "Vedi Opzioni di Upgrade "
   },
   "bot": {
     "overview": {
@@ -689,5 +690,14 @@
       "savedLeads": "Salvati con successo {count} lead!",
       "emailCopied": "Email copiata negli appunti!"
     }
+  },
+  "planUsage": {
+    "title": "Utilizzo Piano",
+    "upgradePlan": "Aggiorna Piano",
+    "bots": "Chatbot",
+    "monthlyConversations": "Conversazioni Mensili",
+    "resetsOn": "Si azzera il",
+    "upgradePrompt": "Stai raggiungendo i limiti del piano. Aggiorna per più capacità.",
+    "viewPlans": "Vedi Piani"
   }
 }

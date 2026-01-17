@@ -4,6 +4,7 @@ import { useTranslation } from '@/lib/i18n';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Onboarding from '@/components/dashboard/Onboarding';
+import PlanUsageCard from '@/components/dashboard/PlanUsageCard';
 import { ensureClientUser } from '@/lib/ensureClientUser';
 interface AnalyticsData {
  totalBots: number;
@@ -195,7 +196,12 @@ export default function DashboardPage() {
     </div>
    </div>
 
-   {/* Recent Activity */}
+   {/* Plan Usage */}
+    <div className="mb-8">
+     <PlanUsageCard />
+    </div>
+
+    {/* Recent Activity */}
    <div className="glass-effect border border-silver-200/70 rounded-2xl p-6">
     <h2 className="text-xl font-bold text-charcoal mb-4">{t('dashboard.recentBots')}</h2>
     {recentBots.length === 0 ? (
