@@ -6,35 +6,59 @@ import { Crown, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 
 interface PlanData {
-  planName: string;
-  bots: { used: number; limit: number };
-  conversations: { used: number; limit: number };
+  plan: {
+    name: string;
+    features: Record<string, boolean>;
+  };
+  usage: {
+    bots: { current: number; max: number; percentage: number };
+    conversations: { current: number; max: number; percentage: number; resetsAt: string };
+  };
+  subscription: {
+    status: string;
+    currentPeriodEnd: string;
+  } | null;
 }
 
 export default function PlanBadge() {
   const { t } = useTranslation();
-  const [plan, setPlan] = useState<PlanData | null>(null);
+  const [data, setData] = useState<PlanData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPlan = async () => {
       try {
-        const res = await fetch('/api/v1/plan-usage', { credentials: 'include' });
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        if (!apiUrl) {
+          setLoading(false);
+          return;
+        }
+        
+        const res = await fetch(`${apiUrl}/api/v1/plan-usage`, { 
+          credentials: 'include',
+        });
         if (res.ok) {
-          const data = await res.json();
-          setPlan(data);
+          const result = await res.json();
+          setData(result);
         }
       } catch (e) {
         console.error('Failed to fetch plan:', e);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPlan();
   }, []);
 
-  if (!plan) return null;
+  // Default values
+  const planName = data?.plan?.name || 'Free';
+  const botsUsed = data?.usage?.bots?.current || 0;
+  const botsLimit = data?.usage?.bots?.max || 1;
+  const convsUsed = data?.usage?.conversations?.current || 0;
+  const convsLimit = data?.usage?.conversations?.max || 1000;
 
-  const isFree = plan.planName === 'Free';
-  const isNearLimit = plan.bots.used >= plan.bots.limit || 
-                      plan.conversations.used >= plan.conversations.limit * 0.9;
+  const isFree = planName === 'Free';
+  const isNearLimit = botsUsed >= botsLimit || convsUsed >= convsLimit * 0.9;
 
   return (
     <div className="mt-4 pt-4 border-t border-silver-200">
@@ -46,7 +70,7 @@ export default function PlanBadge() {
             <Crown size={14} className="text-emerald-600" />
           )}
           <span className={`text-xs font-bold uppercase tracking-wide ${isFree ? 'text-amber-700' : 'text-emerald-700'}`}>
-            {plan.planName}
+            {loading ? '...' : planName}
           </span>
         </div>
         
@@ -55,12 +79,12 @@ export default function PlanBadge() {
           <div>
             <div className="flex justify-between text-[10px] text-silver-600 mb-0.5">
               <span>Bots</span>
-              <span>{plan.bots.used}/{plan.bots.limit}</span>
+              <span>{botsUsed}/{botsLimit}</span>
             </div>
             <div className="h-1.5 bg-silver-200 rounded-full overflow-hidden">
               <div 
-                className={`h-full rounded-full transition-all ${plan.bots.used >= plan.bots.limit ? 'bg-red-500' : 'bg-emerald-500'}`}
-                style={{ width: `${Math.min(100, (plan.bots.used / plan.bots.limit) * 100)}%` }}
+                className={`h-full rounded-full transition-all ${botsUsed >= botsLimit ? 'bg-red-500' : 'bg-emerald-500'}`}
+                style={{ width: `${Math.min(100, (botsUsed / botsLimit) * 100)}%` }}
               />
             </div>
           </div>
@@ -68,12 +92,12 @@ export default function PlanBadge() {
           <div>
             <div className="flex justify-between text-[10px] text-silver-600 mb-0.5">
               <span>Msgs</span>
-              <span>{plan.conversations.used}/{plan.conversations.limit}</span>
+              <span>{convsUsed}/{convsLimit}</span>
             </div>
             <div className="h-1.5 bg-silver-200 rounded-full overflow-hidden">
               <div 
-                className={`h-full rounded-full transition-all ${plan.conversations.used >= plan.conversations.limit ? 'bg-red-500' : 'bg-emerald-500'}`}
-                style={{ width: `${Math.min(100, (plan.conversations.used / plan.conversations.limit) * 100)}%` }}
+                className={`h-full rounded-full transition-all ${convsUsed >= convsLimit ? 'bg-red-500' : 'bg-emerald-500'}`}
+                style={{ width: `${Math.min(100, (convsUsed / convsLimit) * 100)}%` }}
               />
             </div>
           </div>
