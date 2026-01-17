@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -27,6 +27,7 @@ import {
 import { useTranslation, LANGUAGES, type Language } from '@/lib/i18n';
 import { useSessionActivity } from '@/hooks/useSessionActivity';
 import { PearlBackground } from '@/components/dashboard/ui';
+import PlanBadge from '@/components/dashboard/PlanBadge';
 import { Bell } from 'lucide-react';
 import { logout } from '@/lib/authHeaders';
 import { ensureClientUser } from '@/lib/ensureClientUser';
@@ -48,7 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
  const router = useRouter();
  const { t, currentLang, setLanguage } = useTranslation();
 
- // Monitora l'attività dell'utente per mantenere la sessione attiva
+ // Monitora l'attivitÃ  dell'utente per mantenere la sessione attiva
  useSessionActivity();
 
  // Grouped navigation
@@ -238,6 +239,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
      <span>{t('nav.settings')}</span>
     </Link>
    </div>
+
+   {/* Plan Badge */}
+   <PlanBadge />
   </nav>
  );
 

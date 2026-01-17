@@ -698,6 +698,8 @@
     "monthlyConversations": "Monthly Conversations",
     "resetsOn": "Resets on",
     "upgradePrompt": "You're approaching your plan limits. Upgrade for more capacity.",
-    "viewPlans": "View Plans"
+    "viewPlans": "View Plans",
+    "upgrade": "Upgrade",
+    "nearLimit": "Near limit"
   }
 }

@@ -698,6 +698,8 @@
     "monthlyConversations": "Conversazioni Mensili",
     "resetsOn": "Si azzera il",
     "upgradePrompt": "Stai raggiungendo i limiti del piano. Aggiorna per più capacità.",
-    "viewPlans": "Vedi Piani"
+    "viewPlans": "Vedi Piani",
+    "upgrade": "Aggiorna",
+    "nearLimit": "Vicino al limite"
   }
 }
