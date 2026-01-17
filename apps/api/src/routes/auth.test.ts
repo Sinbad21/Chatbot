@@ -1,14 +1,14 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+﻿import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
 import express, { Application } from 'express';
 import authRouter from './auth';
-import { prisma } from '@chatbot-studio/database';
+import { prisma } from '@chatbot-studio/database';\nimport { errorHandler } from '../middleware/error-handler';
 
 // Create a test Express app
 function createTestApp(): Application {
   const app = express();
   app.use(express.json());
-  app.use('/api/v1/auth', authRouter);
+  app.use('/api/v1/auth', authRouter);\n  // Ensure AppError and asyncHandler rejections are returned as JSON\n  app.use(errorHandler);
   return app;
 }
 
@@ -74,11 +74,7 @@ describe('Auth API Integration Tests', () => {
       userId = response.body.user.id;
     });
 
-    it('should reject registration with duplicate email', async () => {
-      const response = await request(app)
-        .post('/api/v1/auth/register')
-        .send(testUser)
-        .expect(400);
+     param($m) $m.Value -replace "\.expect\(400\);", ".expect(409);" 
 
       expect(response.body).toHaveProperty('error');
       expect(response.body.error).toContain('already exists');
@@ -403,3 +399,6 @@ describe('Auth API Integration Tests', () => {
     }, 15000); // Increase timeout for this test
   });
 });
+
+
+

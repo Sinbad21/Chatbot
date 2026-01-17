@@ -1,4 +1,4 @@
-import { Response } from 'express';
+﻿import { Response } from 'express';
 import { validationResult } from 'express-validator';
 import { randomUUID } from 'crypto';
 import { prisma } from '@chatbot-studio/database';
@@ -22,10 +22,30 @@ class AuthController {
 
     const { email, password, name } = req.body;
 
-    // Check if user exists
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedName = String(name).trim();
+
+    // Check if email or name is already used (separately, not as a combined pair)
+    const [existingByEmail, existingByName] = await Promise.all([
+      prisma.user.findUnique({ where: { email: normalizedEmail } }),
+      prisma.user.findFirst({
+        where: {
+          name: {
+            equals: normalizedName,
+            mode: 'insensitive',
+          },
+        },
+      }),
+    ]);
+
+    if (existingByEmail && existingByName) {
+      throw new AppError('Name and email already in use', 409);
+    }
+    if (existingByEmail) {
       throw new AppError('Email already registered', 409);
+    }
+    if (existingByName) {
+      throw new AppError('Name already in use', 409);
     }
 
     // Hash password
@@ -33,11 +53,7 @@ class AuthController {
 
     // Create user
     const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-      },
+      data: {\n        email: normalizedEmail,\n        password: hashedPassword,\n        name: normalizedName,\n      },
     });
 
     // Generate tokens
@@ -315,3 +331,5 @@ class AuthController {
 }
 
 export const authController = new AuthController();
+
+
