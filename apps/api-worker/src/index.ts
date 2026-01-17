@@ -302,7 +302,11 @@ app.post('/api/v1/auth/register', async (c) => {
 
       // 2. Create user
       const user = await tx.user.create({
-        data: {\n          email: normalizedEmail,\n          password: hashedPassword,\n          name: normalizedName,\n        },
+        data: {
+          email: normalizedEmail,
+          password: hashedPassword,
+          name: normalizedName,
+        },
       });
 
       // 3. Create organization membership with OWNER role
@@ -5371,5 +5375,7 @@ app.get('/api/v1/debug/db', async (c) => {
 });
 
 export default app;
+
+
 
 
