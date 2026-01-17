@@ -116,7 +116,8 @@
     "creating": "Creazione...",
     "createBot": "Crea Bot",
     "configError": "Errore di configurazione. Effettua nuovamente l'accesso.",
-    "failedToCreate": "Impossibile creare il bot"
+    "failedToCreate": "Impossibile creare il bot",
+    "botLimitReached": "Limite bot raggiunto. Aggiorna il tuo piano per creare più bot."
   },
   "bot": {
     "overview": {
@@ -129,75 +130,75 @@
       "modelHelp": "Seleziona il modello IA che alimenterà le risposte del tuo chatbot",
       "promptTemplate": "Template Prompt (Opzionale)",
       "promptTemplateHelp": "Scegli un template predefinito per configurare rapidamente la personalità del tuo bot",
-        "promptGenerator": {
-          "button": "Genera prompt",
-          "title": "Generatore prompt",
-          "subtitle": "Rispondi a ~10 domande e genera un prompt su misura.",
-          "back": "Indietro",
-          "next": "Avanti",
-          "cancel": "Annulla",
-          "apply": "Genera e applica",
-          "generating": "Generazione...",
-          "apiKeyMissing": "Funzione disponibile solo dopo aver configurato la chiave API del provider LLM.",
-          "generatedOk": "Prompt generato e applicato.",
-          "genericError": "Impossibile generare il prompt.",
-          "steps": {
-            "botType": {
-              "title": "Tipo di assistente",
-              "helper": "Scegli lo scenario principale (supporto, vendite, tecnico…)."
-            },
-            "businessContext": {
-              "title": "Contesto aziendale",
-              "helper": "Che azienda è? Cosa vendi/offri? Quali prodotti/servizi?"
-            },
-            "targetUsers": {
-              "title": "Utenti target",
-              "helper": "Chi ti contatta? (B2C/B2B, livello di competenza, segmenti)."
-            },
-            "goals": {
-              "title": "Obiettivi",
-              "helper": "Cosa deve ottenere il bot? (risolvere problemi, prenotare, vendere, ridurre ticket…)."
-            },
-            "actionsAndData": {
-              "title": "Azioni e dati",
-              "helper": "Cosa può fare il bot e che dati può chiedere? (es. ordine, email, riferimento)."
-            },
-            "tone": {
-              "title": "Tono di voce",
-              "helper": "Es: professionale, amichevole, diretto, premium, ironico (se appropriato)."
-            },
-            "language": {
-              "title": "Lingua",
-              "helper": "Scegli la lingua principale delle risposte del bot."
-            },
-            "knowledgeSources": {
-              "title": "Fonti/knowledge base",
-              "helper": "Cosa deve usare il bot? (FAQ, documenti, policy, listini, procedure)."
-            },
-            "constraints": {
-              "title": "Vincoli e policy",
-              "helper": "Cosa NON deve fare/dire? Regole su privacy, pagamenti, garanzie, promesse."
-            },
-            "escalation": {
-              "title": "Escalation a umano",
-              "helper": "Quando deve passare a un umano e quali informazioni raccogliere prima."
-            }
+      "promptGenerator": {
+        "button": "Genera prompt",
+        "title": "Generatore prompt",
+        "subtitle": "Rispondi a ~10 domande e genera un prompt su misura.",
+        "back": "Indietro",
+        "next": "Avanti",
+        "cancel": "Annulla",
+        "apply": "Genera e applica",
+        "generating": "Generazione...",
+        "apiKeyMissing": "Funzione disponibile solo dopo aver configurato la chiave API del provider LLM.",
+        "generatedOk": "Prompt generato e applicato.",
+        "genericError": "Impossibile generare il prompt.",
+        "steps": {
+          "botType": {
+            "title": "Tipo di assistente",
+            "helper": "Scegli lo scenario principale (supporto, vendite, tecnico…)."
           },
-          "options": {
-            "botType": {
-              "customer_support": "Customer support",
-              "sales": "Vendite",
-              "technical_support": "Supporto tecnico",
-              "faq": "FAQ",
-              "general": "Generico",
-              "other": "Altro"
-            },
-            "language": {
-              "it": "Italiano",
-              "en": "English"
-            }
+          "businessContext": {
+            "title": "Contesto aziendale",
+            "helper": "Che azienda è? Cosa vendi/offri? Quali prodotti/servizi?"
+          },
+          "targetUsers": {
+            "title": "Utenti target",
+            "helper": "Chi ti contatta? (B2C/B2B, livello di competenza, segmenti)."
+          },
+          "goals": {
+            "title": "Obiettivi",
+            "helper": "Cosa deve ottenere il bot? (risolvere problemi, prenotare, vendere, ridurre ticket…)."
+          },
+          "actionsAndData": {
+            "title": "Azioni e dati",
+            "helper": "Cosa può fare il bot e che dati può chiedere? (es. ordine, email, riferimento)."
+          },
+          "tone": {
+            "title": "Tono di voce",
+            "helper": "Es: professionale, amichevole, diretto, premium, ironico (se appropriato)."
+          },
+          "language": {
+            "title": "Lingua",
+            "helper": "Scegli la lingua principale delle risposte del bot."
+          },
+          "knowledgeSources": {
+            "title": "Fonti/knowledge base",
+            "helper": "Cosa deve usare il bot? (FAQ, documenti, policy, listini, procedure)."
+          },
+          "constraints": {
+            "title": "Vincoli e policy",
+            "helper": "Cosa NON deve fare/dire? Regole su privacy, pagamenti, garanzie, promesse."
+          },
+          "escalation": {
+            "title": "Escalation a umano",
+            "helper": "Quando deve passare a un umano e quali informazioni raccogliere prima."
           }
         },
+        "options": {
+          "botType": {
+            "customer_support": "Customer support",
+            "sales": "Vendite",
+            "technical_support": "Supporto tecnico",
+            "faq": "FAQ",
+            "general": "Generico",
+            "other": "Altro"
+          },
+          "language": {
+            "it": "Italiano",
+            "en": "English"
+          }
+        }
+      },
       "selectTemplate": "-- Seleziona un template per iniziare --",
       "theme": "Tema Chat",
       "applyChanges": "Applica Modifiche",

@@ -41,6 +41,9 @@ export default function NewBotPage() {
 
       if (!response.ok) {
         const data = await response.json();
+        if (data.upgradeRequired) {
+          throw new Error(data.message || t('createBot.botLimitReached'));
+        }
         throw new Error(data.error || t('createBot.failedToCreate'));
       }
 

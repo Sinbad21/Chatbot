@@ -116,7 +116,8 @@
     "creating": "Creating...",
     "createBot": "Create Bot",
     "configError": "Configuration error. Please log in again.",
-    "failedToCreate": "Failed to create bot"
+    "failedToCreate": "Failed to create bot",
+    "botLimitReached": "Bot limit reached. Please upgrade your plan to create more bots."
   },
   "bot": {
     "overview": {

@@ -113,7 +113,8 @@
     "creating": "Creating...",
     "createBot": "Create Bot",
     "configError": "Configuration error. Please log in again.",
-    "failedToCreate": "Failed to create bot"
+    "failedToCreate": "Failed to create bot",
+    "botLimitReached": "Dosežena omejitev botov. Nadgradite svoj načrt za ustvarjanje več botov."
   },
   "bot": {
     "overview": {

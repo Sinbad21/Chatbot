@@ -113,7 +113,8 @@
     "creating": "Creating...",
     "createBot": "Create Bot",
     "configError": "Configuration error. Please log in again.",
-    "failedToCreate": "Failed to create bot"
+    "failedToCreate": "Failed to create bot",
+    "botLimitReached": "Limita de boți atinsă. Vă rugăm să faceți upgrade la plan pentru a crea mai mulți boți."
   },
   "bot": {
     "overview": {
