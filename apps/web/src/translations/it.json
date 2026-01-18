@@ -118,7 +118,8 @@
     "configError": "Errore di configurazione. Effettua nuovamente l'accesso.",
     "failedToCreate": "Impossibile creare il bot",
     "botLimitReached": "Limite bot raggiunto. Aggiorna il tuo piano per creare più bot.",
-    "viewPlans": "Vedi Opzioni di Upgrade "
+    "viewPlans": "Vedi Opzioni di Upgrade ",
+    "usePreset": "Usa preset"
   },
   "bot": {
     "overview": {

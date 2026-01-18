@@ -3,18 +3,178 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ChevronDown } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 
+// Preset templates for different languages
+const getPresets = (lang: string) => {
+  const isItalian = lang === 'it';
+  
+  return {
+    welcomeMessages: isItalian ? [
+      { label: 'Saluto generico', value: 'Ciao! Come posso aiutarti oggi?' },
+      { label: 'Supporto clienti', value: 'Benvenuto! Sono qui per aiutarti con qualsiasi domanda o problema.' },
+      { label: 'Vendite', value: 'Ciao! Sono qui per aiutarti a trovare la soluzione perfetta per te. Di cosa hai bisogno?' },
+      { label: 'Supporto tecnico', value: 'Ciao! Descrivi il problema tecnico che stai riscontrando e ti aiuterò a risolverlo.' },
+      { label: 'FAQ', value: 'Ciao! Fai una domanda e risponderò usando la documentazione disponibile.' },
+      { label: 'E-commerce', value: 'Benvenuto nel nostro negozio! Posso aiutarti a trovare prodotti o rispondere a domande sui tuoi ordini.' },
+    ] : [
+      { label: 'Generic greeting', value: 'Hi! How can I help you today?' },
+      { label: 'Customer support', value: 'Welcome! I\'m here to help you with any questions or issues.' },
+      { label: 'Sales', value: 'Hello! I\'m here to help you find the perfect solution. What are you looking for?' },
+      { label: 'Technical support', value: 'Hi! Describe the technical issue you\'re experiencing and I\'ll help you resolve it.' },
+      { label: 'FAQ', value: 'Hi! Ask me anything and I\'ll answer from the available documentation.' },
+      { label: 'E-commerce', value: 'Welcome to our store! I can help you find products or answer questions about your orders.' },
+    ],
+    systemPrompts: isItalian ? [
+      { 
+        label: 'Assistente generale', 
+        value: 'Sei un assistente AI utile e amichevole. Rispondi in modo conciso e chiaro. Se non sai qualcosa, dillo onestamente.' 
+      },
+      { 
+        label: 'Supporto clienti', 
+        value: `Sei un assistente di customer support.
+
+OBIETTIVO
+- Risolvere il problema dell'utente con pochi scambi.
+
+REGOLE
+- Fai solo le domande necessarie (1-2 alla volta).
+- Non chiedere password o dati sensibili.
+- Se manca informazione, dillo e proponi un prossimo passo.` 
+      },
+      { 
+        label: 'Vendite', 
+        value: `Sei un assistente vendite.
+
+OBIETTIVO
+- Capire l'esigenza e proporre 1-3 opzioni.
+- Qualificare con domande brevi.
+- Proporre un prossimo passo (demo/call/preventivo).
+
+STILE
+- Professionale ma amichevole.
+- Non essere invadente.` 
+      },
+      { 
+        label: 'Supporto tecnico', 
+        value: `Sei un assistente di supporto tecnico.
+
+REGOLE
+- Usa passi numerati per la risoluzione.
+- Chiedi dettagli tecnici minimi (ambiente, errore, passi per riprodurre).
+- Riassumi e indica il prossimo step.
+- Se il problema è complesso, suggerisci di contattare il supporto umano.` 
+      },
+      { 
+        label: 'FAQ/Knowledge Base', 
+        value: `Sei un assistente FAQ.
+
+REGOLA PRINCIPALE
+- Rispondi solo con la knowledge base disponibile. Non inventare.
+
+SE NON SAI
+- Dillo chiaramente e indica come ottenere l'informazione corretta.` 
+      },
+      { 
+        label: 'E-commerce', 
+        value: `Sei un assistente per e-commerce.
+
+PUOI AIUTARE CON
+- Ricerca prodotti
+- Stato ordini
+- Resi e rimborsi
+- Spedizioni e consegne
+
+REGOLE
+- Chiedi il numero ordine per verifiche specifiche.
+- Proponi alternative se un prodotto non è disponibile.
+- Sii proattivo nel suggerire prodotti correlati.` 
+      },
+    ] : [
+      { 
+        label: 'General assistant', 
+        value: 'You are a helpful and friendly AI assistant. Respond concisely and clearly. If you don\'t know something, say so honestly.' 
+      },
+      { 
+        label: 'Customer support', 
+        value: `You are a customer support assistant.
+
+GOAL
+- Resolve the user's issue end-to-end with minimal back-and-forth.
+
+RULES
+- Ask only necessary questions (1-2 at a time).
+- Never request passwords or sensitive data.
+- If info is missing, say so and propose next steps.` 
+      },
+      { 
+        label: 'Sales', 
+        value: `You are a sales assistant.
+
+GOAL
+- Understand the need and propose 1-3 suitable options.
+- Qualify with short questions.
+- Offer a clear next step (demo/call/quote).
+
+STYLE
+- Professional but friendly.
+- Don't be pushy.` 
+      },
+      { 
+        label: 'Technical support', 
+        value: `You are a technical support assistant.
+
+RULES
+- Use numbered troubleshooting steps.
+- Ask for minimal details (environment, error, repro steps).
+- Summarize and propose the next action.
+- If the issue is complex, suggest contacting human support.` 
+      },
+      { 
+        label: 'FAQ/Knowledge Base', 
+        value: `You are an FAQ assistant.
+
+PRIMARY RULE
+- Answer using only the provided knowledge base. Do not guess.
+
+IF UNSURE
+- Say clearly that you don't have enough information and suggest next steps.` 
+      },
+      { 
+        label: 'E-commerce', 
+        value: `You are an e-commerce assistant.
+
+YOU CAN HELP WITH
+- Product search
+- Order status
+- Returns and refunds
+- Shipping and delivery
+
+RULES
+- Ask for order number for specific inquiries.
+- Suggest alternatives if a product is unavailable.
+- Be proactive in suggesting related products.` 
+      },
+    ],
+  };
+};
+
 export default function NewBotPage() {
-  const { t } = useTranslation();
+  const { t, currentLang } = useTranslation();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showWelcomePresets, setShowWelcomePresets] = useState(false);
+  const [showSystemPresets, setShowSystemPresets] = useState(false);
+  
+  const presets = getPresets(currentLang);
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    systemPrompt: 'You are a helpful AI assistant.',
-    welcomeMessage: 'Hello! How can I help you today?',
+    systemPrompt: presets.systemPrompts[0].value,
+    welcomeMessage: presets.welcomeMessages[0].value,
     color: '#6366f1',
   });
 
@@ -48,13 +208,22 @@ export default function NewBotPage() {
       }
 
       const bot = await response.json();
-      // Redirect to bots list (detail page temporarily disabled due to Next.js static export limitations)
       router.push('/dashboard/bots');
     } catch (err: any) {
       setError(err.message || t('createBot.failedToCreate'));
     } finally {
       setLoading(false);
     }
+  };
+
+  const selectWelcomePreset = (value: string) => {
+    setFormData({ ...formData, welcomeMessage: value });
+    setShowWelcomePresets(false);
+  };
+
+  const selectSystemPreset = (value: string) => {
+    setFormData({ ...formData, systemPrompt: value });
+    setShowSystemPresets(false);
   };
 
   return (
@@ -114,9 +283,39 @@ export default function NewBotPage() {
 
           {/* Welcome Message */}
           <div>
-            <label htmlFor="welcomeMessage" className="block text-sm font-medium text-silver-600 mb-2">
-              {t('createBot.welcomeMessage')}
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="welcomeMessage" className="block text-sm font-medium text-silver-600">
+                {t('createBot.welcomeMessage')}
+              </label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowWelcomePresets(!showWelcomePresets)}
+                  className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                >
+                  {t('createBot.usePreset') || 'Use preset'}
+                  <ChevronDown size={14} className={`transition-transform ${showWelcomePresets ? 'rotate-180' : ''}`} />
+                </button>
+                {showWelcomePresets && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setShowWelcomePresets(false)} />
+                    <div className="absolute right-0 mt-1 w-64 bg-white border border-silver-200 rounded-lg shadow-lg py-1 z-20 max-h-60 overflow-y-auto">
+                      {presets.welcomeMessages.map((preset, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => selectWelcomePreset(preset.value)}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-pearl-100 transition-colors"
+                        >
+                          <span className="font-medium text-charcoal">{preset.label}</span>
+                          <p className="text-xs text-silver-600 truncate mt-0.5">{preset.value}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
             <textarea
               id="welcomeMessage"
               rows={2}
@@ -132,9 +331,39 @@ export default function NewBotPage() {
 
           {/* System Prompt */}
           <div>
-            <label htmlFor="systemPrompt" className="block text-sm font-medium text-silver-600 mb-2">
-              {t('createBot.systemPrompt')}
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="systemPrompt" className="block text-sm font-medium text-silver-600">
+                {t('createBot.systemPrompt')}
+              </label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowSystemPresets(!showSystemPresets)}
+                  className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                >
+                  {t('createBot.usePreset') || 'Use preset'}
+                  <ChevronDown size={14} className={`transition-transform ${showSystemPresets ? 'rotate-180' : ''}`} />
+                </button>
+                {showSystemPresets && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setShowSystemPresets(false)} />
+                    <div className="absolute right-0 mt-1 w-72 bg-white border border-silver-200 rounded-lg shadow-lg py-1 z-20 max-h-72 overflow-y-auto">
+                      {presets.systemPrompts.map((preset, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => selectSystemPreset(preset.value)}
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-pearl-100 transition-colors border-b border-silver-100 last:border-0"
+                        >
+                          <span className="font-medium text-charcoal">{preset.label}</span>
+                          <p className="text-xs text-silver-600 line-clamp-2 mt-0.5">{preset.value.substring(0, 80)}...</p>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
             <textarea
               id="systemPrompt"
               rows={4}
