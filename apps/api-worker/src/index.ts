@@ -1170,7 +1170,7 @@ app.post('/api/v1/bots', authMiddleware, async (c) => {
       where: { id: membership.organizationId },
       include: {
         subscriptions: {
-          where: { status: 'active' },
+          where: { status: 'ACTIVE' },
           include: { plan: true },
           orderBy: { createdAt: 'desc' },
           take: 1,
@@ -2100,7 +2100,7 @@ app.post('/api/v1/bots/:botId/documents/upload', authMiddleware, async (c) => {
         organization: {
           include: {
             subscriptions: {
-              where: { status: 'active' },
+              where: { status: 'ACTIVE' },
               include: { plan: true },
               take: 1,
             },
@@ -3173,7 +3173,7 @@ app.post('/api/v1/chat', async (c) => {
       where: { id: bot.organizationId },
       include: {
         subscriptions: {
-          where: { status: 'active' },
+          where: { status: 'ACTIVE' },
           include: { plan: true },
           orderBy: { createdAt: 'desc' },
           take: 1,
@@ -3480,7 +3480,7 @@ app.get('/api/v1/plan-usage', authMiddleware, async (c) => {
         organization: {
           include: {
             subscriptions: {
-              where: { status: 'active' },
+              where: { status: 'ACTIVE' },
               include: { plan: true },
               orderBy: { createdAt: 'desc' },
               take: 1,
@@ -4530,7 +4530,7 @@ app.post('/api/v1/discovery/search', authMiddleware, async (c) => {
         organization: {
           include: {
             subscriptions: {
-              where: { status: 'active' },
+              where: { status: 'ACTIVE' },
               include: { plan: true },
               take: 1,
             },
