@@ -291,7 +291,7 @@ export default function NewBotPage() {
                 <button
                   type="button"
                   onClick={() => setShowWelcomePresets(!showWelcomePresets)}
-                  className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                  className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 font-medium"
                 >
                   {t('createBot.usePreset') || 'Use preset'}
                   <ChevronDown size={14} className={`transition-transform ${showWelcomePresets ? 'rotate-180' : ''}`} />
@@ -339,7 +339,7 @@ export default function NewBotPage() {
                 <button
                   type="button"
                   onClick={() => setShowSystemPresets(!showSystemPresets)}
-                  className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                  className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 font-medium"
                 >
                   {t('createBot.usePreset') || 'Use preset'}
                   <ChevronDown size={14} className={`transition-transform ${showSystemPresets ? 'rotate-180' : ''}`} />
