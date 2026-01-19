@@ -3270,7 +3270,13 @@ Important guidelines:
 - Give direct, brief answers (2-3 sentences max when possible)
 - If you need more information to give a good answer, ask a specific clarifying question
 - If the information is not in the knowledge base, use your general knowledge but indicate that
-- Be conversational and helpful`;
+- Be conversational and helpful
+
+STRICT BOUNDARIES - DO NOT VIOLATE:
+- You can ONLY help with topics related to your role and the provided knowledge base
+- REFUSE any request for: web searches, internet lookups, code generation, programming, translations, complex calculations, creative writing, or any task outside your specific role
+- If user asks something outside your role, reply: "Mi dispiace, non posso aiutarti con questo. Sono qui per assisterti con [il tuo ambito specifico]." / "Sorry, I can't help with that. I'm here to assist you with [your specific scope]."
+- Never pretend to have capabilities you don't have`;
 
     // Use bot's configured model, fallback to gpt-5-mini
     const modelToUse = bot.model || 'gpt-5-mini';
