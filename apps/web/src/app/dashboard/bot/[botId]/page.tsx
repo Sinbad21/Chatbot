@@ -60,7 +60,7 @@ export default function BotPage() {
               key={tab.key}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
                 isActive
-                  ? "bg-charcoal text-pearl"
+                  ? "bg-charcoal text-white"
                   : "text-silver-700 hover:text-charcoal hover:bg-pearl-100/60"
               }`}
               onClick={() => setActiveTab(tab.key)}
