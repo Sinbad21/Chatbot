@@ -1,15 +1,16 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useParams } from "next/navigation";
 import { LayoutGrid, FileText, Globe, Lightbulb, HelpCircle, MessageSquare, BarChart2 } from "lucide-react";
-import BotOverviewTab from "./BotOverviewTab";
-import DocumentsTab from "./DocumentsTab";
-import IntentsTab from "./IntentsTab";
-import FaqTab from "./FaqTab";
-import TestChatTab from "./TestChatTab";
-import WebScrapingTab from "./WebScrapingTab";
-import AnalyticsTab from "./AnalyticsTab";
+import BotOverviewTab from "../BotOverviewTab";
+import DocumentsTab from "../DocumentsTab";
+import IntentsTab from "../IntentsTab";
+import FaqTab from "../FaqTab";
+import TestChatTab from "../TestChatTab";
+import WebScrapingTab from "../WebScrapingTab";
+import AnalyticsTab from "../AnalyticsTab";
+import { GlassCard } from "@/components/dashboard/ui";
 
 type TabKey = "overview" | "documents" | "scraping" | "intents" | "faqs" | "analytics" | "test";
 
@@ -23,9 +24,9 @@ const tabs = [
   { key: "test" as TabKey, label: "Test", icon: MessageSquare },
 ];
 
-function InnerBotPage() {
-  const searchParams = useSearchParams();
-  const botId = searchParams.get("id") || "";
+export default function BotPage() {
+  const params = useParams();
+  const botId = params.botId as string;
   const [activeTab, setActiveTab] = useState<TabKey>("documents");
 
   const apiBaseUrl = useMemo(() => {
@@ -36,7 +37,7 @@ function InnerBotPage() {
 
   if (!botId) {
     return (
-      <div className="p-16 text-sm text-red-400">Bot ID mancante (?id=...)</div>
+      <div className="p-16 text-sm text-red-400">Bot ID mancante</div>
     );
   }
 
@@ -50,7 +51,7 @@ function InnerBotPage() {
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex gap-2 bg-black/40 border border-white/10 rounded-xl p-2 backdrop-blur-md overflow-x-auto">
+      <GlassCard className="flex gap-2 p-2 overflow-x-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -59,8 +60,8 @@ function InnerBotPage() {
               key={tab.key}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
                 isActive
-                  ? "bg-white text-black"
-                  : "text-white/60 hover:text-white hover:bg-white/10"
+                  ? "bg-charcoal text-pearl"
+                  : "text-silver-700 hover:text-charcoal hover:bg-pearl-100/60"
               }`}
               onClick={() => setActiveTab(tab.key)}
             >
@@ -69,7 +70,7 @@ function InnerBotPage() {
             </button>
           );
         })}
-      </div>
+      </GlassCard>
 
       {activeTab === "overview" && <BotOverviewTab botId={botId} />}
 
@@ -95,19 +96,5 @@ function InnerBotPage() {
         <TestChatTab botId={botId} apiBaseUrl={apiBaseUrl} />
       )}
     </div>
-  );
-}
-
-export default function BotPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-gray-800 font-medium">Loading bot dashboard...</div>
-        </div>
-      }
-    >
-      <InnerBotPage />
-    </Suspense>
   );
 }

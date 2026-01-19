@@ -219,7 +219,7 @@ export default function DashboardPage() {
          </p>
         </div>
         <button
-         onClick={() => router.push(`/dashboard/bot?id=${bot.id}`)}
+         onClick={() => router.push(`/dashboard/bot/${bot.id}`)}
          className="px-6 py-3 bg-charcoal text-white rounded-lg hover:bg-charcoal/90 font-medium transition-all shadow-lg "
         >
          {t('dashboard.view')}

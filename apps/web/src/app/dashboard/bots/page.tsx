@@ -137,7 +137,7 @@ export default function BotsListPage() {
        </div>
 
        <Link
-        href={`/dashboard/bot?id=${bot.id}`}
+        href={`/dashboard/bot/${bot.id}`}
         className="block w-full px-4 py-2 bg-charcoal text-white text-center rounded-lg hover:bg-charcoal/90 font-medium transition-all shadow-lg "
        >
         {t('bots.viewDetails')}
