@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Store, 
@@ -369,7 +369,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                               onClick={() => updateConfig('surveyType', type)}
                               className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
                                 config.surveyType === type
-                                  ? 'bg-charcoal text-charcoal border-silver-300'
+                                  ? 'bg-charcoal text-white border-silver-300'
                                   : 'bg-pearl-50 text-silver-600 border-silver-200/70 hover:bg-silver-200/70'
                               }`}
                             >
@@ -431,7 +431,7 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
                               onClick={() => updateConfig('widgetPosition', pos)}
                               className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
                                 config.widgetPosition === pos
-                                  ? 'bg-charcoal text-charcoal border-silver-300'
+                                  ? 'bg-charcoal text-white border-silver-300'
                                   : 'bg-pearl-50 text-silver-600 border-silver-200/70 hover:bg-silver-200/70'
                               }`}
                             >
@@ -527,3 +527,4 @@ export default function ReviewBotWizard({ isOpen, onClose, onComplete }: ReviewB
     </div>
   );
 }
+

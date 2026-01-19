@@ -287,7 +287,7 @@ export function WhatsAppWizard({ botId, onClose, onSave, initialConfig, onDiscon
      </Button>
      <Button
       onClick={step === 4 ? handleSave : handleNext}
-      className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
+      className="bg-charcoal hover:bg-charcoal/90 text-white shadow-lg "
       disabled={step === 2 && (!config.apiKey || !config.phoneNumberId || !config.webhookToken)}
      >
       {step === 4 ? 'Salva configurazione' : 'Avanti'}
@@ -297,5 +297,6 @@ export function WhatsAppWizard({ botId, onClose, onSave, initialConfig, onDiscon
   </div>
  );
 }
+
 
 

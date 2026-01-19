@@ -98,7 +98,7 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
         {/* Code Block */}
         <div className="relative">
          <pre className="p-4 bg-charcoal border border-silver-200/20 rounded-xl overflow-x-auto">
-          <code className="text-pearl text-sm">{embedCode}</code>
+          <code className="text-charcoal text-sm">{embedCode}</code>
          </pre>
          <button
           onClick={() => handleCopy(embedCode)}
@@ -127,9 +127,9 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
          Il widget si attiva automaticamente quando l&apos;URL contiene uno di questi parametri:
         </p>
         <div className="flex flex-wrap gap-2">
-         <code className="px-2 py-1 bg-pearl-100 rounded text-pearl text-xs">?review=true</code>
-         <code className="px-2 py-1 bg-pearl-100 rounded text-pearl text-xs">?rb=1</code>
-         <code className="px-2 py-1 bg-pearl-100 rounded text-pearl text-xs">?feedback=true</code>
+         <code className="px-2 py-1 bg-pearl-100 rounded text-charcoal text-xs">?review=true</code>
+         <code className="px-2 py-1 bg-pearl-100 rounded text-charcoal text-xs">?rb=1</code>
+         <code className="px-2 py-1 bg-pearl-100 rounded text-charcoal text-xs">?feedback=true</code>
         </div>
         
         <div className="mt-3 pt-3 border-t border-silver-200/70 bg-pearl-50/95 backdrop-blur">
@@ -137,7 +137,7 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
           Configura il redirect post-acquisto:
          </p>
          <ul className="text-silver-600 text-sm space-y-1">
-          <li>€¢ <strong>Stripe:</strong> Success URL †’ <code className="text-pearl">https://tuosito.com/grazie?review=true</code></li>
+          <li>€¢ <strong>Stripe:</strong> Success URL †’ <code className="text-charcoal">https://tuosito.com/grazie?review=true</code></li>
           <li>€¢ <strong>WooCommerce:</strong> Thank you page con parametro</li>
           <li>€¢ <strong>Shopify:</strong> Order confirmation page script</li>
          </ul>
@@ -156,7 +156,7 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
         {/* Code Block */}
         <div className="relative">
          <pre className="p-4 bg-charcoal border border-silver-200/20 rounded-xl overflow-x-auto text-sm">
-          <code className="text-pearl">{advancedCode}</code>
+          <code className="text-charcoal">{advancedCode}</code>
          </pre>
          <button
           onClick={() => handleCopy(advancedCode)}
@@ -183,25 +183,25 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
         <h4 className="text-charcoal font-medium mb-3">API Reference</h4>
         <div className="space-y-3">
          <div className="p-3 bg-pearl-50 rounded-lg">
-          <code className="text-pearl text-sm">ReviewBot.show()</code>
+          <code className="text-charcoal text-sm">ReviewBot.show()</code>
           <p className="text-silver-600 text-xs mt-1">
            Mostra il widget. Non fa nulla se l&apos;utente ha già  risposto.
           </p>
          </div>
          <div className="p-3 bg-pearl-50 rounded-lg">
-          <code className="text-pearl text-sm">ReviewBot.show({'{ force: true }'})</code>
+          <code className="text-charcoal text-sm">ReviewBot.show({'{ force: true }'})</code>
           <p className="text-silver-600 text-xs mt-1">
            Mostra il widget anche se l&apos;utente ha già  risposto.
           </p>
          </div>
          <div className="p-3 bg-pearl-50 rounded-lg">
-          <code className="text-pearl text-sm">ReviewBot.hide()</code>
+          <code className="text-charcoal text-sm">ReviewBot.hide()</code>
           <p className="text-silver-600 text-xs mt-1">
            Nasconde il widget.
           </p>
          </div>
          <div className="p-3 bg-pearl-50 rounded-lg">
-          <code className="text-pearl text-sm">ReviewBot.reset()</code>
+          <code className="text-charcoal text-sm">ReviewBot.reset()</code>
           <p className="text-silver-600 text-xs mt-1">
            Resetta lo stato localStorage. Utile per testing.
           </p>
@@ -216,14 +216,14 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
          <p className="text-silver-600">
           <strong className="text-charcoal">Trigger su click:</strong>
          </p>
-         <code className="block p-2 bg-pearl-50 rounded text-pearl text-xs">
+         <code className="block p-2 bg-pearl-50 rounded text-charcoal text-xs">
           {`<button onclick="ReviewBot.show()">Lascia feedback</button>`}
          </code>
          
          <p className="text-silver-600 mt-3">
           <strong className="text-charcoal">Trigger dopo X secondi:</strong>
          </p>
-         <code className="block p-2 bg-pearl-50 rounded text-pearl text-xs">
+         <code className="block p-2 bg-pearl-50 rounded text-charcoal text-xs">
           {`setTimeout(() => ReviewBot.show(), 5000);`}
          </code>
         </div>
@@ -238,14 +238,14 @@ export function WidgetSnippet({ widgetId, businessName, onClose }: WidgetSnippet
       href={`${baseUrl}/widget/review/test?widgetId=${widgetId}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-charcoal hover:text-pearl text-sm inline-flex items-center gap-1"
+      className="text-charcoal hover:text-charcoal text-sm inline-flex items-center gap-1"
      >
       <ExternalLink size={14} />
       Anteprima widget
      </a>
      <button
       onClick={onClose}
-      className="px-4 py-2 bg-charcoal text-pearl rounded-xl font-medium hover:bg-charcoal/90 transition-all"
+      className="px-4 py-2 bg-charcoal text-white rounded-xl font-medium hover:bg-charcoal/90 transition-all"
      >
       Chiudi
      </button>

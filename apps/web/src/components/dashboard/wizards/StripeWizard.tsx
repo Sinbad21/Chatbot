@@ -80,7 +80,7 @@ export function StripeWizard({ botId, onClose, onSave, initialConfig, onDisconne
      </div>
      <Button
       onClick={handleSave}
-      className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
+      className="bg-charcoal hover:bg-charcoal/90 text-white shadow-lg "
       disabled={!config.webhookSecret}
      >
       Salva configurazione
@@ -90,4 +90,5 @@ export function StripeWizard({ botId, onClose, onSave, initialConfig, onDisconne
   </div>
  );
 }
+
 

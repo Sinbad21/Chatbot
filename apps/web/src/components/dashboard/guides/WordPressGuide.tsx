@@ -87,7 +87,7 @@ export function WordPressGuide({ botId, onClose, onDisconnect }: WordPressGuideP
     <div className="sticky bottom-0 bg-pearl-50/95 backdrop-blur border-t border-silver-200/70 p-6 flex gap-3 justify-between">
      <Button
       onClick={onClose}
-      className="flex-1 bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
+      className="flex-1 bg-charcoal hover:bg-charcoal/90 text-white shadow-lg "
      >
       Chiudi
      </Button>
@@ -105,4 +105,5 @@ export function WordPressGuide({ botId, onClose, onDisconnect }: WordPressGuideP
   </div>
  );
 }
+
 

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -286,7 +286,7 @@ ${transcript}
           <div className="flex items-center gap-3">
             <button
               onClick={() => handleExportConversation(selectedConversation)}
-              className="px-4 py-2 bg-charcoal text-charcoal rounded-lg hover:bg-charcoal/90 text-sm font-medium shadow-lg  transition-all"
+              className="px-4 py-2 bg-charcoal text-white rounded-lg hover:bg-charcoal/90 text-sm font-medium shadow-lg  transition-all"
             >
               {t('conversations.exportTranscript')}
             </button>
@@ -380,7 +380,7 @@ ${transcript}
                     <div
                       className={`rounded-lg px-4 py-2 ${
                         message.role === 'user'
-                          ? 'bg-charcoal text-charcoal'
+                          ? 'bg-charcoal text-white'
                           : 'bg-pearl-50 text-charcoal'
                       }`}
                     >
@@ -477,7 +477,7 @@ ${transcript}
                 <button
                   onClick={handleSaveTraining}
                   disabled={isSavingTraining}
-                  className="px-4 py-2 bg-charcoal text-charcoal rounded-lg text-sm font-medium hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg  transition-all"
+                  className="px-4 py-2 bg-charcoal text-white rounded-lg text-sm font-medium hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg  transition-all"
                 >
                   {isSavingTraining ? (
                     <>
@@ -586,4 +586,5 @@ ${transcript}
     </div>
   );
 }
+
 

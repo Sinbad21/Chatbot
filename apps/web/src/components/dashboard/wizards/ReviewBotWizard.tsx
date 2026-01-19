@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import {
@@ -202,7 +202,7 @@ export function ReviewBotWizard({ onClose, onComplete, editMode, initialData }: 
 
      <button
       onClick={nextStep}
-      className="px-6 py-2 bg-charcoal text-charcoal rounded-xl font-medium hover:bg-charcoal/90 transition-all shadow-lg inline-flex items-center gap-2"
+      className="px-6 py-2 bg-charcoal text-white rounded-xl font-medium hover:bg-charcoal/90 transition-all shadow-lg inline-flex items-center gap-2"
      >
       {currentStep === STEPS.length - 1 ? (
        <>
@@ -813,5 +813,6 @@ function StepWidget({ config, updateConfig }: { config: any; updateConfig: (key:
   </div>
  );
 }
+
 
 

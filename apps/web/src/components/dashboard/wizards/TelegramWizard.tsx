@@ -168,7 +168,7 @@ export function TelegramWizard({ botId, onClose, onSave, initialConfig, onDiscon
      </Button>
      <Button
       onClick={step === 3 ? handleSave : () => setStep(step + 1)}
-      className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
+      className="bg-charcoal hover:bg-charcoal/90 text-white shadow-lg "
       disabled={step === 2 && !config.botToken}
      >
       {step === 3 ? 'Salva configurazione' : 'Avanti'}
@@ -178,5 +178,6 @@ export function TelegramWizard({ botId, onClose, onSave, initialConfig, onDiscon
   </div>
  );
 }
+
 
 

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -338,7 +338,7 @@ export default function LeadsClient() {
                 className={`flex ${msg.role === 'USER' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`max-w-[70%] rounded-lg px-4 py-2 ${
-                  msg.role === 'USER' ? 'bg-charcoal text-charcoal' : 'bg-pearl-50 text-silver-700'
+                  msg.role === 'USER' ? 'bg-charcoal text-white' : 'bg-pearl-50 text-silver-700'
                 }`}>
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                   <span className="text-xs opacity-70 mt-1 block">
@@ -423,3 +423,4 @@ export default function LeadsClient() {
     </div>
   );
 }
+

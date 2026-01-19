@@ -69,7 +69,7 @@ export function HubSpotWizard({ botId, onClose, onSave, initialConfig, onDisconn
      </div>
      <Button
       onClick={handleSave}
-      className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
+      className="bg-charcoal hover:bg-charcoal/90 text-white shadow-lg "
       disabled={!config.privateAppToken}
      >
       Salva configurazione
@@ -79,4 +79,5 @@ export function HubSpotWizard({ botId, onClose, onSave, initialConfig, onDisconn
   </div>
  );
 }
+
 

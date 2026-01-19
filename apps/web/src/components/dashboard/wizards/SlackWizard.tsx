@@ -83,7 +83,7 @@ export function SlackWizard({ botId, onClose, onSave, initialConfig, onDisconnec
      </div>
      <Button
       onClick={handleSave}
-      className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
+      className="bg-charcoal hover:bg-charcoal/90 text-white shadow-lg "
       disabled={!config.botToken || !config.signingSecret}
      >
       Salva configurazione
@@ -93,4 +93,5 @@ export function SlackWizard({ botId, onClose, onSave, initialConfig, onDisconnec
   </div>
  );
 }
+
 

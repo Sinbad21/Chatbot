@@ -104,7 +104,7 @@ export function GenericIntegrationWizard({
      </div>
      <Button
       onClick={() => void handleSave()}
-      className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
+      className="bg-charcoal hover:bg-charcoal/90 text-white shadow-lg "
       disabled={!parsed.ok}
      >
       Salva configurazione
@@ -114,4 +114,5 @@ export function GenericIntegrationWizard({
   </div>
  );
 }
+
 

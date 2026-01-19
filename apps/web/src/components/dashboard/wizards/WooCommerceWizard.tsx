@@ -114,7 +114,7 @@ export function WooCommerceWizard({ botId, onClose, onSave, initialConfig, onDis
      </div>
      <Button
       onClick={handleSave}
-      className="bg-charcoal hover:bg-charcoal/90 text-charcoal shadow-lg "
+      className="bg-charcoal hover:bg-charcoal/90 text-white shadow-lg "
       disabled={!config.storeUrl || !config.webhookSecret}
      >
       Salva configurazione
@@ -124,4 +124,5 @@ export function WooCommerceWizard({ botId, onClose, onSave, initialConfig, onDis
   </div>
  );
 }
+
 
