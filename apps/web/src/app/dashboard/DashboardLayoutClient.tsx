@@ -145,8 +145,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
  if (loading || !isAuthenticated) {
   return (
-   <div className="min-h-screen bg-pearl-50 flex items-center justify-center">
-    <div className="text-silver-700">Loading...</div>
+   <div className="min-h-screen bg-gradient-to-br from-pearl-50 via-white to-pearl-100 flex items-center justify-center">
+    <div className="flex flex-col items-center gap-4">
+     <div className="w-12 h-12 border-4 border-silver-200 border-t-charcoal rounded-full animate-spin"></div>
+    </div>
    </div>
   );
  }
