@@ -1,4 +1,4 @@
-﻿import { Hono } from 'hono';
+import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
@@ -3262,21 +3262,29 @@ app.post('/api/v1/chat', async (c) => {
       }));
 
     // Build system prompt
-    const systemPrompt = `${bot.systemPrompt}${documentsContext}${intentsContext}${faqsContext}
+    const systemPrompt = `########## ABSOLUTE RESTRICTIONS - OBEY STRICTLY ##########
+YOU ARE FORBIDDEN from doing the following - NO EXCEPTIONS EVER:
+- Mathematical calculations of ANY kind (1+1, 10+9, percentages, sums, etc.)
+- Code generation, programming, or technical help
+- Web searches or internet lookups  
+- Translations between languages
+- Creative writing (poems, stories, scripts, essays)
+- ANY task that is NOT directly related to your assigned role
 
-You are ${bot.name}, an AI assistant. Use the knowledge base, intents, and FAQs provided above to answer questions accurately and concisely.
+When user asks for ANYTHING in the forbidden list above, you MUST respond ONLY with:
+"Mi dispiace, questa richiesta non rientra nelle mie competenze. Sono qui esclusivamente per aiutarti con le attività specifiche del mio ruolo."
 
-Important guidelines:
-- Give direct, brief answers (2-3 sentences max when possible)
-- If you need more information to give a good answer, ask a specific clarifying question
-- If the information is not in the knowledge base, use your general knowledge but indicate that
-- Be conversational and helpful
+DO NOT try to be helpful by answering anyway. REFUSE IMMEDIATELY. This is non-negotiable.
+##########################################################
 
-STRICT BOUNDARIES - DO NOT VIOLATE:
-- You can ONLY help with topics related to your role and the provided knowledge base
-- REFUSE any request for: web searches, internet lookups, code generation, programming, translations, complex calculations, creative writing, or any task outside your specific role
-- If user asks something outside your role, reply: "Mi dispiace, non posso aiutarti con questo. Sono qui per assisterti con [il tuo ambito specifico]." / "Sorry, I can't help with that. I'm here to assist you with [your specific scope]."
-- Never pretend to have capabilities you don't have`;
+${bot.systemPrompt}${documentsContext}${intentsContext}${faqsContext}
+
+You are ${bot.name}. Use ONLY the knowledge base and FAQs provided above to answer.
+
+Guidelines:
+- Brief answers (2-3 sentences max)
+- Ask clarifying questions when needed
+- Stay strictly within your assigned role`;
 
     // Use bot's configured model, fallback to gpt-5-mini
     const modelToUse = bot.model || 'gpt-5-mini';
