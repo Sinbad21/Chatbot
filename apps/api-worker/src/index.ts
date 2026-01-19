@@ -1204,6 +1204,7 @@ app.post('/api/v1/bots', authMiddleware, async (c) => {
         systemPrompt: systemPrompt || 'You are a helpful AI assistant.',
         welcomeMessage: welcomeMessage || 'Hello! How can I help you?',
         color: color || '#6366f1',
+        published: true, // Auto-publish on creation
       },
     });
 
