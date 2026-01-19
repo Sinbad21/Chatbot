@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { buildAuthHeaders } from '@/lib/authHeaders';
+import { GlassCard } from '@/components/dashboard/ui';
 
 interface Intent {
   id: string;
@@ -17,6 +19,8 @@ interface IntentsTabProps {
 }
 
 export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
+  const t = useTranslations('intents');
+  const tCommon = useTranslations('common');
   const [intents, setIntents] = useState<Intent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +43,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch intents');
+        throw new Error(t('error'));
       }
 
       const data = await response.json();
@@ -58,14 +62,13 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
       return;
     }
 
-    // Convert patterns text to array (split by newlines)
     const patterns = patternsText
       .split('\n')
       .map(p => p.trim())
       .filter(p => p.length > 0);
 
     if (patterns.length === 0) {
-      setError('Please add at least one pattern');
+      setError(t('atLeastOnePattern'));
       return;
     }
 
@@ -81,7 +84,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to create intent');
+        throw new Error(t('failedToAdd'));
       }
 
       const newIntent = await res.json();
@@ -97,7 +100,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
   };
 
   const handleDelete = async (intentId: string) => {
-    if (!confirm('Are you sure you want to delete this intent?')) {
+    if (!confirm(t('deleteConfirm'))) {
       return;
     }
 
@@ -109,7 +112,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to delete intent');
+        throw new Error(t('failedToDelete'));
       }
 
       setIntents(intents.filter(intent => intent.id !== intentId));
@@ -121,27 +124,26 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-silver-600">Loading intents...</div>
+        <div className="text-silver-600">{t('loading')}</div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Add Intent Form */}
-      <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-6">
-        <h3 className="text-lg font-semibold text-charcoal mb-4">Add New Intent</h3>
+      <GlassCard className="p-6">
+        <h3 className="text-lg font-semibold text-charcoal mb-4">{t('title')}</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-silver-600 mb-1">
-              Intent Name
+              {t('intentName')}
             </label>
             <input
               type="text"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., greeting, help_request, pricing_question"
+              placeholder={t('intentNamePlaceholder')}
               className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent text-charcoal placeholder:text-silver-400 bg-pearl-50"
               required
             />
@@ -149,31 +151,29 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
 
           <div>
             <label htmlFor="patterns" className="block text-sm font-medium text-silver-600 mb-1">
-              Patterns (one per line)
+              {t('patterns')}
             </label>
             <textarea
               id="patterns"
               value={patternsText}
               onChange={(e) => setPatternsText(e.target.value)}
-              placeholder="hello&#10;hi&#10;hey there&#10;good morning"
+              placeholder={t('patternsPlaceholder')}
               rows={5}
               className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent resize-none font-mono text-sm text-charcoal placeholder:text-silver-400 bg-pearl-50"
               required
             />
-            <p className="text-xs text-silver-500 mt-1">
-              Add phrases that trigger this intent, one per line
-            </p>
+            <p className="text-xs text-silver-500 mt-1">{t('patternsHelp')}</p>
           </div>
 
           <div>
             <label htmlFor="response" className="block text-sm font-medium text-silver-600 mb-1">
-              Response
+              {t('response')}
             </label>
             <textarea
               id="response"
               value={response}
               onChange={(e) => setResponse(e.target.value)}
-              placeholder="Hello! How can I help you today?"
+              placeholder={t('responsePlaceholder')}
               rows={4}
               className="w-full px-4 py-2 border border-silver-200/70 rounded-lg focus:ring-2 focus:ring-emerald/20 focus:border-transparent resize-none text-charcoal placeholder:text-silver-400 bg-pearl-50"
               required
@@ -189,23 +189,20 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full px-4 py-2 bg-charcoal text-pearl rounded-lg hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            className="w-full px-4 py-2 bg-charcoal text-white rounded-lg hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
-            {submitting ? 'Adding...' : 'Add Intent'}
+            {submitting ? t('adding') : t('addIntent')}
           </button>
         </form>
-      </div>
+      </GlassCard>
 
-      {/* Intents List */}
-      <div className="glass-effect backdrop-blur-md rounded-lg shadow-sm border border-silver-200/70 p-6">
+      <GlassCard className="p-6">
         <h3 className="text-lg font-semibold text-charcoal mb-4">
-          Intents ({intents.length})
+          {t('intentsCount', { count: intents.length })}
         </h3>
 
         {intents.length === 0 ? (
-          <p className="text-silver-500 text-center py-8">
-            No intents yet. Add your first intent above to train your bot with pattern matching.
-          </p>
+          <p className="text-silver-500 text-center py-8">{t('noIntents')}</p>
         ) : (
           <div className="space-y-4">
             {intents.map((intent) => (
@@ -224,12 +221,12 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
                     onClick={() => handleDelete(intent.id)}
                     className="text-red-600 hover:text-red-400 text-sm font-medium"
                   >
-                    Delete
+                    {tCommon('delete')}
                   </button>
                 </div>
 
                 <div className="mb-3">
-                  <p className="text-xs font-medium text-silver-600 mb-1">Patterns:</p>
+                  <p className="text-xs font-medium text-silver-600 mb-1">{t('patterns')}:</p>
                   <div className="flex flex-wrap gap-1">
                     {intent.patterns.map((pattern, idx) => (
                       <span
@@ -243,14 +240,14 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium text-silver-600 mb-1">Response:</p>
+                  <p className="text-xs font-medium text-silver-600 mb-1">{t('response')}:</p>
                   <p className="text-sm text-silver-600">{intent.response}</p>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </GlassCard>
     </div>
   );
 }

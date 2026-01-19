@@ -155,6 +155,27 @@
       "noBookings": "Nessuna prenotazione trovata"
     }
   },
+  "intents": {
+    "title": "Aggiungi Nuovo Intent",
+    "intentName": "Nome Intent",
+    "intentNamePlaceholder": "es. saluto, richiesta_aiuto, domanda_prezzi",
+    "patterns": "Pattern (uno per riga)",
+    "patternsPlaceholder": "ciao\nbuongiorno\nsalve\ncome stai",
+    "patternsHelp": "Aggiungi frasi che attivano questo intent, una per riga",
+    "response": "Risposta",
+    "responsePlaceholder": "Ciao! Come posso aiutarti oggi?",
+    "addIntent": "Aggiungi Intent",
+    "intentsCount": "Intent ({count})",
+    "noIntents": "Nessun intent ancora. Aggiungi il tuo primo intent sopra per addestrare il bot con il pattern matching.",
+    "loading": "Caricamento intent...",
+    "error": "Errore nel caricamento degli intent",
+    "adding": "Aggiunta in corso...",
+    "deleting": "Eliminazione in corso...",
+    "deleteConfirm": "Sei sicuro di voler eliminare questo intent?",
+    "failedToAdd": "Impossibile aggiungere l'intent",
+    "failedToDelete": "Impossibile eliminare l'intent",
+    "atLeastOnePattern": "Aggiungi almeno un pattern"
+  },
   "common": {
     "close": "Chiudi",
     "submit": "Invia",

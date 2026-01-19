@@ -155,6 +155,27 @@
       "noBookings": "No bookings found"
     }
   },
+  "intents": {
+    "title": "Add New Intent",
+    "intentName": "Intent Name",
+    "intentNamePlaceholder": "e.g., greeting, help_request, pricing_question",
+    "patterns": "Patterns (one per line)",
+    "patternsPlaceholder": "hello\nhi\nhey there\ngood morning",
+    "patternsHelp": "Add phrases that trigger this intent, one per line",
+    "response": "Response",
+    "responsePlaceholder": "Hello! How can I help you today?",
+    "addIntent": "Add Intent",
+    "intentsCount": "Intents ({count})",
+    "noIntents": "No intents yet. Add your first intent above to train your bot with pattern matching.",
+    "loading": "Loading intents...",
+    "error": "Error loading intents",
+    "adding": "Adding...",
+    "deleting": "Deleting...",
+    "deleteConfirm": "Are you sure you want to delete this intent?",
+    "failedToAdd": "Failed to add intent",
+    "failedToDelete": "Failed to delete intent",
+    "atLeastOnePattern": "Please add at least one pattern"
+  },
   "common": {
     "close": "Close",
     "submit": "Submit",
