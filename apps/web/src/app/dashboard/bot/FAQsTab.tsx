@@ -62,6 +62,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
 
     try {
       const res = await fetch(`${apiUrl}/api/v1/bots/${botId}/faqs`, {
+        credentials: 'include',
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -97,6 +98,7 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
 
     try {
       const res = await fetch(`${apiUrl}/api/v1/faqs/${faqId}`, {
+        credentials: 'include',
         method: 'DELETE',
         credentials: 'include',
       });

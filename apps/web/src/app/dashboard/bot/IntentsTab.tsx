@@ -34,6 +34,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
   const fetchIntents = async () => {
     try {
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/intents`, {
+        credentials: 'include',
         headers: buildAuthHeaders(false),
       });
 
@@ -73,6 +74,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
 
     try {
       const res = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/intents`, {
+        credentials: 'include',
         method: 'POST',
         headers: buildAuthHeaders(),
         body: JSON.stringify({ name, patterns, response }),
@@ -101,6 +103,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
 
     try {
       const res = await fetch(`${apiBaseUrl}/api/v1/intents/${intentId}`, {
+        credentials: 'include',
         method: 'DELETE',
         headers: buildAuthHeaders(false),
       });

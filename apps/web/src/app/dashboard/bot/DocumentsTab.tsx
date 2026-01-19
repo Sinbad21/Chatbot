@@ -98,6 +98,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
       formData.append('file', selectedFile);
 
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents/upload`, {
+        credentials: 'include',
         method: 'POST',
         credentials: 'include',
         body: formData,
@@ -140,6 +141,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
 
     try {
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}/documents`, {
+        credentials: 'include',
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -175,6 +177,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
   const handleToggleExclude = async (documentId: string, currentExcluded: boolean) => {
     try {
       const response = await fetch(`${apiBaseUrl}/api/v1/documents/${documentId}`, {
+        credentials: 'include',
         method: 'PATCH',
         credentials: 'include',
         headers: {
@@ -204,6 +207,7 @@ export default function DocumentsTab({ botId, apiBaseUrl }: DocumentsTabProps) {
 
     try {
       const response = await fetch(`${apiBaseUrl}/api/v1/documents/${documentId}`, {
+        credentials: 'include',
         method: 'DELETE',
         credentials: 'include',
         headers: buildAuthHeaders(false),

@@ -28,6 +28,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
     setError(null);
     try {
       const res = await fetch(`${apiBaseUrl}/api/bots/${botId}/faqs`, {
+        credentials: 'include',
         headers: buildAuthHeaders(false),
       });
 
@@ -52,6 +53,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
     setError(null);
     try {
       const res = await fetch(`${apiBaseUrl}/api/bots/${botId}/faqs`, {
+        credentials: 'include',
         method: "POST",
         headers: buildAuthHeaders(),
         body: JSON.stringify({ question, answer }),
@@ -75,6 +77,7 @@ export default function FaqTab({ botId, apiBaseUrl }: Props) {
     setError(null);
     try {
       const res = await fetch(`${apiBaseUrl}/api/faqs/${id}`, {
+        credentials: 'include',
         method: "DELETE",
         headers: buildAuthHeaders(false),
       });

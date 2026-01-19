@@ -225,6 +225,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
 
     try {
       const response = await fetch(`${apiBaseUrl}/api/v1/chat`, {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -278,6 +279,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
 
     try {
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}`, {
+        credentials: 'include',
         method: 'PATCH',
         credentials: 'include',
         headers: {
