@@ -399,7 +399,6 @@ export default function BotOverviewTab({ botId }: Props) {
       }
 
       const response = await fetch(`${apiUrl}/api/v1/bots/${botId}`, {
-        credentials: 'include',
         method: "PATCH",
         credentials: 'include',
         headers: {
@@ -508,7 +507,6 @@ export default function BotOverviewTab({ botId }: Props) {
     try {
       setPromptWizardGenerating(true);
       const response = await fetch(`${apiUrl}/api/v1/bots/${botId}/prompt/generate`, {
-        credentials: 'include',
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -600,7 +598,6 @@ export default function BotOverviewTab({ botId }: Props) {
       }
 
       const response = await fetch(`${apiUrl}/api/v1/bots/${botId}/logo`, {
-        credentials: 'include',
         method: "POST",
         credentials: 'include',
         body: formData,
@@ -636,7 +633,6 @@ export default function BotOverviewTab({ botId }: Props) {
       }
 
       const response = await fetch(`${apiUrl}/api/v1/bots/${bot.id}`, {
-        credentials: 'include',
         method: "DELETE",
         credentials: 'include',
       });
