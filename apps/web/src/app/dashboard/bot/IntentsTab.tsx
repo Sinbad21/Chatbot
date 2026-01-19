@@ -198,7 +198,7 @@ export default function IntentsTab({ botId, apiBaseUrl }: IntentsTabProps) {
 
       <GlassCard className="p-6">
         <h3 className="text-lg font-semibold text-charcoal mb-4">
-          {t('intentsCount', { count: intents.length })}
+          {`${t('intentsCount')} (${intents.length})`}
         </h3>
 
         {intents.length === 0 ? (

@@ -165,7 +165,7 @@
     "response": "Risposta",
     "responsePlaceholder": "Ciao! Come posso aiutarti oggi?",
     "addIntent": "Aggiungi Intent",
-    "intentsCount": "Intent ({count})",
+    "intentsCount": "Intent",
     "noIntents": "Nessun intent ancora. Aggiungi il tuo primo intent sopra per addestrare il bot con il pattern matching.",
     "loading": "Caricamento intent...",
     "error": "Errore nel caricamento degli intent",

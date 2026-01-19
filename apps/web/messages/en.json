@@ -165,7 +165,7 @@
     "response": "Response",
     "responsePlaceholder": "Hello! How can I help you today?",
     "addIntent": "Add Intent",
-    "intentsCount": "Intents ({count})",
+    "intentsCount": "Intents",
     "noIntents": "No intents yet. Add your first intent above to train your bot with pattern matching.",
     "loading": "Loading intents...",
     "error": "Error loading intents",
