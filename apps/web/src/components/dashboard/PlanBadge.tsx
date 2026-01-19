@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Crown, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
@@ -22,35 +23,36 @@ interface PlanData {
 
 export default function PlanBadge() {
   const { t } = useTranslation();
+  const pathname = usePathname();
   const [data, setData] = useState<PlanData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchPlan = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        if (!apiUrl) {
-          setLoading(false);
-          return;
-        }
-        
-        const res = await fetch(`${apiUrl}/api/v1/plan-usage`, { 
-          credentials: 'include',
-        });
-        if (res.ok) {
-          const result = await res.json();
-          setData(result);
-        }
-      } catch (e) {
-        console.error('Failed to fetch plan:', e);
-      } finally {
+  const fetchPlan = useCallback(async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!apiUrl) {
         setLoading(false);
+        return;
       }
-    };
-    fetchPlan();
+
+      const res = await fetch(`${apiUrl}/api/v1/plan-usage`, {
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const result = await res.json();
+        setData(result);
+      }
+    } catch (e) {
+      console.error('Failed to fetch plan:', e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // Default values
+  // Refresh data on route change
+  useEffect(() => {
+    fetchPlan();
+  }, [pathname, fetchPlan]);
   const planName = data?.plan?.name || 'Free';
   const botsUsed = data?.usage?.bots?.current || 0;
   const botsLimit = data?.usage?.bots?.max || 1;
