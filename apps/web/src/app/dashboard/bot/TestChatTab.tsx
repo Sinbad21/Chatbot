@@ -15,6 +15,65 @@ interface TestChatTabProps {
   apiBaseUrl: string;
 }
 
+// Simple markdown-like formatter for bot messages
+function FormattedMessage({ content, isUser }: { content: string; isUser: boolean }) {
+  if (isUser) {
+    return <p className="text-sm whitespace-pre-wrap">{content}</p>;
+  }
+
+  // Split by double newlines for paragraphs
+  const paragraphs = content.split(/\n\n+/);
+
+  return (
+    <div className="text-sm space-y-2">
+      {paragraphs.map((paragraph, pIdx) => {
+        // Check if it's a numbered list
+        const numberedListMatch = paragraph.match(/^(\d+[\.\)]\s+.+(\n|$))+/m);
+        if (numberedListMatch || /^\d+[\.\)]\s+/.test(paragraph)) {
+          const items = paragraph.split(/\n/).filter(line => line.trim());
+          return (
+            <ol key={pIdx} className="list-decimal list-inside space-y-1 ml-1">
+              {items.map((item, idx) => (
+                <li key={idx} className="text-sm">
+                  {item.replace(/^\d+[\.\)]\s*/, '')}
+                </li>
+              ))}
+            </ol>
+          );
+        }
+
+        // Check if it's a bullet list
+        if (/^[-•*]\s+/.test(paragraph)) {
+          const items = paragraph.split(/\n/).filter(line => line.trim());
+          return (
+            <ul key={pIdx} className="list-disc list-inside space-y-1 ml-1">
+              {items.map((item, idx) => (
+                <li key={idx} className="text-sm">
+                  {item.replace(/^[-•*]\s*/, '')}
+                </li>
+              ))}
+            </ul>
+          );
+        }
+
+        // Check for headers (lines ending with colon or all caps)
+        const lines = paragraph.split(/\n/);
+        return (
+          <div key={pIdx} className="space-y-1">
+            {lines.map((line, lIdx) => {
+              // Bold headers (text ending with colon or ALL CAPS)
+              if (/^[A-Z\s]+$/.test(line.trim()) || /^[A-Z][A-Za-z\s]+:$/.test(line.trim())) {
+                return <p key={lIdx} className="font-semibold text-charcoal">{line}</p>;
+              }
+              return <p key={lIdx} className="whitespace-pre-wrap">{line}</p>;
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 const PROMPT_TEMPLATES = [
   {
     name: 'Customer Support',
@@ -387,7 +446,7 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
                       : 'bg-pearl-50/60 text-charcoal'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  <FormattedMessage content={msg.content} isUser={msg.role === 'user'} />
                 </div>
               </div>
             ))}
