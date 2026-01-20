@@ -281,7 +281,6 @@ export default function TestChatTab({ botId, apiBaseUrl }: TestChatTabProps) {
       const response = await fetch(`${apiBaseUrl}/api/v1/bots/${botId}`, {
         credentials: 'include',
         method: 'PATCH',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },

@@ -64,7 +64,6 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
       const res = await fetch(`${apiUrl}/api/v1/bots/${botId}/faqs`, {
         credentials: 'include',
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -100,7 +99,6 @@ export default function FAQsTab({ botId }: FAQsTabProps) {
       const res = await fetch(`${apiUrl}/api/v1/faqs/${faqId}`, {
         credentials: 'include',
         method: 'DELETE',
-        credentials: 'include',
       });
 
       if (!res.ok) {
