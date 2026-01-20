@@ -281,6 +281,27 @@
       "description": "Description",
       "source": "Fonte"
     },
+    "intents": {
+      "title": "Aggiungi Nuovo Intent",
+      "loading": "Caricamento intent...",
+      "intentName": "Nome Intent",
+      "intentNamePlaceholder": "es. saluto, richiesta_aiuto, domanda_prezzi",
+      "patterns": "Pattern (uno per riga)",
+      "patternsPlaceholder": "ciao\nbuongiorno\nsalve\ncome stai",
+      "patternsHelp": "Aggiungi frasi che attivano questo intent, una per riga",
+      "response": "Risposta",
+      "responsePlaceholder": "Ciao! Come posso aiutarti oggi?",
+      "addIntent": "Aggiungi Intent",
+      "adding": "Aggiunta in corso...",
+      "intentsCount": "Intent",
+      "noIntents": "Nessun intent ancora. Aggiungi il tuo primo intent sopra per addestrare il bot con il pattern matching.",
+      "error": "Errore nel caricamento degli intent",
+      "failedToAdd": "Impossibile aggiungere l'intent",
+      "failedToDelete": "Impossibile eliminare l'intent",
+      "deleteConfirm": "Sei sicuro di voler eliminare questo intent?",
+      "atLeastOnePattern": "Aggiungi almeno un pattern",
+      "delete": "Elimina"
+    },
     "scraping": {
       "title": "Web Scraping",
       "subtitle": "Scraping di siti web per addestrare il tuo bot",

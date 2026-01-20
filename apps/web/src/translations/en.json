@@ -281,6 +281,27 @@
       "description": "Description",
       "source": "Source"
     },
+    "intents": {
+      "title": "Add New Intent",
+      "loading": "Loading intents...",
+      "intentName": "Intent Name",
+      "intentNamePlaceholder": "e.g., greeting, help_request, pricing_question",
+      "patterns": "Patterns (one per line)",
+      "patternsPlaceholder": "hello\nhi\nhey there\ngood morning",
+      "patternsHelp": "Add phrases that trigger this intent, one per line",
+      "response": "Response",
+      "responsePlaceholder": "Hello! How can I help you today?",
+      "addIntent": "Add Intent",
+      "adding": "Adding...",
+      "intentsCount": "Intents",
+      "noIntents": "No intents yet. Add your first intent above to train your bot with pattern matching.",
+      "error": "Error loading intents",
+      "failedToAdd": "Failed to add intent",
+      "failedToDelete": "Failed to delete intent",
+      "deleteConfirm": "Are you sure you want to delete this intent?",
+      "atLeastOnePattern": "Please add at least one pattern",
+      "delete": "Delete"
+    },
     "scraping": {
       "title": "Web Scraping",
       "subtitle": "Scrape websites to train your bot",
