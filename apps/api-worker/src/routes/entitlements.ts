@@ -56,6 +56,12 @@ entitlementsRoutes.get('/', async (c) => {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('[GET /api/v1/entitlements] Error:', message);
+    
+    // Handle specific errors with appropriate status codes
+    if (message.includes('Organization not found')) {
+      return c.json({ error: 'Organization not found or not provisioned', message }, 404);
+    }
+    
     return c.json({ error: 'Failed to fetch entitlements', message }, 500);
   }
 });

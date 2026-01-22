@@ -14,6 +14,8 @@
 import type { PrismaClient } from '@prisma/client';
 
 // Addon codes for lookups - must match slugs in database seed
+// TODO: Import from @chatbot-studio/database once package is built
+// import { ADDON_CODES } from '@chatbot-studio/database';
 export const ADDON_CODES = {
   EXTRA_BOT_SLOTS: 'extra-bot-slot',
   UNLIMITED_CONVERSATIONS: 'unlimited-conversations',
@@ -89,13 +91,20 @@ export async function getWorkspaceEntitlements(
 ): Promise<Entitlements> {
   // Fetch organization with subscription, plan, addons, and bot count in parallel
   const [orgData, monthlyConversations, userAddons] = await Promise.all([
-    // Get org with active subscription and bot count
+    // Get org with active subscription, subscription addons, and bot count
     prisma.organization.findUnique({
       where: { id: organizationId },
       include: {
         subscriptions: {
           where: { status: 'ACTIVE' },
-          include: { plan: true },
+          include: { 
+            plan: true,
+            // Include SubscriptionAddons from the subscription
+            addons: {
+              where: { status: 'ACTIVE' },
+              include: { addon: true },
+            },
+          },
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
@@ -104,7 +113,7 @@ export async function getWorkspaceEntitlements(
     }),
     // Get monthly conversation count
     getMonthlyConversationCount(prisma, organizationId),
-    // Get active addons for this organization
+    // Get active addons for this organization (legacy UserAddon - fallback)
     prisma.userAddon.findMany({
       where: {
         organizationId,
@@ -130,8 +139,33 @@ export async function getWorkspaceEntitlements(
   const baseBotLimit = plan?.maxBots ?? FREE_PLAN_DEFAULTS.maxBots;
   const baseConversationLimit = plan?.maxConversations ?? FREE_PLAN_DEFAULTS.maxConversations;
 
-  // Calculate addon-based adjustments
-  const addonMap = new Map(userAddons.map((ua) => [ua.addon.slug, ua]));
+  // Build addon map from multiple sources (SubscriptionAddon takes priority over UserAddon)
+  // This supports both new SubscriptionAddon model and legacy UserAddon
+  type AddonEntry = { slug: string; quantity: number; id: string; name: string; status: string };
+  const addonMap = new Map<string, AddonEntry>();
+  
+  // First, add UserAddons (legacy, lower priority)
+  for (const ua of userAddons) {
+    addonMap.set(ua.addon.slug, {
+      slug: ua.addon.slug,
+      quantity: ua.quantity,
+      id: ua.id,
+      name: ua.addon.name,
+      status: ua.status,
+    });
+  }
+  
+  // Then, override with SubscriptionAddons (higher priority, newer model)
+  const subscriptionAddons = (activeSub as any)?.addons ?? [];
+  for (const sa of subscriptionAddons) {
+    addonMap.set(sa.addon.slug, {
+      slug: sa.addon.slug,
+      quantity: sa.quantity,
+      id: sa.id,
+      name: sa.addon.name,
+      status: sa.status,
+    });
+  }
 
   // Extra bot slots
   const extraBotAddon = addonMap.get(ADDON_CODES.EXTRA_BOT_SLOTS);
@@ -167,13 +201,13 @@ export async function getWorkspaceEntitlements(
     : Math.min(100, Math.round((currentConversations / baseConversationLimit) * 100));
   const convsReached = hasUnlimitedConversations ? false : currentConversations >= baseConversationLimit;
 
-  // Build addons array for UI
-  const addonsArray = userAddons.map((ua) => ({
-    id: ua.id,
-    slug: ua.addon.slug,
-    name: ua.addon.name,
-    quantity: ua.quantity,
-    status: ua.status,
+  // Build addons array for UI (from merged addonMap)
+  const addonsArray = Array.from(addonMap.values()).map((entry) => ({
+    id: entry.id,
+    slug: entry.slug,
+    name: entry.name,
+    quantity: entry.quantity,
+    status: entry.status,
   }));
 
   return {
@@ -220,6 +254,12 @@ export async function getWorkspaceEntitlements(
 
 /**
  * Get monthly conversation count for an organization
+ * 
+ * Usage period: Current calendar month (1st of month 00:00:00 UTC to end of month)
+ * This is NOT aligned to billing period - it resets on the 1st of each month.
+ * 
+ * TODO: Consider aligning to subscription billing period (currentPeriodStart/End)
+ * for more accurate usage tracking relative to billing cycles.
  */
 async function getMonthlyConversationCount(
   prisma: PrismaClient,
