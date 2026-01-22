@@ -1,66 +1,35 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { Crown, Sparkles } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
-
-interface PlanData {
-  plan: {
-    name: string;
-    features: Record<string, boolean>;
-  };
-  usage: {
-    bots: { current: number; max: number; percentage: number };
-    conversations: { current: number; max: number; percentage: number; resetsAt: string };
-  };
-  subscription: {
-    status: string;
-    currentPeriodEnd: string;
-  } | null;
-}
+import { useEntitlements, formatConversationLimit } from '@/hooks/useEntitlements';
 
 export default function PlanBadge() {
   const { t } = useTranslation();
   const pathname = usePathname();
-  const [data, setData] = useState<PlanData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchPlan = useCallback(async () => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (!apiUrl) {
-        setLoading(false);
-        return;
-      }
-
-      const res = await fetch(`${apiUrl}/api/v1/plan-usage`, {
-        credentials: 'include',
-      });
-      if (res.ok) {
-        const result = await res.json();
-        setData(result);
-      }
-    } catch (e) {
-      console.error('Failed to fetch plan:', e);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const { entitlements, loading, refetch } = useEntitlements();
 
   // Refresh data on route change
   useEffect(() => {
-    fetchPlan();
-  }, [pathname, fetchPlan]);
-  const planName = data?.plan?.name || 'Free';
-  const botsUsed = data?.usage?.bots?.current || 0;
-  const botsLimit = data?.usage?.bots?.max || 1;
-  const convsUsed = data?.usage?.conversations?.current || 0;
-  const convsLimit = data?.usage?.conversations?.max || 1000;
+    refetch();
+  }, [pathname, refetch]);
+
+  // Extract values from entitlements (with fallbacks)
+  const planName = entitlements?.plan?.name || 'Free';
+  const botsUsed = entitlements?.bots?.current || 0;
+  const botsLimit = entitlements?.bots?.limit || 1;
+  const convsUsed = entitlements?.conversations?.current || 0;
+  const convsLimit = entitlements?.conversations?.limit ?? 1000;
+  const isUnlimited = entitlements?.conversations?.isUnlimited || false;
+  const botsReached = entitlements?.bots?.reached || false;
+  const convsReached = entitlements?.conversations?.reached || false;
 
   const isFree = planName === 'Free';
-  const isNearLimit = botsUsed >= botsLimit || convsUsed >= convsLimit * 0.9;
+  const isNearLimit = botsReached || (!isUnlimited && entitlements?.conversations?.percentage >= 90);
+
 
   return (
     <div className="mt-4 pt-4 border-t border-silver-200">
@@ -85,8 +54,8 @@ export default function PlanBadge() {
             </div>
             <div className="h-1.5 bg-silver-200 rounded-full overflow-hidden">
               <div 
-                className={`h-full rounded-full transition-all ${botsUsed >= botsLimit ? 'bg-red-500' : 'bg-emerald-500'}`}
-                style={{ width: `${Math.min(100, (botsUsed / botsLimit) * 100)}%` }}
+                className={`h-full rounded-full transition-all ${botsReached ? 'bg-red-500' : 'bg-emerald-500'}`}
+                style={{ width: `${entitlements?.bots?.percentage || 0}%` }}
               />
             </div>
           </div>
@@ -94,12 +63,12 @@ export default function PlanBadge() {
           <div>
             <div className="flex justify-between text-[10px] text-silver-600 mb-0.5">
               <span>Msgs</span>
-              <span>{convsUsed}/{convsLimit}</span>
+              <span>{convsUsed}/{formatConversationLimit(convsLimit)}</span>
             </div>
             <div className="h-1.5 bg-silver-200 rounded-full overflow-hidden">
               <div 
-                className={`h-full rounded-full transition-all ${convsUsed >= convsLimit ? 'bg-red-500' : 'bg-emerald-500'}`}
-                style={{ width: `${Math.min(100, (convsUsed / convsLimit) * 100)}%` }}
+                className={`h-full rounded-full transition-all ${convsReached ? 'bg-red-500' : 'bg-emerald-500'}`}
+                style={{ width: `${isUnlimited ? 0 : (entitlements?.conversations?.percentage || 0)}%` }}
               />
             </div>
           </div>

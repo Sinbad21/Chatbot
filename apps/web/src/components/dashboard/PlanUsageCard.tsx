@@ -1,61 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslation } from '@/lib/i18n';
-
-interface PlanUsage {
-  plan: {
-    name: string;
-    features: Record<string, boolean>;
-  };
-  usage: {
-    bots: {
-      current: number;
-      max: number;
-      percentage: number;
-    };
-    conversations: {
-      current: number;
-      max: number;
-      percentage: number;
-      resetsAt: string;
-    };
-  };
-  subscription: {
-    status: string;
-    currentPeriodEnd: string;
-  } | null;
-}
+import { useEntitlements, formatConversationLimit } from '@/hooks/useEntitlements';
 
 export default function PlanUsageCard() {
   const { t } = useTranslation();
-  const [planUsage, setPlanUsage] = useState<PlanUsage | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchPlanUsage = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        if (!apiUrl) return;
-
-        const response = await fetch(`${apiUrl}/api/v1/plan-usage`, {
-          credentials: 'include',
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setPlanUsage(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch plan usage:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPlanUsage();
-  }, []);
+  const { entitlements, loading } = useEntitlements();
 
   if (loading) {
     return (
@@ -67,12 +18,12 @@ export default function PlanUsageCard() {
     );
   }
 
-  if (!planUsage) return null;
+  if (!entitlements) return null;
 
-  const { plan, usage } = planUsage;
+  const { plan, bots, conversations } = entitlements;
   const isFreePlan = plan.name.toLowerCase() === 'free';
-  const botsNearLimit = usage.bots.percentage >= 80;
-  const conversationsNearLimit = usage.conversations.percentage >= 80;
+  const botsNearLimit = bots.percentage >= 80;
+  const conversationsNearLimit = !conversations.isUnlimited && conversations.percentage >= 80;
   const showUpgradePrompt = isFreePlan && (botsNearLimit || conversationsNearLimit);
 
   const formatNumber = (num: number) => {
@@ -119,13 +70,16 @@ export default function PlanUsageCard() {
           <div className="flex justify-between text-sm mb-1">
             <span className="text-silver-600">{t('planUsage.bots')}</span>
             <span className={`font-medium ${botsNearLimit ? 'text-amber-600' : 'text-charcoal'}`}>
-              {usage.bots.current} / {usage.bots.max}
+              {bots.current} / {bots.limit}
+              {bots.extraSlots > 0 && (
+                <span className="text-xs text-silver-500 ml-1">(+{bots.extraSlots} extra)</span>
+              )}
             </span>
           </div>
           <div className="h-2 bg-silver-100 rounded-full overflow-hidden">
             <div
-              className={`h-full ${getProgressColor(usage.bots.percentage)} transition-all duration-300`}
-              style={{ width: `${usage.bots.percentage}%` }}
+              className={`h-full ${getProgressColor(bots.percentage)} transition-all duration-300`}
+              style={{ width: `${bots.percentage}%` }}
             />
           </div>
         </div>
@@ -135,17 +89,20 @@ export default function PlanUsageCard() {
           <div className="flex justify-between text-sm mb-1">
             <span className="text-silver-600">{t('planUsage.monthlyConversations')}</span>
             <span className={`font-medium ${conversationsNearLimit ? 'text-amber-600' : 'text-charcoal'}`}>
-              {formatNumber(usage.conversations.current)} / {formatNumber(usage.conversations.max)}
+              {formatNumber(conversations.current)} / {formatConversationLimit(conversations.limit)}
             </span>
           </div>
           <div className="h-2 bg-silver-100 rounded-full overflow-hidden">
             <div
-              className={`h-full ${getProgressColor(usage.conversations.percentage)} transition-all duration-300`}
-              style={{ width: `${usage.conversations.percentage}%` }}
+              className={`h-full ${conversations.isUnlimited ? 'bg-emerald-500' : getProgressColor(conversations.percentage)} transition-all duration-300`}
+              style={{ width: conversations.isUnlimited ? '100%' : `${conversations.percentage}%` }}
             />
           </div>
           <p className="text-xs text-silver-500 mt-1">
-            {t('planUsage.resetsOn')} {new Date(usage.conversations.resetsAt).toLocaleDateString()}
+            {conversations.isUnlimited 
+              ? t('planUsage.unlimited') || 'Unlimited'
+              : `${t('planUsage.resetsOn')} ${new Date(conversations.resetsAt).toLocaleDateString()}`
+            }
           </p>
         </div>
       </div>

@@ -9,6 +9,7 @@ import { registerCalendarRoutes } from './routes/calendar';
 import { reviewBotRoutes } from './routes/review-bot';
 import { reviewWidgetRoutes } from './routes/review-widget';
 import { webhooksEcommerceRoutes } from './routes/webhooks-ecommerce';
+import { entitlementsRoutes } from './routes/entitlements';
 import { parseHTML } from 'linkedom';
 import { getPrisma } from './db';
 import { extractText } from 'unpdf';
@@ -179,6 +180,10 @@ registerCalendarRoutes(app as any);
 app.route('/api/review-bot', reviewBotRoutes);
 app.route('/api/review-widget', reviewWidgetRoutes);
 app.route('/api/webhooks', webhooksEcommerceRoutes);
+
+// Entitlements routes (centralized source of truth for limits/features)
+app.use('/api/v1/entitlements/*', authMiddleware);
+app.route('/api/v1/entitlements', entitlementsRoutes);
 
 // ============================================
 // HEALTH CHECK
