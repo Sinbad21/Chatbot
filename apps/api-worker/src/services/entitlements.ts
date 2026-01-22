@@ -13,11 +13,11 @@
 
 import type { PrismaClient } from '@prisma/client';
 
-// Addon codes for lookups
+// Addon codes for lookups - must match slugs in database seed
 export const ADDON_CODES = {
   EXTRA_BOT_SLOTS: 'extra-bot-slot',
   UNLIMITED_CONVERSATIONS: 'unlimited-conversations',
-  WHITE_LABEL: 'remove-watermark',
+  WHITE_LABEL: 'white-label',
   BYOK: 'byok',
   SSO_SAML: 'sso-saml',
   AUDIT_LOG: 'audit-log',
