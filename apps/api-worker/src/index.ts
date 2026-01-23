@@ -193,6 +193,7 @@ app.route('/api/billing', billingRoutes);
 // Checkout & Portal routes (requires auth)
 app.use('/api/billing/checkout', authMiddleware);
 app.use('/api/billing/portal', authMiddleware);
+app.use('/api/billing/status', authMiddleware);
 app.route('/api/billing', checkoutRoutes);
 
 // ============================================

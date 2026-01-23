@@ -72,6 +72,15 @@ export const PortalRequestSchema = z.object({
 
 export type PortalRequest = z.infer<typeof PortalRequestSchema>;
 
+/**
+ * GET /api/billing/status query params
+ */
+export const StatusRequestSchema = z.object({
+  workspaceId: z.string().min(1, 'Workspace ID is required'),
+});
+
+export type StatusRequest = z.infer<typeof StatusRequestSchema>;
+
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
@@ -449,6 +458,167 @@ checkoutRoutes.get('/portal', async (c) => {
   console.log(`[Portal] Created session ${session.id} for workspace ${workspaceId}`);
 
   return c.json({ url: session.url });
+});
+
+// ============================================
+// GET /api/billing/status - Get subscription status
+// ============================================
+
+/**
+ * GET /api/billing/status
+ * 
+ * Returns complete billing status for a workspace:
+ * - Current subscription (plan, status, renewal date)
+ * - Active addons with quantities
+ * - Stripe customer info
+ * 
+ * Authorization: workspace membership + OWNER or ADMIN role
+ */
+checkoutRoutes.get('/status', async (c) => {
+  const prisma = getPrisma(c.env);
+  const user = c.get('user');
+
+  // Validate query params
+  let query: StatusRequest;
+  try {
+    const workspaceId = c.req.query('workspaceId');
+    query = StatusRequestSchema.parse({ workspaceId });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return c.json({ 
+        error: 'Validation failed', 
+        details: error.errors.map(e => ({ path: e.path.join('.'), message: e.message }))
+      }, 400);
+    }
+    return c.json({ error: 'Invalid query parameters' }, 400);
+  }
+
+  const { workspaceId } = query;
+
+  // Check authorization
+  const authCheck = await checkBillingPermission(prisma, user.userId, workspaceId);
+  if (!authCheck.authorized) {
+    console.log(`[Status] Authorization failed for user ${user.userId}: ${authCheck.error}`);
+    return c.json({ error: authCheck.error }, 403);
+  }
+
+  // Get organization with billing data
+  const organization = await prisma.organization.findUnique({
+    where: { id: workspaceId },
+    select: { 
+      id: true, 
+      name: true,
+      plan: true, // Current plan code from organization
+      stripeCustomerId: true,
+    },
+  });
+
+  if (!organization) {
+    return c.json({ error: 'Workspace not found' }, 404);
+  }
+
+  // Get active subscription
+  const subscription = await prisma.subscription.findFirst({
+    where: { 
+      organizationId: workspaceId,
+      status: { in: ['ACTIVE', 'TRIALING', 'PAST_DUE'] },
+    },
+    include: {
+      plan: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          interval: true,
+          maxBots: true,
+          maxConversations: true,
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  // Get active addons
+  const activeAddons = await prisma.userAddon.findMany({
+    where: {
+      organizationId: workspaceId,
+      status: { in: ['ACTIVE', 'TRIALING'] },
+    },
+    include: {
+      addon: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          priceMonthly: true,
+          priceYearly: true,
+          category: true,
+        },
+      },
+    },
+  });
+
+  // Calculate next billing date
+  const nextBillingDate = subscription?.currentPeriodEnd || null;
+  
+  // Calculate total monthly cost
+  let monthlyTotal = 0;
+  if (subscription?.plan) {
+    monthlyTotal += subscription.plan.price;
+  }
+  for (const ua of activeAddons) {
+    const addonPrice = Number(ua.addon.priceMonthly) || 0;
+    monthlyTotal += addonPrice * (ua.quantity || 1);
+  }
+
+  // Build response
+  const response = {
+    workspace: {
+      id: organization.id,
+      name: organization.name,
+    },
+    hasStripeCustomer: !!organization.stripeCustomerId,
+    subscription: subscription ? {
+      id: subscription.id,
+      status: subscription.status,
+      plan: {
+        id: subscription.plan.id,
+        name: subscription.plan.name,
+        interval: subscription.plan.interval,
+        limits: {
+          maxBots: subscription.plan.maxBots,
+          maxConversations: subscription.plan.maxConversations,
+        },
+      },
+      currentPeriodStart: subscription.currentPeriodStart?.toISOString(),
+      currentPeriodEnd: subscription.currentPeriodEnd?.toISOString(),
+      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+      stripeSubscriptionId: subscription.stripeSubscriptionId,
+    } : null,
+    addons: activeAddons.map(ua => ({
+      id: ua.addon.id,
+      slug: ua.addon.slug,
+      name: ua.addon.name,
+      category: ua.addon.category,
+      quantity: ua.quantity,
+      status: ua.status,
+      currentPeriodEnd: ua.currentPeriodEnd?.toISOString() || null,
+    })),
+    billing: {
+      nextBillingDate: nextBillingDate?.toISOString() || null,
+      estimatedMonthlyTotal: Math.round(monthlyTotal * 100) / 100,
+      currency: 'EUR',
+    },
+    // Quick access flags
+    isPaid: !!subscription && subscription.status === 'ACTIVE',
+    isTrialing: subscription?.status === 'TRIALING' || false,
+    isPastDue: subscription?.status === 'PAST_DUE' || false,
+    willCancel: subscription?.cancelAtPeriodEnd || false,
+  };
+
+  console.log(`[Status] Retrieved billing status for workspace ${workspaceId}`);
+
+  return c.json(response);
 });
 
 export { checkoutRoutes };

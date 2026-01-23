@@ -67,6 +67,12 @@ const mockPrisma = {
   auditLog: {
     create: vi.fn(),
   },
+  subscription: {
+    findFirst: vi.fn(),
+  },
+  userAddon: {
+    findMany: vi.fn(),
+  },
 };
 
 // Create mock Stripe client
@@ -590,5 +596,191 @@ describe('Audit Logging', () => {
         source: 'billing',
       }),
     });
+  });
+});
+
+describe('GET /api/billing/status', () => {
+  let app: ReturnType<typeof createTestApp>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    app = createTestApp();
+    mockPrisma.organizationMember.findUnique.mockResolvedValue({ role: 'ADMIN' });
+  });
+
+  it('should return billing status with active subscription', async () => {
+    mockPrisma.organization.findUnique.mockResolvedValue({
+      id: 'ws_123',
+      name: 'Test Org',
+      plan: 'starter',
+      stripeCustomerId: 'cus_existing',
+    });
+    mockPrisma.subscription.findFirst.mockResolvedValue({
+      id: 'sub_123',
+      organizationId: 'ws_123',
+      status: 'ACTIVE',
+      currentPeriodStart: new Date('2025-01-01'),
+      currentPeriodEnd: new Date('2025-02-01'),
+      cancelAtPeriodEnd: false,
+      stripeSubscriptionId: 'sub_stripe_123',
+      plan: {
+        id: 'plan_starter',
+        name: 'Starter',
+        price: 29,
+        interval: 'month',
+        maxBots: 3,
+        maxConversations: 5000,
+      },
+    });
+    mockPrisma.userAddon.findMany.mockResolvedValue([]);
+
+    const res = await app.request('/api/billing/status?workspaceId=ws_123', {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer admin-token',
+      },
+    }, testEnv);
+
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    
+    expect(json.workspace.id).toBe('ws_123');
+    expect(json.hasStripeCustomer).toBe(true);
+    expect(json.subscription).not.toBeNull();
+    expect(json.subscription.status).toBe('ACTIVE');
+    expect(json.subscription.plan.name).toBe('Starter');
+    expect(json.isPaid).toBe(true);
+    expect(json.isTrialing).toBe(false);
+    expect(json.willCancel).toBe(false);
+  });
+
+  it('should return status with active addons and quantity', async () => {
+    mockPrisma.organization.findUnique.mockResolvedValue({
+      id: 'ws_123',
+      name: 'Test Org',
+      plan: 'professional',
+      stripeCustomerId: 'cus_existing',
+    });
+    mockPrisma.subscription.findFirst.mockResolvedValue({
+      id: 'sub_123',
+      status: 'ACTIVE',
+      currentPeriodEnd: new Date('2025-02-01'),
+      cancelAtPeriodEnd: false,
+      plan: {
+        id: 'plan_pro',
+        name: 'Professional',
+        price: 79,
+        interval: 'month',
+        maxBots: 10,
+        maxConversations: 20000,
+      },
+    });
+    mockPrisma.userAddon.findMany.mockResolvedValue([
+      {
+        id: 'ua_1',
+        quantity: 5,
+        status: 'ACTIVE',
+        currentPeriodEnd: new Date('2025-02-01'),
+        addon: {
+          id: 'addon_1',
+          name: 'Extra Bot Slots',
+          slug: 'extra-bot-slots',
+          priceMonthly: 10,
+          priceYearly: 100,
+          category: 'CAPACITY',
+        },
+      },
+    ]);
+
+    const res = await app.request('/api/billing/status?workspaceId=ws_123', {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer admin-token',
+      },
+    }, testEnv);
+
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    
+    expect(json.addons).toHaveLength(1);
+    expect(json.addons[0].slug).toBe('extra-bot-slots');
+    expect(json.addons[0].quantity).toBe(5);
+    // 79 (plan) + 10 * 5 (addon) = 129
+    expect(json.billing.estimatedMonthlyTotal).toBe(129);
+  });
+
+  it('should return null subscription for free tier', async () => {
+    mockPrisma.organization.findUnique.mockResolvedValue({
+      id: 'ws_123',
+      name: 'Test Org',
+      plan: 'free',
+      stripeCustomerId: null,
+    });
+    mockPrisma.subscription.findFirst.mockResolvedValue(null);
+    mockPrisma.userAddon.findMany.mockResolvedValue([]);
+
+    const res = await app.request('/api/billing/status?workspaceId=ws_123', {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer admin-token',
+      },
+    }, testEnv);
+
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    
+    expect(json.subscription).toBeNull();
+    expect(json.hasStripeCustomer).toBe(false);
+    expect(json.isPaid).toBe(false);
+    expect(json.addons).toEqual([]);
+  });
+
+  it('should reject non-admin users', async () => {
+    mockPrisma.organizationMember.findUnique.mockResolvedValue({ role: 'VIEWER' });
+
+    const res = await app.request('/api/billing/status?workspaceId=ws_123', {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer viewer-token',
+      },
+    }, testEnv);
+
+    expect(res.status).toBe(403);
+  });
+
+  it('should return willCancel true when cancel scheduled', async () => {
+    mockPrisma.organization.findUnique.mockResolvedValue({
+      id: 'ws_123',
+      name: 'Test Org',
+      stripeCustomerId: 'cus_existing',
+    });
+    mockPrisma.subscription.findFirst.mockResolvedValue({
+      id: 'sub_123',
+      status: 'ACTIVE',
+      currentPeriodEnd: new Date('2025-02-01'),
+      cancelAtPeriodEnd: true, // Scheduled to cancel
+      plan: {
+        id: 'plan_starter',
+        name: 'Starter',
+        price: 29,
+        interval: 'month',
+        maxBots: 3,
+        maxConversations: 5000,
+      },
+    });
+    mockPrisma.userAddon.findMany.mockResolvedValue([]);
+
+    const res = await app.request('/api/billing/status?workspaceId=ws_123', {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer admin-token',
+      },
+    }, testEnv);
+
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    
+    expect(json.willCancel).toBe(true);
+    expect(json.isPaid).toBe(true);
   });
 });
