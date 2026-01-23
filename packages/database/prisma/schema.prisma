@@ -539,26 +539,75 @@ model UsageLog {
 // ============================================
 
 model AuditLog {
-  id             String   @id @default(cuid())
+  id             String  @id @default(cuid())
   organizationId String
-  userId         String
+  userId         String? // Nullable for system-initiated events (e.g., webhooks)
   action         String
   resource       String
   resourceId     String?
   metadata       Json?
   ipAddress      String?
   userAgent      String?
-  createdAt      DateTime @default(now())
+
+  // Source tracking for filtering
+  source String @default("user") // user, billing, system, api
+
+  // Stripe correlation (for billing events)
+  stripeEventId String?
+
+  createdAt DateTime @default(now())
 
   // Relations
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [userId], references: [id])
+  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?               @relation(fields: [userId], references: [id])
+  stripeEvent  StripeWebhookEvent? @relation(fields: [stripeEventId], references: [id])
 
   @@index([organizationId])
   @@index([userId])
   @@index([action])
   @@index([createdAt])
+  @@index([source])
+  @@index([stripeEventId])
   @@map("audit_logs")
+}
+
+// ============================================
+// STRIPE WEBHOOK EVENTS (Idempotency)
+// ============================================
+
+model StripeWebhookEvent {
+  id        String @id @default(cuid())
+  eventId   String @unique // Stripe event ID (evt_xxx) - ensures idempotency
+  eventType String // e.g., "customer.subscription.created"
+
+  // Raw payload for debugging/replay
+  payloadJson Json
+
+  // Processing status
+  status      StripeEventStatus @default(PENDING)
+  processedAt DateTime?
+  error       String?           @db.Text
+
+  // Metadata
+  stripeCreatedAt DateTime // Timestamp from Stripe event
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  auditLogs AuditLog[]
+
+  @@index([eventId])
+  @@index([eventType])
+  @@index([status])
+  @@index([createdAt])
+  @@map("stripe_webhook_events")
+}
+
+enum StripeEventStatus {
+  PENDING
+  PROCESSED
+  FAILED
+  IGNORED
 }
 
 // ============================================

@@ -16,3 +16,6 @@ export * from '@prisma/client';
 
 // Export addon codes and utilities
 export * from './addon-codes';
+
+// Export Stripe price ID mappings
+export * from './stripe-mapping';
