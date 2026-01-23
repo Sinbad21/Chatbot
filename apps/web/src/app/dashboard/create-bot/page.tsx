@@ -427,8 +427,9 @@ export default function NewBotPage() {
 
       const bot = await response.json();
       router.push('/dashboard/bots');
-    } catch (err: any) {
-      setError(err.message || t('createBot.failedToCreate'));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t('createBot.failedToCreate');
+      setError(message);
     } finally {
       setLoading(false);
     }
