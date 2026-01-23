@@ -1,16 +1,32 @@
 /**
- * Billing Webhook Tests
+ * Billing Webhook Integration Tests
  * 
  * Tests for:
- * - Webhook replay (same eventId) doesn't reprocess
- * - Unrecognized events are marked as "ignored"
+ * - Actual webhook handler invocation
  * - Signature verification
- * - Idempotent processing
+ * - Idempotent event processing
+ * - Recoverable vs non-recoverable error handling
+ * - Status transitions
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { Hono } from 'hono';
+import { billingRoutes, RecoverableError } from './billing';
 
-// Mock Prisma client
+// Mock the database module
+vi.mock('../db', () => ({
+  getPrisma: vi.fn(() => mockPrisma),
+}));
+
+// Mock the Stripe mapping functions (with Stripe config initialized)
+vi.mock('@chatbot-studio/database', () => ({
+  getAddonCodeFromStripePriceId: vi.fn(() => null),
+  getPlanIdFromStripePriceId: vi.fn(() => null),
+  initStripeConfig: vi.fn(),
+  isStripeConfigured: vi.fn(() => true),
+}));
+
+// Create mock Prisma client
 const mockPrisma = {
   stripeWebhookEvent: {
     findUnique: vi.fn(),
@@ -40,231 +56,473 @@ const mockPrisma = {
   $transaction: vi.fn((callback) => callback(mockPrisma)),
 };
 
-// Mock crypto for signature verification
-const mockCrypto = {
-  subtle: {
-    importKey: vi.fn(),
-    sign: vi.fn(),
-  },
+// Create test app with billing routes
+const createTestApp = () => {
+  const app = new Hono<{
+    Bindings: {
+      DATABASE_URL: string;
+      STRIPE_SECRET_KEY: string;
+      STRIPE_WEBHOOK_SECRET: string;
+    };
+  }>();
+  
+  app.route('/api/billing', billingRoutes);
+  
+  return app;
 };
 
-describe('Billing Webhook - Idempotency', () => {
+// Helper to create a valid Stripe signature
+async function createStripeSignature(
+  payload: string,
+  secret: string,
+  timestamp?: number
+): Promise<string> {
+  const ts = timestamp || Math.floor(Date.now() / 1000);
+  const signedPayload = `${ts}.${payload}`;
+  
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signatureBytes = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    encoder.encode(signedPayload)
+  );
+  const signature = Array.from(new Uint8Array(signatureBytes))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  
+  return `t=${ts},v1=${signature}`;
+}
+
+// Test environment bindings
+const testEnv = {
+  DATABASE_URL: 'postgres://test:test@localhost:5432/test',
+  STRIPE_SECRET_KEY: 'sk_test_xxx',
+  STRIPE_WEBHOOK_SECRET: 'whsec_test_secret_123',
+};
+
+// Sample Stripe event payload
+const createSubscriptionEvent = (eventId: string, eventType: string) => ({
+  id: eventId,
+  type: eventType,
+  created: Math.floor(Date.now() / 1000),
+  data: {
+    object: {
+      id: 'sub_test123',
+      customer: 'cus_test123',
+      status: 'active',
+      current_period_start: Math.floor(Date.now() / 1000),
+      current_period_end: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
+      cancel_at_period_end: false,
+      items: { data: [] },
+    },
+  },
+});
+
+describe('Billing Webhook Handler', () => {
+  let app: ReturnType<typeof createTestApp>;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    app = createTestApp();
   });
 
-  describe('Event Replay Prevention', () => {
-    it('should not reprocess an already processed event', async () => {
-      const eventId = 'evt_test_123';
+  describe('Signature Verification', () => {
+    it('should reject requests without signature', async () => {
+      const payload = JSON.stringify(createSubscriptionEvent('evt_test1', 'customer.subscription.created'));
       
-      // Simulate event already exists in database
-      mockPrisma.stripeWebhookEvent.findUnique.mockResolvedValue({
+      const res = await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: payload,
+      }, testEnv);
+
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.error).toBe('Missing signature');
+    });
+
+    it('should reject requests with invalid signature', async () => {
+      const payload = JSON.stringify(createSubscriptionEvent('evt_test2', 'customer.subscription.created'));
+      
+      const res = await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': 't=123,v1=invalidsignature',
+        },
+        body: payload,
+      }, testEnv);
+
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.error).toBe('Invalid signature');
+    });
+
+    it('should reject requests with expired timestamp', async () => {
+      const payload = JSON.stringify(createSubscriptionEvent('evt_test3', 'customer.subscription.created'));
+      
+      // Create signature with timestamp from 10 minutes ago (expired)
+      const oldTimestamp = Math.floor(Date.now() / 1000) - 600;
+      const signature = await createStripeSignature(payload, testEnv.STRIPE_WEBHOOK_SECRET, oldTimestamp);
+      
+      const res = await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': signature,
+        },
+        body: payload,
+      }, testEnv);
+
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.error).toBe('Invalid signature');
+    });
+
+    it('should accept requests with valid signature', async () => {
+      const eventId = 'evt_valid_sig';
+      const payload = JSON.stringify(createSubscriptionEvent(eventId, 'customer.subscription.created'));
+      const signature = await createStripeSignature(payload, testEnv.STRIPE_WEBHOOK_SECRET);
+      
+      // Mock: event doesn't exist yet
+      mockPrisma.stripeWebhookEvent.findUnique.mockResolvedValue(null);
+      mockPrisma.stripeWebhookEvent.create.mockResolvedValue({
         id: 'webhook_1',
+        eventId,
+        eventType: 'customer.subscription.created',
+        status: 'PENDING',
+      });
+      mockPrisma.stripeWebhookEvent.update.mockResolvedValue({
+        id: 'webhook_1',
+        eventId,
+        status: 'PROCESSED',
+      });
+      mockPrisma.subscription.findFirst.mockResolvedValue(null);
+      
+      const res = await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': signature,
+        },
+        body: payload,
+      }, testEnv);
+
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.received).toBe(true);
+    });
+  });
+
+  describe('Idempotency', () => {
+    it('should not reprocess already processed events', async () => {
+      const eventId = 'evt_already_processed';
+      const payload = JSON.stringify(createSubscriptionEvent(eventId, 'customer.subscription.updated'));
+      const signature = await createStripeSignature(payload, testEnv.STRIPE_WEBHOOK_SECRET);
+      
+      // Mock: event already exists and was processed
+      mockPrisma.stripeWebhookEvent.findUnique.mockResolvedValue({
+        id: 'webhook_existing',
         eventId,
         eventType: 'customer.subscription.updated',
         status: 'PROCESSED',
         processedAt: new Date(),
       });
-
-      // Verify that findUnique was called with correct eventId
-      await mockPrisma.stripeWebhookEvent.findUnique({ where: { eventId } });
       
-      expect(mockPrisma.stripeWebhookEvent.findUnique).toHaveBeenCalledWith({
-        where: { eventId },
-      });
+      const res = await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': signature,
+        },
+        body: payload,
+      }, testEnv);
 
-      // In real scenario, when event exists, we return early without processing
-      const existingEvent = await mockPrisma.stripeWebhookEvent.findUnique({ where: { eventId } });
-      expect(existingEvent).not.toBeNull();
-      expect(existingEvent?.status).toBe('PROCESSED');
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.status).toBe('already_processed');
+      expect(json.originalStatus).toBe('PROCESSED');
       
-      // Verify create was NOT called (idempotent behavior)
+      // Verify create was NOT called
       expect(mockPrisma.stripeWebhookEvent.create).not.toHaveBeenCalled();
     });
 
-    it('should process new event and create record', async () => {
-      const eventId = 'evt_new_456';
-      const eventType = 'customer.subscription.created';
+    it('should skip reprocessing failed events', async () => {
+      const eventId = 'evt_already_failed';
+      const payload = JSON.stringify(createSubscriptionEvent(eventId, 'customer.subscription.updated'));
+      const signature = await createStripeSignature(payload, testEnv.STRIPE_WEBHOOK_SECRET);
       
-      // Event doesn't exist
-      mockPrisma.stripeWebhookEvent.findUnique.mockResolvedValue(null);
-      
-      // Create new event record
-      mockPrisma.stripeWebhookEvent.create.mockResolvedValue({
-        id: 'webhook_2',
+      // Mock: event already exists and failed
+      mockPrisma.stripeWebhookEvent.findUnique.mockResolvedValue({
+        id: 'webhook_failed',
         eventId,
-        eventType,
-        status: 'PENDING',
-        payloadJson: {},
-        stripeCreatedAt: new Date(),
+        eventType: 'customer.subscription.updated',
+        status: 'FAILED',
+        error: 'Previous error',
+        processedAt: new Date(),
       });
-
-      await mockPrisma.stripeWebhookEvent.findUnique({ where: { eventId } });
-      const existing = mockPrisma.stripeWebhookEvent.findUnique.mock.results[0].value;
       
-      expect(existing).toBeNull();
-      
-      // Would create new record
-      const newEvent = await mockPrisma.stripeWebhookEvent.create({
-        data: {
-          eventId,
-          eventType,
-          payloadJson: {},
-          status: 'PENDING',
-          stripeCreatedAt: new Date(),
+      const res = await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': signature,
         },
-      });
+        body: payload,
+      }, testEnv);
+
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.status).toBe('already_processed');
+      expect(json.originalStatus).toBe('FAILED');
+    });
+
+    it('should process new events and create records', async () => {
+      const eventId = 'evt_brand_new';
+      const payload = JSON.stringify(createSubscriptionEvent(eventId, 'customer.subscription.created'));
+      const signature = await createStripeSignature(payload, testEnv.STRIPE_WEBHOOK_SECRET);
       
-      expect(newEvent.status).toBe('PENDING');
-      expect(mockPrisma.stripeWebhookEvent.create).toHaveBeenCalled();
+      // Mock: event doesn't exist
+      mockPrisma.stripeWebhookEvent.findUnique.mockResolvedValue(null);
+      mockPrisma.stripeWebhookEvent.create.mockResolvedValue({
+        id: 'webhook_new',
+        eventId,
+        eventType: 'customer.subscription.created',
+        status: 'PENDING',
+      });
+      mockPrisma.stripeWebhookEvent.update.mockResolvedValue({
+        id: 'webhook_new',
+        status: 'PROCESSED',
+      });
+      mockPrisma.subscription.findFirst.mockResolvedValue(null);
+      
+      const res = await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': signature,
+        },
+        body: payload,
+      }, testEnv);
+
+      expect(res.status).toBe(200);
+      expect(mockPrisma.stripeWebhookEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            eventId,
+            eventType: 'customer.subscription.created',
+            status: 'PENDING',
+          }),
+        })
+      );
     });
   });
 
   describe('Unrecognized Events', () => {
     it('should mark unrecognized event type as IGNORED', async () => {
-      const eventId = 'evt_unhandled_789';
-      const eventType = 'checkout.session.completed'; // Not in HANDLED_EVENT_TYPES
+      const eventId = 'evt_unhandled';
+      const event = {
+        id: eventId,
+        type: 'checkout.session.completed', // Not in HANDLED_EVENT_TYPES
+        created: Math.floor(Date.now() / 1000),
+        data: { object: {} },
+      };
+      const payload = JSON.stringify(event);
+      const signature = await createStripeSignature(payload, testEnv.STRIPE_WEBHOOK_SECRET);
       
-      // Create event record
+      mockPrisma.stripeWebhookEvent.findUnique.mockResolvedValue(null);
       mockPrisma.stripeWebhookEvent.create.mockResolvedValue({
-        id: 'webhook_3',
+        id: 'webhook_ignored',
         eventId,
-        eventType,
+        eventType: 'checkout.session.completed',
         status: 'PENDING',
       });
-
       mockPrisma.stripeWebhookEvent.update.mockResolvedValue({
-        id: 'webhook_3',
-        eventId,
-        eventType,
+        id: 'webhook_ignored',
         status: 'IGNORED',
-        processedAt: new Date(),
       });
-
-      // Create the event
-      const created = await mockPrisma.stripeWebhookEvent.create({
-        data: {
-          eventId,
-          eventType,
-          payloadJson: {},
-          status: 'PENDING',
-          stripeCreatedAt: new Date(),
+      
+      const res = await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': signature,
         },
+        body: payload,
+      }, testEnv);
+
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.status).toBe('ignored');
+      
+      expect(mockPrisma.stripeWebhookEvent.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ status: 'IGNORED' }),
+        })
+      );
+    });
+  });
+
+  describe('Error Handling - Recoverable vs Non-Recoverable', () => {
+    it('should return 500 for database connection errors (recoverable)', async () => {
+      const eventId = 'evt_db_error';
+      const payload = JSON.stringify(createSubscriptionEvent(eventId, 'customer.subscription.updated'));
+      const signature = await createStripeSignature(payload, testEnv.STRIPE_WEBHOOK_SECRET);
+      
+      mockPrisma.stripeWebhookEvent.findUnique.mockResolvedValue(null);
+      mockPrisma.stripeWebhookEvent.create.mockResolvedValue({
+        id: 'webhook_err',
+        eventId,
+        status: 'PENDING',
       });
-
-      // Simulate checking if event type is handled
-      const HANDLED_EVENT_TYPES = [
-        'customer.subscription.created',
-        'customer.subscription.updated',
-        'customer.subscription.deleted',
-        'invoice.payment_succeeded',
-        'invoice.payment_failed',
-      ];
-
-      const isHandled = HANDLED_EVENT_TYPES.includes(eventType);
-      expect(isHandled).toBe(false);
-
-      // Mark as ignored
-      const updated = await mockPrisma.stripeWebhookEvent.update({
-        where: { id: created.id },
-        data: { status: 'IGNORED', processedAt: new Date() },
+      
+      // Simulate DB connection error
+      mockPrisma.subscription.findFirst.mockRejectedValue(new Error('Connection timeout to database'));
+      mockPrisma.stripeWebhookEvent.update.mockResolvedValue({
+        id: 'webhook_err',
+        status: 'FAILED',
       });
+      
+      const res = await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': signature,
+        },
+        body: payload,
+      }, testEnv);
 
-      expect(updated.status).toBe('IGNORED');
+      expect(res.status).toBe(500); // Triggers Stripe retry
+      const json = await res.json();
+      expect(json.recoverable).toBe(true);
+      expect(json.received).toBe(false);
     });
 
-    it('should process recognized event type', async () => {
-      const eventId = 'evt_handled_101';
-      const eventType = 'customer.subscription.updated'; // In HANDLED_EVENT_TYPES
+    it('should return 200 for business logic errors (non-recoverable)', async () => {
+      const eventId = 'evt_biz_error';
+      const payload = JSON.stringify(createSubscriptionEvent(eventId, 'customer.subscription.updated'));
+      const signature = await createStripeSignature(payload, testEnv.STRIPE_WEBHOOK_SECRET);
       
-      const HANDLED_EVENT_TYPES = [
-        'customer.subscription.created',
-        'customer.subscription.updated',
-        'customer.subscription.deleted',
-        'invoice.payment_succeeded',
-        'invoice.payment_failed',
-      ];
+      mockPrisma.stripeWebhookEvent.findUnique.mockResolvedValue(null);
+      mockPrisma.stripeWebhookEvent.create.mockResolvedValue({
+        id: 'webhook_biz',
+        eventId,
+        status: 'PENDING',
+      });
+      
+      // Simulate business logic error (non-recoverable)
+      mockPrisma.subscription.findFirst.mockRejectedValue(new Error('Invalid plan configuration'));
+      mockPrisma.stripeWebhookEvent.update.mockResolvedValue({
+        id: 'webhook_biz',
+        status: 'FAILED',
+      });
+      
+      const res = await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': signature,
+        },
+        body: payload,
+      }, testEnv);
 
-      const isHandled = HANDLED_EVENT_TYPES.includes(eventType);
-      expect(isHandled).toBe(true);
+      expect(res.status).toBe(200); // No retry needed
+      const json = await res.json();
+      expect(json.recoverable).toBe(false);
+      expect(json.status).toBe('failed');
+    });
+
+    it('should mark error with [RECOVERABLE] prefix in database', async () => {
+      const eventId = 'evt_recoverable_tag';
+      const payload = JSON.stringify(createSubscriptionEvent(eventId, 'customer.subscription.updated'));
+      const signature = await createStripeSignature(payload, testEnv.STRIPE_WEBHOOK_SECRET);
+      
+      mockPrisma.stripeWebhookEvent.findUnique.mockResolvedValue(null);
+      mockPrisma.stripeWebhookEvent.create.mockResolvedValue({
+        id: 'webhook_rec',
+        eventId,
+        status: 'PENDING',
+      });
+      mockPrisma.subscription.findFirst.mockRejectedValue(new Error('ECONNREFUSED'));
+      mockPrisma.stripeWebhookEvent.update.mockResolvedValue({});
+      
+      await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': signature,
+        },
+        body: payload,
+      }, testEnv);
+
+      expect(mockPrisma.stripeWebhookEvent.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: 'FAILED',
+            error: expect.stringContaining('[RECOVERABLE]'),
+          }),
+        })
+      );
     });
   });
 
   describe('Status Transitions', () => {
     it('should transition from PENDING to PROCESSED on success', async () => {
-      const webhookId = 'webhook_4';
+      const eventId = 'evt_success';
+      const payload = JSON.stringify(createSubscriptionEvent(eventId, 'customer.subscription.created'));
+      const signature = await createStripeSignature(payload, testEnv.STRIPE_WEBHOOK_SECRET);
       
+      mockPrisma.stripeWebhookEvent.findUnique.mockResolvedValue(null);
+      mockPrisma.stripeWebhookEvent.create.mockResolvedValue({
+        id: 'webhook_success',
+        eventId,
+        status: 'PENDING',
+      });
+      mockPrisma.subscription.findFirst.mockResolvedValue(null);
       mockPrisma.stripeWebhookEvent.update.mockResolvedValue({
-        id: webhookId,
+        id: 'webhook_success',
         status: 'PROCESSED',
-        processedAt: new Date(),
-        error: null,
       });
-
-      const updated = await mockPrisma.stripeWebhookEvent.update({
-        where: { id: webhookId },
-        data: { status: 'PROCESSED', processedAt: new Date() },
-      });
-
-      expect(updated.status).toBe('PROCESSED');
-      expect(updated.error).toBeNull();
-    });
-
-    it('should transition from PENDING to FAILED on error', async () => {
-      const webhookId = 'webhook_5';
-      const errorMessage = 'Subscription not found';
       
-      mockPrisma.stripeWebhookEvent.update.mockResolvedValue({
-        id: webhookId,
-        status: 'FAILED',
-        processedAt: new Date(),
-        error: errorMessage,
-      });
+      const res = await app.request('/api/billing/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': signature,
+        },
+        body: payload,
+      }, testEnv);
 
-      const updated = await mockPrisma.stripeWebhookEvent.update({
-        where: { id: webhookId },
-        data: { status: 'FAILED', processedAt: new Date(), error: errorMessage },
-      });
-
-      expect(updated.status).toBe('FAILED');
-      expect(updated.error).toBe(errorMessage);
+      expect(res.status).toBe(200);
+      expect(mockPrisma.stripeWebhookEvent.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ status: 'PROCESSED' }),
+        })
+      );
     });
   });
+});
 
-  describe('Audit Logging', () => {
-    it('should create audit log for billing events', async () => {
-      const organizationId = 'org_test';
-      const webhookEventId = 'webhook_6';
-      
-      mockPrisma.auditLog.create.mockResolvedValue({
-        id: 'audit_1',
-        organizationId,
-        action: 'subscription.updated',
-        resource: 'subscription',
-        source: 'billing',
-        stripeEventId: webhookEventId,
-      });
-
-      const auditLog = await mockPrisma.auditLog.create({
-        data: {
-          organizationId,
-          action: 'subscription.updated',
-          resource: 'subscription',
-          source: 'billing',
-          stripeEventId: webhookEventId,
-          metadata: { planId: 'pro' },
-        },
-      });
-
-      expect(auditLog.source).toBe('billing');
-      expect(auditLog.stripeEventId).toBe(webhookEventId);
-      expect(mockPrisma.auditLog.create).toHaveBeenCalled();
-    });
+describe('RecoverableError Class', () => {
+  it('should be an instance of Error', () => {
+    const error = new RecoverableError('Test error');
+    expect(error).toBeInstanceOf(Error);
+    expect(error).toBeInstanceOf(RecoverableError);
+    expect(error.name).toBe('RecoverableError');
+    expect(error.message).toBe('Test error');
   });
 });
 
 describe('Stripe Status Mapping', () => {
   it('should map Stripe statuses correctly', () => {
+    // This tests the mapping function logic (already tested in unit tests)
     const mapStripeStatus = (stripeStatus: string) => {
       const statusMap: Record<string, string> = {
         active: 'ACTIVE',
@@ -285,6 +543,6 @@ describe('Stripe Status Mapping', () => {
     expect(mapStripeStatus('trialing')).toBe('TRIALING');
     expect(mapStripeStatus('incomplete')).toBe('UNPAID');
     expect(mapStripeStatus('incomplete_expired')).toBe('CANCELED');
-    expect(mapStripeStatus('unknown_status')).toBe('ACTIVE'); // fallback
+    expect(mapStripeStatus('unknown_status')).toBe('ACTIVE');
   });
 });

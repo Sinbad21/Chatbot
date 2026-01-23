@@ -22,7 +22,69 @@ import { getPrisma } from '../db';
 import {
   getAddonCodeFromStripePriceId,
   getPlanIdFromStripePriceId,
+  initStripeConfig,
+  isStripeConfigured,
 } from '@chatbot-studio/database';
+
+/**
+ * Error class for recoverable errors that should trigger Stripe retry
+ * Examples: DB connection issues, network timeouts, lock contention
+ */
+export class RecoverableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RecoverableError';
+  }
+}
+
+/**
+ * Determine if an error is recoverable (should trigger Stripe retry)
+ * 
+ * Recoverable errors:
+ * - Database connection errors
+ * - Network timeouts
+ * - Lock contention / deadlocks
+ * - Rate limiting
+ * 
+ * Non-recoverable errors:
+ * - Subscription not found (data issue, won't fix on retry)
+ * - Invalid data format
+ * - Business logic errors
+ */
+function isRecoverableError(error: unknown): boolean {
+  if (error instanceof RecoverableError) {
+    return true;
+  }
+  
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase();
+    const name = error.name.toLowerCase();
+    
+    // Prisma/DB connection errors
+    if (
+      message.includes('connection') ||
+      message.includes('timeout') ||
+      message.includes('econnrefused') ||
+      message.includes('econnreset') ||
+      message.includes('socket') ||
+      message.includes('deadlock') ||
+      message.includes('lock wait') ||
+      name.includes('prisma') && message.includes('timed out')
+    ) {
+      return true;
+    }
+    
+    // Rate limiting
+    if (
+      message.includes('rate limit') ||
+      message.includes('too many requests')
+    ) {
+      return true;
+    }
+  }
+  
+  return false;
+}
 
 type Bindings = {
   DATABASE_URL: string;
@@ -120,6 +182,15 @@ function mapStripeStatus(stripeStatus: string): 'ACTIVE' | 'PAST_DUE' | 'CANCELE
  * Stripe webhook endpoint with idempotent processing
  */
 billingRoutes.post('/webhook', async (c) => {
+  // Initialize Stripe config from environment before processing
+  initStripeConfig(c.env);
+  
+  // Verify Stripe is properly configured with price IDs
+  if (!isStripeConfigured()) {
+    console.warn('[Webhook] Stripe price IDs not configured in environment');
+    // Don't fail - the webhook still works for logging, just won't match prices
+  }
+  
   const prisma = getPrisma(c.env);
   
   // Get raw body and signature
@@ -216,17 +287,36 @@ billingRoutes.post('/webhook', async (c) => {
     return c.json({ received: true, status: 'processed' });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error(`[Webhook] Error processing event ${eventId}:`, errorMessage);
+    const recoverable = isRecoverableError(error);
+    
+    console.error(
+      `[Webhook] Error processing event ${eventId} (recoverable: ${recoverable}):`,
+      errorMessage
+    );
 
-    // Mark as failed
+    // Mark as failed with recoverable flag in metadata
     await prisma.stripeWebhookEvent.update({
       where: { id: webhookEvent.id },
-      data: { status: 'FAILED', processedAt: new Date(), error: errorMessage },
+      data: { 
+        status: 'FAILED', 
+        processedAt: new Date(), 
+        error: `${recoverable ? '[RECOVERABLE] ' : ''}${errorMessage}`,
+      },
     });
 
-    // Still return 200 to prevent Stripe retries for non-transient errors
-    // For transient errors, we could return 500 to trigger retry
-    return c.json({ received: true, status: 'failed', error: errorMessage });
+    // Return 5xx for recoverable errors to trigger Stripe retry
+    // Return 2xx for non-recoverable errors (won't fix on retry)
+    if (recoverable) {
+      console.log(`[Webhook] Returning 500 for recoverable error, Stripe will retry`);
+      return c.json(
+        { received: false, status: 'failed', error: errorMessage, recoverable: true },
+        500
+      );
+    }
+
+    // Non-recoverable: return 200 to prevent useless retries
+    console.log(`[Webhook] Returning 200 for non-recoverable error, no retry needed`);
+    return c.json({ received: true, status: 'failed', error: errorMessage, recoverable: false });
   }
 });
 

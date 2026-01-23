@@ -4,17 +4,114 @@
  * This file centralizes all Stripe Price ID mappings to avoid string-magic
  * and ensure type safety across the billing system.
  * 
- * IMPORTANT: Update these mappings when creating/updating products in Stripe Dashboard
+ * Price IDs are read from environment variables at runtime.
+ * Set the following env vars in your Cloudflare Workers / .dev.vars:
+ * 
+ * STRIPE_PRICE_STARTER_MONTHLY=price_1xxx...
+ * STRIPE_PRICE_STARTER_YEARLY=price_1xxx...
+ * STRIPE_PRICE_PRO_MONTHLY=price_1xxx...
+ * etc.
  * 
  * Naming convention:
- * - price_xxx = Monthly price
- * - price_yyy = Yearly price (optional)
+ * - STRIPE_PRICE_{PLAN/ADDON}_{MONTHLY|YEARLY}
  */
 
 import { ADDON_CODES, type AddonCode } from './addon-codes';
 
 // ============================================
-// PLAN MAPPINGS
+// ENVIRONMENT CONFIGURATION
+// ============================================
+
+/**
+ * Type for the Stripe environment configuration
+ * This should be passed from the Worker's env bindings
+ */
+export interface StripeEnvConfig {
+  // Plan prices
+  STRIPE_PRICE_STARTER_MONTHLY?: string;
+  STRIPE_PRICE_STARTER_YEARLY?: string;
+  STRIPE_PRICE_PRO_MONTHLY?: string;
+  STRIPE_PRICE_PRO_YEARLY?: string;
+  STRIPE_PRICE_ENT_MONTHLY?: string;
+  STRIPE_PRICE_ENT_YEARLY?: string;
+  
+  // Addon prices
+  STRIPE_PRICE_WHITE_LABEL_MONTHLY?: string;
+  STRIPE_PRICE_WHITE_LABEL_YEARLY?: string;
+  STRIPE_PRICE_EXTRA_BOT_MONTHLY?: string;
+  STRIPE_PRICE_EXTRA_BOT_YEARLY?: string;
+  STRIPE_PRICE_UNLIMITED_CONV_MONTHLY?: string;
+  STRIPE_PRICE_UNLIMITED_CONV_YEARLY?: string;
+  STRIPE_PRICE_BYOK_MONTHLY?: string;
+  STRIPE_PRICE_SSO_MONTHLY?: string;
+  STRIPE_PRICE_AUDIT_MONTHLY?: string;
+  STRIPE_PRICE_REPORTING_MONTHLY?: string;
+  STRIPE_PRICE_EXTRA_WS_MONTHLY?: string;
+  STRIPE_PRICE_VOICE_MONTHLY?: string;
+  STRIPE_PRICE_REVIEW_MONTHLY?: string;
+  STRIPE_PRICE_PRIORITY_MONTHLY?: string;
+  STRIPE_PRICE_DOMAIN_MONTHLY?: string;
+  STRIPE_PRICE_WHATSAPP_MONTHLY?: string;
+  STRIPE_PRICE_TELEGRAM_MONTHLY?: string;
+  STRIPE_PRICE_SLACK_MONTHLY?: string;
+  STRIPE_PRICE_DISCORD_MONTHLY?: string;
+  STRIPE_PRICE_STRIPE_INT_MONTHLY?: string;
+  STRIPE_PRICE_WOO_MONTHLY?: string;
+  STRIPE_PRICE_SHOPIFY_MONTHLY?: string;
+  STRIPE_PRICE_GCAL_MONTHLY?: string;
+  STRIPE_PRICE_AI_10K_MONTHLY?: string;
+  STRIPE_PRICE_GPT4_MONTHLY?: string;
+  
+  // Product IDs (optional, for reference)
+  STRIPE_PRODUCT_STARTER?: string;
+  STRIPE_PRODUCT_PRO?: string;
+  STRIPE_PRODUCT_ENT?: string;
+  
+  [key: string]: string | undefined;
+}
+
+/**
+ * Global env config holder - must be initialized before using mapping functions
+ * Call initStripeConfig(env) at worker startup
+ */
+let stripeEnv: StripeEnvConfig | null = null;
+
+/**
+ * Initialize Stripe configuration from environment
+ * Call this once at worker startup with the env bindings
+ */
+export function initStripeConfig(env: StripeEnvConfig): void {
+  stripeEnv = env;
+}
+
+/**
+ * Get current Stripe env config (throws if not initialized)
+ */
+function getEnv(): StripeEnvConfig {
+  if (!stripeEnv) {
+    throw new Error(
+      'Stripe config not initialized. Call initStripeConfig(env) at worker startup.'
+    );
+  }
+  return stripeEnv;
+}
+
+/**
+ * Check if Stripe is properly configured (has at least one price ID)
+ */
+export function isStripeConfigured(): boolean {
+  if (!stripeEnv) return false;
+  
+  // Check if at least one plan price is configured
+  return !!(
+    stripeEnv.STRIPE_PRICE_STARTER_MONTHLY ||
+    stripeEnv.STRIPE_PRICE_PRO_MONTHLY ||
+    stripeEnv.STRIPE_PRICE_ENT_MONTHLY
+  );
+}
+
+// ============================================
+// PLAN MAPPINGS (Dynamic from env)
 // ============================================
 
 export interface StripePlanMapping {
@@ -26,44 +123,81 @@ export interface StripePlanMapping {
 }
 
 /**
- * Map internal plan IDs to Stripe Price IDs
- * 
- * TODO: Replace placeholder values with actual Stripe Price IDs from dashboard
- * Format: price_1xxxxxxxxxxxxxx
+ * Get plan mappings dynamically from environment
+ * Returns mapping with actual Stripe Price IDs from env vars
+ */
+export function getPlanToStripe(): Record<string, StripePlanMapping> {
+  const env = getEnv();
+  
+  return {
+    free: {
+      planId: 'free',
+      planName: 'Free',
+      stripePriceIdMonthly: null, // Free plan has no Stripe price
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+    },
+    starter: {
+      planId: 'starter',
+      planName: 'Chatbot Starter',
+      stripePriceIdMonthly: env.STRIPE_PRICE_STARTER_MONTHLY || null,
+      stripePriceIdYearly: env.STRIPE_PRICE_STARTER_YEARLY || null,
+      stripeProductId: env.STRIPE_PRODUCT_STARTER || null,
+    },
+    professional: {
+      planId: 'professional',
+      planName: 'Chatbot Professional',
+      stripePriceIdMonthly: env.STRIPE_PRICE_PRO_MONTHLY || null,
+      stripePriceIdYearly: env.STRIPE_PRICE_PRO_YEARLY || null,
+      stripeProductId: env.STRIPE_PRODUCT_PRO || null,
+    },
+    enterprise: {
+      planId: 'enterprise',
+      planName: 'Chatbot Enterprise',
+      stripePriceIdMonthly: env.STRIPE_PRICE_ENT_MONTHLY || null,
+      stripePriceIdYearly: env.STRIPE_PRICE_ENT_YEARLY || null,
+      stripeProductId: env.STRIPE_PRODUCT_ENT || null,
+    },
+  };
+}
+
+/**
+ * @deprecated Use getPlanToStripe() for dynamic env-based mapping
+ * Kept for backwards compatibility during migration
  */
 export const PLAN_TO_STRIPE: Record<string, StripePlanMapping> = {
   free: {
     planId: 'free',
     planName: 'Free',
-    stripePriceIdMonthly: null, // Free plan has no Stripe price
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
     stripeProductId: null,
   },
   starter: {
     planId: 'starter',
     planName: 'Chatbot Starter',
-    stripePriceIdMonthly: 'price_TODO_STARTER_MONTHLY', // TODO: Replace with actual Stripe Price ID
-    stripePriceIdYearly: 'price_TODO_STARTER_YEARLY',
-    stripeProductId: 'prod_TODO_STARTER',
+    stripePriceIdMonthly: null, // Set via env
+    stripePriceIdYearly: null,
+    stripeProductId: null,
   },
   professional: {
     planId: 'professional',
     planName: 'Chatbot Professional',
-    stripePriceIdMonthly: 'price_TODO_PRO_MONTHLY', // TODO: Replace with actual Stripe Price ID
-    stripePriceIdYearly: 'price_TODO_PRO_YEARLY',
-    stripeProductId: 'prod_TODO_PRO',
+    stripePriceIdMonthly: null, // Set via env
+    stripePriceIdYearly: null,
+    stripeProductId: null,
   },
   enterprise: {
     planId: 'enterprise',
     planName: 'Chatbot Enterprise',
-    stripePriceIdMonthly: 'price_TODO_ENT_MONTHLY', // TODO: Replace with actual Stripe Price ID
-    stripePriceIdYearly: 'price_TODO_ENT_YEARLY',
-    stripeProductId: 'prod_TODO_ENT',
+    stripePriceIdMonthly: null, // Set via env
+    stripePriceIdYearly: null,
+    stripeProductId: null,
   },
 };
 
 // ============================================
-// ADDON MAPPINGS
+// ADDON MAPPINGS (Dynamic from env)
 // ============================================
 
 export interface StripeAddonMapping {
@@ -76,204 +210,391 @@ export interface StripeAddonMapping {
 }
 
 /**
- * Map addon codes to Stripe Price IDs
- * 
- * TODO: Replace placeholder values with actual Stripe Price IDs from dashboard
+ * Get addon mappings dynamically from environment
+ * Returns mapping with actual Stripe Price IDs from env vars
+ */
+export function getAddonToStripe(): Record<AddonCode, StripeAddonMapping> {
+  const env = getEnv();
+  
+  return {
+    [ADDON_CODES.WHITE_LABEL]: {
+      addonCode: ADDON_CODES.WHITE_LABEL,
+      addonName: 'White Label',
+      stripePriceIdMonthly: env.STRIPE_PRICE_WHITE_LABEL_MONTHLY || null,
+      stripePriceIdYearly: env.STRIPE_PRICE_WHITE_LABEL_YEARLY || null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.EXTRA_BOT_SLOTS]: {
+      addonCode: ADDON_CODES.EXTRA_BOT_SLOTS,
+      addonName: 'Extra Bot Slots',
+      stripePriceIdMonthly: env.STRIPE_PRICE_EXTRA_BOT_MONTHLY || null,
+      stripePriceIdYearly: env.STRIPE_PRICE_EXTRA_BOT_YEARLY || null,
+      stripeProductId: null,
+      isQuantityBased: true,
+    },
+    [ADDON_CODES.UNLIMITED_CONVERSATIONS]: {
+      addonCode: ADDON_CODES.UNLIMITED_CONVERSATIONS,
+      addonName: 'Unlimited Conversations',
+      stripePriceIdMonthly: env.STRIPE_PRICE_UNLIMITED_CONV_MONTHLY || null,
+      stripePriceIdYearly: env.STRIPE_PRICE_UNLIMITED_CONV_YEARLY || null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.BYOK]: {
+      addonCode: ADDON_CODES.BYOK,
+      addonName: 'BYOK (Bring Your Own Key)',
+      stripePriceIdMonthly: env.STRIPE_PRICE_BYOK_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.SSO_SAML]: {
+      addonCode: ADDON_CODES.SSO_SAML,
+      addonName: 'SSO SAML',
+      stripePriceIdMonthly: env.STRIPE_PRICE_SSO_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.AUDIT_LOG]: {
+      addonCode: ADDON_CODES.AUDIT_LOG,
+      addonName: 'Audit Log',
+      stripePriceIdMonthly: env.STRIPE_PRICE_AUDIT_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.CUSTOM_REPORTING]: {
+      addonCode: ADDON_CODES.CUSTOM_REPORTING,
+      addonName: 'Custom Reporting',
+      stripePriceIdMonthly: env.STRIPE_PRICE_REPORTING_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.EXTRA_WORKSPACE]: {
+      addonCode: ADDON_CODES.EXTRA_WORKSPACE,
+      addonName: 'Extra Workspace',
+      stripePriceIdMonthly: env.STRIPE_PRICE_EXTRA_WS_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: true,
+    },
+    [ADDON_CODES.VOICE_RECEPTIONIST]: {
+      addonCode: ADDON_CODES.VOICE_RECEPTIONIST,
+      addonName: 'Voice Receptionist',
+      stripePriceIdMonthly: env.STRIPE_PRICE_VOICE_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.REVIEW_BOT]: {
+      addonCode: ADDON_CODES.REVIEW_BOT,
+      addonName: 'Review Bot',
+      stripePriceIdMonthly: env.STRIPE_PRICE_REVIEW_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.PRIORITY_SUPPORT]: {
+      addonCode: ADDON_CODES.PRIORITY_SUPPORT,
+      addonName: 'Priority Support',
+      stripePriceIdMonthly: env.STRIPE_PRICE_PRIORITY_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.CUSTOM_DOMAIN]: {
+      addonCode: ADDON_CODES.CUSTOM_DOMAIN,
+      addonName: 'Custom Domain',
+      stripePriceIdMonthly: env.STRIPE_PRICE_DOMAIN_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    // Channel addons
+    [ADDON_CODES.WHATSAPP_CHANNEL]: {
+      addonCode: ADDON_CODES.WHATSAPP_CHANNEL,
+      addonName: 'WhatsApp Channel',
+      stripePriceIdMonthly: env.STRIPE_PRICE_WHATSAPP_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.TELEGRAM_CHANNEL]: {
+      addonCode: ADDON_CODES.TELEGRAM_CHANNEL,
+      addonName: 'Telegram Channel',
+      stripePriceIdMonthly: env.STRIPE_PRICE_TELEGRAM_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.SLACK_CHANNEL]: {
+      addonCode: ADDON_CODES.SLACK_CHANNEL,
+      addonName: 'Slack Channel',
+      stripePriceIdMonthly: env.STRIPE_PRICE_SLACK_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.DISCORD_CHANNEL]: {
+      addonCode: ADDON_CODES.DISCORD_CHANNEL,
+      addonName: 'Discord Channel',
+      stripePriceIdMonthly: env.STRIPE_PRICE_DISCORD_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    // Integration addons
+    [ADDON_CODES.STRIPE_INTEGRATION]: {
+      addonCode: ADDON_CODES.STRIPE_INTEGRATION,
+      addonName: 'Stripe Integration',
+      stripePriceIdMonthly: env.STRIPE_PRICE_STRIPE_INT_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.WOOCOMMERCE_INTEGRATION]: {
+      addonCode: ADDON_CODES.WOOCOMMERCE_INTEGRATION,
+      addonName: 'WooCommerce Integration',
+      stripePriceIdMonthly: env.STRIPE_PRICE_WOO_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.SHOPIFY_INTEGRATION]: {
+      addonCode: ADDON_CODES.SHOPIFY_INTEGRATION,
+      addonName: 'Shopify Integration',
+      stripePriceIdMonthly: env.STRIPE_PRICE_SHOPIFY_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    [ADDON_CODES.GOOGLE_CALENDAR_INTEGRATION]: {
+      addonCode: ADDON_CODES.GOOGLE_CALENDAR_INTEGRATION,
+      addonName: 'Google Calendar Integration',
+      stripePriceIdMonthly: env.STRIPE_PRICE_GCAL_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+    // AI addons
+    [ADDON_CODES.EXTRA_AI_CREDITS_10K]: {
+      addonCode: ADDON_CODES.EXTRA_AI_CREDITS_10K,
+      addonName: 'Extra AI Credits (10K)',
+      stripePriceIdMonthly: env.STRIPE_PRICE_AI_10K_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: true,
+    },
+    [ADDON_CODES.GPT4_ACCESS]: {
+      addonCode: ADDON_CODES.GPT4_ACCESS,
+      addonName: 'GPT-4 Access',
+      stripePriceIdMonthly: env.STRIPE_PRICE_GPT4_MONTHLY || null,
+      stripePriceIdYearly: null,
+      stripeProductId: null,
+      isQuantityBased: false,
+    },
+  };
+}
+
+/**
+ * @deprecated Use getAddonToStripe() for dynamic env-based mapping
+ * Kept for backwards compatibility - returns empty mappings
  */
 export const ADDON_TO_STRIPE: Record<AddonCode, StripeAddonMapping> = {
   [ADDON_CODES.WHITE_LABEL]: {
     addonCode: ADDON_CODES.WHITE_LABEL,
     addonName: 'White Label',
-    stripePriceIdMonthly: 'price_TODO_WHITE_LABEL_MONTHLY',
-    stripePriceIdYearly: 'price_TODO_WHITE_LABEL_YEARLY',
-    stripeProductId: 'prod_TODO_WHITE_LABEL',
+    stripePriceIdMonthly: null,
+    stripePriceIdYearly: null,
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.EXTRA_BOT_SLOTS]: {
     addonCode: ADDON_CODES.EXTRA_BOT_SLOTS,
     addonName: 'Extra Bot Slots',
-    stripePriceIdMonthly: 'price_TODO_EXTRA_BOT_MONTHLY',
-    stripePriceIdYearly: 'price_TODO_EXTRA_BOT_YEARLY',
-    stripeProductId: 'prod_TODO_EXTRA_BOT',
+    stripePriceIdMonthly: null,
+    stripePriceIdYearly: null,
+    stripeProductId: null,
     isQuantityBased: true,
   },
   [ADDON_CODES.UNLIMITED_CONVERSATIONS]: {
     addonCode: ADDON_CODES.UNLIMITED_CONVERSATIONS,
     addonName: 'Unlimited Conversations',
-    stripePriceIdMonthly: 'price_TODO_UNLIMITED_CONV_MONTHLY',
-    stripePriceIdYearly: 'price_TODO_UNLIMITED_CONV_YEARLY',
-    stripeProductId: 'prod_TODO_UNLIMITED_CONV',
+    stripePriceIdMonthly: null,
+    stripePriceIdYearly: null,
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.BYOK]: {
     addonCode: ADDON_CODES.BYOK,
     addonName: 'BYOK (Bring Your Own Key)',
-    stripePriceIdMonthly: 'price_TODO_BYOK_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_BYOK',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.SSO_SAML]: {
     addonCode: ADDON_CODES.SSO_SAML,
     addonName: 'SSO SAML',
-    stripePriceIdMonthly: 'price_TODO_SSO_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_SSO',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.AUDIT_LOG]: {
     addonCode: ADDON_CODES.AUDIT_LOG,
     addonName: 'Audit Log',
-    stripePriceIdMonthly: 'price_TODO_AUDIT_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_AUDIT',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.CUSTOM_REPORTING]: {
     addonCode: ADDON_CODES.CUSTOM_REPORTING,
     addonName: 'Custom Reporting',
-    stripePriceIdMonthly: 'price_TODO_REPORTING_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_REPORTING',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.EXTRA_WORKSPACE]: {
     addonCode: ADDON_CODES.EXTRA_WORKSPACE,
     addonName: 'Extra Workspace',
-    stripePriceIdMonthly: 'price_TODO_EXTRA_WS_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_EXTRA_WS',
+    stripeProductId: null,
     isQuantityBased: true,
   },
   [ADDON_CODES.VOICE_RECEPTIONIST]: {
     addonCode: ADDON_CODES.VOICE_RECEPTIONIST,
     addonName: 'Voice Receptionist',
-    stripePriceIdMonthly: 'price_TODO_VOICE_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_VOICE',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.REVIEW_BOT]: {
     addonCode: ADDON_CODES.REVIEW_BOT,
     addonName: 'Review Bot',
-    stripePriceIdMonthly: 'price_TODO_REVIEW_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_REVIEW',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.PRIORITY_SUPPORT]: {
     addonCode: ADDON_CODES.PRIORITY_SUPPORT,
     addonName: 'Priority Support',
-    stripePriceIdMonthly: 'price_TODO_PRIORITY_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_PRIORITY',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.CUSTOM_DOMAIN]: {
     addonCode: ADDON_CODES.CUSTOM_DOMAIN,
     addonName: 'Custom Domain',
-    stripePriceIdMonthly: 'price_TODO_DOMAIN_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_DOMAIN',
+    stripeProductId: null,
     isQuantityBased: false,
   },
-  // Channel addons
   [ADDON_CODES.WHATSAPP_CHANNEL]: {
     addonCode: ADDON_CODES.WHATSAPP_CHANNEL,
     addonName: 'WhatsApp Channel',
-    stripePriceIdMonthly: 'price_TODO_WHATSAPP_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_WHATSAPP',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.TELEGRAM_CHANNEL]: {
     addonCode: ADDON_CODES.TELEGRAM_CHANNEL,
     addonName: 'Telegram Channel',
-    stripePriceIdMonthly: 'price_TODO_TELEGRAM_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_TELEGRAM',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.SLACK_CHANNEL]: {
     addonCode: ADDON_CODES.SLACK_CHANNEL,
     addonName: 'Slack Channel',
-    stripePriceIdMonthly: 'price_TODO_SLACK_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_SLACK',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.DISCORD_CHANNEL]: {
     addonCode: ADDON_CODES.DISCORD_CHANNEL,
     addonName: 'Discord Channel',
-    stripePriceIdMonthly: 'price_TODO_DISCORD_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_DISCORD',
+    stripeProductId: null,
     isQuantityBased: false,
   },
-  // Integration addons
   [ADDON_CODES.STRIPE_INTEGRATION]: {
     addonCode: ADDON_CODES.STRIPE_INTEGRATION,
     addonName: 'Stripe Integration',
-    stripePriceIdMonthly: 'price_TODO_STRIPE_INT_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_STRIPE_INT',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.WOOCOMMERCE_INTEGRATION]: {
     addonCode: ADDON_CODES.WOOCOMMERCE_INTEGRATION,
     addonName: 'WooCommerce Integration',
-    stripePriceIdMonthly: 'price_TODO_WOO_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_WOO',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.SHOPIFY_INTEGRATION]: {
     addonCode: ADDON_CODES.SHOPIFY_INTEGRATION,
     addonName: 'Shopify Integration',
-    stripePriceIdMonthly: 'price_TODO_SHOPIFY_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_SHOPIFY',
+    stripeProductId: null,
     isQuantityBased: false,
   },
   [ADDON_CODES.GOOGLE_CALENDAR_INTEGRATION]: {
     addonCode: ADDON_CODES.GOOGLE_CALENDAR_INTEGRATION,
     addonName: 'Google Calendar Integration',
-    stripePriceIdMonthly: 'price_TODO_GCAL_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_GCAL',
+    stripeProductId: null,
     isQuantityBased: false,
   },
-  // AI addons
   [ADDON_CODES.EXTRA_AI_CREDITS_10K]: {
     addonCode: ADDON_CODES.EXTRA_AI_CREDITS_10K,
     addonName: 'Extra AI Credits (10K)',
-    stripePriceIdMonthly: 'price_TODO_AI_10K_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_AI_10K',
+    stripeProductId: null,
     isQuantityBased: true,
   },
   [ADDON_CODES.GPT4_ACCESS]: {
     addonCode: ADDON_CODES.GPT4_ACCESS,
     addonName: 'GPT-4 Access',
-    stripePriceIdMonthly: 'price_TODO_GPT4_MONTHLY',
+    stripePriceIdMonthly: null,
     stripePriceIdYearly: null,
-    stripeProductId: 'prod_TODO_GPT4',
+    stripeProductId: null,
     isQuantityBased: false,
   },
 };
 
 // ============================================
-// LOOKUP FUNCTIONS
+// LOOKUP FUNCTIONS (Dynamic - use env-based mappings)
 // ============================================
 
 /**
- * Get Stripe Price ID from plan ID
+ * Get Stripe Price ID from plan ID (uses dynamic env config)
  */
 export function getStripePriceIdForPlan(
   planId: string,
   interval: 'monthly' | 'yearly' = 'monthly'
 ): string | null {
-  const mapping = PLAN_TO_STRIPE[planId.toLowerCase()];
+  const mappings = getPlanToStripe();
+  const mapping = mappings[planId.toLowerCase()];
   if (!mapping) return null;
   return interval === 'monthly' 
     ? mapping.stripePriceIdMonthly 
@@ -281,13 +602,14 @@ export function getStripePriceIdForPlan(
 }
 
 /**
- * Get Stripe Price ID from addon code
+ * Get Stripe Price ID from addon code (uses dynamic env config)
  */
 export function getStripePriceIdForAddon(
   addonCode: AddonCode,
   interval: 'monthly' | 'yearly' = 'monthly'
 ): string | null {
-  const mapping = ADDON_TO_STRIPE[addonCode];
+  const mappings = getAddonToStripe();
+  const mapping = mappings[addonCode];
   if (!mapping) return null;
   return interval === 'monthly'
     ? mapping.stripePriceIdMonthly
@@ -295,10 +617,11 @@ export function getStripePriceIdForAddon(
 }
 
 /**
- * Reverse lookup: Get plan ID from Stripe Price ID
+ * Reverse lookup: Get plan ID from Stripe Price ID (uses dynamic env config)
  */
 export function getPlanIdFromStripePriceId(stripePriceId: string): string | null {
-  for (const [planId, mapping] of Object.entries(PLAN_TO_STRIPE)) {
+  const mappings = getPlanToStripe();
+  for (const [planId, mapping] of Object.entries(mappings)) {
     if (
       mapping.stripePriceIdMonthly === stripePriceId ||
       mapping.stripePriceIdYearly === stripePriceId
@@ -310,10 +633,11 @@ export function getPlanIdFromStripePriceId(stripePriceId: string): string | null
 }
 
 /**
- * Reverse lookup: Get addon code from Stripe Price ID
+ * Reverse lookup: Get addon code from Stripe Price ID (uses dynamic env config)
  */
 export function getAddonCodeFromStripePriceId(stripePriceId: string): AddonCode | null {
-  for (const [addonCode, mapping] of Object.entries(ADDON_TO_STRIPE)) {
+  const mappings = getAddonToStripe();
+  for (const [addonCode, mapping] of Object.entries(mappings)) {
     if (
       mapping.stripePriceIdMonthly === stripePriceId ||
       mapping.stripePriceIdYearly === stripePriceId
