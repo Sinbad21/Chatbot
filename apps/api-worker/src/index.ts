@@ -11,6 +11,7 @@ import { reviewWidgetRoutes } from './routes/review-widget';
 import { webhooksEcommerceRoutes } from './routes/webhooks-ecommerce';
 import { entitlementsRoutes } from './routes/entitlements';
 import { billingRoutes } from './routes/billing';
+import { checkoutRoutes } from './routes/checkout';
 import { parseHTML } from 'linkedom';
 import { getPrisma } from './db';
 import { extractText } from 'unpdf';
@@ -188,6 +189,11 @@ app.route('/api/v1/entitlements', entitlementsRoutes);
 
 // Billing routes (Stripe webhooks - no auth, uses signature verification)
 app.route('/api/billing', billingRoutes);
+
+// Checkout & Portal routes (requires auth)
+app.use('/api/billing/checkout', authMiddleware);
+app.use('/api/billing/portal', authMiddleware);
+app.route('/api/billing', checkoutRoutes);
 
 // ============================================
 // HEALTH CHECK
