@@ -241,26 +241,41 @@ billingRoutes.post('/webhook', async (c) => {
     where: { eventId },
   });
 
+  let webhookEvent: { id: string };
+
   if (existingEvent) {
-    // Event already processed - return success (idempotent)
-    console.log(`[Webhook] Event ${eventId} already processed (status: ${existingEvent.status})`);
-    return c.json({ 
-      received: true, 
-      status: 'already_processed',
-      originalStatus: existingEvent.status,
+    // Check if event was successfully processed or intentionally ignored
+    if (existingEvent.status === 'PROCESSED' || existingEvent.status === 'IGNORED') {
+      // Truly processed - return success (idempotent)
+      console.log(`[Webhook] Event ${eventId} already processed (status: ${existingEvent.status})`);
+      return c.json({ 
+        received: true, 
+        status: 'already_processed',
+        originalStatus: existingEvent.status,
+      });
+    }
+    
+    // Event exists but is FAILED or PENDING without completion - retry processing
+    console.log(`[Webhook] Event ${eventId} found with status ${existingEvent.status}, retrying processing`);
+    webhookEvent = { id: existingEvent.id };
+    
+    // Reset status to PENDING for retry
+    await prisma.stripeWebhookEvent.update({
+      where: { id: existingEvent.id },
+      data: { status: 'PENDING', processedAt: null, error: null },
+    });
+  } else {
+    // Create new event record (pending)
+    webhookEvent = await prisma.stripeWebhookEvent.create({
+      data: {
+        eventId,
+        eventType,
+        payloadJson: event as unknown as Record<string, unknown>,
+        status: 'PENDING',
+        stripeCreatedAt,
+      },
     });
   }
-
-  // Create event record (pending)
-  const webhookEvent = await prisma.stripeWebhookEvent.create({
-    data: {
-      eventId,
-      eventType,
-      payloadJson: event as unknown as Record<string, unknown>,
-      status: 'PENDING',
-      stripeCreatedAt,
-    },
-  });
 
   // Check if we handle this event type
   if (!HANDLED_EVENT_TYPES.includes(eventType as HandledEventType)) {
