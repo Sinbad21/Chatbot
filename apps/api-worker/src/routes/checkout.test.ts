@@ -819,5 +819,49 @@ describe('GET /api/billing/status', () => {
     // 790 / 12 = 65.83 (rounded to 2 decimals)
     expect(json.billing.estimatedMonthlyTotal).toBeCloseTo(65.83, 1);
     expect(json.billing.isNormalized).toBe(true);
+    // Plan code should be normalized (strip "Yearly" suffix)
+    expect(json.subscription.plan.code).toBe('professional');
+  });
+
+  it('should derive stable plan code from plan name with various formats', async () => {
+    const testCases = [
+      { name: 'Starter', expectedCode: 'starter' },
+      { name: 'Professional Yearly', expectedCode: 'professional' },
+      { name: 'Enterprise Monthly', expectedCode: 'enterprise' },
+      { name: 'Pro Plan Annual', expectedCode: 'pro-plan' },
+    ];
+
+    for (const { name, expectedCode } of testCases) {
+      mockPrisma.organization.findUnique.mockResolvedValue({
+        id: 'ws_123',
+        name: 'Test Org',
+        stripeCustomerId: 'cus_existing',
+      });
+      mockPrisma.subscription.findFirst.mockResolvedValue({
+        id: 'sub_123',
+        status: 'ACTIVE',
+        currentPeriodEnd: new Date('2026-01-01'),
+        cancelAtPeriodEnd: false,
+        plan: {
+          id: 'plan_test',
+          name,
+          price: 100,
+          interval: 'month',
+          maxBots: 5,
+          maxConversations: 10000,
+        },
+      });
+      mockPrisma.userAddon.findMany.mockResolvedValue([]);
+
+      const res = await app.request('/api/billing/status?workspaceId=ws_123', {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer admin-token',
+        },
+      }, testEnv);
+
+      const json = await res.json();
+      expect(json.subscription.plan.code).toBe(expectedCode);
+    }
   });
 });

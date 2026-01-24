@@ -17,6 +17,7 @@ export interface BillingStatus {
     status: 'ACTIVE' | 'TRIALING' | 'PAST_DUE' | 'CANCELED' | 'UNPAID' | 'PAUSED';
     plan: {
       id: string;
+      code: string; // Stable slug for UI lookup (e.g., 'professional', 'starter')
       name: string;
       interval: 'month' | 'year';
       limits: {

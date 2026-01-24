@@ -166,8 +166,9 @@ export default function BillingPage() {
     );
   }
 
-  const currentPlanId = billingStatus?.subscription?.plan?.name?.toLowerCase() || 'free';
-  const planConfig = PLAN_CONFIG[currentPlanId] || PLAN_CONFIG.free;
+  // Use plan.code (stable slug) for config lookup, not display name
+  const currentPlanCode = billingStatus?.subscription?.plan?.code || 'free';
+  const planConfig = PLAN_CONFIG[currentPlanCode] || PLAN_CONFIG.free;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">

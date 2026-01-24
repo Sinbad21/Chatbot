@@ -585,6 +585,15 @@ checkoutRoutes.get('/status', async (c) => {
     // Currently addons don't store currency, but this prepares for future
   }
 
+  // Derive stable plan code from plan name (strip suffixes like "Yearly", "Monthly")
+  const derivePlanCode = (planName: string): string => {
+    return planName
+      .toLowerCase()
+      .replace(/\s+(yearly|monthly|annual|year|month)$/i, '')
+      .replace(/\s+/g, '-')
+      .trim();
+  };
+
   // Build response
   const response = {
     workspace: {
@@ -597,6 +606,7 @@ checkoutRoutes.get('/status', async (c) => {
       status: subscription.status,
       plan: {
         id: subscription.plan.id,
+        code: derivePlanCode(subscription.plan.name), // Stable identifier for UI lookup
         name: subscription.plan.name,
         interval: subscription.plan.interval,
         limits: {
