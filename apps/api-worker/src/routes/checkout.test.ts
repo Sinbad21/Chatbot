@@ -783,4 +783,41 @@ describe('GET /api/billing/status', () => {
     expect(json.willCancel).toBe(true);
     expect(json.isPaid).toBe(true);
   });
+
+  it('should normalize yearly plan price to monthly equivalent', async () => {
+    mockPrisma.organization.findUnique.mockResolvedValue({
+      id: 'ws_123',
+      name: 'Test Org',
+      stripeCustomerId: 'cus_existing',
+    });
+    mockPrisma.subscription.findFirst.mockResolvedValue({
+      id: 'sub_123',
+      status: 'ACTIVE',
+      currentPeriodEnd: new Date('2026-01-01'),
+      cancelAtPeriodEnd: false,
+      plan: {
+        id: 'plan_pro_yearly',
+        name: 'Professional Yearly',
+        price: 790, // Yearly price
+        interval: 'year',
+        maxBots: 10,
+        maxConversations: 20000,
+      },
+    });
+    mockPrisma.userAddon.findMany.mockResolvedValue([]);
+
+    const res = await app.request('/api/billing/status?workspaceId=ws_123', {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer admin-token',
+      },
+    }, testEnv);
+
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    
+    // 790 / 12 = 65.83 (rounded to 2 decimals)
+    expect(json.billing.estimatedMonthlyTotal).toBeCloseTo(65.83, 1);
+    expect(json.billing.isNormalized).toBe(true);
+  });
 });

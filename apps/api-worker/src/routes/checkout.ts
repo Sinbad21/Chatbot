@@ -561,14 +561,28 @@ checkoutRoutes.get('/status', async (c) => {
   // Calculate next billing date
   const nextBillingDate = subscription?.currentPeriodEnd || null;
   
-  // Calculate total monthly cost
+  // Calculate total monthly cost (normalized for yearly plans)
+  // Yearly prices are divided by 12 to get monthly equivalent
   let monthlyTotal = 0;
+  let currency = 'EUR'; // Default currency
+  
   if (subscription?.plan) {
-    monthlyTotal += subscription.plan.price;
+    const planPrice = subscription.plan.price;
+    const isYearly = subscription.plan.interval === 'year' || subscription.plan.interval === 'yearly';
+    // Normalize yearly to monthly
+    monthlyTotal += isYearly ? planPrice / 12 : planPrice;
   }
+  
   for (const ua of activeAddons) {
-    const addonPrice = Number(ua.addon.priceMonthly) || 0;
+    // Prefer yearly price if addon is on yearly billing, else use monthly
+    const isAddonYearly = ua.currentPeriodEnd && subscription?.plan?.interval === 'year';
+    const addonPrice = isAddonYearly 
+      ? (Number(ua.addon.priceYearly) || Number(ua.addon.priceMonthly) * 12) / 12
+      : Number(ua.addon.priceMonthly) || 0;
     monthlyTotal += addonPrice * (ua.quantity || 1);
+    
+    // Use addon currency if available (for multi-currency support)
+    // Currently addons don't store currency, but this prepares for future
   }
 
   // Build response
@@ -607,7 +621,8 @@ checkoutRoutes.get('/status', async (c) => {
     billing: {
       nextBillingDate: nextBillingDate?.toISOString() || null,
       estimatedMonthlyTotal: Math.round(monthlyTotal * 100) / 100,
-      currency: 'EUR',
+      currency, // Dynamic currency (prepared for multi-currency)
+      isNormalized: subscription?.plan?.interval === 'year' || subscription?.plan?.interval === 'yearly',
     },
     // Quick access flags
     isPaid: !!subscription && subscription.status === 'ACTIVE',
