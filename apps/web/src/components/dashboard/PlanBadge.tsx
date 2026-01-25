@@ -77,7 +77,7 @@ export default function PlanBadge() {
         {/* Upgrade link for free users */}
         {isFree && (
           <Link 
-            href="/dashboard/settings?tab=billing"
+            href="/dashboard/billing"
             className="mt-2 block text-center text-[10px] font-medium text-amber-700 hover:text-amber-800 underline"
           >
             {t('planUsage.upgrade') || 'Upgrade'}

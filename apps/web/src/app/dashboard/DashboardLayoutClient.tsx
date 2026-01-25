@@ -23,14 +23,15 @@ import {
  ChevronDown,
  Zap,
  Megaphone,
+ CreditCard,
 } from 'lucide-react';
 import { useTranslation, LANGUAGES, type Language } from '@/lib/i18n';
 import { useSessionActivity } from '@/hooks/useSessionActivity';
 import { PearlBackground } from '@/components/dashboard/ui';
-import PlanBadge from '@/components/dashboard/PlanBadge';
 import { Bell } from 'lucide-react';
 import { logout } from '@/lib/authHeaders';
 import { ensureClientUser } from '@/lib/ensureClientUser';
+
 interface NavItem {
  nameKey: string;
  href: string;
@@ -49,7 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
  const router = useRouter();
  const { t, currentLang, setLanguage } = useTranslation();
 
- // Monitora l'attivitÃ  dell'utente per mantenere la sessione attiva
+ // Monitora l'attività dell'utente per mantenere la sessione attiva
  useSessionActivity();
 
  // Grouped navigation
@@ -145,10 +146,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
  if (loading || !isAuthenticated) {
   return (
-   <div className="min-h-screen bg-gradient-to-br from-pearl-50 via-white to-pearl-100 flex items-center justify-center">
-    <div className="flex flex-col items-center gap-4">
-     <div className="w-12 h-12 border-4 border-silver-200 border-t-charcoal rounded-full animate-spin"></div>
-    </div>
+   <div className="min-h-screen bg-pearl-50 flex items-center justify-center">
+    <div className="text-silver-700">Loading...</div>
    </div>
   );
  }
@@ -226,8 +225,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
    })}
 
-   {/* Settings - always visible at bottom */}
+   {/* Billing & Settings - always visible at bottom */}
    <div className="pt-4 mt-4 border-t border-silver-200">
+    <Link
+     href="/dashboard/billing"
+     onClick={isMobile ? () => setSidebarOpen(false) : undefined}
+     className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
+      pathname === '/dashboard/billing'
+       ? 'bg-pearl-100 border-l-2 border-emerald text-charcoal'
+       : 'text-silver-700 hover:text-charcoal hover:bg-pearl-100/60'
+     }`}
+    >
+     <CreditCard size={16} />
+     <span>{t('nav.billing')}</span>
+    </Link>
     <Link
      href="/dashboard/settings"
      onClick={isMobile ? () => setSidebarOpen(false) : undefined}
@@ -241,9 +252,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
      <span>{t('nav.settings')}</span>
     </Link>
    </div>
-
-   {/* Plan Badge */}
-   <PlanBadge />
   </nav>
  );
 
