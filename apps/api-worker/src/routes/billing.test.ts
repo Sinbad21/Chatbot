@@ -18,8 +18,8 @@ vi.mock('../db', () => ({
   getPrisma: vi.fn(() => mockPrisma),
 }));
 
-// Mock the Stripe mapping functions (with Stripe config initialized)
-vi.mock('@chatbot-studio/database', () => ({
+// Mock the Stripe mapping functions (local lib version)
+vi.mock('../lib/stripe-mapping', () => ({
   getAddonCodeFromStripePriceId: vi.fn(() => null),
   getPlanIdFromStripePriceId: vi.fn(() => null),
   initStripeConfig: vi.fn(),

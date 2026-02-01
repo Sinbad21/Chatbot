@@ -17,15 +17,19 @@ vi.mock('../db', () => ({
   getPrisma: vi.fn(() => mockPrisma),
 }));
 
-// Mock Stripe SDK
+// Mock Stripe SDK with a class that returns mockStripe
 vi.mock('stripe', () => {
   return {
-    default: vi.fn().mockImplementation(() => mockStripe),
+    default: class MockStripe {
+      constructor() {
+        return mockStripe;
+      }
+    },
   };
 });
 
-// Mock the Stripe mapping functions
-vi.mock('@chatbot-studio/database', () => ({
+// Mock the Stripe mapping functions (local lib version)
+vi.mock('../lib/stripe-mapping', () => ({
   initStripeConfig: vi.fn(),
   getStripePriceIdForPlan: vi.fn((planCode: string, interval: string) => {
     const prices: Record<string, string> = {
