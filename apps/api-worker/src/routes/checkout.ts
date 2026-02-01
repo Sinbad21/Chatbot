@@ -17,7 +17,7 @@ import {
   getPlanToStripe,
   getAddonToStripe,
   type AddonCode,
-} from '@chatbot-studio/database';
+} from '../lib/stripe-mapping';
 import Stripe from 'stripe';
 
 // ============================================

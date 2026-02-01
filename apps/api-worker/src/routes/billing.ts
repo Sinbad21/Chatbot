@@ -24,7 +24,7 @@ import {
   getPlanIdFromStripePriceId,
   initStripeConfig,
   isStripeConfigured,
-} from '@chatbot-studio/database';
+} from '../lib/stripe-mapping';
 
 /**
  * Error class for recoverable errors that should trigger Stripe retry
