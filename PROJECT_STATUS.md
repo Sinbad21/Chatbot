@@ -1,4 +1,4 @@
-# ChatBot Studio - Project Status Report
+﻿# ChatBot Studio - Project Status Report
 
 **Last Updated:** November 18, 2025 (Evening Update)
 **Version:** 1.0.0 (Beta)
@@ -48,7 +48,7 @@ ChatBot Studio is a **TypeScript/Node.js SaaS platform** for creating and managi
 - **Model:** OpenAI GPT-5 Mini
 - **Integration:** Direct OpenAI API (no LangChain)
 - **Document Processing:** pdf-parse, mammoth (DOCX)
-- **Vector Database:** ❌ NOT IMPLEMENTED (no FAISS, no embeddings)
+- **Vector Database:**  OpenAI text-embedding-3-small (1536 dimensions)
 
 ### Infrastructure
 - **Deployment:** Cloudflare Pages (frontend) + Cloudflare Workers (backend)
@@ -590,7 +590,7 @@ Comprehensive database schema for billing:
 4. **README Mismatch** - Documentation describes different project entirely
 
 ### High Priority Issues
-1. **No Vector Search** - Claims FAISS embeddings but uses simple text concatenation
+1. ~~**No Vector Search**~~ -  RESOLVED: Semantic search with OpenAI embeddings
 2. **Unused Database Tables** - 40%+ of schema not utilized in UI
 3. ~~**Multi-Channel Not Connected**~~ - ✅ RESOLVED: Webhooks connected to AI chat
 4. ~~**No Stripe Integration**~~ - ✅ RESOLVED: Full Stripe billing with checkout, portal, webhooks
@@ -621,7 +621,7 @@ Comprehensive database schema for billing:
 ### Phase 2: Core Features (4-6 weeks)
 - [x] Implement Stripe billing integration
 - [x] Connect multi-channel integrations (WhatsApp, Telegram, Slack)
-- [ ] Add vector embeddings with Pinecone/FAISS
+- [x] Add vector embeddings with OpenAI embeddings API
 - [ ] Build real-time analytics dashboard
 - [ ] Implement lead management features
 
