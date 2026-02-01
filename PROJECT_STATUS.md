@@ -19,7 +19,7 @@ ChatBot Studio is a **TypeScript/Node.js SaaS platform** for creating and managi
 - ⚠️ Analytics dashboard (functional with real data, some features limited)
 - ⚠️ Internationalization (English and Italian fully supported)
 - ❌ Multi-channel integrations (code ready, not connected)
-- ❌ Billing system (database ready, no Stripe integration)
+- ✅ Billing system (Stripe integration complete with checkout, portal, webhooks)
 - ❌ No test coverage
 
 ---
@@ -68,7 +68,7 @@ ChatBot Studio is a **TypeScript/Node.js SaaS platform** for creating and managi
 | Dashboard & Analytics | 7/12 | 🟡 58% |
 | Calendar & Bookings | 6/8 | 🟡 75% |
 | Multi-Channel Integrations | 1/5 | 🔴 20% |
-| Billing & Subscriptions | 2/10 | 🔴 20% |
+| Billing & Subscriptions | 8/10 | 🟢 80% |
 | Lead Management | 2/9 | 🔴 22% |
 | Security | 9/10 | 🟢 90% |
 | Testing & CI/CD | 0/5 | 🔴 0% |
@@ -310,36 +310,47 @@ The following adapters are fully coded but NOT integrated:
 
 ---
 
-### 8. Billing & Subscriptions 🔴 20%
+### 8. Billing & Subscriptions � 80%
 
 #### ✅ Database Ready
 Comprehensive database schema for billing:
 - `Plan` table (FREE, STARTER, PROFESSIONAL, ENTERPRISE tiers)
 - `Subscription` table (status, current period, trial end)
 - `Payment` table (transaction history)
+- `SubscriptionAddon` table (addon quantities and status)
+- `StripeEvent` table (idempotent webhook processing)
 
-#### ✅ API Endpoints Exist
-- `/api/v1/subscriptions/*` routes defined
-- Basic CRUD operations
+#### ✅ Stripe Integration Complete
+- **Checkout endpoint** (`POST /api/billing/checkout`) - Creates Stripe Checkout sessions
+- **Portal endpoint** (`GET /api/billing/portal`) - Stripe Customer Portal for payment management
+- **Status endpoint** (`GET /api/billing/status`) - Full subscription info with addons
+- **Webhook handler** (`POST /api/billing/webhook`) - Idempotent Stripe event processing
+- **Entitlements endpoint** (`GET /api/v1/entitlements`) - Workspace limits based on plan
 
-#### ❌ Not Implemented
-- Stripe API integration
-- Checkout flow (no Stripe Checkout session creation)
-- Subscription management UI
-- Payment method management
-- Invoice generation
+#### ✅ Billing UI Implemented
+- Full billing dashboard page (`/dashboard/billing`)
+- Current plan display with features
+- Upgrade options for free users
+- Active addons display
+- Next billing date info
+- Manage subscription button (opens Stripe Portal)
+- Checkout success/cancel handling
+- PlanBadge component with upgrade link
+
+#### ✅ Entitlement System
+- Centralized limit checking for all plans
+- Addon-based limit extensions
+- Yearly billing normalization (converts to monthly equivalent)
+
+#### ❌ Not Yet Implemented
+- Invoice download/view in UI
 - Usage-based billing calculations
-- Webhook handling for Stripe events
-- Trial period automation
-- Upgrade/downgrade flows
-- Proration calculations
-- Payment failure handling
-- Dunning management (retry failed payments)
 
 #### 📍 Location
-- Backend: `apps/api/src/routes/subscriptions.ts`
-- Database: `Plan`, `Subscription`, `Payment` tables
-- Frontend: No UI exists yet
+- Backend: `apps/api-worker/src/routes/billing.ts`, `checkout.ts`
+- Services: `apps/api-worker/src/services/entitlements.ts`
+- Frontend: `apps/web/src/app/dashboard/billing/page.tsx`
+- Hooks: `apps/web/src/hooks/useBillingStatus.ts`
 
 ---
 
@@ -479,7 +490,7 @@ This is a critical gap. Minimum testing needed:
 - `Intent`, `FAQ` - Knowledge base
 
 #### Advanced Tables (Exist But Underutilized)
-- `Subscription`, `Plan`, `Payment` - Billing (no Stripe integration)
+- `Subscription`, `Plan`, `Payment`, `SubscriptionAddon`, `StripeEvent` - Billing (✅ Stripe integrated)
 - `Lead`, `LeadCampaign` - Lead management (no scraping)
 - `Integration`, `IntegrationConfig` - Channels (not connected)
 - `Analytics`, `UsageLog` - Metrics (not used in UI)
@@ -565,9 +576,9 @@ This is a critical gap. Minimum testing needed:
 
 ### High Priority Issues
 1. **No Vector Search** - Claims FAISS embeddings but uses simple text concatenation
-2. **Unused Database Tables** - 50%+ of schema not utilized in UI
+2. **Unused Database Tables** - 40%+ of schema not utilized in UI
 3. **Multi-Channel Not Connected** - Code exists but no webhook integration
-4. **No Stripe Integration** - Billing database ready but no payment processing
+4. ~~**No Stripe Integration**~~ - ✅ RESOLVED: Full Stripe billing with checkout, portal, webhooks
 
 ### Medium Priority Issues
 1. **No Docker Support** - Despite README claiming docker-compose
