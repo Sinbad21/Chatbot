@@ -6,6 +6,7 @@ import {
   SlackAdapter,
   ChannelManager,
 } from '@chatbot-studio/multi-channel';
+import { processChannelMessage } from '../services/multichannel';
 
 type Bindings = {
   DATABASE_URL: string;
@@ -52,6 +53,7 @@ export function registerWebhookRoutes(app: Hono<{ Bindings: Bindings }>) {
   app.post('/webhooks/whatsapp', async (c) => {
     try {
       const payload = await c.req.json();
+      const prisma = getPrisma(c.env);
 
       // Initialize WhatsApp adapter
       const adapter = new WhatsAppAdapter({
@@ -63,17 +65,25 @@ export function registerWebhookRoutes(app: Hono<{ Bindings: Bindings }>) {
       // Parse incoming message
       const message = await adapter.receiveMessage(payload);
 
-      // TODO: Process message with bot logic
-      // For now, just acknowledge receipt
       console.log('[WhatsApp Message Received]', {
         from: message.sender.id,
         content: message.content,
       });
 
-      // Send auto-response (example)
-      // await adapter.sendMessage(message.sender.id, {
-      //   content: 'Thank you for your message. Our team will respond shortly.',
-      // });
+      // Process message with AI and send response
+      if (c.env.OPENAI_API_KEY && message.content) {
+        const result = await processChannelMessage(
+          prisma as any,
+          c.env.OPENAI_API_KEY,
+          'whatsapp',
+          message,
+          adapter
+        );
+
+        if (!result.success) {
+          console.warn('[WhatsApp] Failed to process message:', result.error);
+        }
+      }
 
       return c.json({ status: 'ok' });
     } catch (error: any) {
@@ -87,6 +97,7 @@ export function registerWebhookRoutes(app: Hono<{ Bindings: Bindings }>) {
     try {
       const secretToken = c.req.header('X-Telegram-Bot-Api-Secret-Token');
       const payload = await c.req.json();
+      const prisma = getPrisma(c.env);
 
       const adapter = new TelegramAdapter({
         botToken: c.env.TELEGRAM_BOT_TOKEN || '',
@@ -106,10 +117,20 @@ export function registerWebhookRoutes(app: Hono<{ Bindings: Bindings }>) {
         content: message.content,
       });
 
-      // TODO: Process message with bot logic
-      // await adapter.sendMessage(message.metadata.chatId, {
-      //   content: 'Thank you for your message.',
-      // });
+      // Process message with AI and send response
+      if (c.env.OPENAI_API_KEY && message.content) {
+        const result = await processChannelMessage(
+          prisma as any,
+          c.env.OPENAI_API_KEY,
+          'telegram',
+          message,
+          adapter
+        );
+
+        if (!result.success) {
+          console.warn('[Telegram] Failed to process message:', result.error);
+        }
+      }
 
       return c.json({ ok: true });
     } catch (error: any) {
@@ -124,6 +145,7 @@ export function registerWebhookRoutes(app: Hono<{ Bindings: Bindings }>) {
     try {
       const body = await c.req.text();
       const payload = JSON.parse(body);
+      const prisma = getPrisma(c.env);
 
       // Handle Slack URL verification
       if (payload.type === 'url_verification') {
@@ -154,10 +176,20 @@ export function registerWebhookRoutes(app: Hono<{ Bindings: Bindings }>) {
           channel: message.metadata.channelId,
         });
 
-        // TODO: Process message with bot logic
-        // await adapter.sendMessage(message.metadata.channelId, {
-        //   content: 'Thank you for your message.',
-        // });
+        // Process message with AI and send response
+        if (c.env.OPENAI_API_KEY && message.content) {
+          const result = await processChannelMessage(
+            prisma as any,
+            c.env.OPENAI_API_KEY,
+            'slack',
+            message,
+            adapter
+          );
+
+          if (!result.success) {
+            console.warn('[Slack] Failed to process message:', result.error);
+          }
+        }
       }
 
       return c.json({ ok: true });
