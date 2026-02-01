@@ -29,7 +29,7 @@ A modern, enterprise-grade SaaS platform for creating and managing AI-powered ch
 
 ### ? Recently Implemented
 - ?? **Vector Embeddings**: Semantic search with OpenAI text-embedding-3-small
-- ?? **Testing Suite**: 86 tests passing (Vitest)
+- ?? **Testing Suite**: 119 tests passing (Vitest)
 - ?? **Billing System**: Stripe integration complete
 
 ### ? Planned Features (Not Yet Implemented)
@@ -457,7 +457,7 @@ GET /api/v1/embeddings/bot/:botId/embedding-status
 
 ## ?? Testing
 
-> **Status:** ?? Partial test coverage (86 tests passing)
+> **Status:** ?? Partial test coverage (119 tests passing)
 
 ### Current Test Coverage
 
@@ -466,12 +466,15 @@ GET /api/v1/embeddings/bot/:botId/embedding-status
 cd apps/api-worker && npm test
 
 # Test results:
-# ? 5 test files, 86 tests passing
+# ? 8 test files, 119 tests passing
 # - embeddings.test.ts: 20 tests (chunking, similarity, context building)
 # - billing.test.ts: 15 tests (webhook handling, idempotency)
 # - checkout.test.ts: 28 tests (checkout, portal, status endpoints)
 # - entitlements.test.ts: 14 tests (feature flags, limits)
 # - webhooks.test.ts: 9 tests (WhatsApp, Telegram, Slack webhooks)
+# - knowledge.test.ts: 18 tests (documents, intents, FAQs)
+# - ocr.test.ts: 12 tests (upload, processing, stats)
+# - email-service.test.ts: 6 tests (notifications)
 ```
 
 ### Test Setup
