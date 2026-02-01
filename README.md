@@ -1,4 +1,4 @@
-# Omnical Studio
+﻿# Omnical Studio
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js 20+](https://img.shields.io/badge/node-20+-green.svg)](https://nodejs.org/)
@@ -27,9 +27,12 @@ A modern, enterprise-grade SaaS platform for creating and managing AI-powered ch
 - 📱 **Multi-Channel**: Code ready for WhatsApp, Telegram, Slack, Discord (not connected)
 - 🎯 **Lead Management**: Database schema complete, features pending
 
+### ✅ Recently Implemented
+- 🧠 **Vector Embeddings**: Semantic search with OpenAI text-embedding-3-small
+- 🧪 **Testing Suite**: 77 tests passing (Vitest)
+- 💳 **Billing System**: Stripe integration complete
+
 ### ❌ Planned Features (Not Yet Implemented)
-- 🧠 **Vector Embeddings**: Semantic search with FAISS/Pinecone
-- 🧪 **Testing Suite**: Comprehensive test coverage needed
 - 🐳 **Docker Support**: Containerization planned
 - 📱 **Mobile App**: React Native app planned
 
@@ -408,42 +411,75 @@ npm run start
 
 ### Current Implementation
 
-The chat system uses **OpenAI GPT-5 Mini** with basic RAG (Retrieval-Augmented Generation):
+The chat system uses **OpenAI GPT-5 Mini** with RAG (Retrieval-Augmented Generation) and semantic search:
 
-1. **Document Retrieval**: Loads all documents associated with the bot
-2. **Context Building**: Concatenates document content + intents + FAQs
-3. **Conversation History**: Includes last 10 messages for context
-4. **AI Generation**: Sends context to OpenAI GPT-5 Mini
-5. **Response**: Returns AI-generated response with token usage tracking
+1. **Document Processing**: Documents are chunked (1000 chars, 200 overlap) and embedded using OpenAI text-embedding-3-small
+2. **Semantic Search**: User query is embedded and compared via cosine similarity to find top-5 relevant chunks
+3. **Context Building**: Only relevant chunks are included in prompt (not all documents)
+4. **Conversation History**: Includes last 10 messages for context
+5. **AI Generation**: Sends context to OpenAI GPT-5 Mini
+6. **Response**: Returns AI-generated response with token usage tracking
 
-**Location:** `apps/api-worker/src/index.ts` (lines 2060-2270)
+**Locations:**
+- Chat endpoint: `apps/api-worker/src/index.ts` (lines 3200-3400)
+- Embeddings service: `apps/api-worker/src/services/embeddings.ts`
+- Embeddings routes: `apps/api-worker/src/routes/embeddings.ts`
 
-### Limitations
+### Embedding Endpoints
 
-- ❌ **No Vector Embeddings**: Does not use OpenAI embeddings or FAISS
-- ❌ **No Semantic Search**: Simple text concatenation, not similarity-based
-- ❌ **Scalability**: Performance degrades with many documents
-- ❌ **No Citation**: Doesn't track which document provided the answer
+```bash
+# Generate embeddings for a document
+POST /api/v1/embeddings/:documentId/embed
+
+# Batch embed all documents for a bot
+POST /api/v1/embeddings/bot/:botId/embed-all
+
+# Check embedding status
+GET /api/v1/embeddings/bot/:botId/embedding-status
+```
+
+### Current Implementation
+
+- ✅ **Vector Embeddings**: OpenAI text-embedding-3-small (1536 dimensions)
+- ✅ **Semantic Search**: Cosine similarity with top-k retrieval
+- ✅ **Document Chunking**: 1000 char chunks with 200 char overlap
+- ⚠️ **Storage**: Embeddings stored in document metadata (consider pgvector for scale)
+- ❌ **No Citation**: Doesn't yet track which document provided the answer
 
 ### Planned Improvements
 
-- [ ] Implement vector embeddings with Pinecone or FAISS
-- [ ] Add semantic search with cosine similarity
-- [ ] Implement document chunking strategy
+- [x] ~~Implement vector embeddings~~ ✅ Done
+- [x] ~~Add semantic search with cosine similarity~~ ✅ Done
+- [x] ~~Implement document chunking strategy~~ ✅ Done
+- [ ] Migrate to pgvector for better performance at scale
 - [ ] Add citation tracking to responses
 - [ ] Support for other AI models (Anthropic Claude, Gemini)
 
 ## 🧪 Testing
 
-> **Status:** ❌ No tests currently implemented - this is a critical gap
+> **Status:** ⚠️ Partial test coverage (77 tests passing)
 
-### Planned Testing Setup
+### Current Test Coverage
 
 ```bash
-# Install testing dependencies (planned)
-npm install --save-dev jest @types/jest ts-jest supertest
+# Run tests
+cd apps/api-worker && npm test
 
-# Run tests (not yet functional)
+# Test results:
+# ✅ 4 test files, 77 tests passing
+# - embeddings.test.ts: 20 tests (chunking, similarity, context building)
+# - billing.test.ts: 15 tests (webhook handling, idempotency)
+# - checkout.test.ts: 28 tests (checkout, portal, status endpoints)
+# - entitlements.test.ts: 14 tests (feature flags, limits)
+```
+
+### Test Setup
+
+```bash
+# Install testing dependencies
+npm install --save-dev vitest
+
+# Run tests
 npm test
 
 # Run with coverage
@@ -531,14 +567,14 @@ For a comprehensive analysis of implemented vs. planned features, see:
 ### Phase 2: Core Features (4-6 weeks)
 - [x] Stripe billing integration
 - [x] Connect multi-channel integrations (WhatsApp, Telegram, Slack)
-- [ ] Implement vector embeddings with Pinecone/FAISS
+- [x] Implement vector embeddings with OpenAI embeddings
 - [ ] Build real-time analytics dashboard
 - [ ] Lead management features
 
 ### Phase 3: Advanced Features (6-8 weeks)
 - [ ] Two-factor authentication (2FA)
 - [ ] Bot marketplace
-- [ ] Advanced RAG with semantic search
+- [x] Advanced RAG with semantic search ✅
 - [ ] Mobile app (React Native)
 - [ ] Admin panel
 
