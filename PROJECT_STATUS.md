@@ -619,8 +619,8 @@ Comprehensive database schema for billing:
 - [ ] Add proper error handling to all API endpoints
 
 ### Phase 2: Core Features (4-6 weeks)
-- [ ] Implement Stripe billing integration
-- [ ] Connect multi-channel integrations (WhatsApp, Telegram, Slack)
+- [x] Implement Stripe billing integration
+- [x] Connect multi-channel integrations (WhatsApp, Telegram, Slack)
 - [ ] Add vector embeddings with Pinecone/FAISS
 - [ ] Build real-time analytics dashboard
 - [ ] Implement lead management features
