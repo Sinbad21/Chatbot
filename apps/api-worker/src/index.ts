@@ -12,6 +12,7 @@ import { webhooksEcommerceRoutes } from './routes/webhooks-ecommerce';
 import { entitlementsRoutes } from './routes/entitlements';
 import { billingRoutes } from './routes/billing';
 import { checkoutRoutes } from './routes/checkout';
+import { registerEmbeddingsRoutes } from './routes/embeddings';
 import { parseHTML } from 'linkedom';
 import { getPrisma } from './db';
 import { extractText } from 'unpdf';
@@ -177,6 +178,7 @@ const authMiddleware = async (c: any, next: any) => {
 registerKnowledgeRoutes(app as any, authMiddleware);
 registerWebhookRoutes(app as any);
 registerCalendarRoutes(app as any);
+registerEmbeddingsRoutes(app as any);
 
 // Review Bot routes
 app.route('/api/review-bot', reviewBotRoutes);
@@ -3242,12 +3244,41 @@ app.post('/api/v1/chat', async (c) => {
       },
     });
 
-    // Build context from documents
+    // Build context from documents using semantic search (RAG)
     let documentsContext = '';
     if (bot.documents.length > 0) {
-      documentsContext = '\n\n# Knowledge Base\n\n';
-      for (const doc of bot.documents) {
-        documentsContext += `## ${doc.title}\n\n${doc.content}\n\n`;
+      try {
+        // Use semantic search to find relevant chunks
+        const searchResults = await searchRelevantChunks(
+          message,
+          botId,
+          prisma,
+          c.env.OPENAI_API_KEY,
+          5 // top 5 most relevant chunks
+        );
+        
+        if (searchResults.length > 0) {
+          // Build context from semantic search results
+          documentsContext = buildContextFromChunks(searchResults);
+          console.log(`🔍 [CHAT] Using RAG: found ${searchResults.length} relevant chunks`);
+        } else {
+          // Fallback to full document concatenation (for documents without embeddings)
+          console.log('⚠️ [CHAT] No embeddings found, using full document fallback');
+          documentsContext = '\n\n# Knowledge Base\n\n';
+          for (const doc of bot.documents) {
+            // Limit each document to prevent context overflow
+            const content = doc.content.slice(0, 2000);
+            documentsContext += `## ${doc.title}\n\n${content}\n\n`;
+          }
+        }
+      } catch (error) {
+        console.error('❌ [CHAT] RAG search failed, using fallback:', error);
+        // Fallback to truncated full documents
+        documentsContext = '\n\n# Knowledge Base\n\n';
+        for (const doc of bot.documents) {
+          const content = doc.content.slice(0, 2000);
+          documentsContext += `## ${doc.title}\n\n${content}\n\n`;
+        }
       }
     }
 
