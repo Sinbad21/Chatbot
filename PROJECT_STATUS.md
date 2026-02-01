@@ -20,7 +20,7 @@ ChatBot Studio is a **TypeScript/Node.js SaaS platform** for creating and managi
 - ⚠️ Internationalization (English and Italian fully supported)
 - ⚠️ Multi-channel integrations (webhook endpoints connected to AI chat)
 - ✅ Billing system (Stripe integration complete with checkout, portal, webhooks)
-- ❌ No test coverage
+- ⚠️ Partial test coverage (billing tests: 57 passing)
 
 ---
 
@@ -71,7 +71,7 @@ ChatBot Studio is a **TypeScript/Node.js SaaS platform** for creating and managi
 | Billing & Subscriptions | 8/10 | 🟢 80% |
 | Lead Management | 2/9 | 🔴 22% |
 | Security | 9/10 | 🟢 90% |
-| Testing & CI/CD | 0/5 | 🔴 0% |
+| Testing & CI/CD | 2/5 | 🟠 40% |
 | Internationalization | 2/3 | 🟡 67% |
 
 **Legend:** 🟢 80%+ | 🟡 50-79% | 🟠 30-49% | 🔴 <30%
@@ -456,25 +456,38 @@ Comprehensive database schema for billing:
 
 ---
 
-### 12. Testing & CI/CD 🔴 0%
+### 12. Testing & CI/CD � 40%
 
-#### ❌ Completely Missing
-- No test files exist
-- No `tests/` directory
-- No Jest/Vitest configuration
-- No test scripts in package.json
-- No unit tests
-- No integration tests
-- No E2E tests
-- No test coverage reports
-- CI/CD workflow broken (`.github/workflows/ci.yml` references pytest which doesn't exist)
+#### ✅ Implemented
+- **Vitest configuration** at root and per-package level
+- **Billing system tests** - 57 tests covering:
+  - Webhook signature verification
+  - Idempotent event processing
+  - Checkout/Portal endpoints
+  - Entitlements service
+- **Auth package tests** - JWT and password hashing tests
+- **API health tests** - Basic endpoint tests
+- Test scripts in package.json (`npm test`)
+
+#### ⚠️ Test Files Location
+- `apps/api-worker/src/routes/billing.test.ts` (15 tests)
+- `apps/api-worker/src/routes/checkout.test.ts` (28 tests)
+- `apps/api-worker/src/services/entitlements.test.ts` (14 tests)
+- `packages/auth/src/jwt.test.ts`
+- `packages/auth/src/password.test.ts`
+- `apps/api/src/health.test.ts` (5 tests)
+
+#### ❌ Not Yet Implemented
+- E2E tests (Playwright/Cypress)
+- Test coverage reports and thresholds
+- CI/CD workflow fix (still references pytest)
+- Frontend component tests
+- Integration tests for all API endpoints
 
 #### 📍 Action Required
-This is a critical gap. Minimum testing needed:
-- Unit tests for authentication logic
-- Integration tests for API endpoints
-- E2E tests for critical user flows
-- Test coverage target: 60%+
+- Fix CI/CD workflow for TypeScript/Node.js
+- Add test coverage reports
+- Expand tests to other modules
 
 ---
 
@@ -571,7 +584,7 @@ This is a critical gap. Minimum testing needed:
 ## Known Issues & Limitations
 
 ### Critical Issues
-1. **No Test Coverage** - Zero tests, high risk for regressions
+1. ~~**No Test Coverage**~~ - ⚠️ PARTIAL: 57+ billing tests, needs expansion
 2. ~~**Fake Analytics Data**~~ - ✅ RESOLVED: Dashboard uses real data from database
 3. **Broken CI/CD** - GitHub Actions workflow references non-existent pytest
 4. **README Mismatch** - Documentation describes different project entirely
@@ -896,7 +909,7 @@ POST /calendar/widget/:widgetId/events  - Public booking creation
 
 **Key Weaknesses:**
 - Misleading README documentation
-- No test coverage
+- Partial test coverage (billing only)
 - Many features incomplete (analytics, billing, integrations)
 - No vector search despite claims
 - Hardcoded UI data
